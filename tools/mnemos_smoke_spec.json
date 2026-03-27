@@ -1,0 +1,28 @@
+{
+  "service": "mnemos-service",
+  "base_url_env": "MNEMOS_BASE_URL",
+  "default_base_url": "http://localhost:8700",
+  "checks": [
+    {
+      "name": "health",
+      "method": "GET",
+      "path": "/health",
+      "expect_status": 200,
+      "expect_json_fields": ["status"]
+    },
+    {
+      "name": "capabilities",
+      "method": "GET",
+      "path": "/v1/mnemos/capabilities",
+      "expect_status": 200,
+      "expect_json_fields": ["contract_version", "status", "feature", "supports"]
+    },
+    {
+      "name": "stats",
+      "method": "GET",
+      "path": "/v1/mnemos/stats",
+      "expect_status": 200,
+      "expect_json_fields": ["contract_version", "stats"]
+    }
+  ]
+}

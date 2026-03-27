@@ -1,0 +1,14 @@
+{
+  "services": [
+    {
+      "name": "mnemos-service",
+      "base_url_envs": [
+        "MNEMOS_BASE_URL"
+      ],
+      "default_base_url": "http://localhost:8700",
+      "health_path": "/health",
+      "contract_path": "/v1/mnemos/capabilities",
+      "contract_file": "service/contract.json"
+    }
+  ]
+}

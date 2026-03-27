@@ -1,0 +1,15 @@
+{
+  "service_name": "mnemos-service",
+  "contract_version": "v1",
+  "endpoint": "/v1/mnemos/capabilities",
+  "required_fields": {
+    "contract_version": "str",
+    "status": "str",
+    "source": "str",
+    "generated_at": "str",
+    "feature": "str",
+    "supports": "list",
+    "error": "nullable_str"
+  },
+  "allowed_status": ["healthy", "degraded", "unavailable"]
+}

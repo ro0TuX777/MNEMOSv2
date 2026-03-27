@@ -1,0 +1,23 @@
+services:
+  mnemos:
+    build: .
+    container_name: mnemos-service
+    ports:
+      - "8700:8700"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - MNEMOS_TIERS=chromadb
+      - MNEMOS_EMBEDDING_MODEL=all-MiniLM-L6-v2
+      - MNEMOS_QUANT_BITS=4
+      - MNEMOS_AUDIT_ENABLED=true
+      - MNEMOS_AUDIT_DB=data/audit.db
+      - MNEMOS_PORT=8700
+      - MNEMOS_LOG_LEVEL=INFO
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8700/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
