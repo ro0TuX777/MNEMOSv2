@@ -4,19 +4,57 @@
 
 A containerised, contract-governed memory and retrieval service for AI-native applications.
 
+---
+
+## The Problem
+
+Every AI application that persists and retrieves knowledge re-implements the same infrastructure from scratch — embedding pipelines, vector databases, ad-hoc search logic, compression hacks, and no audit trail. The result is fragile, inconsistent, and impossible to reuse across projects.
+
+## The Solution
+
+MNEMOS is a **drop-in memory service** that ships as a single Docker container. You configure it with environment variables, call it through a typed Python SDK, and get production-grade memory infrastructure without building it yourself.
+
+| Capability | What you get |
+|---|---|
+| **Multi-tier retrieval** | ChromaDB (semantic), LanceDB (hybrid), ColBERT (token-level precision) — use one or all three |
+| **TurboQuant compression** | 4-bit near-lossless quantisation — 5.6× storage reduction, 88% Recall@10 (arXiv:2504.19874) |
+| **Engram enrichment** | Every document becomes a tagged, scored, provenanced knowledge unit with relationship edges |
+| **Forensic audit** | Every operation immutably logged — compliance, debugging, and analytics built in |
+| **Contract-governed API** | MFS-compatible versioned contract — every response carries `status`, `contract_version`, `error` |
+| **Boundary SDK** | Python client with readiness polling, retry, timeout, and graceful degradation |
+| **Operational tooling** | Health audit, contract diff, consumer onboarding, CI gates, staged cutover — all included |
+
+---
+
 ## Quick Start
 
 ```bash
-# Local development
-pip install -r requirements.txt
-python -m service.app
-
-# Docker
+# Start
 docker compose up -d --build
 
 # Validate
 python tools/mnemos_health_audit.py
 ```
+
+```python
+from mnemos_sdk import MnemosClient, MnemosConfig
+
+client = MnemosClient(MnemosConfig.from_env())
+client.wait_until_ready()
+
+# Store knowledge
+client.index([{
+    "content": "Gravity waves detected by LIGO in 2015",
+    "source": "arxiv:1602.03837",
+    "neuro_tags": ["physics", "gravitational-waves"],
+}])
+
+# Recall knowledge
+for hit in client.search("gravitational wave detection", top_k=5):
+    print(f"  [{hit.score:.3f}] {hit.engram['content'][:80]}")
+```
+
+---
 
 ## Architecture
 
@@ -35,10 +73,6 @@ python tools/mnemos_health_audit.py
 └──────────────────────────────────────────────┘
 ```
 
-## Configuration
-
-All settings via environment variables — see `.env.example`.
-
 ## API
 
 | Endpoint | Method | Purpose |
@@ -52,73 +86,41 @@ All settings via environment variables — see `.env.example`.
 | `/v1/mnemos/audit` | GET | Query audit log |
 | `/v1/mnemos/stats` | GET | Index statistics |
 
-## Boundary SDK (Client Library)
-
-Ship-ready Python client for any app to call MNEMOS with readiness, retry, and graceful degradation:
-
-```python
-from mnemos_sdk import MnemosClient, MnemosConfig
-
-config = MnemosConfig.from_env()
-client = MnemosClient(config)
-client.wait_until_ready()
-
-# Search
-hits = client.search("quantum entanglement", top_k=5)
-for hit in hits:
-    print(f"  [{hit.score:.3f}] {hit.engram['content'][:80]}")
-
-# Index
-client.index([{"content": "New knowledge", "source": "app", "neuro_tags": ["physics"]}])
-```
-
-## Onboarding a Consumer App
-
-Bootstrap MNEMOS integration in any app with one command:
+## Integrate in One Command
 
 ```bash
 python tools/mnemos_onboard.py --target /path/to/your-app
 ```
 
-This generates a pre-wired boundary adapter, env template, smoke test spec, and quickstart doc.
+Generates a pre-wired boundary adapter, `.env.mnemos` template, smoke test spec, and quickstart doc in your consumer app.
 
 ## Operational Tooling
 
-### Health & Contract Audit
-```bash
-python tools/mnemos_health_audit.py
-```
-
-### Contract Evolution
-```bash
-python tools/contract_diff.py --old service/contract.json --new contracts/mnemos_v2.json --mode both
-```
-
-### CI/CD Gates
-```bash
-python tools/mnemos_ci_gates.py --run-health-audit --run-container-build
-```
-
-See `.github/workflows/mnemos-gates.yml` for GitHub Actions template.
-
-### Cutover Scaffold (Migration from Other Backends)
-```bash
-python tools/mnemos_cutover_scaffold.py --app my-app
-```
-
-Generates a staged rollout manifest (shadow → canary → full) with health gates and rollback paths.
+| Tool | Command | Purpose |
+|---|---|---|
+| Health audit | `python tools/mnemos_health_audit.py` | Validate health, contract fields, version drift |
+| Contract diff | `python tools/contract_diff.py --old v1.json --new v2.json --mode both` | Backward/forward compatibility checks |
+| CI gates | `python tools/mnemos_ci_gates.py --run-health-audit` | Pipeline gate runner (+ GitHub Actions template) |
+| Cutover | `python tools/mnemos_cutover_scaffold.py --app my-app` | Staged rollout for backend migration |
 
 ## Repository Layout
 
 ```
 mnemos/              Core library: retrieval, engram, compression, audit
-mnemos_sdk/          Client boundary SDK for consumer apps
-service/             REST API + MFS contract
+mnemos_sdk/          Boundary SDK (client library) for consumer apps
+service/             Flask REST API + MFS contract
 registry/            Service registry (MFS-compatible)
-tools/               Operational tooling (audit, diff, onboard, CI, cutover)
+tools/               Operational tooling
 tests/               Unit tests
-.github/workflows/   CI gate template
+docs/                Whitepaper + AI dev hand-off
 ```
+
+## Documentation
+
+- **[Whitepaper](docs/whitepaper.md)** — Architecture deep-dive, design principles, and provenance
+- **[Installation Guide](INSTALL.md)** — Local dev, Docker, and MFS stack integration
+- **[Use Cases](Use%20Cases.md)** — Example integration scenarios
+- **[AI Dev Hand-off](docs/FORTHEAIDEV.md)** — Context doc for AI developer assistants
 
 ## License
 
