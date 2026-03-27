@@ -1,0 +1,44 @@
+name: MNEMOS CI Gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Contract validation
+        run: python tools/mnemos_ci_gates.py --contract-dir service
+
+      - name: Build container
+        run: docker build -t mnemos-service:ci-test .
+
+      - name: Start MNEMOS
+        run: |
+          docker run -d --name mnemos-ci -p 8700:8700 mnemos-service:ci-test
+          sleep 10
+
+      - name: Health & contract audit
+        run: python tools/mnemos_health_audit.py
+
+      - name: Smoke checks
+        run: python tools/mnemos_ci_gates.py --run-health-audit --smoke-spec tools/mnemos_smoke_spec.json
+        continue-on-error: false
+
+      - name: Cleanup
+        if: always()
+        run: docker rm -f mnemos-ci || true
