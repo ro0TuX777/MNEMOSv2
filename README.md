@@ -124,4 +124,4 @@ docs/                Whitepaper + AI dev hand-off
 
 ## License
 
-Proprietary — extracted from SAM (SmallAgentModel).
+Proprietary.

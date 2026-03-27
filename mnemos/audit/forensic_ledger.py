@@ -4,9 +4,6 @@ Forensic Ledger — Immutable Audit Trail
 
 Searchable SQLite-backed ledger for system-wide auditing.
 Uses FTS5 for high-speed transaction indexing.
-
-Extracted from SAM's Forensic Ledger with all SAM-specific
-dependencies (CEREBRO, SAGA) removed.
 """
 
 import sqlite3

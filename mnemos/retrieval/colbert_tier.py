@@ -3,8 +3,6 @@ ColBERT Multi-Vector Retrieval Tier
 ====================================
 
 Token-level late-interaction matching with TurboQuant compression.
-Extracted from SAM's multivector_retrieval.py with all SAM-specific
-dependencies removed.
 """
 
 import logging
