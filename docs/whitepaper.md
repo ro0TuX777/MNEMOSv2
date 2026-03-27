@@ -450,20 +450,20 @@ MNEMOS/
 
 ## 13. Provenance
 
-MNEMOS was extracted from the production memory subsystem of **SAM** (SmallAgentModel), where it was validated under continuous autonomous operation. The following components were generalised:
+MNEMOS was designed from the ground up as a reusable memory service. Its architecture draws on production experience operating multi-tier vector retrieval, near-lossless compression, and forensic audit logging under continuous autonomous workloads.
 
-| Original Component | MNEMOS Component |
+| Capability | MNEMOS Component |
 |---|---|
-| MEMOIR 2.0 Multi-Vector Retrieval | Multi-Tier Retrieval Engine |
-| ENGRAM Neuro-Tags | Engram Enrichment Layer |
-| Forensic Ledger | Audit Trail |
-| TurboQuant Integration (arXiv:2504.19874) | Compression Layer |
-| VAGUS Telemetry | Stats & Health API |
-| MFS Contract Pattern | API Contract + Contract Diff |
-| MFS Boundary SDK | MNEMOS SDK (mnemos_sdk/) |
-| MFS Service Health Audit | Health & Contract Audit |
-| MFS Onboarding | Consumer Onboarding |
-| MFS CI Migration Gates | CI/CD Gates |
-| MFS Cutover Orchestrator | Cutover Scaffold |
+| Multi-vector retrieval | Multi-Tier Retrieval Engine |
+| Semantic tagging | Engram Enrichment Layer |
+| Immutable operation logging | Audit Trail |
+| Near-optimal quantisation (arXiv:2504.19874) | Compression Layer |
+| Telemetry & health reporting | Stats & Health API |
+| Versioned contract schema | API Contract + Contract Diff |
+| Client library with degradation | MNEMOS SDK (mnemos_sdk/) |
+| Service validation | Health & Contract Audit |
+| Consumer scaffolding | Consumer Onboarding |
+| Pipeline integration | CI/CD Gates |
+| Staged rollout | Cutover Scaffold |
 
-All SAM-specific concepts (Watts economy, CEREBRO neurology metaphors, ticket pipeline lifecycle, agent phase names) have been removed. What remains is a **pure infrastructure service** — a reusable, tooling-complete foundation for any application that needs intelligent, compressed, auditable memory.
+What remains is a **pure infrastructure service** — a reusable, tooling-complete foundation for any application that needs intelligent, compressed, auditable memory.

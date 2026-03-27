@@ -1,4 +1,4 @@
-"""Tests for TurboQuant compression — adapted from SAM's test suite."""
+"""Tests for TurboQuant compression."""
 
 import numpy as np
 import pytest
