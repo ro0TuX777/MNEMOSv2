@@ -1,0 +1,266 @@
+{
+  "compression_mse": [
+    {
+      "dim": 128,
+      "bits": 1,
+      "n_docs": 10000,
+      "mse": "0.00282",
+      "theoretical_mse": 0.36,
+      "mse_pass": "\u2705",
+      "avg_cosine_similarity": 0.7994,
+      "raw_compression_ratio": 32.0,
+      "file_compression_ratio": 31.1,
+      "original_mb": 5.12,
+      "compressed_mb": 0.16
+    },
+    {
+      "dim": 128,
+      "bits": 2,
+      "n_docs": 10000,
+      "mse": "0.000907",
+      "theoretical_mse": 0.117,
+      "mse_pass": "\u2705",
+      "avg_cosine_similarity": 0.9406,
+      "raw_compression_ratio": 16.0,
+      "file_compression_ratio": 16.3,
+      "original_mb": 5.12,
+      "compressed_mb": 0.31
+    },
+    {
+      "dim": 128,
+      "bits": 3,
+      "n_docs": 10000,
+      "mse": "0.000266",
+      "theoretical_mse": 0.03,
+      "mse_pass": "\u2705",
+      "avg_cosine_similarity": 0.9831,
+      "raw_compression_ratio": 8.0,
+      "file_compression_ratio": 10.9,
+      "original_mb": 5.12,
+      "compressed_mb": 0.47
+    },
+    {
+      "dim": 128,
+      "bits": 4,
+      "n_docs": 10000,
+      "mse": "7.3e-05",
+      "theoretical_mse": 0.009,
+      "mse_pass": "\u2705",
+      "avg_cosine_similarity": 0.9954,
+      "raw_compression_ratio": 8.0,
+      "file_compression_ratio": 8.3,
+      "original_mb": 5.12,
+      "compressed_mb": 0.61
+    },
+    {
+      "dim": 384,
+      "bits": 1,
+      "n_docs": 10000,
+      "mse": "0.000945",
+      "theoretical_mse": 0.36,
+      "mse_pass": "\u2705",
+      "avg_cosine_similarity": 0.7983,
+      "raw_compression_ratio": 32.0,
+      "file_compression_ratio": 31.7,
+      "original_mb": 15.36,
+      "compressed_mb": 0.48
+    },
+    {
+      "dim": 384,
+      "bits": 2,
+      "n_docs": 10000,
+      "mse": "0.000305",
+      "theoretical_mse": 0.117,
+      "mse_pass": "\u2705",
+      "avg_cosine_similarity": 0.9398,
+      "raw_compression_ratio": 16.0,
+      "file_compression_ratio": 16.5,
+      "original_mb": 15.36,
+      "compressed_mb": 0.93
+    },
+    {
+      "dim": 384,
+      "bits": 3,
+      "n_docs": 10000,
+      "mse": "9e-05",
+      "theoretical_mse": 0.03,
+      "mse_pass": "\u2705",
+      "avg_cosine_similarity": 0.9827,
+      "raw_compression_ratio": 8.0,
+      "file_compression_ratio": 11.0,
+      "original_mb": 15.36,
+      "compressed_mb": 1.4
+    },
+    {
+      "dim": 384,
+      "bits": 4,
+      "n_docs": 10000,
+      "mse": "2.5e-05",
+      "theoretical_mse": 0.009,
+      "mse_pass": "\u2705",
+      "avg_cosine_similarity": 0.9953,
+      "raw_compression_ratio": 8.0,
+      "file_compression_ratio": 8.4,
+      "original_mb": 15.36,
+      "compressed_mb": 1.83
+    }
+  ],
+  "recall_at_k": [
+    {
+      "dim": 128,
+      "bits": 1,
+      "k": 10,
+      "n_corpus": 10000,
+      "n_queries": 100,
+      "recall_at_k": 0.228,
+      "recall_std": 0.104
+    },
+    {
+      "dim": 128,
+      "bits": 2,
+      "k": 10,
+      "n_corpus": 10000,
+      "n_queries": 100,
+      "recall_at_k": 0.503,
+      "recall_std": 0.1212
+    },
+    {
+      "dim": 128,
+      "bits": 3,
+      "k": 10,
+      "n_corpus": 10000,
+      "n_queries": 100,
+      "recall_at_k": 0.728,
+      "recall_std": 0.105
+    },
+    {
+      "dim": 128,
+      "bits": 4,
+      "k": 10,
+      "n_corpus": 10000,
+      "n_queries": 100,
+      "recall_at_k": 0.842,
+      "recall_std": 0.0951
+    },
+    {
+      "dim": 384,
+      "bits": 1,
+      "k": 10,
+      "n_corpus": 10000,
+      "n_queries": 100,
+      "recall_at_k": 0.235,
+      "recall_std": 0.1071
+    },
+    {
+      "dim": 384,
+      "bits": 2,
+      "k": 10,
+      "n_corpus": 10000,
+      "n_queries": 100,
+      "recall_at_k": 0.53,
+      "recall_std": 0.1418
+    },
+    {
+      "dim": 384,
+      "bits": 3,
+      "k": 10,
+      "n_corpus": 10000,
+      "n_queries": 100,
+      "recall_at_k": 0.73,
+      "recall_std": 0.1109
+    },
+    {
+      "dim": 384,
+      "bits": 4,
+      "k": 10,
+      "n_corpus": 10000,
+      "n_queries": 100,
+      "recall_at_k": 0.848,
+      "recall_std": 0.0964
+    }
+  ],
+  "throughput": [
+    {
+      "dim": 128,
+      "n_docs": 100,
+      "bits": 4,
+      "elapsed_s": 0.026,
+      "docs_per_sec": 3842.0,
+      "ms_per_doc": 0.26
+    },
+    {
+      "dim": 128,
+      "n_docs": 1000,
+      "bits": 4,
+      "elapsed_s": 0.0298,
+      "docs_per_sec": 33589.0,
+      "ms_per_doc": 0.03
+    },
+    {
+      "dim": 128,
+      "n_docs": 10000,
+      "bits": 4,
+      "elapsed_s": 0.0569,
+      "docs_per_sec": 175685.0,
+      "ms_per_doc": 0.006
+    },
+    {
+      "dim": 384,
+      "n_docs": 100,
+      "bits": 4,
+      "elapsed_s": 0.0524,
+      "docs_per_sec": 1909.0,
+      "ms_per_doc": 0.524
+    },
+    {
+      "dim": 384,
+      "n_docs": 1000,
+      "bits": 4,
+      "elapsed_s": 0.0633,
+      "docs_per_sec": 15810.0,
+      "ms_per_doc": 0.063
+    },
+    {
+      "dim": 384,
+      "n_docs": 10000,
+      "bits": 4,
+      "elapsed_s": 0.1488,
+      "docs_per_sec": 67195.0,
+      "ms_per_doc": 0.015
+    }
+  ],
+  "scale_projection": [
+    {
+      "n_docs": 10000,
+      "dim": 128,
+      "bits": 4,
+      "float32_mb": 5.1,
+      "quantized_mb": 0.7,
+      "ratio": 7.5
+    },
+    {
+      "n_docs": 100000,
+      "dim": 128,
+      "bits": 4,
+      "float32_mb": 51.2,
+      "quantized_mb": 6.8,
+      "ratio": 7.5
+    },
+    {
+      "n_docs": 1000000,
+      "dim": 128,
+      "bits": 4,
+      "float32_mb": 512.0,
+      "quantized_mb": 68.0,
+      "ratio": 7.5
+    },
+    {
+      "n_docs": 10000000,
+      "dim": 128,
+      "bits": 4,
+      "float32_mb": 5120.0,
+      "quantized_mb": 680.0,
+      "ratio": 7.5
+    }
+  ]
+}

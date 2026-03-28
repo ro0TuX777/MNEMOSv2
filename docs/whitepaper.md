@@ -119,12 +119,52 @@ All stored embeddings are compressed via **TurboQuant** (arXiv:2504.19874), a ne
 
 | Metric | Value |
 |---|---|
-| Storage compression | 5.6× (compressed file) to 8× (raw bytes) |
-| Recall@10 | 88% of float32 baseline |
-| MSE bound | ≤ 0.009 (practically lossless) |
-| Encode overhead | ~55ms per document |
+| Storage compression | 8× raw bytes, 8.3–8.4× file (.npz) |
+| Recall@10 | 84.2% (128-dim), 84.8% (384-dim) |
+| MSE | 7.3×10⁻⁵ (128-dim), 2.5×10⁻⁵ (384-dim) — well below 0.009 bound |
+| Cosine fidelity | 0.995 avg (practically indistinguishable from float32) |
+| Encode throughput | 67K–175K docs/sec (CPU, NumPy) |
 
-**Why it matters**: Without compression, a 1M-document index at 128 dimensions consumes ~488 MB in float32. With 4-bit TurboQuant, that drops to ~61 MB — enabling deployment on memory-constrained edge devices, smaller cloud instances, and faster cold starts.
+> *All values measured empirically on a 10,000-document synthetic corpus. Benchmark source: `benchmarks/run_benchmarks.py`. Results: `benchmarks/results.json`.*
+
+#### Compression & Fidelity Across Bit-Widths
+
+| Bits | MSE (128d) | MSE (384d) | Cosine Sim | Raw Ratio | File Ratio |
+|---|---|---|---|---|---|
+| 1-bit | 0.0028 | 0.0009 | 0.799 | 32× | 31× |
+| 2-bit | 0.0009 | 0.0003 | 0.940 | 16× | 16× |
+| 3-bit | 0.0003 | 0.00009 | 0.983 | 8× | 11× |
+| **4-bit** | **0.00007** | **0.00003** | **0.995** | **8×** | **8.3×** |
+
+#### Recall@10 (Nearest-Neighbour Fidelity)
+
+Measured on 10K corpus / 100 queries — fraction of true float32 top-10 neighbours preserved after quantisation:
+
+| Bits | Recall@10 (128d) | Recall@10 (384d) |
+|---|---|---|
+| 1-bit | 22.8% | 23.5% |
+| 2-bit | 50.3% | 53.0% |
+| 3-bit | 72.8% | 73.0% |
+| **4-bit** | **84.2%** | **84.8%** |
+
+#### Encoding Throughput (4-bit, CPU)
+
+| Batch Size | 128-dim | 384-dim |
+|---|---|---|
+| 100 docs | 3,842 docs/s (0.26 ms/doc) | 1,909 docs/s (0.52 ms/doc) |
+| 1,000 docs | 33,589 docs/s (0.03 ms/doc) | 15,810 docs/s (0.06 ms/doc) |
+| 10,000 docs | 175,685 docs/s (0.006 ms/doc) | 67,195 docs/s (0.015 ms/doc) |
+
+#### Storage at Scale (4-bit, 128-dim)
+
+| Corpus Size | float32 | TurboQuant 4-bit | Ratio |
+|---|---|---|---|
+| 10K documents | 5.1 MB | 0.7 MB | 7.5× |
+| 100K documents | 51.2 MB | 6.8 MB | 7.5× |
+| 1M documents | 512.0 MB | 68.0 MB | 7.5× |
+| 10M documents | 5,120 MB | 680 MB | 7.5× |
+
+**Why it matters**: Without compression, a 1M-document index at 128 dimensions consumes ~512 MB in float32. With 4-bit TurboQuant, that drops to ~68 MB — enabling deployment on memory-constrained edge devices, smaller cloud instances, and faster cold starts.
 
 ### 4.4 Forensic Ledger (PostgreSQL)
 
