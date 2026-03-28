@@ -80,6 +80,15 @@ class MnemosRuntime:
                     gpu_device=self._config.gpu_device,
                 ))
 
+            if self._config.has_pgvector:
+                from mnemos.retrieval.pgvector_tier import PgvectorTier
+                tiers.append(PgvectorTier(
+                    dsn=self._config.postgres_dsn,
+                    table_name=self._config.pgvector_table,
+                    embedding_model=self._config.embedding_model,
+                    gpu_device=self._config.gpu_device,
+                ))
+
             if self._config.has_lancedb:
                 from mnemos.retrieval.lancedb_tier import LanceDBTier
                 tiers.append(LanceDBTier(db_dir=self._config.lance_dir))
@@ -142,6 +151,7 @@ class MnemosRuntime:
         payload = self._base_payload()
         payload.update({
             "feature": "mnemos_memory",
+            "profile": self._config.profile if self._config else "unknown",
             "supports": ["index", "search", "engrams", "audit", "stats"],
             "tiers": self._fusion.tier_names if self._fusion else [],
             "compression": {

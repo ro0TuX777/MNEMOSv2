@@ -1,0 +1,21 @@
+# MNEMOS — Custom Manual Profile
+#
+# This is a minimal template for advanced operators.
+# Modify or replace this file with your own configuration.
+#
+# Example: add your own services, volumes, networks, etc.
+
+services:
+  mnemos:
+    build: .
+    runtime: nvidia
+    ports:
+      - "8700:8700"
+    env_file:
+      - .env.mnemos
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8700/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
