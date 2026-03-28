@@ -10,6 +10,7 @@ import hashlib
 import json
 import random
 import sys
+from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -227,6 +228,9 @@ def generate_corpus(
         department = domain if domain != "technical" else rng.choice(["engineering", "finance"])
         tenant = rng.choice(TENANTS)
         clearance = rng.choice(CLEARANCES)
+        ts = datetime(2023, 1, 1) + timedelta(days=rng.randint(0, 1095))
+        ts_iso = ts.isoformat() + "Z"
+        ts_epoch = int(ts.timestamp())
 
         engram = Engram(
             id=doc_id,
@@ -239,6 +243,8 @@ def generate_corpus(
                 "tenant": tenant,
                 "clearance": clearance,
                 "domain": domain,
+                "timestamp": ts_iso,
+                "timestamp_epoch": ts_epoch,
             },
         )
         engrams.append(engram)

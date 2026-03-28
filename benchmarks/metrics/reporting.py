@@ -89,18 +89,23 @@ def generate_markdown_report(results: Dict[str, Any], output_dir: Path) -> Path:
                 lines.extend([
                     f"#### {tier}",
                     "",
-                    "| Regime | Recall@10 | MRR@10 | nDCG@10 | p50 (ms) | p99 (ms) | QPS |",
-                    "|---|---|---|---|---|---|---|",
+                    "| Regime | Recall@10 | MRR@10 | nDCG@10 | Compliance@10 | Violation Rate | p50 (ms) | p99 (ms) | QPS |",
+                    "|---|---|---|---|---|---|---|---|---|",
                 ])
                 for regime, data in regimes.items():
                     if data.get("status") == "success":
+                        compliance = data.get("filter_compliance_at_10")
+                        violation = data.get("constraint_violation_rate_at_10")
+                        compliance_str = f"{compliance:.4f}" if compliance is not None else "-"
+                        violation_str = f"{violation:.4f}" if violation is not None else "-"
                         lines.append(
                             f"| {regime} | {data['recall_at_10']:.4f} | {data['mrr_at_10']:.4f} | "
-                            f"{data['ndcg_at_10']:.4f} | {data['latency_p50_ms']:.1f} | "
-                            f"{data['latency_p99_ms']:.1f} | {data['throughput_qps']:.0f} |"
+                            f"{data['ndcg_at_10']:.4f} | {compliance_str} | {violation_str} | "
+                            f"{data['latency_p50_ms']:.1f} | {data['latency_p99_ms']:.1f} | "
+                            f"{data['throughput_qps']:.0f} |"
                         )
                     else:
-                        lines.append(f"| {regime} | - | - | - | - | - | {data.get('status')} |")
+                        lines.append(f"| {regime} | - | - | - | - | - | - | - | {data.get('status')} |")
                 lines.append("")
 
     # Track 2: Reranking
@@ -171,6 +176,6 @@ def generate_markdown_report(results: Dict[str, Any], output_dir: Path) -> Path:
             lines.append(f"*Skipped: {mig.get('reason', 'unknown')}*")
         lines.append("")
 
-    path.write_text("\n".join(lines) + "\n")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"  📊 Report: {path}")
     return path
