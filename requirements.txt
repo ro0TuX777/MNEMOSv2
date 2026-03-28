@@ -5,7 +5,10 @@ requests>=2.31
 
 # Vector stores
 qdrant-client>=1.7
-lancedb>=0.4.0
+pgvector>=0.3
+
+# Optional / experimental (not in public profiles)
+# lancedb>=0.4.0
 
 # Embeddings & GPU
 sentence-transformers>=2.2.2

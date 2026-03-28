@@ -17,6 +17,9 @@ logger = logging.getLogger(__name__)
 class MnemosConfig:
     """Central configuration for MNEMOS service."""
 
+    # Deployment profile
+    profile: str = "core_memory_appliance"
+
     # Retrieval tiers
     tiers: List[str] = field(default_factory=lambda: ["qdrant"])
     embedding_model: str = "all-MiniLM-L6-v2"
@@ -29,7 +32,7 @@ class MnemosConfig:
     audit_enabled: bool = True
     audit_db_path: str = "data/audit.db"       # SQLite fallback
     audit_retention_days: int = 90
-    postgres_dsn: str = ""                      # PostgreSQL DSN (overrides SQLite)
+    postgres_dsn: str = ""                      # PostgreSQL DSN (audit + pgvector)
 
     # API
     port: int = 8700
@@ -41,12 +44,14 @@ class MnemosConfig:
 
     # Data directories
     data_dir: str = "data"
-    lance_dir: str = "data/lance"
     colbert_index_dir: str = "data/colbert"
 
-    # Qdrant
+    # Qdrant (Core Memory Appliance)
     qdrant_url: str = "http://localhost:6333"
     qdrant_collection: str = "mnemos_engrams"
+
+    # pgvector (Governance Native)
+    pgvector_table: str = "mnemos_vectors"
 
     @classmethod
     def from_env(cls) -> "MnemosConfig":
@@ -60,6 +65,7 @@ class MnemosConfig:
             quant_bits = 4
 
         config = cls(
+            profile=os.getenv("MNEMOS_PROFILE", "core_memory_appliance"),
             tiers=tiers,
             embedding_model=os.getenv("MNEMOS_EMBEDDING_MODEL", "all-MiniLM-L6-v2"),
             colbert_model=os.getenv("MNEMOS_COLBERT_MODEL", "colbertv2.0"),
@@ -73,15 +79,16 @@ class MnemosConfig:
             log_level=os.getenv("MNEMOS_LOG_LEVEL", "INFO"),
             gpu_device=os.getenv("MNEMOS_GPU_DEVICE", "cuda"),
             data_dir=os.getenv("MNEMOS_DATA_DIR", "data"),
-            lance_dir=os.getenv("MNEMOS_LANCE_DIR", "data/lance"),
             colbert_index_dir=os.getenv("MNEMOS_COLBERT_DIR", "data/colbert"),
             qdrant_url=os.getenv("MNEMOS_QDRANT_URL", "http://localhost:6333"),
             qdrant_collection=os.getenv("MNEMOS_QDRANT_COLLECTION", "mnemos_engrams"),
+            pgvector_table=os.getenv("MNEMOS_PGVECTOR_TABLE", "mnemos_vectors"),
         )
 
         logger.info(
-            f"⚙️ MNEMOS config: tiers={config.tiers}, quant={config.quant_bits}-bit, "
-            f"audit={config.audit_enabled}, gpu={config.gpu_device}"
+            f"⚙️ MNEMOS config: profile={config.profile}, tiers={config.tiers}, "
+            f"quant={config.quant_bits}-bit, audit={config.audit_enabled}, "
+            f"gpu={config.gpu_device}"
         )
         return config
 
@@ -92,6 +99,10 @@ class MnemosConfig:
     @property
     def has_lancedb(self) -> bool:
         return "lancedb" in self.tiers
+
+    @property
+    def has_pgvector(self) -> bool:
+        return "pgvector" in self.tiers
 
     @property
     def has_colbert(self) -> bool:

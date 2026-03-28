@@ -37,6 +37,8 @@ MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of
 
 ## 3. Architecture
 
+MNEMOS is organised as a layered stack with a pluggable retrieval tier selected by **deployment profile**:
+
 ```
 ┌────────────────────────────────────────────────────────────┐
 │                       REST API (:8700)                      │
@@ -46,17 +48,16 @@ MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of
 │   neuro-tags · provenance · confidence · relationship      │
 │   edges · extensible metadata                              │
 ├────────────────────────────────────────────────────────────┤
-│              Retrieval Tiers (configurable)                 │
+│            Retrieval (profile-selected)                     │
 │                                                             │
-│  ┌──────────┐  ┌──────────┐  ┌───────────────────────┐    │
-│  │  Qdrant  │  │ LanceDB  │  │ ColBERT Multi-Vector  │    │
-│  │ Semantic │  │ Hybrid   │  │ Token-level matching   │    │
-│  │ (384-dim)│  │ Struct+  │  │ (128-dim, MaxSim)     │    │
-│  │  (CUDA)  │  │ Vector   │  │   (GPU-accelerated)   │    │
-│  └──────────┘  └──────────┘  └───────────────────────┘    │
+│  ┌──────────────────────────┐  ┌────────────────────────┐  │
+│  │  Core Memory Appliance   │  │   Governance Native    │  │
+│  │  Qdrant (HNSW, CUDA)     │  │   pgvector (Postgres)  │  │
+│  │  + optional ColBERT       │  │   + optional ColBERT   │  │
+│  └──────────────────────────┘  └────────────────────────┘  │
 ├────────────────────────────────────────────────────────────┤
 │             TurboQuant Compression Layer                    │
-│   4-bit quantised storage · 5.6× file compression          │
+│   4-bit quantised storage · 8× raw compression             │
 │   Near-optimal distortion (arXiv:2504.19874)               │
 ├────────────────────────────────────────────────────────────┤
 │     Embedding Engine (GPU-accelerated, swappable)          │
@@ -68,7 +69,7 @@ MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of
 └────────────────────────────────────────────────────────────┘
 ```
 
-The architecture is layered by concern: the API layer handles routing and auth; the engram layer enriches raw content; the retrieval layer manages GPU-accelerated tier-specific backends; the compression layer reduces storage footprint; and the audit layer logs every mutation to PostgreSQL.
+The architecture is layered by concern: the API layer handles routing and auth; the engram layer enriches raw content; the retrieval layer is determined by the selected deployment profile; the compression layer reduces storage footprint; and the audit layer logs every mutation to PostgreSQL.
 
 ---
 
@@ -92,19 +93,21 @@ An **Engram** is the atomic unit of knowledge in MNEMOS. It wraps a raw document
 
 The Engram is **domain-agnostic** — the consuming application decides what `neuro_tags` mean, what `source` URIs look like, and what goes in `metadata`. MNEMOS provides the schema, storage, indexing, and retrieval.
 
-### 4.2 Multi-Tier Retrieval
+### 4.2 Retrieval Backends
 
-MNEMOS supports three retrieval tiers, each serving a different fidelity level. All embedding inference is **GPU-accelerated** via CUDA. Applications can enable one, two, or all three via the `MNEMOS_TIERS` environment variable:
+MNEMOS supports multiple retrieval backends, selected by deployment profile. All embedding inference is **GPU-accelerated** via CUDA.
 
-| Tier | Backend | Embedding Model | Strength |
+| Backend | Profile | Embedding Model | Strength |
 |---|---|---|---|
-| **Tier 1** | Qdrant | all-MiniLM-L6-v2 (384-dim, CUDA) | Fast semantic vector retrieval, HNSW index, payload filtering, horizontal scaling |
-| **Tier 2** | LanceDB | Configurable | Hybrid keyword + vector queries, structured filtering |
-| **Tier 3** | ColBERT Multi-Vector | colbert-ir/colbertv2.0 (128-dim, CUDA) | Token-level late-interaction matching — highest precision |
+| **Qdrant** | Core Memory Appliance | all-MiniLM-L6-v2 (384-dim, CUDA) | Fast semantic ANN, HNSW index, payload filtering, horizontal scaling |
+| **pgvector** | Governance Native | all-MiniLM-L6-v2 (384-dim, CUDA) | ANN + SQL metadata filtering in one query, single-database deployment |
+| **ColBERT** | Optional (any profile) | colbert-ir/colbertv2.0 (128-dim, CUDA) | Token-level late-interaction matching — highest precision reranking |
 
-**Why Qdrant**: Unlike embedded vector stores, Qdrant runs as a standalone service with its own HNSW index, snapshotting, replication, and sharding. It supports concurrent reads and writes without single-process bottlenecks, payload-based filtering without post-filtering, and survives independently of the MNEMOS process.
+**Why Qdrant** (Core Memory Appliance): Standalone service with its own HNSW index, snapshotting, replication, and sharding. Supports concurrent reads and writes without single-process bottlenecks, payload-based filtering without post-filtering, and survives independently of the MNEMOS process.
 
-**Tier fusion**: When multiple tiers are active, the API returns merged results with per-tier scores and a fused ranking. The consuming application can weight tiers differently or target specific tiers per query.
+**Why pgvector** (Governance Native): Vectors live inside the same PostgreSQL instance as the forensic ledger. ANN retrieval can be combined with SQL `WHERE` clauses on tenant, provenance, department, security markings, or any relational metadata — in a single query. This eliminates the need for a separate vector service in governance-heavy deployments.
+
+**Tier fusion**: When multiple backends are active (e.g. Qdrant + ColBERT), the API returns merged results with per-tier scores and a fused ranking. The consuming application can weight tiers differently or target specific backends per query.
 
 ### 4.3 TurboQuant Compression
 
@@ -350,11 +353,51 @@ Generates a staged rollout manifest (shadow → canary 5/25/50% → full) for ap
 
 ---
 
-## 8. Deployment
+## 8. Deployment Profiles
 
-MNEMOS v2 deploys as a **3-container GPU-accelerated stack**: Qdrant (vector store), PostgreSQL (audit ledger), and the MNEMOS service (CUDA-enabled).
+MNEMOS ships with named deployment profiles that determine the retrieval backend, container topology, and operational posture. The guided installer (`python -m installer`) recommends a profile based on use case, priorities, and host capabilities.
 
-### Docker Compose
+### Profile A: Core Memory Appliance *(default)*
+
+**Best for:** Semantic memory, agent systems, general-purpose RAG.
+
+| Component | Service | Container |
+|---|---|---|
+| Vector store | Qdrant (HNSW, CUDA embeddings) | `mnemos-qdrant` |
+| Audit ledger | PostgreSQL | `mnemos-postgres` |
+| Service | MNEMOS (nvidia runtime) | `mnemos-service` |
+
+3 containers. Qdrant provides fast semantic ANN with payload filtering. Recommended when retrieval is primarily semantic and the corpus exceeds 100K documents.
+
+### Profile B: Governance Native
+
+**Best for:** Provenance-heavy, metadata-filtered, compliance-aware retrieval.
+
+| Component | Service | Container |
+|---|---|---|
+| Vector store | pgvector (inside PostgreSQL) | `mnemos-postgres` (shared) |
+| Audit ledger | PostgreSQL | `mnemos-postgres` (shared) |
+| Service | MNEMOS (nvidia runtime) | `mnemos-service` |
+
+2 containers. Vectors and audit share one Postgres instance. ANN retrieval can be combined with SQL `WHERE` clauses on tenant, provenance, or security markings — in a single query. Recommended when metadata filtering matters more than raw ANN throughput.
+
+### Profile C: Custom Manual
+
+**Best for:** Advanced operators, multi-tier setups, experimentation.
+
+No compose generation — the operator provides their own configuration. The installer writes `.env.mnemos` only. Supports any combination of backends including ColBERT reranking.
+
+### Profile D: Enterprise Search *(future — not yet installable)*
+
+Qdrant or pgvector + OpenSearch/Elastic + optional ColBERT. Designed for hybrid lexical + semantic search, search analytics, and multi-stage relevance ranking. Documented here as a growth direction; not available in the current installer.
+
+---
+
+## 9. Deployment
+
+The installer generates a profile-specific `docker-compose.generated.yml` and `.env.mnemos`. Example stacks:
+
+### Core Memory Appliance
 
 ```yaml
 services:
@@ -368,7 +411,7 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      - POSTGRES_DB=mnemos_audit
+      - POSTGRES_DB=mnemos
       - POSTGRES_USER=mnemos
       - POSTGRES_PASSWORD=mnemos
     volumes:
@@ -380,13 +423,11 @@ services:
     ports:
       - "8700:8700"
     environment:
-      - MNEMOS_TIERS=qdrant               # qdrant,lancedb,colbert
-      - MNEMOS_EMBEDDING_MODEL=all-MiniLM-L6-v2
-      - MNEMOS_QUANT_BITS=4
+      - MNEMOS_PROFILE=core_memory_appliance
+      - MNEMOS_TIERS=qdrant
       - MNEMOS_GPU_DEVICE=cuda
       - MNEMOS_QDRANT_URL=http://qdrant:6333
-      - MNEMOS_POSTGRES_DSN=postgresql://mnemos:mnemos@postgres:5432/mnemos_audit
-      - MNEMOS_PORT=8700
+      - MNEMOS_POSTGRES_DSN=postgresql://mnemos:mnemos@postgres:5432/mnemos
     depends_on: [qdrant, postgres]
 
 volumes:
@@ -394,13 +435,43 @@ volumes:
   postgres_data:
 ```
 
+### Governance Native
+
+```yaml
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=mnemos
+      - POSTGRES_USER=mnemos
+      - POSTGRES_PASSWORD=mnemos
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mnemos:
+    build: .
+    runtime: nvidia
+    ports:
+      - "8700:8700"
+    environment:
+      - MNEMOS_PROFILE=governance_native
+      - MNEMOS_TIERS=pgvector
+      - MNEMOS_GPU_DEVICE=cuda
+      - MNEMOS_POSTGRES_DSN=postgresql://mnemos:mnemos@postgres:5432/mnemos
+    depends_on: [postgres]
+
+volumes:
+  postgres_data:
+```
+
 ### Resource Requirements
 
-| Configuration | RAM | Disk | GPU |
-|---|---|---|---|
-| Qdrant only | ~2 GB | ~200 MB base | Required (CUDA) |
-| Qdrant + ColBERT, 4-bit TurboQuant | ~4 GB | ~400 MB base | Required (CUDA) |
-| Full stack (all tiers) | ~6 GB | ~600 MB base | Required (CUDA, recommended ≥8 GB VRAM) |
+| Profile | Containers | RAM | Disk | GPU |
+|---|---|---|---|---|
+| Core Memory Appliance | 3 | ~2 GB | ~200 MB base | Required (CUDA) |
+| Core + ColBERT reranking | 3 | ~4 GB | ~400 MB base | Required (CUDA) |
+| Governance Native | 2 | ~1.5 GB | ~150 MB base | Required (CUDA) |
+| Governance + ColBERT | 2 | ~3.5 GB | ~350 MB base | Required (CUDA, ≥8 GB VRAM) |
 
 ---
 
@@ -409,11 +480,11 @@ volumes:
 A consumer application adopts MNEMOS in five steps:
 
 ```
-1. Onboard       →  python tools/mnemos_onboard.py --target <app>
-2. Configure     →  Set MNEMOS_BASE_URL, MNEMOS_TOKEN in app env
-3. Start         →  docker compose up -d --build
-4. Validate      →  python tools/mnemos_health_audit.py
-5. Wire          →  Import mnemos_sdk, use client.index() / client.search()
+1. Install        →  python -m installer
+2. Configure      →  Review generated .env.mnemos and mnemos_profile.yaml
+3. Start          →  docker compose -f docker-compose.generated.yml up -d --build
+4. Validate       →  python tools/mnemos_health_audit.py
+5. Wire           →  Import mnemos_sdk, use client.index() / client.search()
 ```
 
 For apps migrating from another memory backend (Redis, Elasticsearch, FAISS):
@@ -431,7 +502,9 @@ For apps migrating from another memory backend (Redis, Elasticsearch, FAISS):
 
 The following are the highest-value scenarios where MNEMOS provides immediate benefit as a drop-in memory layer.
 
-### 10.1 AI Agent / Copilot Platforms
+### 11.1 AI Agent / Copilot Platforms
+
+**Recommended profile:** Core Memory Appliance
 
 The most natural fit. Any system that has an LLM doing multi-step work needs persistent, searchable memory.
 
@@ -439,23 +512,29 @@ The most natural fit. Any system that has an LLM doing multi-step work needs per
 - **Why not just a raw vector DB**: Neuro-tags give semantic labels for retrieval boosting. The forensic ledger tracks what the agent remembered and when — critical for debugging hallucinations.
 - **Example**: A coding assistant that remembers past codebases it has worked on, retrieves relevant patterns, and audits what context influenced each generation.
 
-### 10.2 RAG-Powered Knowledge Bases
+### 11.2 RAG-Powered Knowledge Bases
+
+**Recommended profile:** Governance Native (compliance) or Core Memory Appliance (general)
 
 Enterprise document search where accuracy and audit trails matter — legal, medical, compliance.
 
-- **What MNEMOS provides**: Multi-tier retrieval (Qdrant for fast semantic, ColBERT for precision when it counts), TurboQuant for scaling to millions of chunks without blowing up storage costs.
+- **What MNEMOS provides**: Profile-matched retrieval (pgvector for governance-heavy, Qdrant for speed), ColBERT for precision when it counts, TurboQuant for scaling to millions of chunks.
 - **Why it wins**: The forensic ledger gives compliance-ready logging of every query and retrieval — *"show me exactly what documents were retrieved for this answer and when."*
-- **Example**: Internal knowledge base for a law firm — lawyers query it, and each retrieval is logged for audit.
+- **Example**: Internal knowledge base for a law firm — lawyers query it, each retrieval is logged for audit, and pgvector filters by department and security clearance.
 
-### 10.3 IoT / Edge Deployments
+### 11.3 IoT / Edge Deployments
+
+**Recommended profile:** Governance Native (single-database, minimal footprint)
 
 Devices with limited memory and storage that still need intelligent retrieval.
 
-- **What MNEMOS provides**: TurboQuant 4-bit compression means a 1M-document index fits in ~61 MB instead of ~488 MB. Single-tier mode (Qdrant only) keeps the footprint tiny.
-- **Why it wins**: Most vector DBs assume cloud-scale resources. MNEMOS can run on a Raspberry Pi-class device.
+- **What MNEMOS provides**: TurboQuant 4-bit compression means a 1M-document index fits in ~68 MB instead of ~512 MB. Governance Native profile runs with just 2 containers.
+- **Why it wins**: Most vector DBs assume cloud-scale resources. MNEMOS can run on a single Postgres instance with pgvector.
 - **Example**: A smart home hub that remembers user preferences, schedules, and sensor patterns — compressed on-device, searchable locally without cloud dependency.
 
-### 10.4 Multi-Agent Orchestration Systems
+### 11.4 Multi-Agent Orchestration Systems
+
+**Recommended profile:** Core Memory Appliance
 
 Systems where multiple specialised agents need shared memory without stepping on each other.
 
@@ -463,29 +542,31 @@ Systems where multiple specialised agents need shared memory without stepping on
 - **Why it wins**: Without shared memory, each agent re-discovers context. With MNEMOS, Agent A's research becomes Agent B's retrieval — and the audit trail shows who stored what.
 - **Example**: A research pipeline where a "Scout" agent gathers papers, an "Analyst" agent extracts insights, and a "Writer" agent drafts reports — all sharing one MNEMOS instance.
 
-### 10.5 Content / Creative Platforms
+### 11.5 Content / Creative Platforms
+
+**Recommended profile:** Core Memory Appliance + ColBERT reranking
 
 Story generators, game engines, or creative tools that need long-term world memory.
 
-- **What MNEMOS provides**: Engram edges create a knowledge graph of relationships (characters → events → locations). Neuro-tags categorise memory by theme. ColBERT tier finds nuanced, token-level matches for continuity.
+- **What MNEMOS provides**: Engram edges create a knowledge graph of relationships (characters → events → locations). Neuro-tags categorise memory by theme. ColBERT finds nuanced, token-level matches for continuity.
 - **Why it wins**: Creative tools need precise recall (*"what did character X say about Y in chapter 3?"*) — multi-vector retrieval is dramatically better than single-vector for this.
 - **Example**: An interactive fiction engine where the story adapts based on retrieving and referencing past plot points from a compressed engram store.
 
 ### Common Thread
 
-Any application that stores, enriches, retrieves, and audits knowledge — and needs production-grade infrastructure without building the plumbing from scratch. MNEMOSv2 gives you GPU-accelerated retrieval, scalable audit logging, and a complete operational toolkit in one `docker compose up`.
+Any application that stores, enriches, retrieves, and audits knowledge — and needs production-grade infrastructure without building the plumbing from scratch. MNEMOS gives you deployment profiles tailored to your use case, GPU-accelerated retrieval, scalable audit logging, and a complete operational toolkit in one `python -m installer`.
 
 ---
 
-## 11. Design Principles
+## 12. Design Principles
 
 1. **Application-agnostic** — The service has zero knowledge of what domain it serves. It stores vectors, enriches engrams, and answers queries. Period.
 2. **GPU-native** — Embedding inference runs on CUDA by default. The service is built on `nvidia/cuda` and requires GPU hardware — CPU fallback exists for resilience, not as a primary mode.
-3. **Contract-governed** — Every API response follows a strict MFS contract schema, enabling reliable integration without tight coupling.
-4. **Tier-composable** — Enable one backend or all three. The service adapts its retrieval strategy to what's configured.
+3. **Profile-composable** — Named deployment profiles (Core Memory Appliance, Governance Native) determine the retrieval backend and container topology. The installer recommends, the operator confirms.
+4. **Contract-governed** — Every API response follows a strict MFS contract schema, enabling reliable integration without tight coupling.
 5. **Compression by default** — TurboQuant is on at 4-bit out of the box. Storage scales sublinearly with document count.
 6. **Audit by default** — Every mutation is logged immutably to PostgreSQL. Compliance is a feature, not an afterthought.
-7. **Graceful degradation** — If a tier goes unhealthy, remaining tiers continue serving. Status is always reported honestly via the contract.
+7. **Graceful degradation** — If a backend goes unhealthy, remaining backends continue serving. Status is always reported honestly via the contract.
 8. **Process isolation** — Each infrastructure component (vector store, audit ledger, service) runs in its own container with independent health checks, volumes, and lifecycle.
 9. **SDK-first integration** — Consumer apps use the boundary SDK, never raw HTTP. This ensures readiness, retry, and degradation are handled consistently.
 10. **Tooling-complete** — Health audit, contract evolution, onboarding, CI gates, and cutover are included — not left as an exercise for the adopter.
