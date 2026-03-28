@@ -9,13 +9,13 @@ Example: A coding assistant that remembers past codebases it has worked on, retr
 2. RAG-Powered Knowledge Bases
 Enterprise document search where accuracy and audit trails matter (legal, medical, compliance).
 
-What MNEMOS provides: Multi-tier retrieval (ChromaDB for fast semantic, ColBERT for precision when it counts), TurboQuant for scaling to millions of chunks without blowing up storage costs
+What MNEMOS provides: Multi-tier retrieval (Qdrant for fast semantic, ColBERT for precision when it counts), TurboQuant for scaling to millions of chunks without blowing up storage costs
 Why it wins: The forensic ledger gives you compliance-ready logging of every query and retrieval — "show me exactly what documents were retrieved for this answer and when"
 Example: Internal knowledge base for a law firm — lawyers query it, and each retrieval is logged for audit
 3. IoT / Edge Deployments
 Devices with limited memory and storage that still need intelligent retrieval.
 
-What MNEMOS provides: TurboQuant 4-bit compression means a 1M-document index fits in ~61MB instead of ~488MB. Single-tier mode (ChromaDB only) keeps the footprint tiny
+What MNEMOS provides: TurboQuant 4-bit compression means a 1M-document index fits in ~61MB instead of ~488MB. Single-tier mode (Qdrant only) keeps the footprint tiny
 Why it wins: Most vector DBs assume cloud-scale resources. MNEMOS can run on a Raspberry Pi-class device
 Example: A smart home hub that remembers user preferences, schedules, and sensor patterns — compressed on-device, searchable locally without cloud dependency
 4. Multi-Agent Orchestration Systems

@@ -3,7 +3,8 @@
 ## Prerequisites
 
 - **Python** 3.10+
-- **Docker** (optional, for containerised deployment)
+- **Docker** with **NVIDIA Container Toolkit** (for GPU deployment)
+- **GPU**: NVIDIA GPU with CUDA 12.x support
 - **pip** (Python package manager)
 
 ---
@@ -39,9 +40,11 @@ pip install -r requirements.txt
 | Package | Purpose |
 |---|---|
 | `flask` | REST API framework |
-| `chromadb` | Tier 1 vector store |
+| `qdrant-client` | Tier 1 vector store (Qdrant) |
 | `lancedb` | Tier 2 hybrid store |
 | `sentence-transformers` | Embedding models (MiniLM, ColBERT) |
+| `torch` | GPU-accelerated inference (CUDA) |
+| `psycopg[binary]`, `psycopg_pool` | PostgreSQL audit ledger |
 | `numpy`, `scipy` | TurboQuant compression |
 | `gunicorn` | Production WSGI server |
 
@@ -60,9 +63,12 @@ Key settings:
 
 | Variable | Default | Description |
 |---|---|---|
-| `MNEMOS_TIERS` | `chromadb` | Active tiers: `chromadb`, `lancedb`, `colbert` (comma-separated) |
+| `MNEMOS_TIERS` | `qdrant` | Active tiers: `qdrant`, `lancedb`, `colbert` (comma-separated) |
 | `MNEMOS_QUANT_BITS` | `4` | TurboQuant bit-width (0 = disabled, 1–4) |
 | `MNEMOS_AUDIT_ENABLED` | `true` | Enable forensic audit ledger |
+| `MNEMOS_GPU_DEVICE` | `cuda` | GPU device (`cuda`, `cuda:0`, `cpu`) |
+| `MNEMOS_QDRANT_URL` | `http://localhost:6333` | Qdrant vector store URL |
+| `MNEMOS_POSTGRES_DSN` | *(empty)* | PostgreSQL DSN (empty = SQLite fallback) |
 | `MNEMOS_PORT` | `8700` | API port |
 | `MNEMOS_TOKEN` | *(empty)* | Optional bearer auth token |
 
@@ -115,16 +121,16 @@ python tools/mnemos_health_audit.py
 Edit `docker-compose.yml` or pass env vars:
 
 ```bash
-docker compose up -d -e MNEMOS_TIERS=chromadb,colbert -e MNEMOS_QUANT_BITS=4
+docker compose up -d -e MNEMOS_TIERS=qdrant,colbert -e MNEMOS_QUANT_BITS=4
 ```
 
 ### 4. Persistent Data
 
 Data is stored in `./data/` (mounted as a Docker volume). This includes:
-- `data/chroma/` — ChromaDB index
 - `data/lance/` — LanceDB tables
 - `data/colbert/` — ColBERT multi-vector index
-- `data/audit.db` — Forensic audit ledger
+
+Qdrant and PostgreSQL data persist in Docker named volumes (`qdrant_data`, `postgres_data`).
 
 ---
 
@@ -141,15 +147,18 @@ python tools/mnemos_onboard.py --target /path/to/your-app
 ```yaml
 mnemos:
   build: ./MNEMOS                       # or image: mnemos-service:latest
+  runtime: nvidia
   ports:
     - "8700:8700"
   volumes:
-    - ./data/mnemos:/app/data
+    - ./data:/app/data
   environment:
-    - MNEMOS_TIERS=chromadb
+    - MNEMOS_TIERS=qdrant
     - MNEMOS_QUANT_BITS=4
-    - MNEMOS_AUDIT_ENABLED=true
-  restart: unless-stopped
+    - MNEMOS_GPU_DEVICE=cuda
+    - MNEMOS_QDRANT_URL=http://qdrant:6333
+    - MNEMOS_POSTGRES_DSN=postgresql://mnemos:mnemos@postgres:5432/mnemos_audit
+  depends_on: [qdrant, postgres]
 ```
 
 ### 3. Use the Boundary SDK
@@ -199,8 +208,11 @@ Expected: **31 passed**.
 
 | Issue | Fix |
 |---|---|
-| `ModuleNotFoundError: chromadb` | Run `pip install -r requirements.txt` |
-| `FTS5 not supported` warning | Upgrade SQLite or ignore (basic search still works) |
-| ChromaDB slow on first run | Model download — `all-MiniLM-L6-v2` (~80 MB, one-time) |
+| `ModuleNotFoundError: qdrant_client` | Run `pip install -r requirements.txt` |
+| Qdrant connection refused | Ensure Qdrant container is running: `docker compose up qdrant -d` |
+| PostgreSQL connection refused | Ensure Postgres container is running and healthy |
+| FTS5 / tsvector warning | Postgres uses tsvector natively; SQLite fallback uses FTS5 or basic LIKE |
+| CUDA not available | Check `nvidia-smi` and ensure NVIDIA Container Toolkit is installed |
+| Embedding model slow on first run | Model download — `all-MiniLM-L6-v2` (~80 MB, one-time) |
 | Port 8700 in use | Change `MNEMOS_PORT` in `.env` or `docker-compose.yml` |
 | Permission denied on `data/` | Ensure the data directory is writable: `mkdir -p data && chmod 755 data` |

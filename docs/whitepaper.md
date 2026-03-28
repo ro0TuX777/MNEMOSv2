@@ -43,21 +43,22 @@ MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of
 │              Retrieval Tiers (configurable)                 │
 │                                                             │
 │  ┌──────────┐  ┌──────────┐  ┌───────────────────────┐    │
-│  │ ChromaDB │  │ LanceDB  │  │ ColBERT Multi-Vector  │    │
+│  │  Qdrant  │  │ LanceDB  │  │ ColBERT Multi-Vector  │    │
 │  │ Semantic │  │ Hybrid   │  │ Token-level matching   │    │
 │  │ (384-dim)│  │ Struct+  │  │ (128-dim, MaxSim)     │    │
-│  │          │  │ Vector   │  │                        │    │
+│  │  (CUDA)  │  │ Vector   │  │   (GPU-accelerated)   │    │
 │  └──────────┘  └──────────┘  └───────────────────────┘    │
 ├────────────────────────────────────────────────────────────┤
 │             TurboQuant Compression Layer                    │
 │   4-bit quantised storage · 5.6× file compression          │
 │   Near-optimal distortion (arXiv:2504.19874)               │
 ├────────────────────────────────────────────────────────────┤
-│              Embedding Engine (swappable)                   │
+│     Embedding Engine (GPU-accelerated, swappable)          │
 │   all-MiniLM-L6-v2 │ ColBERTv2.0 │ custom model           │
 ├────────────────────────────────────────────────────────────┤
-│               Forensic Ledger (audit trail)                 │
+│          Forensic Ledger (PostgreSQL audit trail)           │
 │   Immutable · every operation logged · replayable          │
+│   tsvector FTS · connection pooling · SQLite fallback      │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -91,7 +92,7 @@ MNEMOS supports three retrieval tiers, each serving a different fidelity level. 
 
 | Tier | Backend | Embedding Model | Strength |
 |---|---|---|---|
-| **Tier 1** | ChromaDB | all-MiniLM-L6-v2 (384-dim) | Fast semantic chunk retrieval |
+| **Tier 1** | Qdrant | all-MiniLM-L6-v2 (384-dim, CUDA) | Fast semantic vector retrieval, payload filtering |
 | **Tier 2** | LanceDB | Configurable | Hybrid keyword + vector queries, structured filtering |
 | **Tier 3** | ColBERT Multi-Vector | colbert-ir/colbertv2.0 (128-dim) | Token-level late-interaction matching — highest precision |
 
@@ -190,7 +191,7 @@ POST /v1/mnemos/index
     }
   ],
   "options": {
-    "tiers": ["chromadb", "colbert"]
+    "tiers": ["qdrant", "colbert"]
   }
 }
 ```
@@ -202,7 +203,7 @@ POST /v1/mnemos/search
 {
   "query": "What were the Q1 revenue figures?",
   "top_k": 10,
-  "tiers": ["chromadb", "colbert"],
+  "tiers": ["qdrant", "colbert"],
   "filters": { "metadata.department": "finance" }
 }
 ```
@@ -300,36 +301,55 @@ Generates a staged rollout manifest (shadow → canary 5/25/50% → full) for ap
 
 ## 8. Deployment
 
+MNEMOS v2 deploys as a **3-container GPU-accelerated stack**: Qdrant (vector store), PostgreSQL (audit ledger), and the MNEMOS service (CUDA-enabled).
+
 ### Docker Compose
 
 ```yaml
 services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=mnemos_audit
+      - POSTGRES_USER=mnemos
+      - POSTGRES_PASSWORD=mnemos
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   mnemos:
     build: .
-    container_name: mnemos-service
+    runtime: nvidia
     ports:
       - "8700:8700"
-    volumes:
-      - ./data:/app/data
     environment:
-      - MNEMOS_TIERS=chromadb              # chromadb,lancedb,colbert
+      - MNEMOS_TIERS=qdrant               # qdrant,lancedb,colbert
       - MNEMOS_EMBEDDING_MODEL=all-MiniLM-L6-v2
-      - MNEMOS_QUANT_BITS=4                # 0=disabled, 1-4
-      - MNEMOS_AUDIT_ENABLED=true
-      - MNEMOS_AUDIT_DB=data/audit.db
+      - MNEMOS_QUANT_BITS=4
+      - MNEMOS_GPU_DEVICE=cuda
+      - MNEMOS_QDRANT_URL=http://qdrant:6333
+      - MNEMOS_POSTGRES_DSN=postgresql://mnemos:mnemos@postgres:5432/mnemos_audit
       - MNEMOS_PORT=8700
-      - MNEMOS_TOKEN=                      # optional bearer auth
-      - MNEMOS_LOG_LEVEL=INFO
-    restart: unless-stopped
+    depends_on: [qdrant, postgres]
+
+volumes:
+  qdrant_data:
+  postgres_data:
 ```
 
 ### Resource Requirements
 
 | Configuration | RAM | Disk | GPU |
 |---|---|---|---|
-| ChromaDB only, no ColBERT | ~512 MB | ~100 MB base | None |
-| ChromaDB + ColBERT, 4-bit TurboQuant | ~2 GB | ~200 MB base | None (CPU inference) |
-| Full stack (all tiers) | ~4 GB | ~500 MB base | Recommended for ColBERT |
+| Qdrant only | ~2 GB | ~200 MB base | Required (CUDA) |
+| Qdrant + ColBERT, 4-bit TurboQuant | ~4 GB | ~400 MB base | Required (CUDA) |
+| Full stack (all tiers) | ~6 GB | ~600 MB base | Required (CUDA, recommended ≥8 GB VRAM) |
 
 ---
 
@@ -372,7 +392,7 @@ The most natural fit. Any system that has an LLM doing multi-step work needs per
 
 Enterprise document search where accuracy and audit trails matter — legal, medical, compliance.
 
-- **What MNEMOS provides**: Multi-tier retrieval (ChromaDB for fast semantic, ColBERT for precision when it counts), TurboQuant for scaling to millions of chunks without blowing up storage costs.
+- **What MNEMOS provides**: Multi-tier retrieval (Qdrant for fast semantic, ColBERT for precision when it counts), TurboQuant for scaling to millions of chunks without blowing up storage costs.
 - **Why it wins**: The forensic ledger gives compliance-ready logging of every query and retrieval — *"show me exactly what documents were retrieved for this answer and when."*
 - **Example**: Internal knowledge base for a law firm — lawyers query it, and each retrieval is logged for audit.
 
@@ -380,7 +400,7 @@ Enterprise document search where accuracy and audit trails matter — legal, med
 
 Devices with limited memory and storage that still need intelligent retrieval.
 
-- **What MNEMOS provides**: TurboQuant 4-bit compression means a 1M-document index fits in ~61 MB instead of ~488 MB. Single-tier mode (ChromaDB only) keeps the footprint tiny.
+- **What MNEMOS provides**: TurboQuant 4-bit compression means a 1M-document index fits in ~61 MB instead of ~488 MB. Single-tier mode (Qdrant only) keeps the footprint tiny.
 - **Why it wins**: Most vector DBs assume cloud-scale resources. MNEMOS can run on a Raspberry Pi-class device.
 - **Example**: A smart home hub that remembers user preferences, schedules, and sensor patterns — compressed on-device, searchable locally without cloud dependency.
 

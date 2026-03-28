@@ -4,11 +4,16 @@ gunicorn>=21.2
 requests>=2.31
 
 # Vector stores
-chromadb>=0.4.22
+qdrant-client>=1.7
 lancedb>=0.4.0
 
-# Embeddings
+# Embeddings & GPU
 sentence-transformers>=2.2.2
+torch>=2.0
+
+# PostgreSQL audit
+psycopg[binary]>=3.1
+psycopg_pool>=3.1
 
 # Numerical
 numpy>=1.24
