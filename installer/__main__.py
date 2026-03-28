@@ -22,10 +22,10 @@ from installer.render import render_compose, render_env, render_manifest
 
 def _print_header():
     print()
-    print("╔══════════════════════════════════════════╗")
-    print("║        MNEMOS Deployment Installer       ║")
-    print("║     Contract-Governed Memory Service     ║")
-    print("╚══════════════════════════════════════════╝")
+    print("=" * 44)
+    print("  MNEMOS Deployment Installer")
+    print("  Contract-Governed Memory Service")
+    print("=" * 44)
     print()
 
 
@@ -37,7 +37,7 @@ def _print_recommendation(rec: Recommendation):
 
     print("\n  Why:")
     for r in rec.reasons:
-        print(f"    ✓ {r}")
+        print(f"    + {r}")
 
     if rec.warnings:
         print("\n  Warnings:")
@@ -55,13 +55,13 @@ def _print_recommendation(rec: Recommendation):
 
 def _print_probes(probes: ProbeResults):
     print("  Host Detection:")
-    print(f"    GPU:     {'✅ ' + probes.gpu_name if probes.gpu_available else '❌ Not detected'}")
+    print(f"    GPU:     {'[OK] ' + probes.gpu_name if probes.gpu_available else '[NO] Not detected'}")
     if probes.vram_mb:
         print(f"    VRAM:    {probes.vram_mb} MB")
     print(f"    RAM:     {probes.ram_gb} GB")
     print(f"    Disk:    {probes.disk_free_gb} GB free")
-    print(f"    Docker:  {'✅' if probes.docker_available else '❌'}")
-    print(f"    NVIDIA:  {'✅' if probes.nvidia_runtime else '❌'}")
+    print(f"    Docker:  {'[OK]' if probes.docker_available else '[NO]'}")
+    print(f"    NVIDIA:  {'[OK]' if probes.nvidia_runtime else '[NO]'}")
     print(f"    CPU:     {probes.cpu_cores} cores")
     print(f"    OS:      {probes.os_name}")
     print()
@@ -94,7 +94,7 @@ def main():
         print(f"  Using profile: {args.profile}\n")
         profile = get_profile(args.profile)
         if not profile:
-            print(f"  ❌ Unknown profile: {args.profile}")
+            print(f"  [ERROR] Unknown profile: {args.profile}")
             sys.exit(1)
         answers = UserAnswers(prefer_manual=(args.profile == "custom_manual"))
     else:
@@ -115,9 +115,9 @@ def main():
         )
         # Still check probes for warnings
         if not probes.gpu_available:
-            rec.warnings.append("⚠️  No GPU detected")
+            rec.warnings.append("[WARN] No GPU detected")
         if not probes.docker_available:
-            rec.warnings.append("⚠️  Docker not detected")
+            rec.warnings.append("[WARN] Docker not detected")
     else:
         rec = recommend(answers, probes)
 
@@ -148,15 +148,15 @@ def main():
     print("  Generating configuration files...")
 
     compose_path = render_compose(rec.profile, output_dir)
-    print(f"    ✅ {compose_path}")
+    print(f"    [OK] {compose_path}")
 
     env_path = render_env(rec.profile, output_dir)
-    print(f"    ✅ {env_path}")
+    print(f"    [OK] {env_path}")
 
     manifest_path = render_manifest(rec, answers, probes, output_dir)
-    print(f"    ✅ {manifest_path}")
+    print(f"    [OK] {manifest_path}")
 
-    print(f"\n  ✅ Installation complete!")
+    print(f"\n  [OK] Installation complete!")
     print(f"  Profile: {rec.profile.display_name}")
     print(f"\n  Next steps:")
     print(f"    1. Review: cat {env_path}")
