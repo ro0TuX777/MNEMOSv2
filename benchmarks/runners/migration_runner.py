@@ -81,9 +81,23 @@ def run_migration_benchmark(
     # we use the corpus we already have
     migrate_engrams = corpus[:source_count] if len(corpus) >= source_count else corpus
 
-    # Step 3: Index into target
+    # Step 3: Prepare target and index into target (batched)
+    batch_size = 500
+    migrate_ids = [e.id for e in migrate_engrams]
+
+    # Remove any pre-existing benchmark IDs to avoid false "success" due to stale data.
+    for i in range(0, len(migrate_ids), batch_size):
+        target.delete(migrate_ids[i:i + batch_size])
+
     t0 = time.perf_counter()
-    target_count = target.index(migrate_engrams)
+    target_count = 0
+    batch_failures = 0
+    for i in range(0, len(migrate_engrams), batch_size):
+        batch = migrate_engrams[i:i + batch_size]
+        indexed = target.index(batch)
+        target_count += indexed
+        if indexed != len(batch):
+            batch_failures += 1
     migration_time = time.perf_counter() - t0
 
     # Step 4: Data integrity check
@@ -100,8 +114,13 @@ def run_migration_benchmark(
         if engram is not None:
             found_count += 1
 
+    data_loss = max(0, source_count - target_count)
+    status = "success"
+    if target_count < source_count or found_count < len(check_ids) or batch_failures > 0:
+        status = "failed"
+
     result = {
-        "status": "success",
+        "status": status,
         "source_tier": source_tier,
         "target_tier": target_tier,
         "source_count": source_count,
@@ -109,18 +128,24 @@ def run_migration_benchmark(
         "target_verified_count": target_doc_count,
         "migration_time_s": round(migration_time, 3),
         "docs_per_sec": round(target_count / migration_time, 1) if migration_time > 0 else 0,
+        "batch_size": batch_size,
+        "batch_failures": batch_failures,
         "integrity_checks": {
             "checked": len(check_ids),
             "found": found_count,
             "pass_rate": found_count / len(check_ids) if check_ids else 0,
         },
-        "data_loss": max(0, source_count - target_doc_count),
+        "data_loss": data_loss,
     }
 
-    print(f"    [OK] Migrated {target_count} engrams in {migration_time:.2f}s")
+    if status == "success":
+        print(f"    [OK] Migrated {target_count} engrams in {migration_time:.2f}s")
+    else:
+        print(f"    [WARN]  Migration incomplete: migrated {target_count}/{source_count} "
+              f"engrams in {migration_time:.2f}s (batch failures: {batch_failures})")
     print(f"    Integrity: {found_count}/{len(check_ids)} spot checks passed")
-    if result["data_loss"] > 0:
-        print(f"    [WARN]  Data loss: {result['data_loss']} engrams missing")
+    if data_loss > 0:
+        print(f"    [WARN]  Data loss: {data_loss} engrams missing")
 
     return result
 

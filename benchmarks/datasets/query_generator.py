@@ -8,6 +8,7 @@ Three query regimes: pure semantic, lightly filtered, heavily filtered.
 
 import hashlib
 import json
+import os
 import random
 import sys
 from dataclasses import dataclass, field
@@ -27,7 +28,10 @@ class BenchmarkQuery:
     id: str
     text: str
     regime: str                          # "semantic", "light_filter", "heavy_filter"
+    # Policy-required filters used for truth labels and compliance checks.
     filters: Dict[str, Any] = field(default_factory=dict)
+    # Filters actually applied at retrieval time (can be relaxed for governance testing).
+    retrieval_filters: Dict[str, Any] = field(default_factory=dict)
     gold_ids: List[str] = field(default_factory=list)  # known-relevant doc IDs
     domain: str = ""
 
@@ -86,6 +90,11 @@ QUERY_TEMPLATES = {
 }
 
 
+def _text_snippet(text: str, max_words: int = 14) -> str:
+    words = text.strip().split()
+    return " ".join(words[:max_words]) if words else text
+
+
 def _compute_gold_labels(
     query: BenchmarkQuery,
     corpus: List[Engram],
@@ -113,7 +122,17 @@ def _compute_gold_labels(
             for fk, fv in query.filters.items():
                 if fk.startswith("metadata."):
                     meta_key = fk.split(".", 1)[1]
-                    if e.metadata.get(meta_key) != fv:
+                    if meta_key == "timestamp_epoch_min":
+                        e_ts = e.metadata.get("timestamp_epoch")
+                        if e_ts is None or int(e_ts) < int(fv):
+                            match = False
+                            break
+                    elif meta_key == "timestamp_epoch_max":
+                        e_ts = e.metadata.get("timestamp_epoch")
+                        if e_ts is None or int(e_ts) > int(fv):
+                            match = False
+                            break
+                    elif e.metadata.get(meta_key) != fv:
                         match = False
                         break
                 elif fk == "source":
@@ -158,6 +177,7 @@ def generate_queries(
     seed: int = 99,
     embeddings: Optional[np.ndarray] = None,
     query_embeddings: Optional[np.ndarray] = None,
+    filter_mode: str = "strict",
 ) -> List[BenchmarkQuery]:
     """
     Generate benchmark queries across three regimes.
@@ -165,7 +185,19 @@ def generate_queries(
     Regime A (semantic):       No filters
     Regime B (light_filter):   1-2 metadata filters
     Regime C (heavy_filter):   3-4 metadata filters
+
+    filter_mode:
+      - strict: retrieval filters == policy-required filters
+      - relaxed: retrieval filters are intentionally weaker than required filters
+                 for filtered regimes, enabling governance-correctness evaluation.
     """
+    env_mode = os.getenv("MNEMOS_BENCH_FILTER_MODE", "").strip().lower()
+    if env_mode:
+        filter_mode = env_mode
+
+    if filter_mode not in {"strict", "relaxed"}:
+        raise ValueError("filter_mode must be 'strict' or 'relaxed'")
+
     rng = random.Random(seed)
     domains = list(QUERY_TEMPLATES.keys())
     queries = []
@@ -175,6 +207,11 @@ def generate_queries(
     tenants = list(set(e.metadata.get("tenant", "") for e in corpus))
     clearances = list(set(e.metadata.get("clearance", "") for e in corpus))
     sources = list(set(e.source for e in corpus))
+    ts_epochs = [
+        int(e.metadata.get("timestamp_epoch"))
+        for e in corpus
+        if e.metadata.get("timestamp_epoch") is not None
+    ]
 
     for regime_idx, (regime, n_filters) in enumerate([
         ("semantic", 0),
@@ -187,21 +224,78 @@ def generate_queries(
 
             qid = hashlib.sha256(f"{seed}:{regime}:{i}:{template}".encode()).hexdigest()[:12]
 
-            filters = {}
+            required_filters = {}
             if n_filters >= 1:
-                filters["source"] = rng.choice(sources)
+                required_filters["source"] = rng.choice(sources)
             if n_filters >= 2:
-                filters["metadata.department"] = rng.choice(departments)
-            if n_filters >= 3:
-                filters["metadata.tenant"] = rng.choice(tenants)
-            if n_filters >= 4:
-                filters["metadata.clearance"] = rng.choice(clearances)
+                required_filters["metadata.department"] = rng.choice(departments)
+            if n_filters >= 3 and regime != "heavy_filter":
+                required_filters["metadata.tenant"] = rng.choice(tenants)
+            if n_filters >= 4 and regime != "heavy_filter":
+                required_filters["metadata.clearance"] = rng.choice(clearances)
+            if regime in {"light_filter", "heavy_filter"} and ts_epochs:
+                anchor = rng.choice(ts_epochs)
+                # Tune windows to keep governance stress measurable but non-saturated.
+                # light_filter: medium pressure, heavy_filter: broader window so
+                # compliance does not collapse to 0 across all runs.
+                if regime == "heavy_filter":
+                    window_days = 730
+                else:
+                    window_days = 365
+                window = window_days * 24 * 3600
+                required_filters["metadata.timestamp_epoch_min"] = anchor - window
+                required_filters["metadata.timestamp_epoch_max"] = anchor + window
+
+            retrieval_filters = dict(required_filters)
+            if filter_mode == "relaxed":
+                if regime == "light_filter":
+                    # Relax by dropping one policy dimension.
+                    retrieval_filters = {
+                        k: v for k, v in required_filters.items()
+                        if k not in {"metadata.department", "metadata.timestamp_epoch_min", "metadata.timestamp_epoch_max"}
+                    }
+                elif regime == "heavy_filter":
+                    # Relax to source-only for stronger governance stress tests.
+                    retrieval_filters = {
+                        k: v for k, v in required_filters.items()
+                        if k == "source"
+                    }
+
+            # Adversarial queries: keep policy filters, but use text from a conflicting
+            # chunk (same source, different tenant/clearance/time window) to induce
+            # semantic pull toward policy-invalid hits.
+            if regime in {"light_filter", "heavy_filter"} and rng.random() < 0.10:
+                req_source = required_filters.get("source")
+                req_tenant = required_filters.get("metadata.tenant")
+                req_clearance = required_filters.get("metadata.clearance")
+                ts_min = required_filters.get("metadata.timestamp_epoch_min")
+                ts_max = required_filters.get("metadata.timestamp_epoch_max")
+
+                candidates = []
+                for e in corpus:
+                    if req_source and e.source != req_source:
+                        continue
+                    mismatches = 0
+                    if req_tenant and e.metadata.get("tenant") != req_tenant:
+                        mismatches += 1
+                    if req_clearance and e.metadata.get("clearance") != req_clearance:
+                        mismatches += 1
+                    if ts_min is not None and ts_max is not None:
+                        e_ts = e.metadata.get("timestamp_epoch")
+                        if e_ts is not None and not (int(ts_min) <= int(e_ts) <= int(ts_max)):
+                            mismatches += 1
+                    if mismatches > 0:
+                        candidates.append(e)
+
+                if candidates:
+                    template = _text_snippet(rng.choice(candidates).content)
 
             query = BenchmarkQuery(
                 id=qid,
                 text=template,
                 regime=regime,
-                filters=filters,
+                filters=required_filters,
+                retrieval_filters=retrieval_filters,
                 domain=domain,
             )
 
@@ -228,6 +322,7 @@ def save_queries(queries: List[BenchmarkQuery], path: Path):
             "text": q.text,
             "regime": q.regime,
             "filters": q.filters,
+            "retrieval_filters": q.retrieval_filters,
             "gold_ids": q.gold_ids,
             "domain": q.domain,
         }
@@ -248,6 +343,7 @@ def load_queries(path: Path) -> List[BenchmarkQuery]:
             text=d["text"],
             regime=d["regime"],
             filters=d.get("filters", {}),
+            retrieval_filters=d.get("retrieval_filters", d.get("filters", {})),
             gold_ids=d.get("gold_ids", []),
             domain=d.get("domain", ""),
         )

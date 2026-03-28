@@ -13,6 +13,7 @@ Usage:
 import hashlib
 import re
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -210,6 +211,13 @@ def load_pdf_corpus(
             doc_id = hashlib.sha256(
                 f"{paper_id}:{chunk_idx}:{chunk_text[:100]}".encode()
             ).hexdigest()[:16]
+            # Deterministic synthetic policy metadata for governance stress tests.
+            seed_int = int(hashlib.sha256(f"{paper_id}:{chunk_idx}".encode()).hexdigest()[:8], 16)
+            ts = datetime(2023, 1, 1) + timedelta(days=(seed_int % 1095))
+            ts_iso = ts.isoformat() + "Z"
+            ts_epoch = int(ts.timestamp())
+            tenant = ["tenant-A", "tenant-B", "tenant-C", "tenant-D"][seed_int % 4]
+            clearance = ["public", "internal", "restricted", "classified"][seed_int % 4]
 
             engram = Engram(
                 id=doc_id,
@@ -224,8 +232,10 @@ def load_pdf_corpus(
                     "chunk_index": chunk_idx,
                     "total_chunks": len(chunks),
                     "department": domain,       # for filter compatibility
-                    "tenant": "arxiv",           # for filter compatibility
-                    "clearance": "public",       # for filter compatibility
+                    "tenant": tenant,            # for governance filter tests
+                    "clearance": clearance,      # for governance filter tests
+                    "timestamp": ts_iso,
+                    "timestamp_epoch": ts_epoch,
                 },
             )
             all_engrams.append(engram)

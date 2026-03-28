@@ -6,6 +6,7 @@ Semantic vector retrieval via Qdrant.
 """
 
 import logging
+import uuid
 from typing import Any, Dict, List, Optional
 
 from mnemos.engram.model import Engram
@@ -84,6 +85,32 @@ class QdrantTier(BaseRetriever):
         embeddings = model.encode(texts, normalize_embeddings=True)
         return embeddings.tolist()
 
+    def _to_point_id(self, engram_id: str):
+        """
+        Convert arbitrary engram IDs into Qdrant-compatible point IDs.
+
+        Qdrant accepts unsigned integers or UUIDs only. Benchmark corpus IDs are
+        short hashes, so we deterministically map non-UUID/non-integer IDs to
+        UUIDv5 and store the original ID in payload for round-trip fidelity.
+        """
+        sid = str(engram_id)
+
+        # Accept canonical UUIDs directly.
+        try:
+            return str(uuid.UUID(sid))
+        except Exception:
+            pass
+
+        # Accept unsigned integer IDs.
+        if sid.isdigit():
+            try:
+                return int(sid)
+            except Exception:
+                pass
+
+        # Deterministic fallback for arbitrary string IDs.
+        return str(uuid.uuid5(uuid.NAMESPACE_URL, f"mnemos:{sid}"))
+
     @property
     def tier_name(self) -> str:
         return "qdrant"
@@ -102,6 +129,7 @@ class QdrantTier(BaseRetriever):
             points = []
             for i, e in enumerate(engrams):
                 payload = {
+                    "_mnemos_id": e.id,
                     "content": e.content,
                     "source": e.source,
                     "confidence": e.confidence,
@@ -115,7 +143,7 @@ class QdrantTier(BaseRetriever):
                         payload[f"app_{k}"] = v
 
                 points.append(PointStruct(
-                    id=e.id,
+                    id=self._to_point_id(e.id),
                     vector=embeddings[i],
                     payload=payload,
                 ))
@@ -143,21 +171,61 @@ class QdrantTier(BaseRetriever):
             # Build Qdrant filter if provided
             query_filter = None
             if filters:
-                from qdrant_client.models import Filter, FieldCondition, MatchValue
+                from qdrant_client.models import (
+                    Filter,
+                    FieldCondition,
+                    MatchValue,
+                    Range,
+                )
                 conditions = []
                 for k, v in filters.items():
+                    if k == "metadata.timestamp_epoch_min":
+                        conditions.append(
+                            FieldCondition(key="app_timestamp_epoch", range=Range(gte=float(v)))
+                        )
+                        continue
+                    if k == "metadata.timestamp_epoch_max":
+                        conditions.append(
+                            FieldCondition(key="app_timestamp_epoch", range=Range(lte=float(v)))
+                        )
+                        continue
+
+                    # Benchmark metadata filters are expressed as metadata.<key>,
+                    # while Qdrant payload stores metadata fields as app_<key>.
+                    if k.startswith("metadata."):
+                        k = f"app_{k.split('.', 1)[1]}"
+
+                    if k == "confidence_min":
+                        conditions.append(
+                            FieldCondition(key="confidence", range=Range(gte=float(v)))
+                        )
+                        continue
+
                     conditions.append(
                         FieldCondition(key=k, match=MatchValue(value=v))
                     )
                 query_filter = Filter(must=conditions)
 
-            results = self._client.search(
-                collection_name=self._collection_name,
-                query_vector=query_vec,
-                limit=top_k,
-                query_filter=query_filter,
-                with_payload=True,
-            )
+            # qdrant-client API compatibility:
+            # - older versions expose `search(...)`
+            # - newer versions expose `query_points(...)`
+            if hasattr(self._client, "search"):
+                results = self._client.search(
+                    collection_name=self._collection_name,
+                    query_vector=query_vec,
+                    limit=top_k,
+                    query_filter=query_filter,
+                    with_payload=True,
+                )
+            else:
+                response = self._client.query_points(
+                    collection_name=self._collection_name,
+                    query=query_vec,
+                    limit=top_k,
+                    query_filter=query_filter,
+                    with_payload=True,
+                )
+                results = getattr(response, "points", response)
 
             search_results = []
             for hit in results:
@@ -174,7 +242,7 @@ class QdrantTier(BaseRetriever):
                 }
 
                 engram = Engram(
-                    id=str(hit.id),
+                    id=str(payload.get("_mnemos_id", hit.id)),
                     content=payload.get("content", ""),
                     source=payload.get("source", ""),
                     confidence=float(payload.get("confidence", 1.0)),
@@ -200,9 +268,10 @@ class QdrantTier(BaseRetriever):
             return 0
         try:
             from qdrant_client.models import PointIdsList
+            point_ids = [self._to_point_id(eid) for eid in engram_ids]
             self._client.delete(
                 collection_name=self._collection_name,
-                points_selector=PointIdsList(points=engram_ids),
+                points_selector=PointIdsList(points=point_ids),
             )
             return len(engram_ids)
         except Exception as e:
@@ -214,9 +283,10 @@ class QdrantTier(BaseRetriever):
         if not self._client:
             return None
         try:
+            point_id = self._to_point_id(engram_id)
             results = self._client.retrieve(
                 collection_name=self._collection_name,
-                ids=[engram_id],
+                ids=[point_id],
                 with_payload=True,
             )
             if results:
@@ -232,7 +302,7 @@ class QdrantTier(BaseRetriever):
                 }
 
                 return Engram(
-                    id=str(results[0].id),
+                    id=str(payload.get("_mnemos_id", results[0].id)),
                     content=payload.get("content", ""),
                     source=payload.get("source", ""),
                     confidence=float(payload.get("confidence", 1.0)),

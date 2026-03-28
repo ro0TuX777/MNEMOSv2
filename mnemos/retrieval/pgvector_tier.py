@@ -113,6 +113,28 @@ class PgvectorTier(BaseRetriever):
         embeddings = model.encode(texts, normalize_embeddings=True)
         return embeddings.tolist()
 
+    @staticmethod
+    def _clean_text(value: Any) -> str:
+        """Normalize values for PostgreSQL TEXT/JSON fields."""
+        if value is None:
+            return ""
+        return str(value).replace("\x00", "")
+
+    def _clean_metadata(self, value: Any) -> Any:
+        """Recursively remove NUL bytes from metadata structures."""
+        if isinstance(value, dict):
+            return {
+                self._clean_text(k): self._clean_metadata(v)
+                for k, v in value.items()
+            }
+        if isinstance(value, list):
+            return [self._clean_metadata(v) for v in value]
+        if isinstance(value, tuple):
+            return [self._clean_metadata(v) for v in value]
+        if isinstance(value, str):
+            return self._clean_text(value)
+        return value
+
     @property
     def tier_name(self) -> str:
         return "pgvector"
@@ -131,7 +153,10 @@ class PgvectorTier(BaseRetriever):
                 with conn.cursor() as cur:
                     for i, e in enumerate(engrams):
                         embedding_str = "[" + ",".join(str(v) for v in embeddings[i]) + "]"
-                        meta_json = json.dumps(e.metadata)
+                        clean_meta = self._clean_metadata(e.metadata)
+                        meta_json = json.dumps(clean_meta)
+                        clean_neuro_tags = [self._clean_text(t) for t in e.neuro_tags]
+                        clean_edges = [self._clean_text(t) for t in e.edges]
 
                         cur.execute(f'''
                             INSERT INTO {self._table_name}
@@ -147,9 +172,15 @@ class PgvectorTier(BaseRetriever):
                                 edges = EXCLUDED.edges,
                                 metadata = EXCLUDED.metadata
                         ''', (
-                            e.id, e.content, embedding_str, e.source,
-                            e.confidence, e.neuro_tags, e.created_at,
-                            e.edges, meta_json,
+                            self._clean_text(e.id),
+                            self._clean_text(e.content),
+                            embedding_str,
+                            self._clean_text(e.source),
+                            e.confidence,
+                            clean_neuro_tags,
+                            self._clean_text(e.created_at),
+                            clean_edges,
+                            meta_json,
                         ))
                         indexed += 1
 
@@ -193,6 +224,14 @@ class PgvectorTier(BaseRetriever):
                     elif key == "neuro_tag":
                         conditions.append("%s = ANY(neuro_tags)")
                         params.append(str(value))
+                    elif key == "metadata.timestamp_epoch_min":
+                        conditions.append("(metadata->>%s)::bigint >= %s")
+                        params.append("timestamp_epoch")
+                        params.append(int(value))
+                    elif key == "metadata.timestamp_epoch_max":
+                        conditions.append("(metadata->>%s)::bigint <= %s")
+                        params.append("timestamp_epoch")
+                        params.append(int(value))
                     elif key.startswith("metadata."):
                         json_key = key.split(".", 1)[1]
                         conditions.append("metadata->>%s = %s")
@@ -211,8 +250,6 @@ class PgvectorTier(BaseRetriever):
             if conditions:
                 where_clause = "WHERE " + " AND ".join(conditions)
 
-            params.append(top_k)
-
             with self._pool.connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute(f'''
@@ -223,7 +260,7 @@ class PgvectorTier(BaseRetriever):
                         {where_clause}
                         ORDER BY embedding <=> %s::vector
                         LIMIT %s
-                    ''', params + [embedding_str])
+                    ''', params + [embedding_str, top_k])
 
                     results = []
                     for row in cur.fetchall():

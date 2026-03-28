@@ -1,0 +1,34 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: mnemos-bench-qdrant
+    ports:
+      - "${MNEMOS_BENCH_QDRANT_PORT:-6333}:6333"
+    volumes:
+      - qdrant_bench_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: mnemos-bench-postgres
+    environment:
+      - POSTGRES_DB=mnemos
+      - POSTGRES_USER=mnemos
+      - POSTGRES_PASSWORD=mnemos
+    ports:
+      - "${MNEMOS_BENCH_POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_bench_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mnemos -d mnemos"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  qdrant_bench_data:
+  postgres_bench_data:
