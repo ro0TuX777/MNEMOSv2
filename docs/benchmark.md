@@ -20,6 +20,66 @@
 
 ---
 
+## Backend Setup For Tracks 1/2/4
+
+Use the benchmark-only backend stack (recommended for clean measurements):
+
+```bash
+docker compose -f benchmarks/docker-compose.bench.yml up -d
+docker compose -f benchmarks/docker-compose.bench.yml ps
+```
+
+This starts only:
+- Qdrant on `localhost:6333`
+- PostgreSQL + pgvector on `localhost:5432`
+
+Stop/cleanup when done:
+
+```bash
+docker compose -f benchmarks/docker-compose.bench.yml down
+```
+
+If you see `FATAL: password authentication failed for user "mnemos"`, reset the
+benchmark Postgres volume (old credentials are persisted in existing data):
+
+```bash
+docker compose -f benchmarks/docker-compose.bench.yml down -v
+docker compose -f benchmarks/docker-compose.bench.yml up -d
+```
+
+Or keep existing DB credentials and override DSN for benchmark runners:
+
+```bash
+# PowerShell
+$env:MNEMOS_BENCH_POSTGRES_DSN="postgresql://<user>:<password>@localhost:5432/<db>"
+```
+
+If you see `Bind for 0.0.0.0:6333 failed: port is already allocated`, another
+Qdrant is already bound on your host. Either stop the other stack, or run the
+benchmark stack on alternate host ports:
+
+```bash
+# PowerShell example: isolated benchmark ports
+$env:MNEMOS_BENCH_QDRANT_PORT="6334"
+$env:MNEMOS_BENCH_POSTGRES_PORT="5433"
+
+docker compose -f benchmarks/docker-compose.bench.yml down -v
+docker compose -f benchmarks/docker-compose.bench.yml up -d
+
+# Point benchmark runners at these isolated ports
+$env:MNEMOS_BENCH_QDRANT_URL="http://localhost:6334"
+$env:MNEMOS_BENCH_POSTGRES_DSN="postgresql://mnemos:mnemos@localhost:5433/mnemos"
+```
+
+Alternative (installer-generated stack):
+
+```bash
+python -m installer --profile core_memory_appliance
+docker compose -f docker-compose.generated.yml up -d
+```
+
+---
+
 ## Track 3: Installer Overhead
 
 **Product question:** *Does the guided installer add value over manual deployment, or just ceremony?*
@@ -44,6 +104,8 @@ We compared this against a **manual baseline** that copies the compose template 
 - **Validation:** Each run checked for compose, env, and manifest file existence + content correctness
 
 ### Results
+
+#### Synthetic Corpus (10,000 engrams)
 
 | Metric | Core Memory Appliance | Governance Native |
 |---|---|---|
@@ -75,18 +137,295 @@ The installer adds ~0.5s of overhead compared to raw file copy. In exchange, it 
 
 **Product question:** *When does Core (Qdrant) win vs Governance (pgvector)?*
 
-**Status:** Awaiting Docker services. Both Qdrant and PostgreSQL backends must be running.
+### What We Tested
 
-The benchmark will measure:
-- Recall@10, MRR@10, nDCG@10 across three query regimes (pure semantic, lightly filtered, heavily filtered)
-- p50/p95/p99 latency per query
-- Throughput (queries/sec) under concurrent load
-- Ingest time and index footprint
+- **Corpus:** 10,000 synthetic engrams (4 domains)
+- **Queries:** 300 total (100 per regime: semantic, light_filter, heavy_filter)
+- **Runs:** 5 per regime/tier (median reported)
+- **Backends:** Qdrant (`http://localhost:6334`) vs pgvector (`postgresql://mnemos@localhost:5433/mnemos`)
+- **Embedding model:** `all-MiniLM-L6-v2` (384-dim, GPU)
 
-```bash
-# Requires: docker compose up (with Qdrant + Postgres)
-python benchmarks/run_profile_benchmarks.py --track retrieval
-```
+### Results
+
+#### Ingest
+
+| Tier | Indexed | Time | Throughput | Index Footprint |
+|---|---:|---:|---:|---|
+| Qdrant | 10,000 | 12.96s | 771.5 docs/s | Collection: `mnemos_bench` |
+| pgvector | 10,000 | 503.63s | 19.9 docs/s | Table: 43.23 MB, HNSW index: 17.52 MB |
+
+#### Search (median over 5 runs)
+
+| Tier | Regime | Recall@10 | MRR@10 | nDCG@10 | p50 (ms) | p95 (ms) | p99 (ms) | QPS |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Qdrant | semantic | 0.0440 | 0.0636 | 0.0331 | 31.25 | 32.21 | 32.54 | 32.7 |
+| Qdrant | light_filter | 0.0070 | 0.0124 | 0.0061 | 31.27 | 32.61 | 33.73 | 32.4 |
+| Qdrant | heavy_filter | 0.0690 | 0.1076 | 0.0739 | 31.16 | 33.42 | 35.09 | 32.8 |
+| pgvector | semantic | 0.0290 | 0.0354 | 0.0207 | 49.05 | 58.30 | 59.10 | 20.0 |
+| pgvector | light_filter | 0.0040 | 0.0070 | 0.0034 | 49.32 | 59.14 | 68.09 | 19.2 |
+| pgvector | heavy_filter | 0.0680 | 0.1066 | 0.0731 | 58.56 | 67.22 | 68.95 | 17.3 |
+
+### Interpretation
+
+- In this synthetic run, **Qdrant leads on ingest speed and query latency/QPS** across all regimes.
+- **Heavy-filter relevance is near parity** between Qdrant and pgvector (MRR@10: 0.1076 vs 0.1066), but pgvector pays higher latency.
+- The absolute relevance metrics are low across both tiers, which indicates this synthetic truth-set is not yet strong enough for final product claims.
+
+### Current Decision
+
+For this benchmark configuration:
+- Use **Qdrant/Core** as the default for latency/throughput-sensitive workloads.
+- Treat **Governance/pgvector** conclusions as provisional until the filtered-retrieval truth set is strengthened.
+
+### Track 1B: Labeled Query Protocol (Next Iteration)
+
+Goal: produce a defensible real-world relevance truth set so Track 1 can support product-level quality claims, not just latency/throughput claims.
+
+#### Scope
+
+- **Corpus:** real PDF corpus (`C:\Users\vin\Downloads\ToLearn`)
+- **Queries:** 150 total (minimum), balanced by regime:
+  - 50 semantic
+  - 50 light_filter
+  - 50 heavy_filter
+- **Candidate pool per query:** top-20 from each tier (union, deduped)
+
+#### Labeling Rules
+
+- Label each `(query, chunk)` pair with:
+  - `2` = directly answers query / highly relevant
+  - `1` = partially relevant / supporting context
+  - `0` = not relevant
+- For filtered queries, a chunk that violates required filter constraints is always `0` even if semantically similar.
+- Mark each query with:
+  - `regime` (`semantic`, `light_filter`, `heavy_filter`)
+  - `intent_tag` (`factoid`, `procedural`, `comparative`, `definition`)
+
+#### Quality Controls
+
+- Double-label at least 20% of queries with a second reviewer.
+- Compute agreement (simple percent agreement acceptable for v1; Cohen's kappa preferred).
+- Resolve disagreements by adjudication and retain final canonical label.
+
+#### Evaluation Protocol
+
+- Freeze dataset version (`truthset_v1.json`) before benchmark run.
+- Run both tiers against the same query file and filters.
+- Report by regime:
+  - Recall@10
+  - MRR@10
+  - nDCG@10 (graded labels 0/1/2)
+- Report constraint-correctness metrics (for filtered regimes):
+  - Filter Compliance@10 = fraction of returned top-10 hits that satisfy all required filters
+  - Constraint Violation Rate = fraction of returned top-10 hits that violate required filters
+- Also report macro-average across regimes, but do not replace per-regime reporting.
+
+#### Decision Thresholds (Provisional)
+
+- **Core/Qdrant default** if latency advantage is >=25% and relevance is within 5% relative of Governance in all regimes.
+- **Governance/pgvector preference** for filtered workloads if either:
+  - heavy_filter nDCG@10 is >=10% relative better, or
+  - Constraint Violation Rate is materially lower under strict filters.
+- If neither threshold is met, classify as parity and decide by operational constraints.
+
+#### Real-World Corpus (56 PDFs, 1,307 engrams)
+
+Run:
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "C:\Users\vin\Downloads\ToLearn"`
+
+Raw output: `benchmarks/outputs/raw/20260329_082214_profile_benchmarks.json`
+
+##### Ingest
+
+| Tier | Indexed | Time | Throughput |
+|---|---:|---:|---:|
+| Qdrant | 1,307 | 9.14s | 142.9 docs/s |
+| pgvector | 1,307 | 68.65s | 19.0 docs/s |
+
+##### Search (median over 5 runs)
+
+| Tier | Regime | Recall@10 | MRR@10 | p50 (ms) | p99 (ms) |
+|---|---|---:|---:|---:|---:|
+| Qdrant | semantic | 0.0770 | 0.1843 | 30.9 | 58.6 |
+| Qdrant | light_filter | 0.0880 | 0.1170 | 31.2 | 60.0 |
+| Qdrant | heavy_filter | 0.1010 | 0.1106 | 31.2 | 60.1 |
+| pgvector | semantic | 0.0770 | 0.1843 | 58.7 | 95.6 |
+| pgvector | light_filter | 0.0880 | 0.1170 | 49.0 | 99.2 |
+| pgvector | heavy_filter | 0.1010 | 0.1106 | 49.0 | 99.0 |
+
+##### Real-World Interpretation
+
+- Qdrant remains significantly faster on ingest and search latency.
+- Relevance metrics are numerically identical between tiers in this run, which suggests the current generated truth set is not yet separating tier behavior strongly on real data.
+- Treat this run as operational/latency evidence; use a stronger labeled relevance set before making final quality claims.
+
+#### Real-World Corpus (80 PDFs, 5,967 engrams)
+
+Run:
+`python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+
+Raw output: `benchmarks/outputs/raw/20260329_084456_profile_benchmarks.json`
+
+##### Ingest
+
+| Tier | Indexed | Time | Throughput |
+|---|---:|---:|---:|
+| Qdrant | 5,967 | 14.62s | 408 docs/s |
+| pgvector | 5,967 | 303.08s | 20 docs/s |
+
+##### Search (median over 5 runs)
+
+| Tier | Regime | Recall@10 | MRR@10 | nDCG@10 | p50 (ms) | p99 (ms) | QPS |
+|---|---|---:|---:|---:|---:|---:|---:|
+| Qdrant | semantic | 0.0490 | 0.1430 | 0.0571 | 31.1 | 32.8 | 33 |
+| Qdrant | light_filter | 0.1110 | 0.1438 | 0.1106 | 31.1 | 33.4 | 33 |
+| Qdrant | heavy_filter | 0.1440 | 0.1914 | 0.1495 | 31.1 | 34.5 | 33 |
+| pgvector | semantic | 0.0460 | 0.1267 | 0.0525 | 57.6 | 67.8 | 18 |
+| pgvector | light_filter | 0.1110 | 0.1438 | 0.1106 | 58.0 | 67.9 | 18 |
+| pgvector | heavy_filter | 0.1440 | 0.1914 | 0.1495 | 57.7 | 67.8 | 18 |
+
+##### Interpretation (80-PDF Run)
+
+- Qdrant remains clearly faster on both ingest and query latency.
+- Filtered relevance metrics are tied between tiers in this run; this does not yet demonstrate a Governance relevance advantage.
+- The next benchmark pass should focus on policy correctness under strict filters (compliance/violation metrics), not raw speed.
+
+#### Governance-Focused Run (Relaxed Retrieval Filters, 80 PDFs)
+
+Run:
+`python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+
+Raw output: `benchmarks/outputs/raw/20260329_095911_profile_benchmarks.json`
+Report: `benchmarks/outputs/summaries/20260329_095911_report.md`
+
+##### Constraint-Correctness Results
+
+| Tier | Regime | Compliance@10 | Violation Rate@10 |
+|---|---|---:|---:|
+| Qdrant | light_filter | 0.1917 | 0.8083 |
+| pgvector | light_filter | 0.1868 | 0.8132 |
+| Qdrant | heavy_filter | 1.0000 | 0.0000 |
+| pgvector | heavy_filter | 1.0000 | 0.0000 |
+
+##### Governance Interpretation
+
+- Light-filter queries now expose substantial constraint violations in both tiers (as intended in relaxed mode), proving the metric is active and measurable.
+- In this run, Qdrant and pgvector are near-parity on compliance under light filters.
+- Heavy-filter remains saturated at perfect compliance for both tiers, indicating the relaxation was still not adversarial enough for that regime.
+- Next adjustment applied: heavy-filter relaxed retrieval now uses **source-only** retrieval filters to increase discrimination pressure on policy constraints.
+
+#### Governance-Focused Run (Adversarial + Timestamp Window, 80 PDFs)
+
+Run:
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+
+Raw output: `benchmarks/outputs/raw/20260329_104803_profile_benchmarks.json`
+Report: `benchmarks/outputs/summaries/20260329_104803_report.md`
+
+##### Constraint-Correctness Results
+
+| Tier | Regime | Compliance@10 | Violation Rate@10 |
+|---|---|---:|---:|
+| Qdrant | light_filter | 0.0170 | 0.9830 |
+| pgvector | light_filter | 0.0173 | 0.9827 |
+| Qdrant | heavy_filter | 0.0000 | 1.0000 |
+| pgvector | heavy_filter | 0.0000 | 1.0000 |
+
+##### Interpretation
+
+- The adversarial mode is active and successfully stresses policy correctness.
+- This configuration over-saturates failures (especially heavy_filter), so backend differences remain compressed.
+- Resulting product signal is still clear: no demonstrated Governance correctness advantage yet, while Core remains significantly faster.
+
+##### Next Tuning Applied
+
+- To move heavy-filter into a non-saturated mid-failure band, required timestamp windows were widened in query generation:
+  - `light_filter`: +/-180 days
+  - `heavy_filter`: +/-540 days
+
+#### Governance-Focused Run (Retuned Adversarial Pressure, 80 PDFs)
+
+Run:
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+
+Raw output: `benchmarks/outputs/raw/20260329_111455_profile_benchmarks.json`
+Report: `benchmarks/outputs/summaries/20260329_111455_report.md`
+
+##### Constraint-Correctness Results
+
+| Tier | Regime | Compliance@10 | Violation Rate@10 |
+|---|---|---:|---:|
+| Qdrant | light_filter | 0.0385 | 0.9615 |
+| pgvector | light_filter | 0.0385 | 0.9615 |
+| Qdrant | heavy_filter | 0.0117 | 0.9883 |
+| pgvector | heavy_filter | 0.0117 | 0.9883 |
+
+##### Interpretation
+
+- The run confirms the new governance metrics are stable and reproducible under adversarial pressure.
+- Constraint compliance remains very low and still shows no backend separation.
+- This means the benchmark is still over-stressing policy constraints relative to current data structure.
+
+##### Next Tuning Applied (for Mid-Failure Target)
+
+- Reduced adversarial query injection from `35%` to `15%`.
+- Widened `light_filter` timestamp window from `+/-180` days to `+/-365` days.
+- Reduced heavy required strictness by dropping required `metadata.clearance` (retaining tenant + time-window policy pressure).
+
+#### Governance-Focused Run (Retuned Mid-Failure Attempt, 80 PDFs)
+
+Run:
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+
+Raw output: `benchmarks/outputs/raw/20260329_113720_profile_benchmarks.json`
+Report: `benchmarks/outputs/summaries/20260329_113720_report.md`
+
+##### Constraint-Correctness Results
+
+| Tier | Regime | Compliance@10 | Violation Rate@10 |
+|---|---|---:|---:|
+| Qdrant | light_filter | 0.1747 | 0.8253 |
+| pgvector | light_filter | 0.1747 | 0.8253 |
+| Qdrant | heavy_filter | 0.0507 | 0.9493 |
+| pgvector | heavy_filter | 0.0500 | 0.9500 |
+
+##### Interpretation
+
+- Tuning improved heavy-filter from near-zero compliance to low but non-zero compliance.
+- The run still does not show meaningful Governance correctness separation.
+- Qdrant remains materially faster for ingest and query latency.
+
+##### Next Tuning Applied
+
+- Reduced adversarial query injection from `15%` to `10%`.
+- Widened `heavy_filter` timestamp window from `+/-540` days to `+/-730` days.
+
+#### Governance-Focused Run (Further Retuning, 80 PDFs)
+
+Run:
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+
+Raw output: `benchmarks/outputs/raw/20260329_115520_profile_benchmarks.json`
+Report: `benchmarks/outputs/summaries/20260329_115520_report.md`
+
+##### Constraint-Correctness Results
+
+| Tier | Regime | Compliance@10 | Violation Rate@10 |
+|---|---|---:|---:|
+| Qdrant | light_filter | 0.1016 | 0.8984 |
+| pgvector | light_filter | 0.1050 | 0.8950 |
+| Qdrant | heavy_filter | 0.0353 | 0.9647 |
+| pgvector | heavy_filter | 0.0353 | 0.9647 |
+
+##### Interpretation
+
+- Compliance improved versus earlier saturated runs, but still below the intended mid-failure target.
+- A small governance signal appears in light_filter (pgvector marginally higher compliance), but effect size is minimal.
+- Heavy-filter remains over-constrained and non-discriminative.
+
+##### Next Tuning Applied
+
+- Relaxed heavy required policy constraints one additional step by dropping required `metadata.tenant` (heavy now focuses on source + timestamp policy pressure).
 
 ---
 
@@ -94,7 +433,7 @@ python benchmarks/run_profile_benchmarks.py --track retrieval
 
 **Product question:** *When is ColBERT worth the latency and VRAM cost?*
 
-**Status:** Awaiting Docker services + `colbert-ir` installation.
+**Status:** Ready once backend stack is up and `colbert-ir` is installed.
 
 The benchmark will measure MRR/nDCG uplift, latency increase, and VRAM delta at reranking depths of 20, 50, and 100.
 
@@ -108,13 +447,30 @@ python benchmarks/run_profile_benchmarks.py --track rerank
 
 **Product question:** *Is profile migration operationally credible?*
 
-**Status:** Awaiting Docker services. Both backends must be live.
+### What We Tested
 
-The benchmark will test Core-to-Governance and Governance-to-Core migration with timing, data integrity spot-checks, and data loss detection.
+- Two migration directions on a 10,000-engram corpus:
+  - Core (Qdrant) -> Governance (pgvector)
+  - Governance (pgvector) -> Core (Qdrant)
+- Batched migration (`batch_size=500`)
+- Validation:
+  - Source/target count parity
+  - 10 ID spot checks
+  - Data-loss calculation
 
-```bash
-python benchmarks/run_profile_benchmarks.py --track migration
-```
+### Results
+
+| Migration | Status | Time | Throughput | Target Verified | Integrity | Data Loss |
+|---|---|---:|---:|---:|---|---:|
+| Core -> Governance | success | 511.82s | 19.5 docs/s | 10,000 | 10/10 | 0 |
+| Governance -> Core | success | 8.28s | 1208.0 docs/s | 10,000 | 10/10 | 0 |
+
+### Interpretation
+
+- Migration completed successfully in both directions with no observed data loss.
+- Throughput is asymmetric and mirrors backend ingest behavior:
+  - pgvector writes are substantially slower than Qdrant writes.
+- Operationally, profile migration is credible for this corpus size, but cutover windows should account for slower Core -> Governance writes.
 
 ---
 
@@ -129,6 +485,9 @@ python benchmarks/run_profile_benchmarks.py --track installer
 
 # Real-world corpus from PDFs
 python benchmarks/run_profile_benchmarks.py --corpus-type real --pdf-dir /path/to/pdfs
+
+# Real-world corpus from local test set
+python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "C:\Users\vin\Downloads\ToLearn"
 
 # Fast dev (smaller corpus, fewer runs)
 python benchmarks/run_profile_benchmarks.py --corpus-size 1000 --runs 3
