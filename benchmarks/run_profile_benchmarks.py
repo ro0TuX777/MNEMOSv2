@@ -9,10 +9,11 @@ Runs the 4-track profile benchmark suite:
   Track 4: Migration & Recovery
 
 Usage:
-    python benchmarks/run_profile_benchmarks.py                  # All tracks
+    python benchmarks/run_profile_benchmarks.py                  # All tracks, synthetic
     python benchmarks/run_profile_benchmarks.py --track retrieval # Single track
     python benchmarks/run_profile_benchmarks.py --track installer # No Docker needed
-    python benchmarks/run_profile_benchmarks.py --corpus-size 1000 # Small corpus
+    python benchmarks/run_profile_benchmarks.py --corpus-size 1000 # Small synthetic
+    python benchmarks/run_profile_benchmarks.py --corpus-type real --pdf-dir /path/to/pdfs
 """
 
 import argparse
@@ -45,6 +46,8 @@ def _print_header():
 def run_suite(
     tracks: list = None,
     corpus_size: int = 10_000,
+    corpus_type: str = "synthetic",
+    pdf_dir: str = None,
     n_runs: int = 5,
     gpu_device: str = "cuda",
     seed: int = 42,
@@ -62,18 +65,28 @@ def run_suite(
     print(f"  Timestamp: {env.timestamp}")
     print()
 
-    # Generate corpus
-    print(f"  Generating corpus ({corpus_size} engrams, 4 domains)...")
-    corpus = generate_corpus(n_docs=corpus_size, seed=seed)
-    print(f"    [OK] {len(corpus)} engrams generated")
-
-    # Save corpus for reproducibility
+    # Build corpus
     datasets_dir = PROJECT_ROOT / "benchmarks" / "outputs" / "datasets"
-    corpus_path = datasets_dir / "corpus.json"
-    save_corpus(corpus, corpus_path)
 
-    # Generate queries
-    print(f"  Generating queries (3 regimes × 100 queries)...")
+    if corpus_type == "real":
+        if not pdf_dir:
+            print("  [ERROR] --pdf-dir required when --corpus-type is 'real'")
+            sys.exit(1)
+        from benchmarks.datasets.pdf_loader import load_pdf_corpus
+        print(f"  Loading real-world corpus from {pdf_dir}...")
+        corpus = load_pdf_corpus(pdf_dir)
+        corpus_path = datasets_dir / "corpus_real.json"
+        save_corpus(corpus, corpus_path)
+        print(f"    Corpus type: real-world PDFs ({len(corpus)} chunks)")
+    else:
+        print(f"  Generating synthetic corpus ({corpus_size} engrams, 4 domains)...")
+        corpus = generate_corpus(n_docs=corpus_size, seed=seed)
+        corpus_path = datasets_dir / "corpus.json"
+        save_corpus(corpus, corpus_path)
+        print(f"    [OK] {len(corpus)} engrams generated")
+
+    # Generate queries from corpus
+    print(f"  Generating queries (3 regimes x 100 queries)...")
     queries = generate_queries(corpus, n_per_regime=100, seed=99)
     queries_path = datasets_dir / "queries.json"
     save_queries(queries, queries_path)
@@ -141,6 +154,14 @@ Tracks:
         help="Run only a specific track (default: all)",
     )
     parser.add_argument(
+        "--corpus-type", type=str, choices=["synthetic", "real"], default="synthetic",
+        help="Corpus type: 'synthetic' (generated) or 'real' (from PDFs)",
+    )
+    parser.add_argument(
+        "--pdf-dir", type=str, default=None,
+        help="Path to directory of PDF files (required when --corpus-type is 'real')",
+    )
+    parser.add_argument(
         "--corpus-size", type=int, default=10_000,
         help="Number of synthetic engrams to generate (default: 10000)",
     )
@@ -163,6 +184,8 @@ Tracks:
     run_suite(
         tracks=tracks,
         corpus_size=args.corpus_size,
+        corpus_type=args.corpus_type,
+        pdf_dir=args.pdf_dir,
         n_runs=args.runs,
         gpu_device=args.gpu,
         seed=args.seed,
