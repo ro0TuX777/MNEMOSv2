@@ -32,9 +32,11 @@ def _run_installer(profile: str, output_dir: Path, dry_run: bool = True) -> Dict
         cmd.append("--dry-run")
 
     t0 = time.perf_counter()
+    env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
     result = subprocess.run(
         cmd, capture_output=True, text=True, timeout=30,
         cwd=str(Path(__file__).resolve().parents[2]),
+        env=env,
     )
     elapsed = time.perf_counter() - t0
 
