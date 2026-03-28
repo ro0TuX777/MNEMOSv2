@@ -21,7 +21,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from mnemos.config import get_config, MnemosConfig
 from mnemos.engram.model import Engram, EngramBatch
-from mnemos.audit.forensic_ledger import ForensicLedger, get_forensic_ledger
 
 logger = logging.getLogger("mnemos.service")
 
@@ -52,7 +51,7 @@ class MnemosRuntime:
         self._initialized = False
         self._config: Optional[MnemosConfig] = None
         self._fusion = None
-        self._ledger: Optional[ForensicLedger] = None
+        self._ledger = None
         self._status = "healthy"
         self._error: Optional[str] = None
 
@@ -72,11 +71,13 @@ class MnemosRuntime:
             # Build retrieval tiers
             tiers = []
 
-            if self._config.has_chromadb:
-                from mnemos.retrieval.chromadb_tier import ChromaDBTier
-                tiers.append(ChromaDBTier(
-                    persist_dir=self._config.chroma_dir,
+            if self._config.has_qdrant:
+                from mnemos.retrieval.qdrant_tier import QdrantTier
+                tiers.append(QdrantTier(
+                    url=self._config.qdrant_url,
+                    collection_name=self._config.qdrant_collection,
                     embedding_model=self._config.embedding_model,
+                    gpu_device=self._config.gpu_device,
                 ))
 
             if self._config.has_lancedb:
@@ -99,8 +100,13 @@ class MnemosRuntime:
 
             # Set up audit ledger
             if self._config.audit_enabled:
-                Path(self._config.audit_db_path).parent.mkdir(parents=True, exist_ok=True)
-                self._ledger = get_forensic_ledger(db_path=self._config.audit_db_path)
+                if self._config.has_postgres:
+                    from mnemos.audit.postgres_ledger import PostgresLedger
+                    self._ledger = PostgresLedger(dsn=self._config.postgres_dsn)
+                else:
+                    from mnemos.audit.forensic_ledger import ForensicLedger
+                    Path(self._config.audit_db_path).parent.mkdir(parents=True, exist_ok=True)
+                    self._ledger = ForensicLedger(db_path=self._config.audit_db_path)
 
             self._initialized = True
             logger.info(f"🚀 MNEMOS runtime initialized: tiers={self._fusion.tier_names}")
@@ -142,6 +148,7 @@ class MnemosRuntime:
                 "enabled": self._config.has_compression if self._config else False,
                 "bits": self._config.quant_bits if self._config else 0,
             },
+            "gpu_device": self._config.gpu_device if self._config else "unknown",
         })
         return payload
 

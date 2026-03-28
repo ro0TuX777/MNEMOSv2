@@ -29,7 +29,7 @@ class TierFusion:
         """
         Args:
             tiers: List of active retrieval tiers.
-            weights: Optional tier weights (e.g. {"chromadb": 1.0, "colbert": 1.5}).
+            weights: Optional tier weights (e.g. {"qdrant": 1.0, "colbert": 1.5}).
                      If not specified, all tiers weighted equally.
         """
         self._tiers = tiers

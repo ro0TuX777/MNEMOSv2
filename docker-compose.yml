@@ -1,23 +1,65 @@
 services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: mnemos-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: mnemos-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=mnemos_audit
+      - POSTGRES_USER=mnemos
+      - POSTGRES_PASSWORD=mnemos
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mnemos -d mnemos_audit"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   mnemos:
     build: .
     container_name: mnemos-service
+    runtime: nvidia
     ports:
       - "8700:8700"
     volumes:
       - ./data:/app/data
     environment:
-      - MNEMOS_TIERS=chromadb
+      - MNEMOS_TIERS=qdrant
       - MNEMOS_EMBEDDING_MODEL=all-MiniLM-L6-v2
       - MNEMOS_QUANT_BITS=4
       - MNEMOS_AUDIT_ENABLED=true
-      - MNEMOS_AUDIT_DB=data/audit.db
       - MNEMOS_PORT=8700
       - MNEMOS_LOG_LEVEL=INFO
+      - MNEMOS_GPU_DEVICE=cuda
+      - MNEMOS_QDRANT_URL=http://qdrant:6333
+      - MNEMOS_QDRANT_COLLECTION=mnemos_engrams
+      - MNEMOS_POSTGRES_DSN=postgresql://mnemos:mnemos@postgres:5432/mnemos_audit
+      - NVIDIA_VISIBLE_DEVICES=all
+    depends_on:
+      qdrant:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8700/health')"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 15s
+      start_period: 30s
+
+volumes:
+  qdrant_data:
+  postgres_data:

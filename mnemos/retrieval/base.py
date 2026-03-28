@@ -27,7 +27,7 @@ class BaseRetriever(ABC):
     @property
     @abstractmethod
     def tier_name(self) -> str:
-        """Unique identifier for this tier (e.g. 'chromadb', 'lancedb', 'colbert')."""
+        """Unique identifier for this tier (e.g. 'qdrant', 'lancedb', 'colbert')."""
         ...
 
     @abstractmethod

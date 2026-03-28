@@ -16,13 +16,14 @@ MNEMOS is a **drop-in memory service** that ships as a single Docker container. 
 
 | Capability | What you get |
 |---|---|
-| **Multi-tier retrieval** | ChromaDB (semantic), LanceDB (hybrid), ColBERT (token-level precision) — use one or all three |
+| **Multi-tier retrieval** | Qdrant (semantic, GPU-accelerated), LanceDB (hybrid), ColBERT (token-level precision) — use one or all three |
 | **TurboQuant compression** | 4-bit near-lossless quantisation — 5.6× storage reduction, 88% Recall@10 (arXiv:2504.19874) |
 | **Engram enrichment** | Every document becomes a tagged, scored, provenanced knowledge unit with relationship edges |
-| **Forensic audit** | Every operation immutably logged — compliance, debugging, and analytics built in |
+| **Forensic audit** | Every operation logged to PostgreSQL — compliance, debugging, and analytics built in |
 | **Contract-governed API** | MFS-compatible versioned contract — every response carries `status`, `contract_version`, `error` |
 | **Boundary SDK** | Python client with readiness polling, retry, timeout, and graceful degradation |
 | **Operational tooling** | Health audit, contract diff, consumer onboarding, CI gates, staged cutover — all included |
+| **GPU-native** | CUDA-accelerated embeddings, NVIDIA runtime, production-grade GPU deployment |
 
 ---
 
@@ -65,11 +66,12 @@ for hit in client.search("gravitational wave detection", top_k=5):
 ├──────────────────────────────────────────────┤
 │           Engram Enrichment Layer            │
 ├──────────────────────────────────────────────┤
-│  ChromaDB  │  LanceDB  │  ColBERT MV        │
+│   Qdrant   │  LanceDB  │  ColBERT MV        │
+│   (CUDA)   │           │  (GPU-accelerated)  │
 ├──────────────────────────────────────────────┤
 │        TurboQuant Compression (4-bit)        │
 ├──────────────────────────────────────────────┤
-│           Forensic Ledger (audit)            │
+│     Forensic Ledger (PostgreSQL / SQLite)    │
 └──────────────────────────────────────────────┘
 ```
 
