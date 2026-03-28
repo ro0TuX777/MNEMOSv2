@@ -77,7 +77,7 @@ def bench_compression_mse():
             file_ratio = original_bytes / compressed_bytes
 
             theoretical_mse = TurboQuant._theoretical_mse(bits)
-            mse_pass = "✅" if mse <= theoretical_mse * 1.5 else "⚠️"
+            mse_pass = "[OK]" if mse <= theoretical_mse * 1.5 else "[WARN]"
 
             row = {
                 "dim": dim, "bits": bits, "n_docs": n_docs,
