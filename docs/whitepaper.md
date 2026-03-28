@@ -19,13 +19,19 @@ Every AI application that persists and retrieves knowledge must solve the same s
 
 Today, each project re-implements these capabilities from scratch — writing custom embedding pipelines, bolting on vector databases, and building ad-hoc search logic. The result is fragile, inconsistent, and impossible to reuse across projects.
 
-## 2. Solution: MNEMOS
+## 2. Solution: MNEMOSv2
 
-**MNEMOS** (Multi-tier Neuro-tagged Engram Memory with Optimal Near-lossless Index Compression) is a self-contained Docker service that provides production-grade memory infrastructure for any application. It ships as a single image, configurable via environment variables, and exposes a versioned REST API governed by an MFS contract.
+**MNEMOS** (Multi-tier Neuro-tagged Engram Memory with Optimal Near-lossless Index Compression) is a GPU-accelerated, production-grade memory service for AI-native applications. It deploys as a **3-container Docker stack** — Qdrant (vector store), PostgreSQL (audit ledger), and the MNEMOS service (CUDA-enabled) — configurable via environment variables, and exposes a versioned REST API governed by an MFS contract.
 
 It is **application-agnostic** — it knows nothing about the domain of the consuming application. It stores, enriches, compresses, retrieves, and audits knowledge. That's it.
 
-MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of **operational tools** (health audit, contract evolution, onboarding, CI gates, and staged cutover) — making it a complete prefab that can be plugged into any application with a single command.
+**What's new in v2:**
+- **Qdrant** replaces ChromaDB as the primary vector store — standalone, horizontally scalable, with native HNSW indexing and payload filtering
+- **PostgreSQL** replaces SQLite for the audit ledger — connection-pooled, concurrent writes, and tsvector-powered full-text search
+- **GPU-only deployment** — CUDA-accelerated embedding inference via `sentence-transformers`, running on an `nvidia/cuda` base image
+- **3-container architecture** — each component runs in its own container with health-gated startup and named Docker volumes for persistence
+
+MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of **operational tools** (health audit, contract evolution, onboarding, CI gates, and staged cutover) — making it a complete prefab that can be plugged into any application with a single `docker compose up`.
 
 ---
 
@@ -62,7 +68,7 @@ MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of
 └────────────────────────────────────────────────────────────┘
 ```
 
-The architecture is layered by concern: the API layer handles routing and auth; the engram layer enriches raw content; the retrieval layer manages tier-specific backends; the compression layer reduces storage footprint; and the audit layer logs every mutation.
+The architecture is layered by concern: the API layer handles routing and auth; the engram layer enriches raw content; the retrieval layer manages GPU-accelerated tier-specific backends; the compression layer reduces storage footprint; and the audit layer logs every mutation to PostgreSQL.
 
 ---
 
@@ -88,13 +94,15 @@ The Engram is **domain-agnostic** — the consuming application decides what `ne
 
 ### 4.2 Multi-Tier Retrieval
 
-MNEMOS supports three retrieval tiers, each serving a different fidelity level. Applications can enable one, two, or all three via the `MNEMOS_TIERS` environment variable:
+MNEMOS supports three retrieval tiers, each serving a different fidelity level. All embedding inference is **GPU-accelerated** via CUDA. Applications can enable one, two, or all three via the `MNEMOS_TIERS` environment variable:
 
 | Tier | Backend | Embedding Model | Strength |
 |---|---|---|---|
-| **Tier 1** | Qdrant | all-MiniLM-L6-v2 (384-dim, CUDA) | Fast semantic vector retrieval, payload filtering |
+| **Tier 1** | Qdrant | all-MiniLM-L6-v2 (384-dim, CUDA) | Fast semantic vector retrieval, HNSW index, payload filtering, horizontal scaling |
 | **Tier 2** | LanceDB | Configurable | Hybrid keyword + vector queries, structured filtering |
-| **Tier 3** | ColBERT Multi-Vector | colbert-ir/colbertv2.0 (128-dim) | Token-level late-interaction matching — highest precision |
+| **Tier 3** | ColBERT Multi-Vector | colbert-ir/colbertv2.0 (128-dim, CUDA) | Token-level late-interaction matching — highest precision |
+
+**Why Qdrant**: Unlike embedded vector stores, Qdrant runs as a standalone service with its own HNSW index, snapshotting, replication, and sharding. It supports concurrent reads and writes without single-process bottlenecks, payload-based filtering without post-filtering, and survives independently of the MNEMOS process.
 
 **Tier fusion**: When multiple tiers are active, the API returns merged results with per-tier scores and a fused ranking. The consuming application can weight tiers differently or target specific tiers per query.
 
@@ -118,19 +126,22 @@ All stored embeddings are compressed via **TurboQuant** (arXiv:2504.19874), a ne
 
 **Why it matters**: Without compression, a 1M-document index at 128 dimensions consumes ~488 MB in float32. With 4-bit TurboQuant, that drops to ~61 MB — enabling deployment on memory-constrained edge devices, smaller cloud instances, and faster cold starts.
 
-### 4.4 Forensic Ledger
+### 4.4 Forensic Ledger (PostgreSQL)
 
-Every operation that touches stored memory is immutably logged:
+Every operation that touches stored memory is immutably logged to **PostgreSQL** via a connection-pooled `psycopg3` driver:
 
 | Field | Purpose |
 |---|---|
-| `timestamp` | When the operation occurred |
+| `timestamp` | When the operation occurred (TIMESTAMPTZ, server-side) |
 | `component` | Which service component performed it |
 | `action` | What happened (index, search, delete, update) |
-| `content` | Human-readable description |
+| `raw_data` | Human-readable description |
 | `status` | `success`, `failure`, `warning` |
 | `latency` | Operation duration in seconds |
-| `metadata` | Structured details (IDs affected, query text, result count) |
+| `metadata` | JSONB structured details (IDs affected, query text, result count) |
+| `search_vector` | Auto-generated tsvector for full-text search (GIN-indexed) |
+
+**Why PostgreSQL**: SQLite's single-writer lock becomes a bottleneck under concurrent agent workloads. PostgreSQL provides connection pooling, ACID transactions, concurrent writes, and native full-text search via `tsvector` + `GIN` indexes — replacing FTS5 with a language-aware, ranked search engine. A SQLite fallback remains available for local development and testing.
 
 **Use cases:**
 - **Compliance** — demonstrate when data was ingested, accessed, or deleted
@@ -422,20 +433,22 @@ Story generators, game engines, or creative tools that need long-term world memo
 
 ### Common Thread
 
-Any application that stores, enriches, retrieves, and audits knowledge — and wants to deploy it as a single container without building the plumbing from scratch. MNEMOS gives you the full stack in one `docker compose up`.
+Any application that stores, enriches, retrieves, and audits knowledge — and needs production-grade infrastructure without building the plumbing from scratch. MNEMOSv2 gives you GPU-accelerated retrieval, scalable audit logging, and a complete operational toolkit in one `docker compose up`.
 
 ---
 
 ## 11. Design Principles
 
 1. **Application-agnostic** — The service has zero knowledge of what domain it serves. It stores vectors, enriches engrams, and answers queries. Period.
-2. **Contract-governed** — Every API response follows a strict MFS contract schema, enabling reliable integration without tight coupling.
-3. **Tier-composable** — Enable one backend or all three. The service adapts its retrieval strategy to what's configured.
-4. **Compression by default** — TurboQuant is on at 4-bit out of the box. Storage scales sublinearly with document count.
-5. **Audit by default** — Every mutation is logged immutably. Compliance is a feature, not an afterthought.
-6. **Graceful degradation** — If a tier goes unhealthy, remaining tiers continue serving. Status is always reported honestly via the contract.
-7. **SDK-first integration** — Consumer apps use the boundary SDK, never raw HTTP. This ensures readiness, retry, and degradation are handled consistently.
-8. **Tooling-complete** — Health audit, contract evolution, onboarding, CI gates, and cutover are included — not left as an exercise for the adopter.
+2. **GPU-native** — Embedding inference runs on CUDA by default. The service is built on `nvidia/cuda` and requires GPU hardware — CPU fallback exists for resilience, not as a primary mode.
+3. **Contract-governed** — Every API response follows a strict MFS contract schema, enabling reliable integration without tight coupling.
+4. **Tier-composable** — Enable one backend or all three. The service adapts its retrieval strategy to what's configured.
+5. **Compression by default** — TurboQuant is on at 4-bit out of the box. Storage scales sublinearly with document count.
+6. **Audit by default** — Every mutation is logged immutably to PostgreSQL. Compliance is a feature, not an afterthought.
+7. **Graceful degradation** — If a tier goes unhealthy, remaining tiers continue serving. Status is always reported honestly via the contract.
+8. **Process isolation** — Each infrastructure component (vector store, audit ledger, service) runs in its own container with independent health checks, volumes, and lifecycle.
+9. **SDK-first integration** — Consumer apps use the boundary SDK, never raw HTTP. This ensures readiness, retry, and degradation are handled consistently.
+10. **Tooling-complete** — Health audit, contract evolution, onboarding, CI gates, and cutover are included — not left as an exercise for the adopter.
 
 ---
 
