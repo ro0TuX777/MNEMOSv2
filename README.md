@@ -21,9 +21,11 @@ MNEMOS is a **drop-in memory service** that deploys as a GPU-accelerated Docker 
 | **TurboQuant compression** | 4-bit near-lossless quantisation — 8× storage reduction, 84% Recall@10 (arXiv:2504.19874) |
 | **Engram enrichment** | Every document becomes a tagged, scored, provenanced knowledge unit with relationship edges |
 | **Forensic audit** | Every operation logged to PostgreSQL — compliance, debugging, and analytics built in |
-| **Contract-governed API** | MFS-compatible versioned contract — every response carries `status`, `contract_version`, `error` |
+| **Contract-governed API** | MFS-compatible versioned contract — every response carries `profile`, `tiers`, `degraded_components`, `status` |
 | **Boundary SDK** | Python client with readiness polling, retry, timeout, and graceful degradation |
-| **Guided installer** | Q/A + host probes → profile recommendation → compose + env generation |
+| **Guided installer** | Q/A + host probes → profile recommendation → compose + env + manifest generation |
+| **Deployment manifest** | `mnemos_profile.yaml` — durable record of profile, host facts, and installer decisions |
+| **Profile migration** | Documented migration paths between profiles with rollback support |
 
 ---
 
@@ -91,16 +93,18 @@ for hit in client.search("gravitational wave detection", top_k=5):
 
 ## API
 
+Every response includes `contract_version`, `status`, `profile`, `tiers`, and `degraded_components`.
+
 | Endpoint | Method | Purpose |
 |---|---|---|
-| `/health` | GET | Health check |
-| `/v1/mnemos/capabilities` | GET | Feature discovery + active profile |
-| `/v1/mnemos/index` | POST | Ingest documents |
-| `/v1/mnemos/search` | POST | Query across active backends |
-| `/v1/mnemos/engrams/{id}` | GET | Retrieve engram |
-| `/v1/mnemos/engrams/{id}` | DELETE | Remove engram |
-| `/v1/mnemos/audit` | GET | Query audit log |
-| `/v1/mnemos/stats` | GET | Index statistics + profile info |
+| `/health` | GET | Container health check |
+| `/v1/mnemos/capabilities` | GET | Active profile, backends, degraded components, compression config |
+| `/v1/mnemos/index` | POST | Ingest documents → engrams |
+| `/v1/mnemos/search` | POST | Query across active backends (with optional metadata filters) |
+| `/v1/mnemos/engrams/{id}` | GET | Retrieve engram by ID |
+| `/v1/mnemos/engrams/{id}` | DELETE | Remove from all backends |
+| `/v1/mnemos/audit` | GET | Query the forensic ledger |
+| `/v1/mnemos/stats` | GET | Backend sizes, profile info, compression ratios |
 
 ## Operational Tooling
 
@@ -127,9 +131,8 @@ docs/                Whitepaper + AI dev hand-off
 
 ## Documentation
 
-- **[Whitepaper](docs/whitepaper.md)** — Architecture deep-dive, deployment profiles, and benchmarks
+- **[Whitepaper](docs/whitepaper.md)** — Architecture deep-dive, profile benchmarks, deployment manifest, and migration rules
 - **[Installation Guide](INSTALL.md)** — Installer usage, profiles, and manual setup
-- **[Use Cases](Use%20Cases.md)** — Example integration scenarios mapped to profiles
 - **[AI Dev Hand-off](docs/FORTHEAIDEV.md)** — Context doc for AI developer assistants
 
 ## License
