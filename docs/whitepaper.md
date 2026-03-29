@@ -5,8 +5,9 @@
 *Version 3.0 Â· March 2026*
 
 > [!NOTE]
-> **As of March 29, 2026:** Benchmark conclusions in this whitepaper are date-scoped to the current measured runs.
+> **As of March 30, 2026:** Benchmark conclusions in this whitepaper are date-scoped to the current measured runs.
 > For full methodology, raw artifacts, and latest updates, see `docs/benchmark.md`.
+> **Governance layer (MemArchitect Waves 1 & 2) is implemented** — per-candidate policy pipeline, entity-slot contradiction detection, and advisory/enforced read path modes. Default mode is `off` (conservative); advisory benchmarking against real corpus is the next step before enforced-mode promotion.
 
 ---
 
@@ -42,6 +43,7 @@ MNEMOS is **application-agnostic** â€” it knows nothing about the domain of
 - **Guided installer** â€” Q/A + host probes â†’ profile recommendation â†’ compose + env + manifest generation
 - **Profile benchmarks** â€” per-profile retrieval latency, recall, and throughput data
 - **Deployment manifest** â€” `mnemos_profile.yaml` as durable deployment artifact
+- **Governance layer (MemArchitect Waves 1 & 2)** â€” per-candidate policy pipeline (veto, freshness decay, trust/utility modifiers) and cross-candidate entity-slot contradiction detection; advisory and enforced read path modes; default is `off` pending advisory benchmarking
 
 MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of **operational tools** (health audit, contract evolution, onboarding, CI gates, and staged cutover) â€” making it a complete platform that can be deployed with a single `python -m installer`.
 
@@ -81,7 +83,7 @@ MNEMOS is organised as a layered stack with a pluggable retrieval tier selected 
 â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
-The architecture is layered by concern: the API layer handles routing and auth; the engram layer enriches raw content; the retrieval layer is determined by the selected deployment profile; the compression layer reduces storage footprint; and the audit layer logs every mutation to PostgreSQL.
+The architecture is layered by concern: the API layer handles routing and auth; the engram layer enriches raw content; the retrieval layer is determined by the selected deployment profile; an optional governance layer evaluates, scores, and suppresses retrieval candidates post-retrieval before the response is assembled; the compression layer reduces storage footprint; and the audit layer logs every mutation to PostgreSQL.
 
 ---
 
@@ -102,6 +104,7 @@ An **Engram** is the atomic unit of knowledge in MNEMOS. It wraps a raw document
 | `created_at` | `datetime` | Ingestion timestamp |
 | `metadata` | `object` | Extensible application-specific data |
 | `edges` | `string[]` | IDs of related engrams (knowledge graph) |
+| `_governance` | `GovernanceMeta` | Optional governance metadata (lifecycle state, trust/utility/freshness scores, conflict state, lineage); `null` for legacy engrams |
 
 The Engram is **domain-agnostic** â€” the consuming application decides what `neuro_tags` mean, what `source` URIs look like, and what goes in `metadata`. MNEMOS provides the schema, storage, indexing, and retrieval.
 
@@ -263,6 +266,58 @@ Every operation that touches stored memory is immutably logged to **PostgreSQL**
 - **Debugging** â€” replay the sequence of operations that led to a retrieval failure
 - **Analytics** â€” track query patterns, ingestion rates, and error trends
 
+### 4.6 Governance Layer (MemArchitect)
+
+The **Governance Layer** is an in-process post-retrieval pipeline that evaluates, scores, and optionally suppresses candidates before they are returned to the caller. It operates on the `GovernanceMeta` attached to each Engram and produces a `GovernanceDecision` per candidate alongside optional `ContradictionRecord` objects.
+
+**Three governance modes:**
+
+| Mode | Behavior |
+|---|---|
+| `off` | No governance; results returned unchanged (default) |
+| `advisory` | All candidates evaluated; none suppressed; results re-ranked by `governed_score`; decisions included in response for inspection |
+| `enforced` | Suppressed candidates removed; survivors re-ranked by `governed_score` and trimmed to `top_k` |
+
+**Score formula:**
+
+```
+governed_score = retrieval_score
+              × trust_modifier
+              × utility_modifier
+              × freshness_modifier
+              × contradiction_modifier
+              × veto_modifier
+```
+
+**Policy pipeline (per-candidate):**
+
+| Policy | What it does |
+|---|---|
+| `RelevanceVetoPolicy` | Hard veto for score-below-threshold, deleted (`soft_deleted`/`tombstone`), or `toxic`-flagged candidates; exponential freshness decay on `freshness_modifier` |
+| `UtilityPolicy` | Maps `trust_score` and `utility_score` from `GovernanceMeta` to `[0.75, 1.25]`-range modifiers |
+
+**Cross-candidate contradiction detection (Wave 2):**
+
+Candidates that carry `entity_key`, `attribute_key`, and `normalized_value` in their `GovernanceMeta` are grouped by `(entity_key, attribute_key)`. Groups with two or more distinct normalized values are contradiction clusters. A winner is selected deterministically by:
+
+1. `trust_score` (higher wins)
+2. `created_at` (newer wins)
+3. `utility_score` (higher wins)
+4. `source_authority` (higher wins)
+5. `engram.id` (lexicographically lower — always resolves ties)
+
+The winner receives `contradiction_modifier = 1.0`; losers receive `0.25`. In enforced mode, losers are removed from the result set.
+
+**Configuration (environment variables):**
+
+| Variable | Default | Description |
+|---|---|---|
+| `MNEMOS_GOVERNANCE_MODE` | `off` | Default mode for all search requests |
+| `MNEMOS_GOVERNANCE_MIN_SCORE` | `0.0` | Veto threshold (0.0 disables score-floor veto) |
+| `MNEMOS_GOVERNANCE_FRESHNESS_HALF_LIFE` | `180.0` | Freshness decay half-life in days |
+
+The governance mode can also be overridden per-request via the `governance` parameter on `POST /v1/mnemos/search`. The `explain_governance: true` parameter returns full modifier breakdowns and conflict state per result.
+
 ---
 
 ## 5. API Contract
@@ -305,6 +360,7 @@ GET    /v1/mnemos/engrams/{id}      â€” Retrieve a specific engram
 DELETE /v1/mnemos/engrams/{id}      â€” Remove from all backends
 GET    /v1/mnemos/audit             â€” Query the forensic ledger
 GET    /v1/mnemos/stats             â€” Profile info, backend sizes, compression ratios
+GET    /v1/mnemos/governance/stats  â€” Governance aggregate stats (veto rate, suppression rate, contradiction counts)
 ```
 
 ### Example: /capabilities Response
@@ -668,6 +724,7 @@ Any application that stores, enriches, retrieves, and audits knowledge â€” 
 8. **Process isolation** â€” Each infrastructure component (vector store, audit ledger, service) runs in its own container with independent health checks, volumes, and lifecycle.
 9. **SDK-first integration** â€” Consumer apps use the boundary SDK, never raw HTTP. This ensures readiness, retry, and degradation are handled consistently.
 10. **Tooling-complete** â€” Health audit, contract evolution, onboarding, CI gates, and cutover are included â€” not left as an exercise for the adopter.
+11. **Governance by design** â€” The governance layer is built into the read path, not bolted on. Memory quality scores, freshness decay, contradiction detection, and suppression policies are first-class concerns evaluated at query time. Advisory mode before enforced mode; benchmark evidence drives promotion.
 
 ---
 
@@ -779,6 +836,12 @@ MNEMOS/
 â”‚   â”‚   â”œâ”€â”€ fusion.py          Multi-backend fusion engine
 â”‚   â”‚   â””â”€â”€ base.py            BaseRetriever interface
 â”‚   â””â”€â”€ audit/                 Forensic ledger
+â”‚   â””â”€â”€ governance/            Governance layer (MemArchitect)
+â”‚       â”œâ”€â”€ governor.py        Entry point; wraps registry + read path
+â”‚       â”œâ”€â”€ read_path.py       Advisory / enforced read path; 3-tuple return
+â”‚       â”œâ”€â”€ policy_registry.py Per-candidate policy pipeline with short-circuit
+â”‚       â”œâ”€â”€ policies/          RelevanceVetoPolicy, UtilityPolicy, ContradictionPolicy
+â”‚       â””â”€â”€ models/            GovernanceMeta, GovernanceDecision, ContradictionRecord
 â”œâ”€â”€ mnemos_sdk/                Boundary adapter SDK (client library)
 â”‚   â”œâ”€â”€ client.py              MnemosClient with typed methods
 â”‚   â””â”€â”€ config.py              MnemosConfig.from_env()
@@ -824,6 +887,8 @@ MNEMOS was designed from the ground up as a reusable memory service. Its archite
 | Consumer scaffolding | Consumer Onboarding |
 | Pipeline integration | CI/CD Gates |
 | Staged rollout | Cutover Scaffold |
+| Memory lifecycle governance | Governance Layer (mnemos/governance/) |
+| Contradiction detection & resolution | ContradictionPolicy (Wave 2) |
 
 What remains is a **pure infrastructure service** â€” a reusable, tooling-complete foundation for any application that needs intelligent, compressed, auditable memory.
 
