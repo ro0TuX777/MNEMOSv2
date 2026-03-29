@@ -141,6 +141,44 @@ def generate_markdown_report(results: Dict[str, Any], output_dir: Path) -> Path:
                 lines.append("")
                 lines.append(f"Recommended depth: top-{rec}" if rec else "Recommended depth: n/a")
                 lines.append("")
+
+                audit = tier_data.get("audit")
+                if audit and audit.get("status") == "success":
+                    lines.extend([
+                        f"Audit traces: {audit.get('n_queries', 0)} queries @ top-{audit.get('depth', '-')}",
+                        "Captured per query: baseline top-10, ColBERT top-10, lexical-overlap top-10, mean-cosine top-10, and gold-rank movement.",
+                        "",
+                    ])
+                    summary = audit.get("summary", {})
+                    if summary:
+                        lines.extend([
+                            "| Audit Ranker | MRR@10 | nDCG@10 | Recall@10 |",
+                            "|---|---|---|---|",
+                        ])
+                        order = ["baseline", "colbert", "lexical_overlap", "mean_cosine"]
+                        labels = {
+                            "baseline": "Baseline ANN",
+                            "colbert": "ColBERT",
+                            "lexical_overlap": "Lexical overlap",
+                            "mean_cosine": "Mean-cosine",
+                        }
+                        for k in order:
+                            if k not in summary:
+                                continue
+                            s = summary[k]
+                            lines.append(
+                                f"| {labels[k]} | {s.get('mrr_at_10', 0):.4f} | "
+                                f"{s.get('ndcg_at_10', 0):.4f} | {s.get('recall_at_10', 0):.4f} |"
+                            )
+                        lines.append("")
+                    gate = audit.get("gate_a1_pass")
+                    if gate is True:
+                        lines.append("Gate A.1 vs trivial baselines: PASS")
+                    elif gate is False:
+                        lines.append("Gate A.1 vs trivial baselines: FAIL")
+                    else:
+                        lines.append("Gate A.1 vs trivial baselines: n/a")
+                    lines.append("")
         else:
             lines.append(f"*Skipped: {rr.get('reason', 'unknown')}*")
             lines.append("")

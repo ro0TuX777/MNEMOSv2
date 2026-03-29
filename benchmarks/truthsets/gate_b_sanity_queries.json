@@ -1,0 +1,56 @@
+{
+  "version": "gate_b_v1_bootstrapped",
+  "description": "Bootstrapped from Track 2 audit traces; review and refine before final Gate B runs.",
+  "queries": [
+    {
+      "query_id": "3b88ec0aa586",
+      "query_text": "Container image size optimization",
+      "regime": "semantic"
+    },
+    {
+      "query_id": "f15a9675e4e2",
+      "query_text": "Compliance training requirements",
+      "regime": "semantic"
+    },
+    {
+      "query_id": "a40eec1785f8",
+      "query_text": "Intellectual property protection status",
+      "regime": "semantic"
+    },
+    {
+      "query_id": "fdb6f9599585",
+      "query_text": "Litigation reserve estimates",
+      "regime": "semantic"
+    },
+    {
+      "query_id": "a31b048e7425",
+      "query_text": "Budget forecast growth projections",
+      "regime": "semantic"
+    },
+    {
+      "query_id": "90c542313616",
+      "query_text": "Security vulnerability scan findings",
+      "regime": "semantic"
+    },
+    {
+      "query_id": "cba5681bab70",
+      "query_text": "Compliance review material findings",
+      "regime": "semantic"
+    },
+    {
+      "query_id": "0eedd8d619e5",
+      "query_text": "API endpoint latency measurements",
+      "regime": "semantic"
+    },
+    {
+      "query_id": "94c63e4216fc",
+      "query_text": "Monitoring stack retention config",
+      "regime": "semantic"
+    },
+    {
+      "query_id": "106d4a62fb80",
+      "query_text": "Merger due diligence document review",
+      "regime": "semantic"
+    }
+  ]
+}

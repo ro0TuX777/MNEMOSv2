@@ -7,7 +7,7 @@ with metadata derived from filenames and content analysis.
 
 Usage:
     from benchmarks.datasets.pdf_loader import load_pdf_corpus
-    engrams = load_pdf_corpus("C:/Users/vin/Downloads/ToLearn")
+    engrams = load_pdf_corpus("/path/to/pdfs")
 """
 
 import hashlib
