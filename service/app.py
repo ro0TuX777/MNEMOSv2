@@ -21,10 +21,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from mnemos.config import get_config, MnemosConfig
 from mnemos.engram.model import Engram, EngramBatch
-
+from mnemos.retrieval.policies.fusion_policies import FUSION_POLICIES
 logger = logging.getLogger("mnemos.service")
 
 CONTRACT_VERSION = "v1"
+SUPPORTED_RETRIEVAL_MODES = {"semantic", "hybrid"}
 
 app = Flask(__name__)
 
@@ -50,7 +51,9 @@ class MnemosRuntime:
     def __init__(self):
         self._initialized = False
         self._config: Optional[MnemosConfig] = None
-        self._fusion = None
+        self._semantic_fusion = None
+        self._router = None
+        self._lexical_tier = None
         self._ledger = None
         self._status = "healthy"
         self._error: Optional[str] = None
@@ -105,7 +108,24 @@ class MnemosRuntime:
                 raise RuntimeError("No retrieval tiers configured. Set MNEMOS_TIERS.")
 
             from mnemos.retrieval.fusion import TierFusion
-            self._fusion = TierFusion(tiers)
+            from mnemos.retrieval.retrieval_router import RetrievalRouter
+
+            self._semantic_fusion = TierFusion(tiers)
+
+            # Lexical lane is backed by Postgres FTS and enabled when Postgres is configured.
+            self._lexical_tier = None
+            if self._config.has_postgres:
+                from mnemos.retrieval.lexical_tier import LexicalTier
+
+                self._lexical_tier = LexicalTier(
+                    dsn=self._config.postgres_dsn,
+                    table_name=self._config.lexical_table,
+                )
+
+            self._router = RetrievalRouter(
+                semantic_fusion=self._semantic_fusion,
+                lexical_tier=self._lexical_tier,
+            )
 
             # Set up audit ledger
             if self._config.audit_enabled:
@@ -118,7 +138,10 @@ class MnemosRuntime:
                     self._ledger = ForensicLedger(db_path=self._config.audit_db_path)
 
             self._initialized = True
-            logger.info(f"🚀 MNEMOS runtime initialized: tiers={self._fusion.tier_names}")
+            logger.info(
+                f"🚀 MNEMOS runtime initialized: semantic_tiers={self._semantic_fusion.tier_names}, "
+                f"lexical_available={bool(self._lexical_tier)}"
+            )
 
         except Exception as e:
             self._status = "unavailable"
@@ -149,11 +172,18 @@ class MnemosRuntime:
 
     def capabilities(self) -> Dict[str, Any]:
         payload = self._base_payload()
+        retrieval_stats = self._router.stats() if self._router else {}
         payload.update({
             "feature": "mnemos_memory",
             "profile": self._config.profile if self._config else "unknown",
             "supports": ["index", "search", "engrams", "audit", "stats"],
-            "tiers": self._fusion.tier_names if self._fusion else [],
+            "tiers": self._semantic_fusion.tier_names if self._semantic_fusion else [],
+            "retrieval_modes": retrieval_stats.get("supported_retrieval_modes", ["semantic"]),
+            "fusion_policies": retrieval_stats.get("supported_fusion_policies", []),
+            "retrieval_mode_default": self._config.retrieval_mode if self._config else "semantic",
+            "fusion_policy_default": self._config.fusion_policy if self._config else "balanced",
+            "lexical_lane_available": bool(self._lexical_tier),
+            "explain_support": True,
             "compression": {
                 "enabled": self._config.has_compression if self._config else False,
                 "bits": self._config.quant_bits if self._config else 0,
@@ -179,7 +209,10 @@ class MnemosRuntime:
             engrams.append(engram)
 
         tiers = options.get("tiers")
-        counts = self._fusion.index(engrams, tiers=tiers)
+        counts = self._semantic_fusion.index(engrams, tiers=tiers)
+        index_lexical = options.get("index_lexical", True)
+        if index_lexical and self._lexical_tier:
+            counts["lexical"] = self._lexical_tier.index(engrams)
 
         elapsed = time.time() - t0
         self._audit("index", f"Indexed {len(engrams)} documents", metadata={
@@ -195,27 +228,60 @@ class MnemosRuntime:
         }
         return payload
 
-    def search_documents(self, query: str, top_k: int, tiers: Optional[List[str]],
-                         filters: Optional[Dict]) -> Dict[str, Any]:
+    def search_documents(
+        self,
+        query: str,
+        top_k: int,
+        tiers: Optional[List[str]],
+        filters: Optional[Dict],
+        retrieval_mode: Optional[str],
+        fusion_policy: Optional[str],
+        explain: Optional[bool],
+    ) -> Dict[str, Any]:
         """Search across tiers and return fused results."""
         import time
         t0 = time.time()
 
-        results = self._fusion.search(query, top_k=top_k, filters=filters, tiers=tiers)
+        selected_mode = retrieval_mode or self._config.retrieval_mode
+        selected_policy = fusion_policy or self._config.fusion_policy
+        selected_explain = self._config.explain_default if explain is None else bool(explain)
+
+        results, mode_meta = self._router.search(
+            query=query,
+            top_k=top_k,
+            filters=filters,
+            tiers=tiers,
+            retrieval_mode=selected_mode,
+            fusion_policy=selected_policy,
+            explain=selected_explain,
+            lexical_top_k=self._config.lexical_top_k,
+            semantic_top_k=self._config.semantic_top_k,
+        )
 
         elapsed = time.time() - t0
         self._audit("search", f"Search: '{query[:80]}' → {len(results)} results",
-                     metadata={"query": query, "top_k": top_k, "result_count": len(results)},
+                     metadata={
+                         "query": query,
+                         "top_k": top_k,
+                         "result_count": len(results),
+                         "retrieval_mode": mode_meta.get("retrieval_mode", "semantic"),
+                         "fusion_policy": mode_meta.get("fusion_policy"),
+                     },
                      latency=elapsed)
 
         payload = self._base_payload()
         payload["results"] = [
-            {
+            dict({
                 "engram": r.engram.to_dict(),
                 "score": round(r.score, 4),
                 "tier": r.tier,
                 "tiers": r.metadata.get("tiers", [r.tier]),
-            }
+            }, **({
+                "component_scores": r.metadata.get("component_scores"),
+                "retrieval_sources": r.metadata.get("retrieval_sources", []),
+                "filters_applied": r.metadata.get("filters_applied", filters or {}),
+                "fusion_policy": r.metadata.get("fusion_policy", selected_policy),
+            } if selected_explain and mode_meta.get("retrieval_mode") == "hybrid" else {}))
             for r in results
         ]
         payload["meta"] = {
@@ -223,14 +289,25 @@ class MnemosRuntime:
             "top_k": top_k,
             "result_count": len(results),
             "latency_s": round(elapsed, 3),
+            "retrieval_mode": mode_meta.get("retrieval_mode", "semantic"),
+            "fusion_policy": mode_meta.get("fusion_policy"),
+            "lexical_lane_available": mode_meta.get("lexical_available", False),
+            "explain": selected_explain,
         }
+        if mode_meta.get("telemetry"):
+            payload["meta"]["hybrid_telemetry"] = mode_meta["telemetry"]
         return payload
 
     def get_engram(self, engram_id: str) -> Dict[str, Any]:
         """Retrieve a specific engram by ID."""
         payload = self._base_payload()
-        for tier in (self._fusion._tiers if self._fusion else []):
+        for tier in (self._semantic_fusion._tiers if self._semantic_fusion else []):
             engram = tier.get(engram_id)
+            if engram:
+                payload["engram"] = engram.to_dict()
+                return payload
+        if self._lexical_tier:
+            engram = self._lexical_tier.get(engram_id)
             if engram:
                 payload["engram"] = engram.to_dict()
                 return payload
@@ -240,7 +317,9 @@ class MnemosRuntime:
 
     def delete_engram(self, engram_id: str) -> Dict[str, Any]:
         """Delete an engram from all tiers."""
-        counts = self._fusion.delete([engram_id])
+        counts = self._semantic_fusion.delete([engram_id])
+        if self._lexical_tier:
+            counts["lexical"] = self._lexical_tier.delete([engram_id])
         self._audit("delete", f"Deleted engram {engram_id}", metadata={"tiers": counts})
 
         payload = self._base_payload()
@@ -264,8 +343,14 @@ class MnemosRuntime:
     def get_stats(self) -> Dict[str, Any]:
         """Get system-wide statistics."""
         payload = self._base_payload()
+        retrieval_stats = self._semantic_fusion.stats() if self._semantic_fusion else {}
+        router_stats = self._router.stats() if self._router else {}
+        lexical_stats = self._lexical_tier.stats() if self._lexical_tier else {"available": False}
+
+        retrieval_stats["hybrid"] = router_stats
+        retrieval_stats["lexical_lane"] = lexical_stats
         payload["stats"] = {
-            "retrieval": self._fusion.stats() if self._fusion else {},
+            "retrieval": retrieval_stats,
             "compression": {
                 "enabled": self._config.has_compression if self._config else False,
                 "bits": self._config.quant_bits if self._config else 0,
@@ -365,11 +450,39 @@ def search():
     top_k = body.get("top_k", 10)
     tiers = body.get("tiers")
     filters = body.get("filters")
+    retrieval_mode = body.get("retrieval_mode")
+    fusion_policy = body.get("fusion_policy")
+    explain = body.get("explain")
 
     if not query:
         return jsonify({"error": "No query provided"}), 400
 
-    return jsonify(_runtime.search_documents(query, top_k, tiers, filters)), 200
+    if retrieval_mode is not None and retrieval_mode not in SUPPORTED_RETRIEVAL_MODES:
+        return jsonify({
+            "error": "Invalid retrieval_mode",
+            "supported_retrieval_modes": sorted(SUPPORTED_RETRIEVAL_MODES),
+        }), 400
+
+    if fusion_policy is not None and fusion_policy not in FUSION_POLICIES:
+        return jsonify({
+            "error": "Invalid fusion_policy",
+            "supported_fusion_policies": sorted(FUSION_POLICIES.keys()),
+        }), 400
+
+    if explain is not None and not isinstance(explain, bool):
+        return jsonify({"error": "explain must be a boolean"}), 400
+
+    return jsonify(
+        _runtime.search_documents(
+            query,
+            top_k,
+            tiers,
+            filters,
+            retrieval_mode,
+            fusion_policy,
+            explain,
+        )
+    ), 200
 
 
 @app.get("/v1/mnemos/engrams/<engram_id>")

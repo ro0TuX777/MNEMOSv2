@@ -30,6 +30,7 @@ Today, each project re-implements these capabilities from scratch â€” writi
 - **Core Memory Appliance** â€” Qdrant + PostgreSQL + MNEMOS (3 containers). Semantic ANN with payload filtering.
 - **Governance Native** â€” PostgreSQL/pgvector + MNEMOS (2 containers). ANN + SQL metadata filtering in one query.
 - **Custom Manual** â€” Operator-defined configuration for advanced multi-backend setups.
+- **Hybrid Retrieval Mode (Gate C)** - optional lexical + semantic fusion mode inside existing profiles (not a separate profile).
 
 A guided Python installer (`python -m installer`) probes the host, asks 5 questions, recommends a profile, and generates all deployment files. The service exposes a versioned REST API governed by an MFS contract.
 
@@ -112,13 +113,14 @@ MNEMOS supports multiple retrieval backends, selected by deployment profile. All
 |---|---|---|---|
 | **Qdrant** | Core Memory Appliance | all-MiniLM-L6-v2 (384-dim, CUDA) | Fast semantic ANN, HNSW index, payload filtering, horizontal scaling |
 | **pgvector** | Governance Native | all-MiniLM-L6-v2 (384-dim, CUDA) | ANN + SQL metadata filtering in one query, single-database deployment |
-| **ColBERT** | Optional (any profile) | colbert-ir/colbertv2.0 (128-dim, CUDA) | Token-level late-interaction matching â€” highest precision reranking |
+| **PostgreSQL FTS** | Hybrid mode (Core/Governance) | n/a (lexical lane) | Exact-term/title/acronym retrieval via full-text lexical matching |
+| **ColBERT** | Experimental (optional) | colbert-ir/colbertv2.0 (128-dim, CUDA) | Reranking path under evaluation; not production-default |
 
 **Why Qdrant** (Core Memory Appliance): Standalone service with its own HNSW index, snapshotting, replication, and sharding. Supports concurrent reads and writes without single-process bottlenecks, payload-based filtering without post-filtering, and survives independently of the MNEMOS process.
 
 **Why pgvector** (Governance Native): Vectors live inside the same PostgreSQL instance as the forensic ledger. ANN retrieval can be combined with SQL `WHERE` clauses on tenant, provenance, department, security markings, or any relational metadata â€” in a single query. This eliminates the need for a separate vector service in governance-heavy deployments.
 
-**Tier fusion**: When multiple backends are active (e.g. Qdrant + ColBERT), the API returns merged results with per-tier scores and a fused ranking. The consuming application can weight tiers differently or target specific backends per query.
+**Hybrid fusion**: In Gate C hybrid mode, MNEMOS merges lexical (PostgreSQL FTS) and semantic candidates with deterministic normalization and weighted fusion (`semantic_dominant`, `balanced`, `lexical_dominant`). Optional explain output returns component scores and source attribution per hit.
 
 ### 4.3 TurboQuant Compression
 
@@ -221,6 +223,23 @@ Observed on this workload:
 - Reranking reduced MRR and nDCG at depths 20/50/100 for both backends.
 - Recommended depth is currently `n/a` (no rerank by default).
 - The current implementation path logged a sentence-transformers mean-pooling fallback for `colbert-ir/colbertv2.0`; final ColBERT policy should be revisited after model-path alignment.
+
+#### Hybrid Retrieval (Gate C, Real Corpus)
+
+Reference decision run: `20260329_225832_profile_benchmarks.json`  
+Decision report: `20260329_225907_gate_c_decision.md`
+
+Observed on this workload:
+- Track execution complete: `True`
+- Quality class win found: `False`
+- Latency threshold satisfied: `True`
+- Sprint exit pass: `False`
+
+Interpretation:
+- Hybrid retrieval is implemented, benchmarkable, and operationally viable.
+- Hybrid did not demonstrate a differentiated quality-class win on this real-corpus benchmark.
+- Semantic-only remains the production default at this time.
+- Hybrid remains available as an evaluation mode for targeted enterprise query classes.
 
 ### 4.5 Forensic Ledger (PostgreSQL)
 
@@ -466,9 +485,9 @@ MNEMOS ships with named deployment profiles that determine the retrieval backend
 
 No compose generation â€” the operator provides their own configuration. The installer writes `.env.mnemos` only. Supports any combination of backends including ColBERT reranking.
 
-### Profile D: Enterprise Search *(future â€” not yet installable)*
+### Hybrid Retrieval Mode (Gate C) *(inside existing profiles)*
 
-Qdrant or pgvector + OpenSearch/Elastic + optional ColBERT. Designed for hybrid lexical + semantic search, search analytics, and multi-stage relevance ranking. Documented here as a growth direction; not available in the current installer.
+Hybrid retrieval is not a separate deployment profile. It is a retrieval mode available within Core and Governance deployments using lexical + semantic fusion. As of the March 29, 2026 real-corpus benchmark decision, hybrid is supported for targeted evaluation but is not the global default.
 
 ---
 
@@ -597,7 +616,7 @@ The most natural fit. Any system that has an LLM doing multi-step work needs per
 
 Enterprise document search where accuracy and audit trails matter â€” legal, medical, compliance.
 
-- **What MNEMOS provides**: Profile-matched retrieval (pgvector for governance-heavy, Qdrant for speed), ColBERT for precision when it counts, TurboQuant for scaling to millions of chunks.
+- **What MNEMOS provides**: Profile-matched retrieval (pgvector for governance-heavy, Qdrant for speed), optional hybrid lexical+semantic mode for exact-term sensitive workloads, and TurboQuant for scaling to millions of chunks.
 - **Why it wins**: The forensic ledger gives compliance-ready logging of every query and retrieval â€” *"show me exactly what documents were retrieved for this answer and when."*
 - **Example**: Internal knowledge base for a law firm â€” lawyers query it, each retrieval is logged for audit, and pgvector filters by department and security clearance.
 
@@ -623,11 +642,11 @@ Systems where multiple specialised agents need shared memory without stepping on
 
 ### 10.5 Content / Creative Platforms
 
-**Recommended profile:** Core Memory Appliance + ColBERT reranking
+**Recommended profile:** Core Memory Appliance (semantic default), with optional hybrid mode for exact-term-sensitive workloads
 
 Story generators, game engines, or creative tools that need long-term world memory.
 
-- **What MNEMOS provides**: Engram edges create a knowledge graph of relationships (characters â†’ events â†’ locations). Neuro-tags categorise memory by theme. ColBERT finds nuanced, token-level matches for continuity.
+- **What MNEMOS provides**: Engram edges create a knowledge graph of relationships (characters â†’ events â†’ locations). Neuro-tags categorise memory by theme. Hybrid lexical+semantic retrieval can improve exact phrase continuity checks.
 - **Why it wins**: Creative tools need precise recall (*"what did character X say about Y in chapter 3?"*) â€” multi-vector retrieval is dramatically better than single-vector for this.
 - **Example**: An interactive fiction engine where the story adapts based on retrieving and referencing past plot points from a compressed engram store.
 
@@ -807,4 +826,5 @@ MNEMOS was designed from the ground up as a reusable memory service. Its archite
 | Staged rollout | Cutover Scaffold |
 
 What remains is a **pure infrastructure service** â€” a reusable, tooling-complete foundation for any application that needs intelligent, compressed, auditable memory.
+
 

@@ -2,15 +2,17 @@
 MNEMOS Profile Benchmark Suite - Entry Point
 ================================================
 
-Runs the 4-track profile benchmark suite:
+Runs the 5-track profile benchmark suite:
   Track 1: Profile Retrieval (Core vs Governance)
   Track 2: ColBERT Reranking Uplift
   Track 3: Installer Overhead
   Track 4: Migration & Recovery
+  Track 5: Hybrid Retrieval (lexical + semantic fusion)
 
 Usage:
-    python benchmarks/run_profile_benchmarks.py                  # All tracks, synthetic
+    python benchmarks/run_profile_benchmarks.py                   # All tracks, synthetic
     python benchmarks/run_profile_benchmarks.py --track retrieval # Single track
+    python benchmarks/run_profile_benchmarks.py --track hybrid    # Gate C hybrid track
     python benchmarks/run_profile_benchmarks.py --track installer # No Docker needed
     python benchmarks/run_profile_benchmarks.py --corpus-size 1000 # Small synthetic
     python benchmarks/run_profile_benchmarks.py --corpus-type real --pdf-dir /path/to/pdfs
@@ -18,7 +20,6 @@ Usage:
 
 import argparse
 import sys
-import time
 from pathlib import Path
 
 # Ensure project root on path
@@ -31,7 +32,7 @@ from benchmarks.metrics.system_metrics import capture_environment
 from benchmarks.metrics.reporting import save_raw_results, generate_markdown_report
 
 
-TRACKS = ["retrieval", "rerank", "installer", "migration"]
+TRACKS = ["retrieval", "rerank", "installer", "migration", "hybrid"]
 
 
 def _print_header():
@@ -88,8 +89,16 @@ def run_suite(
         save_corpus(corpus, corpus_path)
         print(f"    [OK] {len(corpus)} engrams generated")
 
-    # Generate queries from corpus
-    print(f"  Generating queries (3 regimes x 100 queries)...")
+    if len(corpus) == 0:
+        print("  [ERROR] Corpus is empty. Cannot generate benchmark queries.")
+        if corpus_type == "real":
+            print("  [HINT] Check --pdf-dir points to a directory with readable PDF files.")
+        else:
+            print("  [HINT] Increase --corpus-size to a positive value.")
+        sys.exit(1)
+
+    # Generate baseline retrieval queries from corpus
+    print("  Generating queries (3 regimes x 100 queries)...")
     queries = generate_queries(corpus, n_per_regime=100, seed=99)
     queries_path = datasets_dir / "queries.json"
     save_queries(queries, queries_path)
@@ -100,14 +109,14 @@ def run_suite(
 
     results = {}
 
-    # ─────────── Track 1: Retrieval ───────────
+    # Track 1: Retrieval
     if "retrieval" in tracks:
         from benchmarks.runners.retrieval_runner import run_retrieval_track
         results["retrieval"] = run_retrieval_track(
             corpus, queries, n_runs=n_runs, gpu_device=gpu_device,
         )
 
-    # ─────────── Track 2: Reranking ───────────
+    # Track 2: Reranking
     if "rerank" in tracks:
         from benchmarks.runners.rerank_runner import run_rerank_benchmark
         results["rerank"] = run_rerank_benchmark(
@@ -119,19 +128,28 @@ def run_suite(
             audit_depth=rerank_audit_depth,
         )
 
-    # ─────────── Track 3: Installer ───────────
+    # Track 3: Installer
     if "installer" in tracks:
         from benchmarks.runners.install_runner import run_installer_track
         results["installer"] = run_installer_track()
 
-    # ─────────── Track 4: Migration ───────────
+    # Track 4: Migration
     if "migration" in tracks:
         from benchmarks.runners.migration_runner import run_migration_track
         results["migration"] = run_migration_track(
             corpus, gpu_device=gpu_device,
         )
 
-    # ─────────── Save results ───────────
+    # Track 5: Hybrid retrieval
+    if "hybrid" in tracks:
+        from benchmarks.runners.hybrid_runner import run_hybrid_track
+        results["hybrid"] = run_hybrid_track(
+            corpus=corpus,
+            n_runs=n_runs,
+            gpu_device=gpu_device,
+        )
+
+    # Save results
     output_dir = PROJECT_ROOT / "benchmarks" / "outputs"
     raw_path = save_raw_results(results, output_dir / "raw")
     report_path = generate_markdown_report(results, output_dir / "summaries")
@@ -155,6 +173,7 @@ Tracks:
   rerank      ColBERT reranking uplift - requires Docker + colbert-ir
   installer   Installer vs manual deployment - NO Docker required
   migration   Profile migration behavior - requires Docker
+  hybrid      Semantic vs lexical vs hybrid fusion policies - requires Docker
 """,
     )
     parser.add_argument(
