@@ -63,6 +63,11 @@ class MnemosConfig:
     semantic_top_k: int = 25
     explain_default: bool = False
 
+    # Governance layer
+    governance_mode: str = "off"            # off | advisory | enforced
+    governance_min_score: float = 0.0       # veto threshold (0.0 = disabled)
+    governance_freshness_half_life: float = 180.0   # days
+
     @staticmethod
     def _parse_bool(name: str, default: str) -> bool:
         raw = os.getenv(name, default).strip().lower()
@@ -91,6 +96,24 @@ class MnemosConfig:
         return raw
 
     @staticmethod
+    def _parse_governance_mode(name: str = "MNEMOS_GOVERNANCE_MODE", default: str = "off") -> str:
+        raw = os.getenv(name, default).strip().lower()
+        if raw not in {"off", "advisory", "enforced"}:
+            raise ValueError(f"{name} must be one of: off,advisory,enforced (got '{raw}')")
+        return raw
+
+    @staticmethod
+    def _parse_float(name: str, default: str, *, min_value: float = 0.0) -> float:
+        raw = os.getenv(name, default).strip()
+        try:
+            value = float(raw)
+        except ValueError as e:
+            raise ValueError(f"{name} must be a float (got '{raw}')") from e
+        if value < min_value:
+            raise ValueError(f"{name} must be >= {min_value} (got {value})")
+        return value
+
+    @staticmethod
     def _parse_fusion_policy(name: str = "MNEMOS_FUSION_POLICY", default: str = "balanced") -> str:
         raw = os.getenv(name, default).strip().lower()
         if raw not in FUSION_POLICIES:
@@ -113,6 +136,12 @@ class MnemosConfig:
         lexical_top_k = cls._parse_int("MNEMOS_LEXICAL_TOP_K", "25", min_value=1)
         semantic_top_k = cls._parse_int("MNEMOS_SEMANTIC_TOP_K", "25", min_value=1)
         explain_default = cls._parse_bool("MNEMOS_EXPLAIN_DEFAULT", "false")
+
+        governance_mode = cls._parse_governance_mode()
+        governance_min_score = cls._parse_float("MNEMOS_GOVERNANCE_MIN_SCORE", "0.0")
+        governance_freshness_half_life = cls._parse_float(
+            "MNEMOS_GOVERNANCE_FRESHNESS_HALF_LIFE", "180.0", min_value=1.0
+        )
 
         config = cls(
             profile=os.getenv("MNEMOS_PROFILE", "core_memory_appliance"),
@@ -139,6 +168,9 @@ class MnemosConfig:
             lexical_top_k=lexical_top_k,
             semantic_top_k=semantic_top_k,
             explain_default=explain_default,
+            governance_mode=governance_mode,
+            governance_min_score=governance_min_score,
+            governance_freshness_half_life=governance_freshness_half_life,
         )
 
         logger.info(

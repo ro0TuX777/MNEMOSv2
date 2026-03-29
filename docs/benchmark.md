@@ -1031,6 +1031,110 @@ A new enterprise retrieval profile is only added if benchmark outcomes produce a
 
 ---
 
+## Governance Layer: MemArchitect Waves 1 & 2
+
+**Product question:** *What does a governed read path look like, and does it produce correct decisions?*
+
+### What Was Implemented
+
+Wave 1 and Wave 2 of the MemArchitect governance layer were implemented and test-verified in-codebase (2026-03-30). No infrastructure is required — governance is a pure in-process layer applied post-retrieval inside the existing search path.
+
+**Wave 1 — Per-candidate policy pipeline**
+
+| Component | Description |
+|---|---|
+| `GovernanceMeta` | 19-field dataclass attached to each Engram: lifecycle state, trust/utility/stability/retrievability scores, conflict state, deletion state, policy flags, lineage, and Wave 2 entity-slot identity fields |
+| `GovernanceDecision` | Per-candidate outcome record: retrieval score, governed score, all 5 modifier values, veto result, contradiction state, suppression state, `would_be_suppressed_in_enforced_mode` advisory flag |
+| `RelevanceVetoPolicy` | Veto gates: score below configurable threshold, `soft_deleted`/`tombstone` deletion state, `toxic` policy flag, exponential freshness decay |
+| `UtilityPolicy` | Trust and utility modifiers derived from `GovernanceMeta.trust_score` and `utility_score` |
+| `PolicyRegistry` | Ordered per-candidate pipeline with short-circuit on veto; per-policy enable/disable at runtime |
+| `ReadPath` | Advisory (re-rank only, no suppression) and enforced (suppress + re-rank + top-k cap) modes; returns 3-tuple `(results, decisions, contradiction_records)` |
+| `Governor` | Single entry point; wraps registry + read path; thread-safe aggregate stats |
+
+Score formula:
+```
+governed_score = retrieval_score
+              × trust_modifier
+              × utility_modifier
+              × freshness_modifier
+              × contradiction_modifier
+              × veto_modifier
+```
+
+Freshness decay: `exp(-ln(2) / half_life_days × age_days)`. Default half-life: 180 days. Default threshold: 0.0 (disabled).
+
+**Wave 2 — Cross-candidate contradiction detection**
+
+| Component | Description |
+|---|---|
+| `ContradictionRecord` | Cluster record: entity key, attribute key, candidate IDs, normalized values, winner, losers, resolution reason, status |
+| `ContradictionPolicy` | Groups candidates by `(entity_key, attribute_key)`; detects conflicting `normalized_value` claims; selects winner via deterministic 5-level priority chain; applies `1.0`/`0.25` modifiers |
+| `ReadPath` (updated) | Runs `ContradictionPolicy` after per-candidate pipeline; sets `would_be_suppressed_in_enforced_mode` on all decisions |
+| `Governor` (updated) | Wires `ContradictionPolicy`; tracks `total_contradictions_detected` and `total_contradiction_suppressed` in aggregate stats |
+| `GovernanceDecision` (updated) | New fields: `conflict_group_id`, `contradiction_winner`, `contradiction_reason`, `suppressed_by_contradiction`, `would_be_suppressed_in_enforced_mode` |
+
+Contradiction winner selection priority (highest first):
+
+1. `trust_score` (higher wins)
+2. `created_at` (newer wins)
+3. `utility_score` (higher wins)
+4. `source_authority` (higher wins)
+5. `engram.id` (lexicographically lower — deterministic tiebreaker, always resolves)
+
+Modifiers: winner → `1.0` (no penalty), loser → `0.25`.
+
+### Test Coverage
+
+| Suite | Tests | Result |
+|---|---:|---|
+| `test_governance.py` (Wave 1 core, updated for 3-tuple return) | 42 | Pass |
+| `test_governance_contradictions.py` (Wave 2 contradiction detection) | 25 | Pass |
+| `test_service_hybrid_api.py` (API integration, governance-aware signatures) | 7 | Pass |
+| Full suite (all test files, excluding infra-dependent Qdrant tier) | **153** | **Pass** |
+
+### Current Governance Posture
+
+| Setting | Value | Rationale |
+|---|---|---|
+| Default mode | `off` | Conservative — no behavior change until advisory benchmarked on real corpus |
+| Advisory mode | Available | All candidates evaluated, none suppressed; enables A/B comparison of governed vs raw ordering |
+| Enforced mode | Available | Suppressed candidates removed and re-ranked; not yet promoted as a default |
+| Min score threshold | `0.0` (disabled) | Enable only when a score floor is evidence-backed on real corpus data |
+| Freshness half-life | `180 days` | Tune per corpus recency requirements |
+
+### Governance API Reference
+
+`POST /v1/mnemos/search` accepts two new parameters:
+
+| Parameter | Type | Values |
+|---|---|---|
+| `governance` | string | `"off"` \| `"advisory"` \| `"enforced"` |
+| `explain_governance` | boolean | `true` \| `false` |
+
+When governance is active (`!= "off"`):
+- Each result includes `governed_score` (float).
+- `meta.governance_summary` reports: `candidates_evaluated`, `vetoed`, `suppressed`, `contradictions_detected`, `contradiction_suppressed`.
+- With `explain_governance: true`, each result includes a full `governance` block with all modifier components, veto reason, conflict state, and `would_be_suppressed_in_enforced_mode`.
+
+`GET /v1/mnemos/governance/stats` returns aggregate query-level statistics: total governed queries, advisory vs enforced split, veto rate, suppression rate, contradiction counts, and active policy names.
+
+Environment variables:
+
+| Variable | Default | Description |
+|---|---|---|
+| `MNEMOS_GOVERNANCE_MODE` | `off` | Default mode for all search requests |
+| `MNEMOS_GOVERNANCE_MIN_SCORE` | `0.0` | Veto threshold (0.0 = disabled) |
+| `MNEMOS_GOVERNANCE_FRESHNESS_HALF_LIFE` | `180.0` | Freshness decay half-life in days |
+
+### Next Governance Steps
+
+1. Collect advisory-mode governance summaries on a real corpus to inspect governed score distributions and reorder rates before enabling enforced mode.
+2. Define evidence thresholds for enforced-mode promotion (analogous to Gate A/B/C for retrieval).
+3. Implement Wave 3 — background hygiene jobs: freshness decay, prune candidate promotion, consolidation, and delete cascade — after advisory data is available.
+4. Benchmark contradiction detection precision on real-world entity-slot data to validate the 5-level winner priority chain.
+
+---
+
 ## Running the Suite
 
 ```bash
