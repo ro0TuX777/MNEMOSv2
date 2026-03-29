@@ -1,0 +1,174 @@
+{
+  "version": "gate_b_reference_v1_official_colbert",
+  "reference_stack": {
+    "name": "stanford_colbert_reference",
+    "model_id": "colbert-ir/colbertv2.0",
+    "library": "colbert-ai",
+    "library_version": "0.2.22",
+    "runtime": "cuda",
+    "torch_version": "2.6.0+cu124",
+    "transformers_version": "4.57.6",
+    "query_maxlen": 64,
+    "doc_maxlen": 256,
+    "doc_batch_size": 32,
+    "generated_at_utc": "2026-03-29T08:19:56.644810+00:00",
+    "notes": "Generated from fixed Gate B candidate pools with official ColBERT late-interaction scoring."
+  },
+  "rankings": [
+    {
+      "query_id": "3b88ec0aa586",
+      "top10_ids": [
+        "341c55bc83699371",
+        "fecc57562a76d8f6",
+        "58520deead7de4c7",
+        "cec59f50778ee8c6",
+        "f3ecf0f37fa1b576",
+        "bfd7904a942ff9f5",
+        "c24db856533d8a2a",
+        "3fd1078a23260080",
+        "5e42538c4097c865",
+        "9fcbe7c40f36f1c2"
+      ]
+    },
+    {
+      "query_id": "f15a9675e4e2",
+      "top10_ids": [
+        "ed194dee9ed2b6e5",
+        "f3deeb8d3ee27937",
+        "0b0a909bde151fdc",
+        "d60180493868cdea",
+        "d84e64e71e7de433",
+        "540c0e9478089e45",
+        "9ceacdd7aa5ef01e",
+        "b2c1cdc69e23615c",
+        "dca17f285954a5a0",
+        "d391f32c1082ef35"
+      ]
+    },
+    {
+      "query_id": "a40eec1785f8",
+      "top10_ids": [
+        "89e89e283b442a81",
+        "6d021408417929d5",
+        "6a94b6b2b33143b8",
+        "681c5aad22abec94",
+        "f337513a89274288",
+        "14f8a04c148ec7fa",
+        "24919571b26a2bef",
+        "897d63f7f266d688",
+        "c01e49aa847e1496",
+        "3f25a5f841b1bf62"
+      ]
+    },
+    {
+      "query_id": "fdb6f9599585",
+      "top10_ids": [
+        "8f08ca8b781c65b9",
+        "8f14a21ad0a36205",
+        "dcf3be15ec7d70de",
+        "650da9a2672b4b3f",
+        "353202c6f28e6f4c",
+        "6285380356bf2e4b",
+        "b84692098c105db9",
+        "68af48f4604795e6",
+        "d4f149cf2e9dc256",
+        "f34f25be7c14cd99"
+      ]
+    },
+    {
+      "query_id": "a31b048e7425",
+      "top10_ids": [
+        "2c201de0f340f477",
+        "f433b73d0b038395",
+        "54563107eef6f9d9",
+        "749285aa27debac9",
+        "3df32aa16e4600d9",
+        "5f5f2603de688e28",
+        "883eec09eed1e9f8",
+        "be24ba25be38de11",
+        "b7f840f076147467",
+        "c9c71baf876bac0a"
+      ]
+    },
+    {
+      "query_id": "90c542313616",
+      "top10_ids": [
+        "89401869d8d1fa86",
+        "2b38df83ccb583ac",
+        "4c822dc7602c65b4",
+        "220e27be8ca85535",
+        "76dec52462ad345a",
+        "b8743be90cbe3235",
+        "3ef9228d3df2beac",
+        "ce1bda5e8dfbede0",
+        "68335d444cee9006",
+        "9ab743a787f0b7d3"
+      ]
+    },
+    {
+      "query_id": "cba5681bab70",
+      "top10_ids": [
+        "034ed31dd02e4e90",
+        "ac6f6dac60895d16",
+        "b1693fbcf113003e",
+        "ad5e3c0a182e20cb",
+        "745f4e4e36a5487f",
+        "125859bdf38416c2",
+        "9d2c98fd98432a50",
+        "150eeb7ce28e2c50",
+        "272b01f9f162ae68",
+        "087ce42147284722"
+      ]
+    },
+    {
+      "query_id": "0eedd8d619e5",
+      "top10_ids": [
+        "042a538b9419ca78",
+        "a792ec949fdc8ef6",
+        "266b1fec5e1a91eb",
+        "04c6cfa00c842c6c",
+        "e7cd124c9d39ca12",
+        "b1bc3dd97d14775d",
+        "88619c16d79d000e",
+        "2e89c33bb91a2961",
+        "27e9eec1eac1da57",
+        "8851397159d03844"
+      ]
+    },
+    {
+      "query_id": "94c63e4216fc",
+      "top10_ids": [
+        "17be72e9f86457f7",
+        "7a87d968d98e1ae4",
+        "48235c079d25a1bd",
+        "0bfa56920297e8fb",
+        "1f2d2351e6c85e5e",
+        "cf4c8f61a88aa3f4",
+        "d492db344b317b45",
+        "cc7b73072e0321eb",
+        "e9053dde69f8518b",
+        "37f5bb7e88922cd4"
+      ]
+    },
+    {
+      "query_id": "106d4a62fb80",
+      "top10_ids": [
+        "c83293de395f4562",
+        "765c0b237bdb1514",
+        "b99e49ec0139380b",
+        "c78c148bf8544f87",
+        "1085579d9c760d0a",
+        "ba5ef310cb7ed378",
+        "5745aa78d32a2092",
+        "49c99b98df6053f7",
+        "b3390c8c0eb71bbe",
+        "eadb668f8015cb40"
+      ]
+    }
+  ],
+  "generation_summary": {
+    "queries_total": 10,
+    "queries_missing_pool": 0,
+    "topk": 10
+  }
+}

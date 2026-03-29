@@ -1,0 +1,163 @@
+{
+    "version":  "gate_b_reference_v1_bootstrapped",
+    "reference_stack":  {
+                            "name":  "surrogate_reference_from_audit_overlap",
+                            "model_id":  "N/A",
+                            "library":  "mnemos.audit.bootstrap",
+                            "library_version":  "1.0",
+                            "runtime":  "offline-json",
+                            "notes":  "Bootstrapped from qdrant audit overlap_top10 in 20260329_170925_profile_benchmarks.json. Replace with known-correct ColBERT reference output before final Gate B decision."
+                        },
+    "rankings":  [
+                     {
+                         "query_id":  "3b88ec0aa586",
+                         "top10_ids":  [
+                                           "0a91b1d243cf8c17",
+                                           "341c55bc83699371",
+                                           "88619c16d79d000e",
+                                           "f3ecf0f37fa1b576",
+                                           "3fd1078a23260080",
+                                           "58520deead7de4c7",
+                                           "c24db856533d8a2a",
+                                           "fecc57562a76d8f6",
+                                           "4c62c28f323718c3",
+                                           "cec59f50778ee8c6"
+                                       ]
+                     },
+                     {
+                         "query_id":  "f15a9675e4e2",
+                         "top10_ids":  [
+                                           "c2fe8f108fd82c75",
+                                           "f3deeb8d3ee27937",
+                                           "d391f32c1082ef35",
+                                           "d60180493868cdea",
+                                           "c73f0edac88adf96",
+                                           "ed194dee9ed2b6e5",
+                                           "d84e64e71e7de433",
+                                           "0b0a909bde151fdc",
+                                           "7ce561bbda8fe741",
+                                           "716798322d4c9806"
+                                       ]
+                     },
+                     {
+                         "query_id":  "a40eec1785f8",
+                         "top10_ids":  [
+                                           "89e89e283b442a81",
+                                           "6d021408417929d5",
+                                           "681c5aad22abec94",
+                                           "24919571b26a2bef",
+                                           "6a94b6b2b33143b8",
+                                           "f337513a89274288",
+                                           "99b2f16d837a3311",
+                                           "c965ab1d21926c03",
+                                           "ec5fcd2ff393cc60",
+                                           "d58256732149bc23"
+                                       ]
+                     },
+                     {
+                         "query_id":  "fdb6f9599585",
+                         "top10_ids":  [
+                                           "dcf3be15ec7d70de",
+                                           "b84692098c105db9",
+                                           "68af48f4604795e6",
+                                           "bf31a5fe05ef7c5d",
+                                           "8f14a21ad0a36205",
+                                           "f6db519589d06b73",
+                                           "d4f149cf2e9dc256",
+                                           "f34f25be7c14cd99",
+                                           "fec6a96a2f660496",
+                                           "e8e969c057ab5929"
+                                       ]
+                     },
+                     {
+                         "query_id":  "a31b048e7425",
+                         "top10_ids":  [
+                                           "1b1a521362cc9de4",
+                                           "749285aa27debac9",
+                                           "5f5f2603de688e28",
+                                           "be24ba25be38de11",
+                                           "2c201de0f340f477",
+                                           "883eec09eed1e9f8",
+                                           "eb93063422f002aa",
+                                           "b7f840f076147467",
+                                           "7fff8d4cd1dc9fd7",
+                                           "10bfd1ced25b5acb"
+                                       ]
+                     },
+                     {
+                         "query_id":  "90c542313616",
+                         "top10_ids":  [
+                                           "7d20a2f4408a6ac9",
+                                           "89401869d8d1fa86",
+                                           "4c822dc7602c65b4",
+                                           "b8743be90cbe3235",
+                                           "220e27be8ca85535",
+                                           "9ab743a787f0b7d3",
+                                           "76dec52462ad345a",
+                                           "3ef9228d3df2beac",
+                                           "ce1bda5e8dfbede0",
+                                           "a896ca296832ff8b"
+                                       ]
+                     },
+                     {
+                         "query_id":  "cba5681bab70",
+                         "top10_ids":  [
+                                           "ac6f6dac60895d16",
+                                           "b1693fbcf113003e",
+                                           "087ce42147284722",
+                                           "ad5e3c0a182e20cb",
+                                           "745f4e4e36a5487f",
+                                           "303351e119c04c42",
+                                           "125859bdf38416c2",
+                                           "4ee8a3547a93e4c6",
+                                           "1814e95a9163690a",
+                                           "272b01f9f162ae68"
+                                       ]
+                     },
+                     {
+                         "query_id":  "0eedd8d619e5",
+                         "top10_ids":  [
+                                           "266b1fec5e1a91eb",
+                                           "88619c16d79d000e",
+                                           "042a538b9419ca78",
+                                           "5e34e1088db49911",
+                                           "ae15fc6ed43aa496",
+                                           "b1bc3dd97d14775d",
+                                           "04c6cfa00c842c6c",
+                                           "e7cd124c9d39ca12",
+                                           "a792ec949fdc8ef6",
+                                           "27e9eec1eac1da57"
+                                       ]
+                     },
+                     {
+                         "query_id":  "94c63e4216fc",
+                         "top10_ids":  [
+                                           "17be72e9f86457f7",
+                                           "c264bfdeac6f85d0",
+                                           "48235c079d25a1bd",
+                                           "0bfa56920297e8fb",
+                                           "631d681ced645ba3",
+                                           "c6e9b875983d3340",
+                                           "cc7b73072e0321eb",
+                                           "db3a35eb5ce2682a",
+                                           "7a87d968d98e1ae4",
+                                           "d492db344b317b45"
+                                       ]
+                     },
+                     {
+                         "query_id":  "106d4a62fb80",
+                         "top10_ids":  [
+                                           "c442b1ee2de1669d",
+                                           "c83293de395f4562",
+                                           "ba5ef310cb7ed378",
+                                           "9a0950efe31112fc",
+                                           "c78c148bf8544f87",
+                                           "7adb2fdee7549a27",
+                                           "08a823fb0c6be375",
+                                           "d67aab41f66b9ca2",
+                                           "dcf3be15ec7d70de",
+                                           "1231cc93746d1bfd"
+                                       ]
+                     }
+                 ]
+}

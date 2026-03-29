@@ -57,25 +57,67 @@ class ColBERTTier(BaseRetriever):
         logger.info(f"✅ ColBERT tier initialized: {self._config.model_name}")
 
     def _get_model(self):
-        """Lazy-load the ColBERT model."""
+        """Lazy-load tokenizer/model for token-level embeddings."""
         if self._model is None:
             try:
-                from sentence_transformers import SentenceTransformer
-                self._model = SentenceTransformer(self._config.model_name)
-                logger.info(f"Loaded ColBERT model: {self._config.model_name}")
+                from transformers import AutoModel, AutoTokenizer
+                self._tokenizer = AutoTokenizer.from_pretrained(self._config.model_name)
+                self._model = AutoModel.from_pretrained(self._config.model_name)
+                self._model.eval()
+                logger.info(f"Loaded ColBERT token model: {self._config.model_name}")
             except Exception as e:
-                logger.warning(f"ColBERT model not available: {e}. Using fallback.")
-                from sentence_transformers import SentenceTransformer
-                self._model = SentenceTransformer("all-MiniLM-L6-v2")
+                raise RuntimeError(
+                    f"ColBERT token model unavailable for {self._config.model_name}: {e}"
+                ) from e
         return self._model
 
     def _encode_multi_vector(self, text: str) -> np.ndarray:
-        """Encode text into multi-vector token embeddings."""
+        """Encode text into per-token normalized embeddings."""
         model = self._get_model()
-        # Generate a single embedding and tile to simulate multi-vector
-        # In production, use a true ColBERT encoder
-        emb = model.encode(text, normalize_embeddings=True)
-        return emb.reshape(1, -1)  # (1, D)
+
+        try:
+            import torch
+        except Exception as e:
+            raise RuntimeError(f"torch is required for ColBERT token encoding: {e}") from e
+
+        if self._tokenizer is None:
+            raise RuntimeError("ColBERT tokenizer is not initialized")
+
+        with torch.no_grad():
+            encoded = self._tokenizer(
+                text,
+                truncation=True,
+                max_length=self._config.max_tokens,
+                padding="max_length",
+                return_tensors="pt",
+            )
+            outputs = model(**encoded)
+            token_emb = outputs.last_hidden_state[0]  # (T, D)
+
+            # Keep only non-padding tokens and exclude special tokens where possible.
+            attn = encoded.get("attention_mask")
+            if attn is not None:
+                mask = attn[0].bool()
+                token_emb = token_emb[mask]
+
+            input_ids = encoded.get("input_ids")
+            if input_ids is not None and self._tokenizer is not None:
+                special_ids = set(getattr(self._tokenizer, "all_special_ids", []) or [])
+                if special_ids:
+                    keep = []
+                    for tok_id in input_ids[0][: token_emb.shape[0]].tolist():
+                        keep.append(tok_id not in special_ids)
+                    keep_mask = torch.tensor(keep, dtype=torch.bool, device=token_emb.device)
+                    if keep_mask.any():
+                        token_emb = token_emb[keep_mask]
+
+            if token_emb.shape[0] == 0:
+                # Fallback to first token if aggressive filtering removed all tokens.
+                token_emb = outputs.last_hidden_state[0][:1]
+
+            # L2-normalize token vectors for stable MaxSim.
+            token_emb = torch.nn.functional.normalize(token_emb, p=2, dim=1)
+            return token_emb.detach().cpu().numpy().astype(np.float32)
 
     @property
     def tier_name(self) -> str:

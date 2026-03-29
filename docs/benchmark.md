@@ -183,7 +183,7 @@ Goal: produce a defensible real-world relevance truth set so Track 1 can support
 
 #### Scope
 
-- **Corpus:** real PDF corpus (`C:\Users\vin\Downloads\ToLearn`)
+- **Corpus:** real PDF corpus (`<YOUR_PDF_DIR>`)
 - **Queries:** 150 total (minimum), balanced by regime:
   - 50 semantic
   - 50 light_filter
@@ -231,7 +231,7 @@ Goal: produce a defensible real-world relevance truth set so Track 1 can support
 #### Real-World Corpus (56 PDFs, 1,307 engrams)
 
 Run:
-`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "C:\Users\vin\Downloads\ToLearn"`
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_082214_profile_benchmarks.json`
 
@@ -262,7 +262,7 @@ Raw output: `benchmarks/outputs/raw/20260329_082214_profile_benchmarks.json`
 #### Real-World Corpus (80 PDFs, 5,967 engrams)
 
 Run:
-`python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_084456_profile_benchmarks.json`
 
@@ -293,7 +293,7 @@ Raw output: `benchmarks/outputs/raw/20260329_084456_profile_benchmarks.json`
 #### Governance-Focused Run (Relaxed Retrieval Filters, 80 PDFs)
 
 Run:
-`python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_095911_profile_benchmarks.json`
 Report: `benchmarks/outputs/summaries/20260329_095911_report.md`
@@ -317,7 +317,7 @@ Report: `benchmarks/outputs/summaries/20260329_095911_report.md`
 #### Governance-Focused Run (Adversarial + Timestamp Window, 80 PDFs)
 
 Run:
-`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_104803_profile_benchmarks.json`
 Report: `benchmarks/outputs/summaries/20260329_104803_report.md`
@@ -346,7 +346,7 @@ Report: `benchmarks/outputs/summaries/20260329_104803_report.md`
 #### Governance-Focused Run (Retuned Adversarial Pressure, 80 PDFs)
 
 Run:
-`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_111455_profile_benchmarks.json`
 Report: `benchmarks/outputs/summaries/20260329_111455_report.md`
@@ -375,7 +375,7 @@ Report: `benchmarks/outputs/summaries/20260329_111455_report.md`
 #### Governance-Focused Run (Retuned Mid-Failure Attempt, 80 PDFs)
 
 Run:
-`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_113720_profile_benchmarks.json`
 Report: `benchmarks/outputs/summaries/20260329_113720_report.md`
@@ -403,7 +403,7 @@ Report: `benchmarks/outputs/summaries/20260329_113720_report.md`
 #### Governance-Focused Run (Further Retuning, 80 PDFs)
 
 Run:
-`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_115520_profile_benchmarks.json`
 Report: `benchmarks/outputs/summaries/20260329_115520_report.md`
@@ -430,7 +430,7 @@ Report: `benchmarks/outputs/summaries/20260329_115520_report.md`
 #### Governance-Focused Run (Post-Tuning Check, 80 PDFs)
 
 Run:
-`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_120756_profile_benchmarks.json`
 Report: `benchmarks/outputs/summaries/20260329_120756_report.md`
@@ -462,14 +462,14 @@ Report: `benchmarks/outputs/summaries/20260329_120756_report.md`
 
 ### What We Tested
 
-- **Corpus:** real PDF corpus (79 PDFs, 5,967 engrams) from `D:\TE\more TE Docs`
+- **Corpus:** real PDF corpus (79 PDFs, 5,967 engrams) from `<YOUR_PDF_DIR>`
 - **Queries:** 50 semantic queries
 - **Depths:** rerank `top-20`, `top-50`, `top-100`
 - **Backends:** Qdrant and pgvector
 - **Command:**
 
 ```bash
-python -B benchmarks/run_profile_benchmarks.py --track rerank --corpus-type real --pdf-dir "D:\TE\more TE Docs"
+python -B benchmarks/run_profile_benchmarks.py --track rerank --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"
 ```
 
 Raw output: `benchmarks/outputs/raw/20260329_124636_profile_benchmarks.json`  
@@ -507,7 +507,7 @@ Baseline: **MRR=0.1207**, **nDCG=0.0455**, **p50=49.2ms**
 ### Latest Rerun (20260329_131856)
 
 Command:
-`python -B benchmarks/run_profile_benchmarks.py --track rerank --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python -B benchmarks/run_profile_benchmarks.py --track rerank --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_131856_profile_benchmarks.json`  
 Report: `benchmarks/outputs/summaries/20260329_131856_report.md`
@@ -540,6 +540,43 @@ Rerun takeaway:
 - Results are consistent with the prior Track 2 run.
 - Reranking still decreases quality across all tested depths for both backends.
 - Default policy remains: **no rerank** until model-path/implementation changes.
+
+### Gate A Rerun (20260329_135011, Token-Model Path)
+
+Command:
+`python -B benchmarks/run_profile_benchmarks.py --track rerank --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
+
+Raw output: `benchmarks/outputs/raw/20260329_135011_profile_benchmarks.json`  
+Report: `benchmarks/outputs/summaries/20260329_135011_report.md`
+
+#### Qdrant (Gate A rerun)
+
+Baseline: **MRR=0.1367**, **nDCG=0.0496**, **p50=31.1ms**
+
+| Depth | MRR@10 | Delta MRR | nDCG@10 | Delta nDCG | p50 (ms) | Delta latency (ms) | Delta VRAM (MB) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| top-20 | 0.0719 | -0.0648 | 0.0296 | -0.0200 | 31.2 | +0.1 | +24 |
+| top-50 | 0.0725 | -0.0642 | 0.0326 | -0.0170 | 31.4 | +0.3 | +6 |
+| top-100 | 0.0470 | -0.0897 | 0.0161 | -0.0335 | 31.3 | +0.1 | -26 |
+
+#### pgvector (Gate A rerun)
+
+Baseline: **MRR=0.1407**, **nDCG=0.0521**, **p50=51.5ms**
+
+| Depth | MRR@10 | Delta MRR | nDCG@10 | Delta nDCG | p50 (ms) | Delta latency (ms) | Delta VRAM (MB) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| top-20 | 0.0932 | -0.0475 | 0.0346 | -0.0175 | 51.5 | -0.1 | +23 |
+| top-50 | 0.0659 | -0.0748 | 0.0327 | -0.0194 | 56.5 | +5.0 | +2 |
+| top-100 | 0.0659 | -0.0748 | 0.0327 | -0.0194 | 51.8 | +0.3 | +0 |
+
+Gate A decision:
+- **Model-path caveat check:** pass (no sentence-transformers mean-pooling fallback warning observed).
+- **Uplift check:** fail (all MRR uplifts remain negative across both backends and all depths).
+- **Overall Gate A status:** **FAIL**.
+
+Policy impact:
+- Keep default rerank policy as **no rerank**.
+- Keep reranker classified as non-production for quality uplift until implementation is corrected further.
 
 ---
 
@@ -574,6 +611,235 @@ Rerun takeaway:
 
 ---
 
+## Next-Phase Gates (Post March 29, 2026)
+
+To avoid widening scope before quality evidence is stronger, the next work phase uses explicit go/no-go gates.
+
+### Current Frozen Position
+
+- **Core/Qdrant** remains the operational default (ingest, latency, and QPS).
+- **Governance/pgvector** remains a governance/operational profile, not a proven correctness winner in current policy-pressure runs.
+- **ColBERT rerank (current path)** is disabled by default because Track 2 shows quality degradation at all tested depths.
+- **Migration** is operationally credible, with asymmetric cutover timing (Core -> Governance much slower).
+
+### Gate A: Reranker Correctness
+
+Before any enterprise-profile expansion, reranker implementation must pass:
+
+- Model-loading path confirms token-level late interaction (no degraded mean-pooling fallback path).
+- Track 2 rerun shows non-negative uplift at at least one depth for at least one backend.
+- If all depths remain negative, keep default as **no rerank** and treat reranker as non-production.
+
+#### Track 2 Reranker Correctness Checklist (Test Protocol)
+
+Preflight:
+- Run with bytecode bypass to avoid stale modules:  
+  `python -B benchmarks/run_profile_benchmarks.py --track rerank --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
+- Confirm logs do **not** show sentence-transformers mean-pooling fallback for `colbert-ir/colbertv2.0`.
+- Capture artifacts:
+  - `benchmarks/outputs/raw/<timestamp>_profile_benchmarks.json`
+  - `benchmarks/outputs/summaries/<timestamp>_report.md`
+
+Validation checks:
+- Backend coverage: both `qdrant` and `pgvector` tiers complete.
+- Depth coverage: `top-20`, `top-50`, `top-100` all present.
+- Metric sanity: baseline and reranked `MRR@10`, `nDCG@10`, and `p50` exist for each tier/depth.
+
+Pass criteria (Gate A):
+- At least one backend has `MRR uplift >= 0.0000` at one tested depth.
+- No implementation-path caveat in logs indicating degraded fallback behavior.
+
+Fail criteria (Gate A):
+- All backend/depth combinations have negative MRR uplift, or
+- model path still shows degraded fallback behavior.
+
+Decision after run:
+- **Pass:** continue to Gate B (reference-fidelity check).
+- **Fail:** keep default policy as **no rerank**, open/fix reranker implementation issue, rerun Track 2 after fix.
+
+### Gate B: Reference-Fidelity Check (ColBERT)
+
+Before any further rerank product benchmarking, validate MNEMOS reranker behavior against a known-correct ColBERT reference path.
+
+Protocol:
+
+- Use a fixed sanity set (10-20 semantic queries) with a frozen candidate pool per query.
+- Compare five rankers on the same candidates:
+  - Baseline ANN
+  - MNEMOS ColBERT path
+  - Known-correct ColBERT reference stack
+  - Lexical-overlap rerank
+  - Mean-cosine rerank
+- Capture for each query:
+  - top-10 IDs for all rankers
+  - gold-doc rank movement
+  - per-ranker MRR@10 and nDCG@10 summary
+
+Pass criteria (Gate B):
+
+- MNEMOS ColBERT ranking is directionally aligned with reference ColBERT on the sanity set.
+- MNEMOS ColBERT no longer underperforms both trivial baselines (lexical-overlap and mean-cosine) on MRR@10.
+
+Fail criteria (Gate B):
+
+- MNEMOS ColBERT remains directionally misaligned with reference ColBERT, or
+- MNEMOS ColBERT still underperforms both trivial baselines.
+
+Decision after Gate B:
+
+- **Pass:** reopen Track 2 as a product benchmark track.
+- **Fail:** keep reranker experimental/non-production and continue implementation audit.
+
+#### Gate B Run Template
+
+**Objective:** Validate whether the current MNEMOS ColBERT path is directionally aligned with a known-correct ColBERT reference on a fixed sanity set.
+
+**Sanity set**
+- Query set file: `benchmarks/truthsets/gate_b_sanity_queries.json`
+- Candidate pool file: `benchmarks/truthsets/gate_b_candidate_pool.json`
+- Gold labels file: `benchmarks/truthsets/gate_b_labels.json`
+
+Validate inputs before every Gate B run:
+- `python tools/validate_gate_b.py`
+
+Optional bootstrap from latest Track 2 audit artifact:
+- `python tools/bootstrap_gate_b_from_audit.py --raw benchmarks/outputs/raw/<timestamp>_profile_benchmarks.json --tier qdrant --limit 10`
+
+**Reference stack (pin required)**
+- Pin exact model ID, library/runtime versions, and execution backend in the Gate B output.
+- Do not treat Gate B as valid if reference stack versions are omitted.
+- Reference rankings template (scaffold only): `benchmarks/truthsets/gate_b_reference_rankings_template.json`
+
+Generate true reference rankings (official `colbert-ai`) before Gate B:
+- `python tools/generate_gate_b_reference_rankings.py --queries benchmarks/truthsets/gate_b_sanity_queries.json --pool benchmarks/truthsets/gate_b_candidate_pool.json --corpus benchmarks/outputs/datasets/corpus_real.json --out benchmarks/truthsets/gate_b_reference_rankings.json --model-id colbert-ir/colbertv2.0 --device auto`
+
+**Rankers compared**
+1. Baseline ANN
+2. MNEMOS ColBERT
+3. Reference ColBERT
+4. Lexical-overlap rerank
+5. Mean-cosine rerank
+
+**Required outputs**
+- Raw JSON: `benchmarks/outputs/raw/<timestamp>_gate_b_reference_fidelity.json`
+- Summary report: `benchmarks/outputs/summaries/<timestamp>_gate_b_reference_fidelity.md`
+
+Run command:
+- `python tools/run_gate_b_reference_fidelity.py --queries benchmarks/truthsets/gate_b_sanity_queries.json --pool benchmarks/truthsets/gate_b_candidate_pool.json --labels benchmarks/truthsets/gate_b_labels.json --corpus benchmarks/outputs/datasets/corpus_real.json --reference benchmarks/truthsets/gate_b_reference_rankings.json`
+
+**Per-query artifacts**
+- top-10 ranked IDs for all 5 rankers
+- gold-doc rank positions for all 5 rankers
+- score deltas vs baseline
+- overlap between MNEMOS ColBERT top-10 and reference ColBERT top-10
+
+**Aggregate metrics**
+- MRR@10 per ranker
+- nDCG@10 per ranker
+- Recall@10 per ranker
+- mean overlap@10 between MNEMOS ColBERT and reference ColBERT
+- count of queries where MNEMOS ColBERT underperforms both trivial baselines
+
+**Pass criteria**
+- MNEMOS ColBERT is directionally aligned with reference ColBERT on the sanity set
+- MNEMOS ColBERT does not underperform both lexical-overlap and mean-cosine on MRR@10
+
+**Fail criteria**
+- MNEMOS ColBERT remains directionally misaligned with reference ColBERT
+- MNEMOS ColBERT still underperforms both trivial baselines
+
+**Decision**
+- PASS -> reopen Track 2 as a product benchmark
+- FAIL -> keep reranker experimental/non-production and continue implementation audit
+
+#### Gate B Artifact Checklist
+
+- [ ] Fixed sanity query set committed
+- [ ] Fixed candidate pool committed
+- [ ] Gold labels committed
+- [ ] Raw JSON artifact saved
+- [ ] Summary report saved
+- [ ] Aggregate comparison table included
+- [ ] Gate B PASS/FAIL explicitly stated
+
+#### Latest Gate B Result (2026-03-29)
+
+Run artifacts:
+
+- Raw JSON: `benchmarks/outputs/raw/20260329_212017_gate_b_reference_fidelity.json`
+- Summary report: `benchmarks/outputs/summaries/20260329_212017_gate_b_reference_fidelity.md`
+- Reference rankings: `benchmarks/truthsets/gate_b_reference_rankings.json`
+
+Reference stack (pinned):
+
+- `colbert-ai` `0.2.22`
+- Model: `colbert-ir/colbertv2.0`
+- Runtime: `cuda`
+- Torch: `2.6.0+cu124`
+- Transformers: `4.57.6`
+
+Aggregate comparison:
+
+| Ranker | MRR@10 | nDCG@10 | Recall@10 |
+|---|---:|---:|---:|
+| Baseline ANN | 0.5917 | 0.4610 | 0.6083 |
+| MNEMOS ColBERT | 0.2643 | 0.2365 | 0.4083 |
+| Reference ColBERT | 0.6083 | 0.5092 | 0.6667 |
+| Lexical overlap | 1.0000 | 0.9159 | 0.9667 |
+| Mean-cosine | 0.3028 | 0.2843 | 0.4750 |
+
+Key diagnostics:
+
+- Mean overlap@10 (MNEMOS vs reference): `0.4600`
+- Queries where MNEMOS underperforms both trivial baselines: `3 / 10`
+- Gate B PASS: `NO`
+
+Decision:
+
+- Keep reranker **experimental / non-production**.
+- Do not reopen Track 2 product benchmarking until reranker correctness is improved.
+
+#### Gate B Fast Labeling Rubric (10-query sanity set)
+
+Use this to upgrade bootstrapped labels into a human-checked set before execution.
+
+- `relevance=2` (high): directly answers the query intent.
+- `relevance=1` (partial): supporting context, related evidence, or near-hit.
+- `relevance=0` (none): not useful for answering the query.
+
+Minimum per-query quality:
+
+- At least 1 positive label (`relevance > 0`), otherwise replace or repair the query pool.
+- Prefer 2-5 positives per query for stronger rank discrimination.
+
+Set-level quality target:
+
+- Include at least some `relevance=1` labels across the set (avoid purely binary labels).
+- Remove or replace queries where all rankers miss obvious positives due to a poor candidate pool.
+
+### Gate C: Hybrid Retrieval Prototype (No New Profile Yet)
+
+Implement and benchmark lexical+semantic fusion inside current MNEMOS flow first (not a full OpenSearch/Elastic profile yet).
+
+Minimum evidence to continue:
+
+- Measurable relevance gain on at least one enterprise-style query class (e.g., exact term + semantic expansion).
+- Acceptable latency budget relative to Core baseline.
+- Explainability fields included (component scores, fusion score, applied filters).
+
+### Gate D: Product Message Clarity
+
+A new enterprise retrieval profile is only added if benchmark outcomes produce a clear "when it wins" rule that does not dilute existing profile guidance.
+
+### Immediate Execution Order
+
+1. Complete Gate B reference-fidelity check for the reranker.
+2. Only if Gate B passes, reopen Track 2 product benchmarking.
+3. Run Gate C hybrid prototype track (lexical + semantic fusion).
+4. Re-evaluate enterprise profile decision only after Gate C + Gate D evidence is positive.
+
+---
+
 ## Running the Suite
 
 ```bash
@@ -587,7 +853,7 @@ python benchmarks/run_profile_benchmarks.py --track installer
 python benchmarks/run_profile_benchmarks.py --corpus-type real --pdf-dir /path/to/pdfs
 
 # Real-world corpus from local test set
-python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "C:\Users\vin\Downloads\ToLearn"
+python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"
 
 # Fast dev (smaller corpus, fewer runs)
 python benchmarks/run_profile_benchmarks.py --corpus-size 1000 --runs 3

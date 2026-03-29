@@ -1,0 +1,1053 @@
+{
+    "version":  "gate_b_v1_bootstrapped",
+    "description":  "Bootstrapped binary labels from audit gold_ids (2 for gold, 0 otherwise).",
+    "label_scale":  {
+                        "0":  "not relevant",
+                        "1":  "partially relevant",
+                        "2":  "highly relevant"
+                    },
+    "labels":  [
+                   {
+                       "query_id":  "3b88ec0aa586",
+                       "graded_labels":  [
+                                             {
+                                                 "doc_id":  "0a91b1d243cf8c17",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "3fd1078a23260080",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "0b02481442eea596",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "341c55bc83699371",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "58520deead7de4c7",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "c24db856533d8a2a",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "4e5e6a22dfe72aa2",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "782c381f71015013",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "8d23c0f2c0498aea",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "90ca2d675d8f76c5",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "cec59f50778ee8c6",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "08a1b6199c6c20ca",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "9fcbe7c40f36f1c2",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "5e42538c4097c865",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "f3ecf0f37fa1b576",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "46a6ec81ed220a9b",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "be40b2c22f554c8d",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "bfd7904a942ff9f5",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "88619c16d79d000e",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "fecc57562a76d8f6",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "4c62c28f323718c3",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "e71310dea34c7183",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "477cb29e4f50e2df",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "cac60d9cfb207e4d",
+                                                 "relevance":  0
+                                             }
+                                         ]
+                   },
+                   {
+                       "query_id":  "f15a9675e4e2",
+                       "graded_labels":  [
+                                             {
+                                                 "doc_id":  "c2fe8f108fd82c75",
+                                                 "relevance":  1
+                                             },
+                                             {
+                                                 "doc_id":  "d84e64e71e7de433",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "0b0a909bde151fdc",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "7ce561bbda8fe741",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "716798322d4c9806",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "f3deeb8d3ee27937",
+                                                 "relevance":  1
+                                             },
+                                             {
+                                                 "doc_id":  "07d2695fb335baba",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "9ceacdd7aa5ef01e",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "2f65a8ba40376848",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "540c0e9478089e45",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "ed194dee9ed2b6e5",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "74ddae0bdac7c472",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "96ea17c175de9bed",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "c73f0edac88adf96",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "dca17f285954a5a0",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "fc2c3d606c7f9af0",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "f76c829d330cd955",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "d391f32c1082ef35",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "d60180493868cdea",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "2bb66c810ea8e767",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "a9a097e92136eab5",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "594702939f70c612",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "04817a8ae86e5ea1",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "b2c1cdc69e23615c",
+                                                 "relevance":  0
+                                             }
+                                         ]
+                   },
+                   {
+                       "query_id":  "a40eec1785f8",
+                       "graded_labels":  [
+                                             {
+                                                 "doc_id":  "89e89e283b442a81",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "b68a27cd89b0dbbc",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "f717bdf3ad0ff709",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "a50246c88493b750",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "40445d708d87d342",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "7fb5659686503ede",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "b8e126a56d7d1376",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "f1025993a6b62d39",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "7b288d8a123814e9",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "4cdb1a586b06b21f",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "14f8a04c148ec7fa",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "c965ab1d21926c03",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "c01e49aa847e1496",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "942b81798006f954",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "3f25a5f841b1bf62",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "897d63f7f266d688",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "1270f59a6e848132",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "3cb98b5cd16bfbea",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "5c92963ad877161f",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "cc47bc248bb4f568",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "6d021408417929d5",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "681c5aad22abec94",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "24919571b26a2bef",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "6a94b6b2b33143b8",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "f337513a89274288",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "99b2f16d837a3311",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "ec5fcd2ff393cc60",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "d58256732149bc23",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "7e6a46f27c3e512b",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "bdd9d09b19676724",
+                                                 "relevance":  0
+                                             }
+                                         ]
+                   },
+                   {
+                       "query_id":  "fdb6f9599585",
+                       "graded_labels":  [
+                                             {
+                                                 "doc_id":  "dcf3be15ec7d70de",
+                                                 "relevance":  1
+                                             },
+                                             {
+                                                 "doc_id":  "b84692098c105db9",
+                                                 "relevance":  1
+                                             },
+                                             {
+                                                 "doc_id":  "68af48f4604795e6",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "f5bd1eee4be58b65",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "bf31a5fe05ef7c5d",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "b3917724c1e1c895",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "8f14a21ad0a36205",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "f6db519589d06b73",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "b1fa56764fd6846c",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "d4f149cf2e9dc256",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "8f08ca8b781c65b9",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "650da9a2672b4b3f",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "cea898775dc9d3c9",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "353202c6f28e6f4c",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "c9c71baf876bac0a",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "0aa1ffe7ba893b49",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "6285380356bf2e4b",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "a0c81ba7073316ca",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "9c9c066e40fa8785",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "f34f25be7c14cd99",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "fec6a96a2f660496",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "e8e969c057ab5929",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "eadb668f8015cb40",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "304098d910debe39",
+                                                 "relevance":  0
+                                             }
+                                         ]
+                   },
+                   {
+                       "query_id":  "a31b048e7425",
+                       "graded_labels":  [
+                                             {
+                                                 "doc_id":  "749285aa27debac9",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "5f5f2603de688e28",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "54563107eef6f9d9",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "be24ba25be38de11",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "f433b73d0b038395",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "768bb0150b68d88c",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "2c201de0f340f477",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "988e8f1c406fe4c3",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "fe05a1abb49cd3f6",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "c9c71baf876bac0a",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "a160914f277f1d5f",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "883eec09eed1e9f8",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "dff2bc5f9b3a0665",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "b3c71ffe3099ff2f",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "5abde769e4aa1674",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "83ce5a0a213e974b",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "3df32aa16e4600d9",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "1b1a521362cc9de4",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "eb93063422f002aa",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "b7f840f076147467",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "7fff8d4cd1dc9fd7",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "10bfd1ced25b5acb",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "69cf2f0abb942bdd",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "c9fdc0843c3fccb9",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "b6df6b269fa624d2",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "8ff4b34397134f79",
+                                                 "relevance":  0
+                                             }
+                                         ]
+                   },
+                   {
+                       "query_id":  "90c542313616",
+                       "graded_labels":  [
+                                             {
+                                                 "doc_id":  "89401869d8d1fa86",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "4c822dc7602c65b4",
+                                                 "relevance":  1
+                                             },
+                                             {
+                                                 "doc_id":  "f80b6bccd0f634df",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "b8743be90cbe3235",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "220e27be8ca85535",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "82dccc8e26d0180d",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "9ab743a787f0b7d3",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "76dec52462ad345a",
+                                                 "relevance":  1
+                                             },
+                                             {
+                                                 "doc_id":  "2b38df83ccb583ac",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "3ef9228d3df2beac",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "ce1bda5e8dfbede0",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "68335d444cee9006",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "a896ca296832ff8b",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "bac60d593c0ea852",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "3221cf5c921c49f1",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "e8aff5cf489090ea",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "7d20a2f4408a6ac9",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "2f3eeb5f03956d87",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "1c3da954bbf888d6",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "6e038a25acf8d2d0",
+                                                 "relevance":  0
+                                             }
+                                         ]
+                   },
+                   {
+                       "query_id":  "cba5681bab70",
+                       "graded_labels":  [
+                                             {
+                                                 "doc_id":  "2ea013764cb09371",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "034ed31dd02e4e90",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "5d77852bafc7d546",
+                                                 "relevance":  1
+                                             },
+                                             {
+                                                 "doc_id":  "b1693fbcf113003e",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "d391f32c1082ef35",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "087ce42147284722",
+                                                 "relevance":  1
+                                             },
+                                             {
+                                                 "doc_id":  "ad5e3c0a182e20cb",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "f3deeb8d3ee27937",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "745f4e4e36a5487f",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "74d4eaa5ddadf572",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "150eeb7ce28e2c50",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "c4472167c87c3dea",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "cd47a22ffab77713",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "1814e95a9163690a",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "9d2c98fd98432a50",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "8e43075b1998d3d2",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "ac6f6dac60895d16",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "303351e119c04c42",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "125859bdf38416c2",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "4ee8a3547a93e4c6",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "272b01f9f162ae68",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "a3086e0708662bed",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "e1626412322b3006",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "431c7bce6b841810",
+                                                 "relevance":  0
+                                             }
+                                         ]
+                   },
+                   {
+                       "query_id":  "0eedd8d619e5",
+                       "graded_labels":  [
+                                             {
+                                                 "doc_id":  "88619c16d79d000e",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "d4d6ae1b02562c4f",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "042a538b9419ca78",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "cec3a23e3f1fc32e",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "02af433e66bff56d",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "5e34e1088db49911",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "ae15fc6ed43aa496",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "5140854e9bbf356d",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "1febaa62fd1760f4",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "78ddf27bd10b0681",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "b1bc3dd97d14775d",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "a792ec949fdc8ef6",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "2e89c33bb91a2961",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "dadb55016d6e7c2f",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "8851397159d03844",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "323823314be3e302",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "2735475873b50432",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "9cdd899881c96125",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "266b1fec5e1a91eb",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "04c6cfa00c842c6c",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "e7cd124c9d39ca12",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "27e9eec1eac1da57",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "d32be4942d63e9c9",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "94e88729b25e181c",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "9b49545afc5e1f8a",
+                                                 "relevance":  0
+                                             }
+                                         ]
+                   },
+                   {
+                       "query_id":  "94c63e4216fc",
+                       "graded_labels":  [
+                                             {
+                                                 "doc_id":  "48235c079d25a1bd",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "0bfa56920297e8fb",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "ef556cf29936eaab",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "631d681ced645ba3",
+                                                 "relevance":  1
+                                             },
+                                             {
+                                                 "doc_id":  "c6e9b875983d3340",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "cc7b73072e0321eb",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "db3a35eb5ce2682a",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "32dc13c792cbd339",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "17be72e9f86457f7",
+                                                 "relevance":  1
+                                             },
+                                             {
+                                                 "doc_id":  "1f2d2351e6c85e5e",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "e9053dde69f8518b",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "cf4c8f61a88aa3f4",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "181f729229dc1d3b",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "048ff80d794ec14c",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "3ef9228d3df2beac",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "360ab47475f3c586",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "f92c01f74f2b4384",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "c264bfdeac6f85d0",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "7a87d968d98e1ae4",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "d492db344b317b45",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "37f5bb7e88922cd4",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "a7c649f077f8e784",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "5679f022f9d2c8c9",
+                                                 "relevance":  0
+                                             }
+                                         ]
+                   },
+                   {
+                       "query_id":  "106d4a62fb80",
+                       "graded_labels":  [
+                                             {
+                                                 "doc_id":  "27ccf78428aab478",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "2a11873e3156ce70",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "35b57396d79162c6",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "b3390c8c0eb71bbe",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "e78e5db30e63d905",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "ba5ef310cb7ed378",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "feb82d8f1af34255",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "335d7a520ab2328a",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "9a0950efe31112fc",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "d2581df69ff2a7d1",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "1085579d9c760d0a",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "c78c148bf8544f87",
+                                                 "relevance":  1
+                                             },
+                                             {
+                                                 "doc_id":  "1231cc93746d1bfd",
+                                                 "relevance":  1
+                                             },
+                                             {
+                                                 "doc_id":  "765c0b237bdb1514",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "b99e49ec0139380b",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "81746707e3583ee3",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "08a823fb0c6be375",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "5745aa78d32a2092",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "826e16996289cb76",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "c442b1ee2de1669d",
+                                                 "relevance":  2
+                                             },
+                                             {
+                                                 "doc_id":  "c83293de395f4562",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "7adb2fdee7549a27",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "d67aab41f66b9ca2",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "dcf3be15ec7d70de",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "eadb668f8015cb40",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "49c99b98df6053f7",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "094f4aa0cd1ac006",
+                                                 "relevance":  0
+                                             },
+                                             {
+                                                 "doc_id":  "4fb3cbe50765c7cd",
+                                                 "relevance":  0
+                                             }
+                                         ]
+                   }
+               ]
+}

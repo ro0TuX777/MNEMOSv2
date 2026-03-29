@@ -51,6 +51,9 @@ def run_suite(
     n_runs: int = 5,
     gpu_device: str = "cuda",
     seed: int = 42,
+    rerank_audit: bool = False,
+    rerank_audit_queries: int = 10,
+    rerank_audit_depth: int = 50,
 ):
     """Run the benchmark suite."""
     if tracks is None:
@@ -111,6 +114,9 @@ def run_suite(
             queries=queries,
             corpus=corpus,
             gpu_device=gpu_device,
+            enable_audit=rerank_audit,
+            audit_queries=rerank_audit_queries,
+            audit_depth=rerank_audit_depth,
         )
 
     # ─────────── Track 3: Installer ───────────
@@ -179,6 +185,18 @@ Tracks:
         "--seed", type=int, default=42,
         help="Random seed for corpus generation (default: 42)",
     )
+    parser.add_argument(
+        "--rerank-audit", action="store_true",
+        help="Enable reranker correctness audit traces (Track 2 only)",
+    )
+    parser.add_argument(
+        "--rerank-audit-queries", type=int, default=10,
+        help="Number of semantic queries for Track 2 audit traces (default: 10)",
+    )
+    parser.add_argument(
+        "--rerank-audit-depth", type=int, default=50,
+        help="Candidate depth for Track 2 audit traces (default: 50)",
+    )
     args = parser.parse_args()
 
     tracks = [args.track] if args.track else TRACKS
@@ -191,6 +209,9 @@ Tracks:
         n_runs=args.runs,
         gpu_device=args.gpu,
         seed=args.seed,
+        rerank_audit=args.rerank_audit,
+        rerank_audit_queries=args.rerank_audit_queries,
+        rerank_audit_depth=args.rerank_audit_depth,
     )
 
 
