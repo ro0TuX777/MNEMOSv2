@@ -19,6 +19,8 @@ from installer.probes import run_probes, ProbeResults
 from installer.recommend import recommend, Recommendation
 from installer.render import render_compose, render_env, render_manifest
 
+FUSION_POLICIES = ["semantic_dominant", "balanced", "lexical_dominant"]
+
 
 def _print_header():
     print()
@@ -84,8 +86,35 @@ def main():
         "--output-dir", type=str, default=".",
         help="Directory for generated files (default: current)",
     )
+    parser.add_argument(
+        "--retrieval-mode", type=str, choices=["semantic", "hybrid"], default="semantic",
+        help="Retrieval mode written into generated .env.mnemos (default: semantic)",
+    )
+    parser.add_argument(
+        "--fusion-policy", type=str, choices=FUSION_POLICIES, default="balanced",
+        help="Fusion policy for hybrid mode in generated .env.mnemos (default: balanced)",
+    )
+    parser.add_argument(
+        "--lexical-top-k", type=int, default=25,
+        help="Hybrid lexical candidate top-k in generated .env.mnemos (default: 25)",
+    )
+    parser.add_argument(
+        "--semantic-top-k", type=int, default=25,
+        help="Hybrid semantic candidate top-k in generated .env.mnemos (default: 25)",
+    )
+    parser.add_argument(
+        "--explain-default", action="store_true",
+        help="Set MNEMOS_EXPLAIN_DEFAULT=true in generated .env.mnemos",
+    )
     args = parser.parse_args()
     output_dir = Path(args.output_dir)
+
+    if args.lexical_top_k < 1:
+        print("  [ERROR] --lexical-top-k must be >= 1")
+        sys.exit(1)
+    if args.semantic_top_k < 1:
+        print("  [ERROR] --semantic-top-k must be >= 1")
+        sys.exit(1)
 
     _print_header()
 
@@ -150,14 +179,34 @@ def main():
     compose_path = render_compose(rec.profile, output_dir)
     print(f"    [OK] {compose_path}")
 
-    env_path = render_env(rec.profile, output_dir)
+    env_path = render_env(
+        rec.profile,
+        output_dir,
+        retrieval_mode=args.retrieval_mode,
+        fusion_policy=args.fusion_policy,
+        lexical_top_k=args.lexical_top_k,
+        semantic_top_k=args.semantic_top_k,
+        explain_default=args.explain_default,
+    )
     print(f"    [OK] {env_path}")
 
-    manifest_path = render_manifest(rec, answers, probes, output_dir)
+    manifest_path = render_manifest(
+        rec,
+        answers,
+        probes,
+        output_dir,
+        retrieval_mode=args.retrieval_mode,
+        fusion_policy=args.fusion_policy,
+        lexical_top_k=args.lexical_top_k,
+        semantic_top_k=args.semantic_top_k,
+        explain_default=args.explain_default,
+    )
     print(f"    [OK] {manifest_path}")
 
     print(f"\n  [OK] Installation complete!")
     print(f"  Profile: {rec.profile.display_name}")
+    print(f"  Retrieval mode: {args.retrieval_mode}")
+    print(f"  Fusion policy: {args.fusion_policy}")
     print(f"\n  Next steps:")
     print(f"    1. Review: cat {env_path}")
     print(f"    2. Start:  docker compose -f {compose_path} up -d --build")

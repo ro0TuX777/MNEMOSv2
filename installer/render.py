@@ -40,7 +40,15 @@ def render_compose(profile: ProfileSpec, output_dir: Path = Path(".")) -> Path:
     return output_file
 
 
-def render_env(profile: ProfileSpec, output_dir: Path = Path(".")) -> Path:
+def render_env(
+    profile: ProfileSpec,
+    output_dir: Path = Path("."),
+    retrieval_mode: str = "semantic",
+    fusion_policy: str = "balanced",
+    lexical_top_k: int = 25,
+    semantic_top_k: int = 25,
+    explain_default: bool = False,
+) -> Path:
     """Generate .env.mnemos from profile spec."""
     output_file = output_dir / ".env.mnemos"
 
@@ -64,6 +72,11 @@ def render_env(profile: ProfileSpec, output_dir: Path = Path(".")) -> Path:
         "MNEMOS_TOKEN": "",
         "MNEMOS_AUDIT_ENABLED": "true",
         "MNEMOS_LOG_LEVEL": "INFO",
+        "MNEMOS_RETRIEVAL_MODE": retrieval_mode,
+        "MNEMOS_FUSION_POLICY": fusion_policy,
+        "MNEMOS_LEXICAL_TOP_K": str(lexical_top_k),
+        "MNEMOS_SEMANTIC_TOP_K": str(semantic_top_k),
+        "MNEMOS_EXPLAIN_DEFAULT": "true" if explain_default else "false",
     }
 
     # Profile-specific defaults
@@ -89,6 +102,11 @@ def render_manifest(
     answers: UserAnswers,
     probes: ProbeResults,
     output_dir: Path = Path("."),
+    retrieval_mode: str = "semantic",
+    fusion_policy: str = "balanced",
+    lexical_top_k: int = 25,
+    semantic_top_k: int = 25,
+    explain_default: bool = False,
 ) -> Path:
     """Generate mnemos_profile.yaml source-of-truth manifest."""
     output_file = output_dir / "mnemos_profile.yaml"
@@ -126,6 +144,13 @@ def render_manifest(
                 "cpu_cores": probes.cpu_cores,
             },
             "enabled_services": recommendation.profile.services,
+            "retrieval": {
+                "mode": retrieval_mode,
+                "fusion_policy": fusion_policy,
+                "lexical_top_k": lexical_top_k,
+                "semantic_top_k": semantic_top_k,
+                "explain_default": explain_default,
+            },
             "generated_files": [
                 "docker-compose.generated.yml",
                 ".env.mnemos",

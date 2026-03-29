@@ -34,6 +34,9 @@ class SearchHit:
     score: float
     tier: str
     tiers: List[str]
+    component_scores: Optional[Dict[str, float]] = None
+    retrieval_sources: Optional[List[str]] = None
+    fusion_policy: Optional[str] = None
 
 
 @dataclass
@@ -264,6 +267,9 @@ class MnemosClient:
         top_k: int = 10,
         tiers: Optional[List[str]] = None,
         filters: Optional[Dict[str, Any]] = None,
+        retrieval_mode: Optional[str] = None,
+        fusion_policy: Optional[str] = None,
+        explain: Optional[bool] = None,
     ) -> List[SearchHit]:
         """Search across retrieval tiers and return fused results.
 
@@ -281,6 +287,12 @@ class MnemosClient:
             payload["tiers"] = tiers
         if filters:
             payload["filters"] = filters
+        if retrieval_mode:
+            payload["retrieval_mode"] = retrieval_mode
+        if fusion_policy:
+            payload["fusion_policy"] = fusion_policy
+        if explain is not None:
+            payload["explain"] = explain
 
         resp = self._request("POST", "/v1/mnemos/search", payload=payload)
         if not resp.ok:
@@ -293,6 +305,9 @@ class MnemosClient:
                 score=r.get("score", 0.0),
                 tier=r.get("tier", ""),
                 tiers=r.get("tiers", []),
+                component_scores=r.get("component_scores"),
+                retrieval_sources=r.get("retrieval_sources"),
+                fusion_policy=r.get("fusion_policy"),
             ))
         return hits
 
@@ -303,6 +318,9 @@ class MnemosClient:
         top_k: int = 10,
         tiers: Optional[List[str]] = None,
         filters: Optional[Dict[str, Any]] = None,
+        retrieval_mode: Optional[str] = None,
+        fusion_policy: Optional[str] = None,
+        explain: Optional[bool] = None,
     ) -> MnemosResponse:
         """Search and return the full MnemosResponse envelope."""
         payload: Dict[str, Any] = {"query": query, "top_k": top_k}
@@ -310,6 +328,12 @@ class MnemosClient:
             payload["tiers"] = tiers
         if filters:
             payload["filters"] = filters
+        if retrieval_mode:
+            payload["retrieval_mode"] = retrieval_mode
+        if fusion_policy:
+            payload["fusion_policy"] = fusion_policy
+        if explain is not None:
+            payload["explain"] = explain
         return self._request("POST", "/v1/mnemos/search", payload=payload)
 
     def get_engram(self, engram_id: str) -> MnemosResponse:

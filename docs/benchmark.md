@@ -78,6 +78,32 @@ python -m installer --profile core_memory_appliance
 docker compose -f docker-compose.generated.yml up -d
 ```
 
+### Known-Good Bench Env (Port Override)
+
+If host-local `5432` causes auth/collision issues, use this known-good benchmark isolation:
+
+```bash
+# PowerShell
+$env:MNEMOS_BENCH_QDRANT_PORT="6333"
+$env:MNEMOS_BENCH_POSTGRES_PORT="5433"
+$env:MNEMOS_BENCH_QDRANT_URL="http://localhost:6333"
+$env:MNEMOS_BENCH_POSTGRES_DSN="postgresql://mnemos:mnemos@localhost:5433/mnemos"
+
+docker compose -f benchmarks/docker-compose.bench.yml down -v
+docker compose -f benchmarks/docker-compose.bench.yml up -d
+docker compose -f benchmarks/docker-compose.bench.yml ps
+```
+
+Quick verification before running benchmarks:
+
+```bash
+# Postgres over TCP using benchmark DSN
+python -c "import os, psycopg; c=psycopg.connect(os.environ['MNEMOS_BENCH_POSTGRES_DSN'], connect_timeout=5); cur=c.cursor(); cur.execute('select 1'); print(cur.fetchone()); c.close()"
+
+# Qdrant health
+Invoke-WebRequest -UseBasicParsing http://localhost:6333/healthz
+```
+
 ---
 
 ## Track 3: Installer Overhead
@@ -819,13 +845,178 @@ Set-level quality target:
 
 ### Gate C: Hybrid Retrieval Prototype (No New Profile Yet)
 
-Implement and benchmark lexical+semantic fusion inside current MNEMOS flow first (not a full OpenSearch/Elastic profile yet).
+Implement and benchmark lexical + semantic fusion inside current MNEMOS profiles first (not a full OpenSearch/Elastic profile yet).
 
-Minimum evidence to continue:
+#### Gate C Scope (Frozen)
 
-- Measurable relevance gain on at least one enterprise-style query class (e.g., exact term + semantic expansion).
-- Acceptable latency budget relative to Core baseline.
-- Explainability fields included (component scores, fusion score, applied filters).
+- Keep existing profile defaults:
+  - Core/Qdrant default posture unchanged.
+  - Governance/pgvector remains governance/operational posture.
+  - Reranker remains experimental and out-of-scope for Gate C pass/fail.
+- Add hybrid as a **retrieval mode**, not a new deployment profile.
+- Ship deterministic, explainable fusion before introducing ML rankers.
+
+#### Gate C API/Config Contract
+
+`POST /v1/mnemos/search` supports:
+
+- `retrieval_mode`: `semantic | hybrid` (default: `semantic`)
+- `fusion_policy`: `semantic_dominant | balanced | lexical_dominant`
+- `explain`: `true | false`
+
+Hybrid explanations (when `explain=true`) include:
+
+- `component_scores` (`lexical`, `semantic`, `fused`)
+- `retrieval_sources` (`lexical`, `semantic`, or both)
+- `filters_applied`
+- `fusion_policy`
+
+Config knobs:
+
+- `MNEMOS_RETRIEVAL_MODE`
+- `MNEMOS_FUSION_POLICY`
+- `MNEMOS_LEXICAL_TOP_K`
+- `MNEMOS_SEMANTIC_TOP_K`
+- `MNEMOS_EXPLAIN_DEFAULT`
+
+#### Gate C Fusion v1
+
+- Candidate generation: lexical top-k + semantic top-k, union + dedupe.
+- Normalization: deterministic rank-based normalization (v1 frozen choice).
+- Weighted fusion policies:
+  - `semantic_dominant`: 0.25 lexical / 0.75 semantic
+  - `balanced`: 0.50 lexical / 0.50 semantic
+  - `lexical_dominant`: 0.75 lexical / 0.25 semantic
+
+#### Gate C Benchmark Track (Required)
+
+Add a hybrid benchmark comparison track (semantic-only vs lexical-only vs hybrid policies) with enterprise-style query classes:
+
+- exact acronym/control/title lookup
+- phrase-sensitive retrieval
+- procedural retrieval
+- comparative/definition queries
+- mixed enterprise wording (exact + conceptual intent)
+
+Required metrics:
+
+- Recall@10, MRR@10, nDCG@10
+- p50/p95 latency
+- lexical-only contribution rate
+- semantic-only contribution rate
+- overlap rate
+- hybrid win count vs semantic-only
+
+Pass criteria:
+
+- Hybrid wins on at least one enterprise-style query class.
+- Latency remains within acceptable budget (target: p50 <= 1.5x semantic-only unless quality gain is substantial).
+- Explain payload is stable and useful.
+- Results support a clear \"when hybrid wins\" guidance rule.
+
+#### Gate C Run Instructions (`--track hybrid`)
+
+Prerequisites:
+
+- Qdrant available at `MNEMOS_BENCH_QDRANT_URL` (default `http://localhost:6333`)
+- Postgres/pgvector available at `MNEMOS_BENCH_POSTGRES_DSN`
+- Gate C query set present at `benchmarks/truthsets/gate_c_hybrid_queries.json`
+
+Commands:
+
+```bash
+# Synthetic quick run
+python -B benchmarks/run_profile_benchmarks.py --track hybrid --corpus-size 2000 --runs 3
+
+# Real corpus run
+python -B benchmarks/run_profile_benchmarks.py --track hybrid --corpus-type real --pdf-dir "<YOUR_PDF_DIR>" --runs 5
+```
+
+Expected artifacts:
+
+- Raw JSON: `benchmarks/outputs/raw/<timestamp>_profile_benchmarks.json` with `results.hybrid`
+- Summary markdown: `benchmarks/outputs/summaries/<timestamp>_report.md` with Track 5 section
+
+Expected mode rows in Track 5:
+
+- `semantic_only`
+- `lexical_only`
+- `hybrid_semantic_dominant`
+- `hybrid_balanced`
+- `hybrid_lexical_dominant`
+
+Interpretation checklist:
+
+- Compare MRR@10 and nDCG@10 against `semantic_only` by query class.
+- Check `hybrid_win_rate_over_semantic_only` (overall and class-level).
+- Inspect contribution diagnostics:
+  - lexical-only rate (lexical rescue signal)
+  - semantic-only rate (semantic dominance)
+  - both rate (reinforcement overlap)
+- Validate latency budget: hybrid p50 should generally stay within ~1.5x semantic-only unless quality gain is substantial.
+
+#### Gate C Operator Guidance (Provisional, March 29, 2026)
+
+Current evidence posture:
+
+- On **March 29, 2026**, Gate C infrastructure is benchmark-ready (`--track hybrid`), but this environment does not yet include a full successful hybrid benchmark run with all required backends online in the latest artifacts.
+- Because of that, there is **no confirmed differentiated hybrid win rule yet** from finalized Gate C runs.
+
+Interim guidance:
+
+- Keep `semantic` as default retrieval mode in production.
+- Use `hybrid` for targeted evaluation workloads where exact terms/acronyms/titles are known pain points.
+- Start with `fusion_policy=balanced` for evaluation baselines, then compare to `semantic_dominant` and `lexical_dominant` by query class.
+- Promote hybrid for a class only when:
+  - class-level MRR@10 or nDCG@10 improves vs semantic-only, and
+  - latency remains inside acceptable budget for that class.
+
+If a complete Gate C run shows no class-level wins, document that outcome explicitly and keep semantic-only as broad default.
+
+#### Gate C Operator Guidance (Finalized, Real-Corpus Run on March 29, 2026)
+
+Run artifacts:
+
+- Raw JSON: `benchmarks/outputs/raw/20260329_225832_profile_benchmarks.json`
+- Track report: `benchmarks/outputs/summaries/20260329_225832_report.md`
+- Decision report: `benchmarks/outputs/summaries/20260329_225907_gate_c_decision.md`
+
+Observed Gate C outcome:
+
+- Track execution complete: `True`
+- Quality class win found: `False`
+- Latency threshold satisfied: `True`
+- Sprint exit pass: `False`
+
+Final operator guidance from this run:
+
+- Use `semantic` as the default retrieval mode for broad production traffic.
+- Use `hybrid` only for targeted pilot/evaluation queries where exact-term failure is suspected.
+- Do not set a global hybrid default fusion policy yet (`none_keep_semantic_default` from decision report).
+- Do not claim evidence for a future enterprise retrieval profile from this run (`not_yet` in decision report).
+
+#### Gate C Decision Automation
+
+Use the decision helper to evaluate sprint exit criteria from the latest hybrid artifact:
+
+```bash
+# Use latest raw artifact containing results.hybrid
+python tools/evaluate_gate_c.py
+
+# Evaluate a specific artifact and fail CI if sprint exit criteria are not met
+python tools/evaluate_gate_c.py --raw benchmarks/outputs/raw/<timestamp>_profile_benchmarks.json --require-pass
+```
+
+Output:
+
+- `benchmarks/outputs/summaries/<timestamp>_gate_c_decision.md`
+
+The report answers:
+
+1. whether hybrid materially improves any enterprise-style query class
+2. which fusion policy should be default (if any)
+3. whether hybrid is ready for broad exposure
+4. whether evidence justifies a future enterprise profile
 
 ### Gate D: Product Message Clarity
 
