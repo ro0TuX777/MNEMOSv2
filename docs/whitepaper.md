@@ -1,8 +1,12 @@
-# MNEMOS — White Paper
+﻿# MNEMOS â€” White Paper
 
 **A containerised, contract-governed memory and retrieval service for AI-native applications.**
 
-*Version 3.0 · March 2026*
+*Version 3.0 Â· March 2026*
+
+> [!NOTE]
+> **As of March 29, 2026:** Benchmark conclusions in this whitepaper are date-scoped to the current measured runs.
+> For full methodology, raw artifacts, and latest updates, see `docs/benchmark.md`.
 
 ---
 
@@ -17,28 +21,28 @@ Every AI application that persists and retrieves knowledge must solve the same s
 - **Auditability**: How do you trace what was stored, retrieved, modified, and when?
 - **Integration**: How do you wire memory into an application without tight coupling or fragile glue code?
 
-Today, each project re-implements these capabilities from scratch — writing custom embedding pipelines, bolting on vector databases, and building ad-hoc search logic. The result is fragile, inconsistent, and impossible to reuse across projects.
+Today, each project re-implements these capabilities from scratch â€” writing custom embedding pipelines, bolting on vector databases, and building ad-hoc search logic. The result is fragile, inconsistent, and impossible to reuse across projects.
 
 ## 2. Solution: MNEMOS
 
-**MNEMOS** (Multi-tier Neuro-tagged Engram Memory with Optimal Near-lossless Index Compression) is a GPU-accelerated, production-grade memory service for AI-native applications. It deploys via **named deployment profiles** — each profile defines a retrieval backend, container topology, and operational posture:
+**MNEMOS** (Multi-tier Neuro-tagged Engram Memory with Optimal Near-lossless Index Compression) is a GPU-accelerated, production-grade memory service for AI-native applications. It deploys via **named deployment profiles** â€” each profile defines a retrieval backend, container topology, and operational posture:
 
-- **Core Memory Appliance** — Qdrant + PostgreSQL + MNEMOS (3 containers). Semantic ANN with payload filtering.
-- **Governance Native** — PostgreSQL/pgvector + MNEMOS (2 containers). ANN + SQL metadata filtering in one query.
-- **Custom Manual** — Operator-defined configuration for advanced multi-backend setups.
+- **Core Memory Appliance** â€” Qdrant + PostgreSQL + MNEMOS (3 containers). Semantic ANN with payload filtering.
+- **Governance Native** â€” PostgreSQL/pgvector + MNEMOS (2 containers). ANN + SQL metadata filtering in one query.
+- **Custom Manual** â€” Operator-defined configuration for advanced multi-backend setups.
 
 A guided Python installer (`python -m installer`) probes the host, asks 5 questions, recommends a profile, and generates all deployment files. The service exposes a versioned REST API governed by an MFS contract.
 
-MNEMOS is **application-agnostic** — it knows nothing about the domain of the consuming application. It stores, enriches, compresses, retrieves, and audits knowledge. That’s it.
+MNEMOS is **application-agnostic** â€” it knows nothing about the domain of the consuming application. It stores, enriches, compresses, retrieves, and audits knowledge. Thatâ€™s it.
 
 **What's new in v3:**
-- **Deployment profiles** replace the flat tier model — named profiles with distinct retrieval architectures
-- **pgvector tier** — PostgreSQL-native ANN with SQL WHERE metadata filtering (Governance Native profile)
-- **Guided installer** — Q/A + host probes → profile recommendation → compose + env + manifest generation
-- **Profile benchmarks** — per-profile retrieval latency, recall, and throughput data
-- **Deployment manifest** — `mnemos_profile.yaml` as durable deployment artifact
+- **Deployment profiles** replace the flat tier model â€” named profiles with distinct retrieval architectures
+- **pgvector tier** â€” PostgreSQL-native ANN with SQL WHERE metadata filtering (Governance Native profile)
+- **Guided installer** â€” Q/A + host probes â†’ profile recommendation â†’ compose + env + manifest generation
+- **Profile benchmarks** â€” per-profile retrieval latency, recall, and throughput data
+- **Deployment manifest** â€” `mnemos_profile.yaml` as durable deployment artifact
 
-MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of **operational tools** (health audit, contract evolution, onboarding, CI gates, and staged cutover) — making it a complete platform that can be deployed with a single `python -m installer`.
+MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of **operational tools** (health audit, contract evolution, onboarding, CI gates, and staged cutover) â€” making it a complete platform that can be deployed with a single `python -m installer`.
 
 ---
 
@@ -47,33 +51,33 @@ MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of
 MNEMOS is organised as a layered stack with a pluggable retrieval tier selected by **deployment profile**:
 
 ```
-┌────────────────────────────────────────────────────────────┐
-│                       REST API (:8700)                      │
-│   /index   /search   /engrams   /audit   /stats            │
-├────────────────────────────────────────────────────────────┤
-│                  Engram Enrichment Layer                    │
-│   neuro-tags · provenance · confidence · relationship      │
-│   edges · extensible metadata                              │
-├────────────────────────────────────────────────────────────┤
-│            Retrieval (profile-selected)                     │
-│                                                             │
-│  ┌──────────────────────────┐  ┌────────────────────────┐  │
-│  │  Core Memory Appliance   │  │   Governance Native    │  │
-│  │  Qdrant (HNSW, CUDA)     │  │   pgvector (Postgres)  │  │
-│  │  + optional ColBERT       │  │   + optional ColBERT   │  │
-│  └──────────────────────────┘  └────────────────────────┘  │
-├────────────────────────────────────────────────────────────┤
-│             TurboQuant Compression Layer                    │
-│   4-bit quantised storage · 8× raw compression             │
-│   Near-optimal distortion (arXiv:2504.19874)               │
-├────────────────────────────────────────────────────────────┤
-│     Embedding Engine (GPU-accelerated, swappable)          │
-│   all-MiniLM-L6-v2 │ ColBERTv2.0 │ custom model           │
-├────────────────────────────────────────────────────────────┤
-│          Forensic Ledger (PostgreSQL audit trail)           │
-│   Immutable · every operation logged · replayable          │
-│   tsvector FTS · connection pooling · SQLite fallback      │
-└────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                       REST API (:8700)                      â”‚
+â”‚   /index   /search   /engrams   /audit   /stats            â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                  Engram Enrichment Layer                    â”‚
+â”‚   neuro-tags Â· provenance Â· confidence Â· relationship      â”‚
+â”‚   edges Â· extensible metadata                              â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚            Retrieval (profile-selected)                     â”‚
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚  Core Memory Appliance   â”‚  â”‚   Governance Native    â”‚  â”‚
+â”‚  â”‚  Qdrant (HNSW, CUDA)     â”‚  â”‚   pgvector (Postgres)  â”‚  â”‚
+â”‚  â”‚  + optional ColBERT       â”‚  â”‚   + optional ColBERT   â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚             TurboQuant Compression Layer                    â”‚
+â”‚   4-bit quantised storage Â· 8Ã— raw compression             â”‚
+â”‚   Near-optimal distortion (arXiv:2504.19874)               â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚     Embedding Engine (GPU-accelerated, swappable)          â”‚
+â”‚   all-MiniLM-L6-v2 â”‚ ColBERTv2.0 â”‚ custom model           â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚          Forensic Ledger (PostgreSQL audit trail)           â”‚
+â”‚   Immutable Â· every operation logged Â· replayable          â”‚
+â”‚   tsvector FTS Â· connection pooling Â· SQLite fallback      â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 The architecture is layered by concern: the API layer handles routing and auth; the engram layer enriches raw content; the retrieval layer is determined by the selected deployment profile; the compression layer reduces storage footprint; and the audit layer logs every mutation to PostgreSQL.
@@ -93,12 +97,12 @@ An **Engram** is the atomic unit of knowledge in MNEMOS. It wraps a raw document
 | `embedding` | `vector` | Dense vector (quantised on disk) |
 | `neuro_tags` | `string[]` | Auto-generated semantic labels |
 | `source` | `string` | Provenance URI (where this data came from) |
-| `confidence` | `float` | Quality signal (0.0–1.0) used for ranking |
+| `confidence` | `float` | Quality signal (0.0â€“1.0) used for ranking |
 | `created_at` | `datetime` | Ingestion timestamp |
 | `metadata` | `object` | Extensible application-specific data |
 | `edges` | `string[]` | IDs of related engrams (knowledge graph) |
 
-The Engram is **domain-agnostic** — the consuming application decides what `neuro_tags` mean, what `source` URIs look like, and what goes in `metadata`. MNEMOS provides the schema, storage, indexing, and retrieval.
+The Engram is **domain-agnostic** â€” the consuming application decides what `neuro_tags` mean, what `source` URIs look like, and what goes in `metadata`. MNEMOS provides the schema, storage, indexing, and retrieval.
 
 ### 4.2 Retrieval Backends
 
@@ -108,11 +112,11 @@ MNEMOS supports multiple retrieval backends, selected by deployment profile. All
 |---|---|---|---|
 | **Qdrant** | Core Memory Appliance | all-MiniLM-L6-v2 (384-dim, CUDA) | Fast semantic ANN, HNSW index, payload filtering, horizontal scaling |
 | **pgvector** | Governance Native | all-MiniLM-L6-v2 (384-dim, CUDA) | ANN + SQL metadata filtering in one query, single-database deployment |
-| **ColBERT** | Optional (any profile) | colbert-ir/colbertv2.0 (128-dim, CUDA) | Token-level late-interaction matching — highest precision reranking |
+| **ColBERT** | Optional (any profile) | colbert-ir/colbertv2.0 (128-dim, CUDA) | Token-level late-interaction matching â€” highest precision reranking |
 
 **Why Qdrant** (Core Memory Appliance): Standalone service with its own HNSW index, snapshotting, replication, and sharding. Supports concurrent reads and writes without single-process bottlenecks, payload-based filtering without post-filtering, and survives independently of the MNEMOS process.
 
-**Why pgvector** (Governance Native): Vectors live inside the same PostgreSQL instance as the forensic ledger. ANN retrieval can be combined with SQL `WHERE` clauses on tenant, provenance, department, security markings, or any relational metadata — in a single query. This eliminates the need for a separate vector service in governance-heavy deployments.
+**Why pgvector** (Governance Native): Vectors live inside the same PostgreSQL instance as the forensic ledger. ANN retrieval can be combined with SQL `WHERE` clauses on tenant, provenance, department, security markings, or any relational metadata â€” in a single query. This eliminates the need for a separate vector service in governance-heavy deployments.
 
 **Tier fusion**: When multiple backends are active (e.g. Qdrant + ColBERT), the API returns merged results with per-tier scores and a fused ranking. The consuming application can weight tiers differently or target specific backends per query.
 
@@ -122,18 +126,18 @@ All stored embeddings are compressed via **TurboQuant** (arXiv:2504.19874), a ne
 
 **How it works:**
 1. Input vectors are randomly rotated so each coordinate follows a Beta distribution
-2. Optimal Lloyd-Max scalar quantisers compress each coordinate to 1–4 bits
+2. Optimal Lloyd-Max scalar quantisers compress each coordinate to 1â€“4 bits
 3. For inner-product operations, a 1-bit QJL residual preserves unbiased estimation
 
 **Performance at 4-bit (default):**
 
 | Metric | Value |
 |---|---|
-| Storage compression | 8× raw bytes, 8.3–8.4× file (.npz) |
+| Storage compression | 8Ã— raw bytes, 8.3â€“8.4Ã— file (.npz) |
 | Recall@10 | 84.2% (128-dim), 84.8% (384-dim) |
-| MSE | 7.3×10⁻⁵ (128-dim), 2.5×10⁻⁵ (384-dim) — well below 0.009 bound |
+| MSE | 7.3Ã—10â»âµ (128-dim), 2.5Ã—10â»âµ (384-dim) â€” well below 0.009 bound |
 | Cosine fidelity | 0.995 avg (practically indistinguishable from float32) |
-| Encode throughput | 67K–175K docs/sec (CPU, NumPy) |
+| Encode throughput | 67Kâ€“175K docs/sec (CPU, NumPy) |
 
 > *All values measured empirically on a 10,000-document synthetic corpus. Benchmark source: `benchmarks/run_benchmarks.py`. Results: `benchmarks/results.json`.*
 
@@ -141,14 +145,14 @@ All stored embeddings are compressed via **TurboQuant** (arXiv:2504.19874), a ne
 
 | Bits | MSE (128d) | MSE (384d) | Cosine Sim | Raw Ratio | File Ratio |
 |---|---|---|---|---|---|
-| 1-bit | 0.0028 | 0.0009 | 0.799 | 32× | 31× |
-| 2-bit | 0.0009 | 0.0003 | 0.940 | 16× | 16× |
-| 3-bit | 0.0003 | 0.00009 | 0.983 | 8× | 11× |
-| **4-bit** | **0.00007** | **0.00003** | **0.995** | **8×** | **8.3×** |
+| 1-bit | 0.0028 | 0.0009 | 0.799 | 32Ã— | 31Ã— |
+| 2-bit | 0.0009 | 0.0003 | 0.940 | 16Ã— | 16Ã— |
+| 3-bit | 0.0003 | 0.00009 | 0.983 | 8Ã— | 11Ã— |
+| **4-bit** | **0.00007** | **0.00003** | **0.995** | **8Ã—** | **8.3Ã—** |
 
 #### Recall@10 (Nearest-Neighbour Fidelity)
 
-Measured on 10K corpus / 100 queries — fraction of true float32 top-10 neighbours preserved after quantisation:
+Measured on 10K corpus / 100 queries â€” fraction of true float32 top-10 neighbours preserved after quantisation:
 
 | Bits | Recall@10 (128d) | Recall@10 (384d) |
 |---|---|---|
@@ -169,66 +173,54 @@ Measured on 10K corpus / 100 queries — fraction of true float32 top-10 neighbo
 
 | Corpus Size | float32 | TurboQuant 4-bit | Ratio |
 |---|---|---|---|
-| 10K documents | 5.1 MB | 0.7 MB | 7.5× |
-| 100K documents | 51.2 MB | 6.8 MB | 7.5× |
-| 1M documents | 512.0 MB | 68.0 MB | 7.5× |
-| 10M documents | 5,120 MB | 680 MB | 7.5× |
+| 10K documents | 5.1 MB | 0.7 MB | 7.5Ã— |
+| 100K documents | 51.2 MB | 6.8 MB | 7.5Ã— |
+| 1M documents | 512.0 MB | 68.0 MB | 7.5Ã— |
+| 10M documents | 5,120 MB | 680 MB | 7.5Ã— |
 
-**Why it matters**: Without compression, a 1M-document index at 128 dimensions consumes ~512 MB in float32. With 4-bit TurboQuant, that drops to ~68 MB — enabling deployment on memory-constrained edge devices, smaller cloud instances, and faster cold starts.
+**Why it matters**: Without compression, a 1M-document index at 128 dimensions consumes ~512 MB in float32. With 4-bit TurboQuant, that drops to ~68 MB â€” enabling deployment on memory-constrained edge devices, smaller cloud instances, and faster cold starts.
 
 ### 4.4 Profile Retrieval Benchmarks
 
-The compression benchmarks above prove storage efficiency. The benchmarks below prove **retrieval quality** — and show when each profile wins.
+This section summarizes current measured profile behavior from the reproducible benchmark suite.
+Detailed run history, commands, and raw artifacts are maintained in `docs/benchmark.md`.
 
-#### Core Memory Appliance (Qdrant)
+#### Retrieval (Real Corpus, 79 PDFs / 5,967 engrams)
 
-Measured on 10K synthetic engrams (384-dim) with Qdrant HNSW default configuration:
+Reference run: `20260329_123129_profile_benchmarks.json`
 
-| Metric | Value |
-|---|---|
-| Index time (10K docs) | ~3.2s (GPU embed + upsert) |
-| Search latency (p50) | 2.8 ms |
-| Search latency (p99) | 8.1 ms |
-| Recall@10 (unfiltered) | 98.7% |
-| Recall@10 (payload filter) | 97.2% |
-| Max throughput (batch) | ~1,200 queries/sec |
+| Backend | Ingest Throughput | Search p50 (semantic) | Search p50 (light filter) | Search p50 (heavy filter) |
+|---|---:|---:|---:|---:|
+| Core Memory Appliance (Qdrant) | 399.6 docs/s | 31.1 ms | 31.1 ms | 31.1 ms |
+| Governance Native (pgvector) | 20.1 docs/s | 55.7 ms | 56.5 ms | 56.5 ms |
 
-Qdrant's HNSW index provides near-perfect recall with low, predictable latency. Payload filtering adds minimal overhead (<1 ms) because it is integrated into the graph traversal, not applied as post-processing.
+Observed on this workload:
+- Core (Qdrant) is materially faster on ingest and query latency.
+- Relevance metrics between Core and Governance are near-parity in multiple filtered regimes.
+- Current evidence supports Core as default for performance-sensitive workloads.
 
-**When Core wins:** High-throughput semantic retrieval where sub-10ms latency matters. Corpora above 100K documents. Multi-shard deployments.
+#### Governance-Focused Constraint Testing
 
-#### Governance Native (pgvector)
+Reference run: `20260329_120756_profile_benchmarks.json` (adversarial filter pressure)
 
-Measured on 10K engrams (384-dim) with pgvector HNSW index (`m=16, ef_construction=200`), including SQL `WHERE` metadata filters:
+| Regime | Qdrant Compliance@10 | pgvector Compliance@10 |
+|---|---:|---:|
+| light_filter | 0.1190 | 0.1190 |
+| heavy_filter | 0.1649 | 0.1646 |
 
-| Metric | Value |
-|---|---|
-| Index time (10K docs) | ~4.8s (GPU embed + INSERT) |
-| Search latency (p50, unfiltered) | 5.2 ms |
-| Search latency (p50, 2 WHERE clauses) | 5.9 ms |
-| Search latency (p50, 4 WHERE clauses) | 7.1 ms |
-| Recall@10 (unfiltered) | 95.1% |
-| Recall@10 (with filters) | 94.8% |
-| Max throughput (batch) | ~650 queries/sec |
+Observed on this workload:
+- Constraint-correctness metrics are active and measurable.
+- No meaningful backend separation has been demonstrated yet in compliance/violation behavior.
+- Governance Native remains best framed as governance/operational posture (single-system SQL deployment), not a proven relevance-quality winner under current benchmark design.
 
-pgvector's key advantage is that metadata filtering happens **inside the query** — not as a post-filter. Adding WHERE clauses adds ~1–2 ms per clause, but never degrades recall because the filter is applied jointly with ANN, not after.
+#### ColBERT Rerank (Track 2)
 
-**When Governance wins:** Compliance-aware retrieval where queries must respect tenant isolation, security markings, department scope, or provenance constraints. Simpler operations (2 containers vs 3).
+Reference rerun: `20260329_131856_profile_benchmarks.json`
 
-#### ColBERT Reranking Uplift
-
-When ColBERT is enabled as a reranker on top of either profile's primary backend:
-
-| Metric | Without ColBERT | With ColBERT | Uplift |
-|---|---|---|---|
-| MRR@10 (factoid queries) | 0.72 | 0.84 | +16.7% |
-| MRR@10 (multi-hop queries) | 0.58 | 0.76 | +31.0% |
-| Search latency (p50) | 3–5 ms | 18–25 ms | +4–5× |
-| VRAM overhead | — | ~2 GB | — |
-
-ColBERT's token-level late interaction dramatically improves precision on complex queries at the cost of latency and VRAM. Recommended only when retrieval quality on nuanced queries justifies the overhead.
-
-> *Retrieval benchmarks measured on a single RTX 4090 (24 GB VRAM), 10K synthetic corpus, 384-dim embeddings, 100 test queries. Benchmark source: `benchmarks/run_benchmarks.py`.*
+Observed on this workload:
+- Reranking reduced MRR and nDCG at depths 20/50/100 for both backends.
+- Recommended depth is currently `n/a` (no rerank by default).
+- The current implementation path logged a sentence-transformers mean-pooling fallback for `colbert-ir/colbertv2.0`; final ColBERT policy should be revisited after model-path alignment.
 
 ### 4.5 Forensic Ledger (PostgreSQL)
 
@@ -245,12 +237,12 @@ Every operation that touches stored memory is immutably logged to **PostgreSQL**
 | `metadata` | JSONB structured details (IDs affected, query text, result count) |
 | `search_vector` | Auto-generated tsvector for full-text search (GIN-indexed) |
 
-**Why PostgreSQL**: SQLite's single-writer lock becomes a bottleneck under concurrent agent workloads. PostgreSQL provides connection pooling, ACID transactions, concurrent writes, and native full-text search via `tsvector` + `GIN` indexes — replacing FTS5 with a language-aware, ranked search engine. A SQLite fallback remains available for local development and testing.
+**Why PostgreSQL**: SQLite's single-writer lock becomes a bottleneck under concurrent agent workloads. PostgreSQL provides connection pooling, ACID transactions, concurrent writes, and native full-text search via `tsvector` + `GIN` indexes â€” replacing FTS5 with a language-aware, ranked search engine. A SQLite fallback remains available for local development and testing.
 
 **Use cases:**
-- **Compliance** — demonstrate when data was ingested, accessed, or deleted
-- **Debugging** — replay the sequence of operations that led to a retrieval failure
-- **Analytics** — track query patterns, ingestion rates, and error trends
+- **Compliance** â€” demonstrate when data was ingested, accessed, or deleted
+- **Debugging** â€” replay the sequence of operations that led to a retrieval failure
+- **Analytics** â€” track query patterns, ingestion rates, and error trends
 
 ---
 
@@ -286,14 +278,14 @@ The `profile` field reports the active deployment profile. `tiers` lists the cur
 ### Core Endpoints
 
 ```
-GET    /health                      — Container health check
-GET    /v1/mnemos/capabilities      — Feature discovery, active profile, backend status
-POST   /v1/mnemos/index             — Ingest documents → engrams
-POST   /v1/mnemos/search            — Query across active backends
-GET    /v1/mnemos/engrams/{id}      — Retrieve a specific engram
-DELETE /v1/mnemos/engrams/{id}      — Remove from all backends
-GET    /v1/mnemos/audit             — Query the forensic ledger
-GET    /v1/mnemos/stats             — Profile info, backend sizes, compression ratios
+GET    /health                      â€” Container health check
+GET    /v1/mnemos/capabilities      â€” Feature discovery, active profile, backend status
+POST   /v1/mnemos/index             â€” Ingest documents â†’ engrams
+POST   /v1/mnemos/search            â€” Query across active backends
+GET    /v1/mnemos/engrams/{id}      â€” Retrieve a specific engram
+DELETE /v1/mnemos/engrams/{id}      â€” Remove from all backends
+GET    /v1/mnemos/audit             â€” Query the forensic ledger
+GET    /v1/mnemos/stats             â€” Profile info, backend sizes, compression ratios
 ```
 
 ### Example: /capabilities Response
@@ -315,7 +307,7 @@ GET    /v1/mnemos/stats             — Profile info, backend sizes, compression
 }
 ```
 
-A consumer can always determine: which profile is running, which backends are active, whether any components are degraded, and the compression configuration — without inspecting env vars or deployment files.
+A consumer can always determine: which profile is running, which backends are active, whether any components are degraded, and the compression configuration â€” without inspecting env vars or deployment files.
 
 ### Example: Indexing a Document
 
@@ -436,7 +428,7 @@ Runs contract validation, health audit, and container build as CI pipeline steps
 python tools/mnemos_cutover_scaffold.py --app my-app
 ```
 
-Generates a staged rollout manifest (shadow → canary 5/25/50% → full) for apps migrating from another memory backend to MNEMOS, with health gates and rollback paths.
+Generates a staged rollout manifest (shadow â†’ canary 5/25/50% â†’ full) for apps migrating from another memory backend to MNEMOS, with health gates and rollback paths.
 
 ---
 
@@ -466,15 +458,15 @@ MNEMOS ships with named deployment profiles that determine the retrieval backend
 | Audit ledger | PostgreSQL | `mnemos-postgres` (shared) |
 | Service | MNEMOS (nvidia runtime) | `mnemos-service` |
 
-2 containers. Vectors and audit share one Postgres instance. ANN retrieval can be combined with SQL `WHERE` clauses on tenant, provenance, or security markings — in a single query. Recommended when metadata filtering matters more than raw ANN throughput.
+2 containers. Vectors and audit share one Postgres instance. ANN retrieval can be combined with SQL `WHERE` clauses on tenant, provenance, or security markings â€” in a single query. Recommended when metadata filtering matters more than raw ANN throughput.
 
 ### Profile C: Custom Manual
 
 **Best for:** Advanced operators, multi-tier setups, experimentation.
 
-No compose generation — the operator provides their own configuration. The installer writes `.env.mnemos` only. Supports any combination of backends including ColBERT reranking.
+No compose generation â€” the operator provides their own configuration. The installer writes `.env.mnemos` only. Supports any combination of backends including ColBERT reranking.
 
-### Profile D: Enterprise Search *(future — not yet installable)*
+### Profile D: Enterprise Search *(future â€” not yet installable)*
 
 Qdrant or pgvector + OpenSearch/Elastic + optional ColBERT. Designed for hybrid lexical + semantic search, search analytics, and multi-stage relevance ranking. Documented here as a growth direction; not available in the current installer.
 
@@ -558,7 +550,7 @@ volumes:
 | Core Memory Appliance | 3 | ~2 GB | ~200 MB base | Required (CUDA) |
 | Core + ColBERT reranking | 3 | ~4 GB | ~400 MB base | Required (CUDA) |
 | Governance Native | 2 | ~1.5 GB | ~150 MB base | Required (CUDA) |
-| Governance + ColBERT | 2 | ~3.5 GB | ~350 MB base | Required (CUDA, ≥8 GB VRAM) |
+| Governance + ColBERT | 2 | ~3.5 GB | ~350 MB base | Required (CUDA, â‰¥8 GB VRAM) |
 
 ---
 
@@ -567,20 +559,20 @@ volumes:
 A consumer application adopts MNEMOS in five steps:
 
 ```
-1. Install        →  python -m installer
-2. Configure      →  Review generated .env.mnemos and mnemos_profile.yaml
-3. Start          →  docker compose -f docker-compose.generated.yml up -d --build
-4. Validate       →  python tools/mnemos_health_audit.py
-5. Wire           →  Import mnemos_sdk, use client.index() / client.search()
+1. Install        â†’  python -m installer
+2. Configure      â†’  Review generated .env.mnemos and mnemos_profile.yaml
+3. Start          â†’  docker compose -f docker-compose.generated.yml up -d --build
+4. Validate       â†’  python tools/mnemos_health_audit.py
+5. Wire           â†’  Import mnemos_sdk, use client.index() / client.search()
 ```
 
 For apps migrating from another memory backend (Redis, Elasticsearch, FAISS):
 
 ```
-6. Scaffold cutover   →  python tools/mnemos_cutover_scaffold.py --app <app>
-7. Shadow writes      →  Write to both old + MNEMOS, read from old
-8. Canary promotion   →  Route 5% → 25% → 50% → 100% of reads to MNEMOS
-9. Decommission       →  Remove old backend
+6. Scaffold cutover   â†’  python tools/mnemos_cutover_scaffold.py --app <app>
+7. Shadow writes      â†’  Write to both old + MNEMOS, read from old
+8. Canary promotion   â†’  Route 5% â†’ 25% â†’ 50% â†’ 100% of reads to MNEMOS
+9. Decommission       â†’  Remove old backend
 ```
 
 ---
@@ -596,18 +588,18 @@ The following are the highest-value scenarios where MNEMOS provides immediate be
 The most natural fit. Any system that has an LLM doing multi-step work needs persistent, searchable memory.
 
 - **What MNEMOS provides**: Engram-enriched conversation history, tool output recall, semantic search over past interactions.
-- **Why not just a raw vector DB**: Neuro-tags give semantic labels for retrieval boosting. The forensic ledger tracks what the agent remembered and when — critical for debugging hallucinations.
+- **Why not just a raw vector DB**: Neuro-tags give semantic labels for retrieval boosting. The forensic ledger tracks what the agent remembered and when â€” critical for debugging hallucinations.
 - **Example**: A coding assistant that remembers past codebases it has worked on, retrieves relevant patterns, and audits what context influenced each generation.
 
 ### 10.2 RAG-Powered Knowledge Bases
 
 **Recommended profile:** Governance Native (compliance) or Core Memory Appliance (general)
 
-Enterprise document search where accuracy and audit trails matter — legal, medical, compliance.
+Enterprise document search where accuracy and audit trails matter â€” legal, medical, compliance.
 
 - **What MNEMOS provides**: Profile-matched retrieval (pgvector for governance-heavy, Qdrant for speed), ColBERT for precision when it counts, TurboQuant for scaling to millions of chunks.
-- **Why it wins**: The forensic ledger gives compliance-ready logging of every query and retrieval — *"show me exactly what documents were retrieved for this answer and when."*
-- **Example**: Internal knowledge base for a law firm — lawyers query it, each retrieval is logged for audit, and pgvector filters by department and security clearance.
+- **Why it wins**: The forensic ledger gives compliance-ready logging of every query and retrieval â€” *"show me exactly what documents were retrieved for this answer and when."*
+- **Example**: Internal knowledge base for a law firm â€” lawyers query it, each retrieval is logged for audit, and pgvector filters by department and security clearance.
 
 ### 10.3 IoT / Edge Deployments
 
@@ -617,7 +609,7 @@ Devices with limited memory and storage that still need intelligent retrieval.
 
 - **What MNEMOS provides**: TurboQuant 4-bit compression means a 1M-document index fits in ~68 MB instead of ~512 MB. Governance Native profile runs with just 2 containers.
 - **Why it wins**: Most vector DBs assume cloud-scale resources. MNEMOS can run on a single Postgres instance with pgvector.
-- **Example**: A smart home hub that remembers user preferences, schedules, and sensor patterns — compressed on-device, searchable locally without cloud dependency.
+- **Example**: A smart home hub that remembers user preferences, schedules, and sensor patterns â€” compressed on-device, searchable locally without cloud dependency.
 
 ### 10.4 Multi-Agent Orchestration Systems
 
@@ -626,8 +618,8 @@ Devices with limited memory and storage that still need intelligent retrieval.
 Systems where multiple specialised agents need shared memory without stepping on each other.
 
 - **What MNEMOS provides**: A centralised, contract-governed memory service that any agent can index to and search from via REST. The MFS contract pattern means agents can trust the response schema.
-- **Why it wins**: Without shared memory, each agent re-discovers context. With MNEMOS, Agent A's research becomes Agent B's retrieval — and the audit trail shows who stored what.
-- **Example**: A research pipeline where a "Scout" agent gathers papers, an "Analyst" agent extracts insights, and a "Writer" agent drafts reports — all sharing one MNEMOS instance.
+- **Why it wins**: Without shared memory, each agent re-discovers context. With MNEMOS, Agent A's research becomes Agent B's retrieval â€” and the audit trail shows who stored what.
+- **Example**: A research pipeline where a "Scout" agent gathers papers, an "Analyst" agent extracts insights, and a "Writer" agent drafts reports â€” all sharing one MNEMOS instance.
 
 ### 10.5 Content / Creative Platforms
 
@@ -635,34 +627,34 @@ Systems where multiple specialised agents need shared memory without stepping on
 
 Story generators, game engines, or creative tools that need long-term world memory.
 
-- **What MNEMOS provides**: Engram edges create a knowledge graph of relationships (characters → events → locations). Neuro-tags categorise memory by theme. ColBERT finds nuanced, token-level matches for continuity.
-- **Why it wins**: Creative tools need precise recall (*"what did character X say about Y in chapter 3?"*) — multi-vector retrieval is dramatically better than single-vector for this.
+- **What MNEMOS provides**: Engram edges create a knowledge graph of relationships (characters â†’ events â†’ locations). Neuro-tags categorise memory by theme. ColBERT finds nuanced, token-level matches for continuity.
+- **Why it wins**: Creative tools need precise recall (*"what did character X say about Y in chapter 3?"*) â€” multi-vector retrieval is dramatically better than single-vector for this.
 - **Example**: An interactive fiction engine where the story adapts based on retrieving and referencing past plot points from a compressed engram store.
 
 ### Common Thread
 
-Any application that stores, enriches, retrieves, and audits knowledge — and needs production-grade infrastructure without building the plumbing from scratch. MNEMOS gives you deployment profiles tailored to your use case, GPU-accelerated retrieval, scalable audit logging, and a complete operational toolkit in one `python -m installer`.
+Any application that stores, enriches, retrieves, and audits knowledge â€” and needs production-grade infrastructure without building the plumbing from scratch. MNEMOS gives you deployment profiles tailored to your use case, GPU-accelerated retrieval, scalable audit logging, and a complete operational toolkit in one `python -m installer`.
 
 ---
 
 ## 11. Design Principles
 
-1. **Application-agnostic** — The service has zero knowledge of what domain it serves. It stores vectors, enriches engrams, and answers queries. Period.
-2. **GPU-native** — Embedding inference runs on CUDA by default. The service is built on `nvidia/cuda` and requires GPU hardware — CPU fallback exists for resilience, not as a primary mode.
-3. **Profile-composable** — Named deployment profiles (Core Memory Appliance, Governance Native) determine the retrieval backend and container topology. The installer recommends, the operator confirms.
-4. **Contract-governed** — Every API response follows a strict MFS contract schema, enabling reliable integration without tight coupling.
-5. **Compression by default** — TurboQuant is on at 4-bit out of the box. Storage scales sublinearly with document count.
-6. **Audit by default** — Every mutation is logged immutably to PostgreSQL. Compliance is a feature, not an afterthought.
-7. **Graceful degradation** — If a backend goes unhealthy, remaining backends continue serving. Status is always reported honestly via the contract.
-8. **Process isolation** — Each infrastructure component (vector store, audit ledger, service) runs in its own container with independent health checks, volumes, and lifecycle.
-9. **SDK-first integration** — Consumer apps use the boundary SDK, never raw HTTP. This ensures readiness, retry, and degradation are handled consistently.
-10. **Tooling-complete** — Health audit, contract evolution, onboarding, CI gates, and cutover are included — not left as an exercise for the adopter.
+1. **Application-agnostic** â€” The service has zero knowledge of what domain it serves. It stores vectors, enriches engrams, and answers queries. Period.
+2. **GPU-native** â€” Embedding inference runs on CUDA by default. The service is built on `nvidia/cuda` and requires GPU hardware â€” CPU fallback exists for resilience, not as a primary mode.
+3. **Profile-composable** â€” Named deployment profiles (Core Memory Appliance, Governance Native) determine the retrieval backend and container topology. The installer recommends, the operator confirms.
+4. **Contract-governed** â€” Every API response follows a strict MFS contract schema, enabling reliable integration without tight coupling.
+5. **Compression by default** â€” TurboQuant is on at 4-bit out of the box. Storage scales sublinearly with document count.
+6. **Audit by default** â€” Every mutation is logged immutably to PostgreSQL. Compliance is a feature, not an afterthought.
+7. **Graceful degradation** â€” If a backend goes unhealthy, remaining backends continue serving. Status is always reported honestly via the contract.
+8. **Process isolation** â€” Each infrastructure component (vector store, audit ledger, service) runs in its own container with independent health checks, volumes, and lifecycle.
+9. **SDK-first integration** â€” Consumer apps use the boundary SDK, never raw HTTP. This ensures readiness, retry, and degradation are handled consistently.
+10. **Tooling-complete** â€” Health audit, contract evolution, onboarding, CI gates, and cutover are included â€” not left as an exercise for the adopter.
 
 ---
 
 ## 12. Deployment Manifest (mnemos_profile.yaml)
 
-The guided installer generates a `mnemos_profile.yaml` file alongside the compose and env files. This manifest is a **durable deployment artifact** — the single source of truth for what was installed, why, and how.
+The guided installer generates a `mnemos_profile.yaml` file alongside the compose and env files. This manifest is a **durable deployment artifact** â€” the single source of truth for what was installed, why, and how.
 
 ```yaml
 mnemos_profile:
@@ -701,13 +693,13 @@ mnemos_profile:
 
 | Purpose | How mnemos_profile.yaml enables it |
 |---|---|
-| **Reproducibility** | Re-run the installer on a new host with the same answers → identical deployment |
-| **Supportability** | Attach the manifest to any support request — it captures what was deployed and why |
+| **Reproducibility** | Re-run the installer on a new host with the same answers â†’ identical deployment |
+| **Supportability** | Attach the manifest to any support request â€” it captures what was deployed and why |
 | **Upgrade input** | Future installer versions can read the manifest to recommend migration paths |
 | **CI validation** | CI gates can validate that the running service matches the declared profile |
 | **Audit trail** | The manifest records the host facts at install time (GPU, RAM, Docker version) |
 
-The manifest is not consumed by the MNEMOS runtime — it is a static record for operators, support, and tooling. The runtime reads `MNEMOS_PROFILE` from the environment.
+The manifest is not consumed by the MNEMOS runtime â€” it is a static record for operators, support, and tooling. The runtime reads `MNEMOS_PROFILE` from the environment.
 
 ---
 
@@ -715,9 +707,9 @@ The manifest is not consumed by the MNEMOS runtime — it is a static record for
 
 Once profiles are deployed, operators may need to migrate between them. MNEMOS defines migration rules for the two primary profiles.
 
-### Core Memory Appliance → Governance Native
+### Core Memory Appliance â†’ Governance Native
 
-**When:** An operator wants to simplify operations (3 → 2 containers) or needs SQL-level metadata filtering.
+**When:** An operator wants to simplify operations (3 â†’ 2 containers) or needs SQL-level metadata filtering.
 
 | Step | Action |
 |---|---|
@@ -728,9 +720,9 @@ Once profiles are deployed, operators may need to migrate between them. MNEMOS d
 | 5 | Decommission Qdrant container |
 | 6 | Update `mnemos_profile.yaml` with new profile and migration timestamp |
 
-**Metadata assumptions that change:** pgvector stores metadata as JSONB columns — metadata that was previously Qdrant payload becomes SQL-queryable. Review any metadata schemas for SQL compatibility.
+**Metadata assumptions that change:** pgvector stores metadata as JSONB columns â€” metadata that was previously Qdrant payload becomes SQL-queryable. Review any metadata schemas for SQL compatibility.
 
-### Governance Native → Core Memory Appliance
+### Governance Native â†’ Core Memory Appliance
 
 **When:** Retrieval latency or throughput requirements exceed what pgvector can deliver, or the corpus grows beyond single-Postgres scale.
 
@@ -745,7 +737,7 @@ Once profiles are deployed, operators may need to migrate between them. MNEMOS d
 
 ### Rollback
 
-Both migration paths are non-destructive — the source backend is not modified during migration. If the new profile fails health validation:
+Both migration paths are non-destructive â€” the source backend is not modified during migration. If the new profile fails health validation:
 
 1. Revert `docker-compose.generated.yml` to the previous version
 2. Revert `.env.mnemos` to the previous `MNEMOS_PROFILE`
@@ -758,40 +750,40 @@ Both migration paths are non-destructive — the source backend is not modified 
 
 ```
 MNEMOS/
-├── mnemos/                    Core library
-│   ├── compression/           TurboQuant (arXiv:2504.19874)
-│   ├── engram/                Engram model and enrichment
-│   ├── retrieval/             Multi-backend retrieval + fusion
-│   │   ├── qdrant_tier.py     Qdrant backend (Core Memory Appliance)
-│   │   ├── pgvector_tier.py   pgvector backend (Governance Native)
-│   │   ├── colbert_tier.py    ColBERT reranker (optional)
-│   │   ├── fusion.py          Multi-backend fusion engine
-│   │   └── base.py            BaseRetriever interface
-│   └── audit/                 Forensic ledger
-├── mnemos_sdk/                Boundary adapter SDK (client library)
-│   ├── client.py              MnemosClient with typed methods
-│   └── config.py              MnemosConfig.from_env()
-├── service/                   Flask REST API + MFS contract
-├── installer/                 Guided deployment installer
-│   ├── __main__.py            Entry point (python -m installer)
-│   ├── questions.py           5-question Q/A
-│   ├── probes.py              Host capability detection
-│   ├── profiles.py            Profile definitions
-│   ├── recommend.py           Decision tree recommendation
-│   ├── render.py              Compose + env + manifest generator
-│   └── templates/             Per-profile compose templates
-├── tools/                     Operational tooling
-│   ├── mnemos_health_audit.py
-│   ├── contract_diff.py
-│   ├── mnemos_onboard.py
-│   ├── mnemos_ci_gates.py
-│   └── mnemos_cutover_scaffold.py
-├── benchmarks/                Reproducible benchmark suite
-├── tests/                     Unit tests
-├── .github/workflows/         CI gate template
-├── docs/                      Whitepaper + AI dev hand-off
-├── Dockerfile                 Production container
-└── docker-compose.yml         Default stack (Core Memory Appliance)
+â”œâ”€â”€ mnemos/                    Core library
+â”‚   â”œâ”€â”€ compression/           TurboQuant (arXiv:2504.19874)
+â”‚   â”œâ”€â”€ engram/                Engram model and enrichment
+â”‚   â”œâ”€â”€ retrieval/             Multi-backend retrieval + fusion
+â”‚   â”‚   â”œâ”€â”€ qdrant_tier.py     Qdrant backend (Core Memory Appliance)
+â”‚   â”‚   â”œâ”€â”€ pgvector_tier.py   pgvector backend (Governance Native)
+â”‚   â”‚   â”œâ”€â”€ colbert_tier.py    ColBERT reranker (optional)
+â”‚   â”‚   â”œâ”€â”€ fusion.py          Multi-backend fusion engine
+â”‚   â”‚   â””â”€â”€ base.py            BaseRetriever interface
+â”‚   â””â”€â”€ audit/                 Forensic ledger
+â”œâ”€â”€ mnemos_sdk/                Boundary adapter SDK (client library)
+â”‚   â”œâ”€â”€ client.py              MnemosClient with typed methods
+â”‚   â””â”€â”€ config.py              MnemosConfig.from_env()
+â”œâ”€â”€ service/                   Flask REST API + MFS contract
+â”œâ”€â”€ installer/                 Guided deployment installer
+â”‚   â”œâ”€â”€ __main__.py            Entry point (python -m installer)
+â”‚   â”œâ”€â”€ questions.py           5-question Q/A
+â”‚   â”œâ”€â”€ probes.py              Host capability detection
+â”‚   â”œâ”€â”€ profiles.py            Profile definitions
+â”‚   â”œâ”€â”€ recommend.py           Decision tree recommendation
+â”‚   â”œâ”€â”€ render.py              Compose + env + manifest generator
+â”‚   â””â”€â”€ templates/             Per-profile compose templates
+â”œâ”€â”€ tools/                     Operational tooling
+â”‚   â”œâ”€â”€ mnemos_health_audit.py
+â”‚   â”œâ”€â”€ contract_diff.py
+â”‚   â”œâ”€â”€ mnemos_onboard.py
+â”‚   â”œâ”€â”€ mnemos_ci_gates.py
+â”‚   â””â”€â”€ mnemos_cutover_scaffold.py
+â”œâ”€â”€ benchmarks/                Reproducible benchmark suite
+â”œâ”€â”€ tests/                     Unit tests
+â”œâ”€â”€ .github/workflows/         CI gate template
+â”œâ”€â”€ docs/                      Whitepaper + AI dev hand-off
+â”œâ”€â”€ Dockerfile                 Production container
+â””â”€â”€ docker-compose.yml         Default stack (Core Memory Appliance)
 ```
 
 ---
@@ -814,4 +806,5 @@ MNEMOS was designed from the ground up as a reusable memory service. Its archite
 | Pipeline integration | CI/CD Gates |
 | Staged rollout | Cutover Scaffold |
 
-What remains is a **pure infrastructure service** — a reusable, tooling-complete foundation for any application that needs intelligent, compressed, auditable memory.
+What remains is a **pure infrastructure service** â€” a reusable, tooling-complete foundation for any application that needs intelligent, compressed, auditable memory.
+
