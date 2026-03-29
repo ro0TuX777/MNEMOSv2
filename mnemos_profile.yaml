@@ -1,0 +1,37 @@
+mnemos_profile:
+  version: 1.0
+  generated_at: 2026-03-28T21:48:51.390924
+  install_type: new
+  profile:
+    name: core_memory_appliance
+    display_name: Core Memory Appliance
+    confidence: high
+    reasons:
+      - Profile selected directly via --profile flag
+    warnings:
+    alternatives:
+  user_answers:
+    use_case: other
+    priority: semantic_speed
+    scale: under_100k
+    strict_filters: false
+    prefer_manual: false
+  host_facts:
+    gpu_available: true
+    gpu_name: NVIDIA GeForce RTX 4090
+    vram_mb: 23028
+    ram_gb: 127.2
+    disk_free_gb: 433.9
+    docker_available: true
+    nvidia_runtime: true
+    existing_postgres: false
+    os: nt
+    cpu_cores: 32
+  enabled_services:
+    - qdrant
+    - postgres
+    - mnemos
+  generated_files:
+    - docker-compose.generated.yml
+    - .env.mnemos
+    - mnemos_profile.yaml

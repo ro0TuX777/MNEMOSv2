@@ -29,7 +29,7 @@ def save_raw_results(results: Dict[str, Any], output_dir: Path) -> Path:
     with open(path, "w") as f:
         json.dump(output, f, indent=2, default=str)
 
-    print(f"\n  📄 Raw results: {path}")
+    print(f"\n  Raw results: {path}")
     return path
 
 
@@ -113,23 +113,37 @@ def generate_markdown_report(results: Dict[str, Any], output_dir: Path) -> Path:
         rr = results["rerank"]
         lines.extend(["---", "", "## Track 2: ColBERT Reranking Uplift", ""])
         if rr.get("status") == "success":
-            baseline = rr.get("baseline", {})
-            lines.extend([
-                f"**Baseline ({rr['primary_tier']}):** MRR={baseline.get('mrr_at_10', 0):.4f}  "
-                f"p50={baseline.get('latency_p50_ms', 0):.1f}ms",
-                "",
-                "| Depth | MRR@10 | MRR Uplift | nDCG@10 | Latency Δ (ms) | VRAM Δ (MB) |",
-                "|---|---|---|---|---|---|",
-            ])
-            for depth_key, data in rr.get("reranked", {}).items():
-                lines.append(
-                    f"| top-{data['depth']} | {data['mrr_at_10']:.4f} | "
-                    f"{data['mrr_uplift']:+.4f} | {data['ndcg_at_10']:.4f} | "
-                    f"{data['latency_increase_ms']:+.1f} | {data['vram_delta_mb']:.0f} |"
-                )
+            for tier_name, tier_data in rr.get("tiers", {}).items():
+                lines.extend([f"### {tier_name}", ""])
+                if tier_data.get("status") != "success":
+                    lines.append(f"*Skipped: {tier_data.get('reason', 'unknown')}*")
+                    lines.append("")
+                    continue
+
+                baseline = tier_data.get("baseline", {})
+                lines.extend([
+                    f"**Baseline:** MRR={baseline.get('mrr_at_10', 0):.4f}  "
+                    f"nDCG={baseline.get('ndcg_at_10', 0):.4f}  "
+                    f"p50={baseline.get('latency_p50_ms', 0):.1f}ms",
+                    "",
+                    "| Depth | MRR@10 | MRR Uplift | nDCG@10 | nDCG Uplift | p50 (ms) | Latency delta (ms) | VRAM delta (MB) | MRR Uplift/ms |",
+                    "|---|---|---|---|---|---|---|---|---|",
+                ])
+                for _, data in tier_data.get("reranked", {}).items():
+                    lines.append(
+                        f"| top-{data['depth']} | {data['mrr_at_10']:.4f} | "
+                        f"{data['mrr_uplift']:+.4f} | {data['ndcg_at_10']:.4f} | "
+                        f"{data['ndcg_uplift']:+.4f} | {data['latency_p50_ms']:.1f} | "
+                        f"{data['latency_increase_ms']:+.1f} | {data['vram_delta_mb']:.0f} | "
+                        f"{data['mrr_uplift_per_ms']:+.6f} |"
+                    )
+                rec = tier_data.get("recommended_depth")
+                lines.append("")
+                lines.append(f"Recommended depth: top-{rec}" if rec else "Recommended depth: n/a")
+                lines.append("")
         else:
             lines.append(f"*Skipped: {rr.get('reason', 'unknown')}*")
-        lines.append("")
+            lines.append("")
 
     # Track 3: Installer
     if "installer" in results:
@@ -177,5 +191,5 @@ def generate_markdown_report(results: Dict[str, Any], output_dir: Path) -> Path:
         lines.append("")
 
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"  📊 Report: {path}")
+    print(f"  Report: {path}")
     return path

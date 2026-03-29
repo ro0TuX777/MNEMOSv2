@@ -427,19 +427,119 @@ Report: `benchmarks/outputs/summaries/20260329_115520_report.md`
 
 - Relaxed heavy required policy constraints one additional step by dropping required `metadata.tenant` (heavy now focuses on source + timestamp policy pressure).
 
+#### Governance-Focused Run (Post-Tuning Check, 80 PDFs)
+
+Run:
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+
+Raw output: `benchmarks/outputs/raw/20260329_120756_profile_benchmarks.json`
+Report: `benchmarks/outputs/summaries/20260329_120756_report.md`
+
+##### Constraint-Correctness Results
+
+| Tier | Regime | Compliance@10 | Violation Rate@10 |
+|---|---|---:|---:|
+| Qdrant | light_filter | 0.1190 | 0.8810 |
+| pgvector | light_filter | 0.1190 | 0.8810 |
+| Qdrant | heavy_filter | 0.1649 | 0.8351 |
+| pgvector | heavy_filter | 0.1646 | 0.8354 |
+
+##### Interpretation
+
+- Heavy-filter compliance improved meaningfully from prior runs, indicating tuning is moving in the right direction.
+- Current heavy compliance is still below the target ~25-35% band.
+- Governance correctness separation remains negligible, while Core latency/throughput advantage remains large.
+
+##### Final Tuning Applied
+
+- Widened heavy timestamp policy window from `+/-730` days to `+/-900` days to target ~25-35% heavy-filter compliance in the next run.
+
 ---
 
 ## Track 2: ColBERT Reranking Uplift
 
 **Product question:** *When is ColBERT worth the latency and VRAM cost?*
 
-**Status:** Ready once backend stack is up and `colbert-ir` is installed.
+### What We Tested
 
-The benchmark will measure MRR/nDCG uplift, latency increase, and VRAM delta at reranking depths of 20, 50, and 100.
+- **Corpus:** real PDF corpus (79 PDFs, 5,967 engrams) from `D:\TE\more TE Docs`
+- **Queries:** 50 semantic queries
+- **Depths:** rerank `top-20`, `top-50`, `top-100`
+- **Backends:** Qdrant and pgvector
+- **Command:**
 
 ```bash
-python benchmarks/run_profile_benchmarks.py --track rerank
+python -B benchmarks/run_profile_benchmarks.py --track rerank --corpus-type real --pdf-dir "D:\TE\more TE Docs"
 ```
+
+Raw output: `benchmarks/outputs/raw/20260329_124636_profile_benchmarks.json`  
+Report: `benchmarks/outputs/summaries/20260329_124636_report.md`
+
+### Results
+
+#### Qdrant
+
+Baseline: **MRR=0.1367**, **nDCG=0.0496**, **p50=30.9ms**
+
+| Depth | MRR@10 | ΔMRR | nDCG@10 | ΔnDCG | p50 (ms) | ΔLatency (ms) | ΔVRAM (MB) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| top-20 | 0.1017 | -0.0350 | 0.0379 | -0.0117 | 31.0 | +0.1 | +237 |
+| top-50 | 0.1119 | -0.0248 | 0.0361 | -0.0135 | 31.0 | +0.1 | +1 |
+| top-100 | 0.0835 | -0.0532 | 0.0252 | -0.0244 | 30.6 | -0.3 | +0 |
+
+#### pgvector
+
+Baseline: **MRR=0.1207**, **nDCG=0.0455**, **p50=49.2ms**
+
+| Depth | MRR@10 | ΔMRR | nDCG@10 | ΔnDCG | p50 (ms) | ΔLatency (ms) | ΔVRAM (MB) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| top-20 | 0.1017 | -0.0190 | 0.0378 | -0.0077 | 54.0 | +4.8 | -13 |
+| top-50 | 0.1019 | -0.0188 | 0.0322 | -0.0133 | 57.0 | +7.7 | -1 |
+| top-100 | 0.1019 | -0.0188 | 0.0322 | -0.0133 | 55.5 | +6.2 | +1 |
+
+### Interpretation
+
+- In this run, reranking reduced MRR and nDCG at all tested depths for both backends.
+- There is no depth that delivered quality uplift with acceptable latency cost.
+- The practical default from this run is **no rerank**.
+- Loader logs showed `colbert-ir/colbertv2.0` was loaded through sentence-transformers with a mean-pooling fallback; treat this as an important caveat before making final product-wide ColBERT decisions.
+
+### Latest Rerun (20260329_131856)
+
+Command:
+`python -B benchmarks/run_profile_benchmarks.py --track rerank --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+
+Raw output: `benchmarks/outputs/raw/20260329_131856_profile_benchmarks.json`  
+Report: `benchmarks/outputs/summaries/20260329_131856_report.md`
+
+#### Qdrant (rerun)
+
+Baseline: **MRR=0.1367**, **nDCG=0.0496**, **p50=31.0ms**
+
+| Depth | MRR@10 | Delta MRR | nDCG@10 | Delta nDCG | p50 (ms) | Delta latency (ms) | Delta VRAM (MB) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| top-20 | 0.1017 | -0.0350 | 0.0379 | -0.0117 | 31.1 | +0.1 | +246 |
+| top-50 | 0.1119 | -0.0248 | 0.0361 | -0.0135 | 31.1 | +0.1 | -3 |
+| top-100 | 0.0835 | -0.0532 | 0.0252 | -0.0244 | 30.8 | -0.2 | +10 |
+
+Recommended depth: **n/a**
+
+#### pgvector (rerun)
+
+Baseline: **MRR=0.1207**, **nDCG=0.0455**, **p50=56.2ms**
+
+| Depth | MRR@10 | Delta MRR | nDCG@10 | Delta nDCG | p50 (ms) | Delta latency (ms) | Delta VRAM (MB) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| top-20 | 0.1017 | -0.0190 | 0.0380 | -0.0075 | 56.5 | +0.3 | -14 |
+| top-50 | 0.1079 | -0.0128 | 0.0360 | -0.0095 | 56.6 | +0.4 | -2 |
+| top-100 | 0.1079 | -0.0128 | 0.0360 | -0.0095 | 56.7 | +0.5 | -12 |
+
+Recommended depth: **n/a**
+
+Rerun takeaway:
+- Results are consistent with the prior Track 2 run.
+- Reranking still decreases quality across all tested depths for both backends.
+- Default policy remains: **no rerank** until model-path/implementation changes.
 
 ---
 

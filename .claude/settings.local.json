@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude plugin install firecrawl@claude-plugins-official)",
+      "Bash(where claude)",
+      "Read(//c/Users/vin/AppData/Local/Programs/Antigravity//**)",
+      "Read(//c/Users/vin/AppData/Local/Programs/Antigravity/bin//**)",
+      "Bash(npm list -g claude)",
+      "Bash(npm list -g @anthropic-ai/claude-code)"
+    ]
+  }
+}

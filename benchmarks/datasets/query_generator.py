@@ -239,7 +239,7 @@ def generate_queries(
                 # light_filter: medium pressure, heavy_filter: broader window so
                 # compliance does not collapse to 0 across all runs.
                 if regime == "heavy_filter":
-                    window_days = 730
+                    window_days = 900
                 else:
                     window_days = 365
                 window = window_days * 24 * 3600

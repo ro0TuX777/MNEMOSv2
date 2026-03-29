@@ -108,7 +108,9 @@ def run_suite(
     if "rerank" in tracks:
         from benchmarks.runners.rerank_runner import run_rerank_benchmark
         results["rerank"] = run_rerank_benchmark(
-            "qdrant", queries, gpu_device=gpu_device,
+            queries=queries,
+            corpus=corpus,
+            gpu_device=gpu_device,
         )
 
     # ─────────── Track 3: Installer ───────────
