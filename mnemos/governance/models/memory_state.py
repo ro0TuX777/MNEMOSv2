@@ -72,6 +72,11 @@ class GovernanceMeta:
     # ── Access tracking ────────────────────────────────────────────────────
     last_accessed_at: Optional[str] = None
     last_used_at: Optional[str] = None
+    # ISO timestamp; updated by reflect path whenever the memory is classified
+    # as USED.  Distinct from last_accessed_at (set at query time).
+
+    usage_count: int = 0
+    # Cumulative count of reflect cycles where this memory was classified USED.
 
     # ── Conflict state ─────────────────────────────────────────────────────
     conflict_group_id: Optional[str] = None
@@ -108,6 +113,7 @@ class GovernanceMeta:
             "retrievability_score": self.retrievability_score,
             "last_accessed_at": self.last_accessed_at,
             "last_used_at": self.last_used_at,
+            "usage_count": self.usage_count,
             "conflict_group_id": self.conflict_group_id,
             "conflict_status": self.conflict_status,
             "superseded_by": self.superseded_by,
@@ -133,6 +139,7 @@ class GovernanceMeta:
             retrievability_score=float(data.get("retrievability_score", 1.0)),
             last_accessed_at=data.get("last_accessed_at"),
             last_used_at=data.get("last_used_at"),
+            usage_count=int(data.get("usage_count", 0)),
             conflict_group_id=data.get("conflict_group_id"),
             conflict_status=data.get("conflict_status", "none"),
             superseded_by=data.get("superseded_by"),

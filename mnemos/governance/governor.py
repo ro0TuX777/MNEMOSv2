@@ -18,6 +18,8 @@ from mnemos.governance.policies.utility_policy import UtilityPolicy
 from mnemos.governance.policies.contradiction_policy import ContradictionPolicy
 from mnemos.governance.policy_registry import PolicyRegistry
 from mnemos.governance.read_path import ReadPath, GOVERNANCE_MODES
+from mnemos.governance.reflect_path import ReflectPath, ReflectResult
+from mnemos.governance.telemetry.reflect_metrics import ReflectMetrics
 
 logger = logging.getLogger("mnemos.governance")
 
@@ -33,8 +35,12 @@ class Governor:
       Cross-candidate:
         3. ContradictionPolicy  — entity-slot contradiction detection and resolution
 
+    Wave 3 additions:
+      reflect()  — post-generation feedback loop; updates trust, utility,
+                   stability based on which memories actually contributed.
+
     Future waves will add:
-      4. DecayPolicy hygiene  (Wave 3 — Task 5.2)
+      4. DecayPolicy hygiene  (Wave 4 — background freshness/prune jobs)
 
     Configuration
     -------------
@@ -69,6 +75,7 @@ class Governor:
         self._registry = registry
         self._contradiction_policy = ContradictionPolicy()
         self._read_path = ReadPath(registry, contradiction_policy=self._contradiction_policy)
+        self._reflect_path = ReflectPath()
 
         # ── In-memory aggregate stats (reset on service restart) ───────────
         self._lock = threading.Lock()
@@ -82,6 +89,7 @@ class Governor:
             "total_contradictions_detected": 0,
             "total_contradiction_suppressed": 0,
         }
+        self._reflect_metrics = ReflectMetrics()
 
     # ── Public API ────────────────────────────────────────────────────────
 
@@ -123,8 +131,47 @@ class Governor:
         self._record_stats(governance_mode, results, decisions, contradiction_records)
         return governed, decisions, contradiction_records
 
+    def reflect(
+        self,
+        query: str,
+        answer: str,
+        results: List[SearchResult],
+        decisions: List[GovernanceDecision],
+        cited_ids: Optional[List[str]] = None,
+        governance_mode: str = "advisory",
+    ) -> ReflectResult:
+        """
+        Run the post-generation reflect loop for one query/answer pair.
+
+        Detects which memories were used, ignored, contradicted, or vetoed;
+        applies deterministic utility/trust/stability reinforcement rules;
+        and accumulates reflect telemetry.
+
+        Args:
+            query:           Original query text.
+            answer:          Generated answer to analyse.
+            results:         SearchResult list considered during retrieval.
+            decisions:       GovernanceDecision list from govern().
+            cited_ids:       Explicit memory IDs the answer is known to cite.
+            governance_mode: Mode active during retrieval (for telemetry).
+
+        Returns:
+            ReflectResult with usage labels, applied deltas, and counts.
+            GovernanceMeta on the supplied results is mutated in place.
+        """
+        reflect_result = self._reflect_path.reflect(
+            query=query,
+            answer=answer,
+            results=results,
+            decisions=decisions,
+            cited_ids=cited_ids,
+            governance_mode=governance_mode,
+        )
+        self._reflect_metrics.record(reflect_result)
+        return reflect_result
+
     def stats(self) -> Dict[str, Any]:
-        """Return aggregate governance statistics."""
+        """Return aggregate governance + reflect statistics."""
         with self._lock:
             s = dict(self._stats)
         total = s["total_candidates_evaluated"]
@@ -133,6 +180,7 @@ class Governor:
             round(s["total_suppressed"] / total, 4) if total else 0.0
         )
         s["active_policies"] = self._registry.active_policy_names
+        s.update(self._reflect_metrics.to_dict())
         return s
 
     # ── Internals ─────────────────────────────────────────────────────────
