@@ -21,6 +21,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from mnemos.config import get_config, MnemosConfig
 from mnemos.engram.model import Engram, EngramBatch
+from mnemos.memory_over_maps.view_builder import (
+    SUPPORTED_DERIVED_VIEWS,
+    build_requested_views,
+)
+from mnemos.memory_over_maps.view_cache import (
+    DerivedViewCache,
+    build_cache_key,
+    governance_state_hash,
+    lineage_inputs,
+    query_fingerprint,
+)
 from mnemos.retrieval.policies.fusion_policies import FUSION_POLICIES
 from mnemos.governance.governor import Governor
 from mnemos.governance.read_path import GOVERNANCE_MODES
@@ -59,8 +70,18 @@ class MnemosRuntime:
         self._lexical_tier = None
         self._ledger = None
         self._governor: Optional[Governor] = None
+        self._view_cache: Optional[DerivedViewCache] = None
         self._status = "healthy"
         self._error: Optional[str] = None
+        self._mom_stats: Dict[str, int] = {
+            "derived_view_generated_count": 0,
+            "derived_view_cache_hit_count": 0,
+            "derived_view_cache_miss_count": 0,
+            "derived_view_invalidated_count": 0,
+            "governed_evidence_bundle_total": 0,
+            "governed_contradiction_bundle_total": 0,
+            "governed_source_trace_complete_total": 0,
+        }
 
     def initialize(self):
         if self._initialized:
@@ -146,6 +167,7 @@ class MnemosRuntime:
                 min_score_threshold=self._config.governance_min_score,
                 freshness_half_life_days=self._config.governance_freshness_half_life,
             )
+            self._view_cache = DerivedViewCache(ttl_seconds=3600)
 
             self._initialized = True
             logger.info(
@@ -181,6 +203,28 @@ class MnemosRuntime:
                 metadata=metadata,
             )
 
+    def _audit_derived_view_generation(
+        self,
+        *,
+        view_type: str,
+        view_id: str,
+        inputs: Dict[str, Any],
+        query_fingerprint: str,
+        governance_state_hash: str,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        if not self._ledger:
+            return
+        if hasattr(self._ledger, "log_derived_view_generation"):
+            self._ledger.log_derived_view_generation(
+                view_type=view_type,
+                view_id=view_id,
+                inputs=inputs,
+                query_fingerprint=query_fingerprint,
+                governance_state_hash=governance_state_hash,
+                metadata=metadata,
+            )
+
     def capabilities(self) -> Dict[str, Any]:
         payload = self._base_payload()
         retrieval_stats = self._router.stats() if self._router else {}
@@ -203,6 +247,24 @@ class MnemosRuntime:
             "governance": {
                 "supported_modes": sorted(GOVERNANCE_MODES),
                 "default_mode": self._config.governance_mode if self._config else "off",
+            },
+            "memory_over_maps": {
+                "phase1_enabled": bool(
+                    getattr(self._config, "memory_over_maps_phase1", False)
+                ),
+                "phase2_enabled": bool(
+                    getattr(self._config, "memory_over_maps_phase2", False)
+                ),
+                "phase3_enabled": bool(
+                    getattr(self._config, "memory_over_maps_phase3", False)
+                ),
+                "phase4_enabled": bool(
+                    getattr(self._config, "memory_over_maps_phase4", False)
+                ),
+                "phase5_enabled": bool(
+                    getattr(self._config, "memory_over_maps_phase5", False)
+                ),
+                "supported_derived_views": sorted(SUPPORTED_DERIVED_VIEWS),
             },
         })
         return payload
@@ -254,6 +316,8 @@ class MnemosRuntime:
         explain: Optional[bool],
         governance: Optional[str] = None,
         explain_governance: Optional[bool] = None,
+        bounded_envelope: Optional[Dict[str, Any]] = None,
+        derive_views: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """Search across tiers and return fused results."""
         import time
@@ -275,6 +339,7 @@ class MnemosRuntime:
             explain=selected_explain,
             lexical_top_k=self._config.lexical_top_k,
             semantic_top_k=self._config.semantic_top_k,
+            bounded_envelope=bounded_envelope if getattr(self._config, "memory_over_maps_phase2", False) else None,
         )
 
         # ── Governance ────────────────────────────────────────────────────
@@ -287,6 +352,84 @@ class MnemosRuntime:
                 governance_mode=selected_governance,
                 top_k=top_k,
             )
+
+        derived_views_payload: List[Dict[str, Any]] = []
+        if (
+            bool(getattr(self._config, "memory_over_maps_phase3", False))
+            and derive_views
+        ):
+            phase4_cache_enabled = bool(getattr(self._config, "memory_over_maps_phase4", False)) and self._view_cache is not None
+            li = lineage_inputs(results)
+            qfp = query_fingerprint(query)
+            ghash = governance_state_hash(decisions)
+
+            for view_name in derive_views:
+                view_payload: Optional[Dict[str, Any]] = None
+                cache_key = build_cache_key(
+                    view_type=view_name,
+                    query_fingerprint_value=qfp,
+                    artifact_ids=li.get("artifact_ids", []),
+                    chunk_ids=li.get("chunk_ids", []),
+                    governance_state_hash_value=ghash,
+                    synthesis_policy_version="default",
+                )
+                if phase4_cache_enabled:
+                    cached = self._view_cache.get(cache_key)
+                    if cached is not None:
+                        self._mom_stats["derived_view_cache_hit_count"] += 1
+                        cached["_cache"] = {"hit": True, "key": cache_key}
+                        view_payload = cached
+                    else:
+                        self._mom_stats["derived_view_cache_miss_count"] += 1
+
+                if view_payload is None:
+                    built = build_requested_views(
+                        requested=[view_name],
+                        query=query,
+                        results=results,
+                        decisions=decisions,
+                        contradiction_records=contradiction_records,
+                        subject_id=(filters or {}).get("subject_id") if isinstance(filters, dict) else None,
+                    )
+                    if not built:
+                        continue
+                    view_payload = built[0]
+                    self._mom_stats["derived_view_generated_count"] += 1
+                    if phase4_cache_enabled:
+                        dependency_refs = {
+                            "artifact_ids": view_payload.get("inputs", {}).get("artifact_ids", []),
+                            "chunk_ids": view_payload.get("inputs", {}).get("chunk_ids", []),
+                            "governance_state_hash": view_payload.get("governance_state_hash"),
+                            "synthesis_policy_version": view_payload.get("synthesis_policy", "default"),
+                            "contradiction_cluster_id": view_payload.get("contradiction_cluster_id"),
+                            "lifecycle_states": [],
+                        }
+                        self._view_cache.set(
+                            key=cache_key,
+                            view=view_payload,
+                            dependency_refs=dependency_refs,
+                        )
+                        view_payload = dict(view_payload)
+                        view_payload["_cache"] = {"hit": False, "key": cache_key}
+
+                derived_views_payload.append(view_payload)
+
+            for view in derived_views_payload:
+                if view.get("view_type") == "evidence_bundle":
+                    self._mom_stats["governed_evidence_bundle_total"] += 1
+                if view.get("view_type") == "contradiction_bundle":
+                    self._mom_stats["governed_contradiction_bundle_total"] += 1
+                inputs = view.get("inputs", {})
+                if inputs.get("artifact_ids") and inputs.get("chunk_ids"):
+                    self._mom_stats["governed_source_trace_complete_total"] += 1
+                self._audit_derived_view_generation(
+                    view_type=str(view.get("view_type", "unknown")),
+                    view_id=str(view.get("view_id", "")),
+                    inputs=inputs,
+                    query_fingerprint=str(view.get("query_fingerprint", "")),
+                    governance_state_hash=str(view.get("governance_state_hash", "")),
+                    metadata={"phase": "phase4" if phase4_cache_enabled else "phase3"},
+                )
 
         elapsed = time.time() - t0
         self._audit("search", f"Search: '{query[:80]}' → {len(results)} results",
@@ -303,9 +446,10 @@ class MnemosRuntime:
         # ── Build per-result payload ───────────────────────────────────────
         decision_map = {d.engram_id: d for d in decisions}
         result_list = []
+        include_lineage = bool(getattr(self._config, "memory_over_maps_phase1", False)) and selected_explain
         for r in results:
             entry: Dict = {
-                "engram": r.engram.to_dict(),
+                "engram": r.engram.to_dict(include_lineage=include_lineage),
                 "score": round(r.score, 4),
                 "tier": r.tier,
                 "tiers": r.metadata.get("tiers", [r.tier]),
@@ -338,6 +482,8 @@ class MnemosRuntime:
         }
         if mode_meta.get("telemetry"):
             payload["meta"]["hybrid_telemetry"] = mode_meta["telemetry"]
+        if mode_meta.get("candidate_envelope"):
+            payload["meta"]["candidate_envelope"] = mode_meta["candidate_envelope"]
         if selected_governance != "off":
             payload["meta"]["governance_mode"] = selected_governance
             payload["meta"]["governance_summary"] = {
@@ -349,6 +495,8 @@ class MnemosRuntime:
                     1 for d in decisions if d.suppressed_by_contradiction
                 ),
             }
+        if derived_views_payload:
+            payload["derived_views"] = derived_views_payload
         return payload
 
     def get_engram(self, engram_id: str) -> Dict[str, Any]:
@@ -491,8 +639,26 @@ class MnemosRuntime:
                 "algorithm": "TurboQuant (arXiv:2504.19874)",
             },
             "audit": self._ledger.get_stats() if self._ledger else {"enabled": False},
+            "memory_over_maps": dict(self._mom_stats),
         }
+        if self._view_cache is not None:
+            payload["stats"]["memory_over_maps"]["derived_view_cache"] = self._view_cache.stats()
         return payload
+
+    def invalidate_derived_view_cache(
+        self,
+        *,
+        event_type: str,
+        refs: Optional[Dict[str, Any]] = None,
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Invalidate derived-view cache entries by dependency event."""
+        if self._view_cache is None:
+            return {"error": "derived view cache unavailable"}
+        trace = self._view_cache.invalidate(event_type=event_type, refs=refs, dry_run=dry_run)
+        if not dry_run:
+            self._mom_stats["derived_view_invalidated_count"] += len(trace.get("impacted_keys", []))
+        return trace
 
 
 # ──────────────────── Singleton ────────────────────
@@ -591,6 +757,8 @@ def search():
     explain = body.get("explain")
     governance = body.get("governance")
     explain_governance = body.get("explain_governance")
+    bounded_envelope = body.get("bounded_envelope")
+    derive_views = body.get("derive_views")
 
     if not query:
         return jsonify({"error": "No query provided"}), 400
@@ -619,6 +787,22 @@ def search():
     if explain_governance is not None and not isinstance(explain_governance, bool):
         return jsonify({"error": "explain_governance must be a boolean"}), 400
 
+    if bounded_envelope is not None and not isinstance(bounded_envelope, dict):
+        return jsonify({"error": "bounded_envelope must be an object"}), 400
+
+    if derive_views is not None:
+        if not isinstance(derive_views, list) or any(not isinstance(v, str) for v in derive_views):
+            return jsonify({"error": "derive_views must be a list of strings"}), 400
+        invalid = [v for v in derive_views if v not in SUPPORTED_DERIVED_VIEWS]
+        if invalid:
+            return jsonify(
+                {
+                    "error": "Invalid derive_views entries",
+                    "supported_derived_views": sorted(SUPPORTED_DERIVED_VIEWS),
+                    "invalid": invalid,
+                }
+            ), 400
+
     return jsonify(
         _runtime.search_documents(
             query,
@@ -630,6 +814,8 @@ def search():
             explain,
             governance,
             explain_governance,
+            bounded_envelope,
+            derive_views,
         )
     ), 200
 

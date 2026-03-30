@@ -21,7 +21,8 @@ def test_search_hybrid_valid_request_forwards_params(client, monkeypatch):
     captured: Dict[str, Any] = {}
 
     def fake_search_documents(query, top_k, tiers, filters, retrieval_mode, fusion_policy, explain,
-                              _governance=None, _explain_governance=None):
+                              _governance=None, _explain_governance=None, _bounded_envelope=None,
+                              _derive_views=None):
         captured["query"] = query
         captured["top_k"] = top_k
         captured["retrieval_mode"] = retrieval_mode
@@ -78,7 +79,8 @@ def test_search_hybrid_filter_payload_forwarding(client, monkeypatch):
     captured: Dict[str, Any] = {}
 
     def fake_search_documents(query, top_k, tiers, filters, retrieval_mode, fusion_policy, explain,
-                              _governance=None, _explain_governance=None):
+                              _governance=None, _explain_governance=None, _bounded_envelope=None,
+                              _derive_views=None):
         captured["filters"] = filters
         return {
             "status": "healthy",
@@ -156,3 +158,43 @@ def test_search_invalid_explain_type_rejected(client):
     assert resp.status_code == 400
     body = resp.get_json()
     assert body["error"] == "explain must be a boolean"
+
+
+def test_search_invalid_bounded_envelope_type_rejected(client):
+    resp = client.post(
+        "/v1/mnemos/search",
+        json={
+            "query": "test",
+            "bounded_envelope": "on",
+        },
+    )
+    assert resp.status_code == 400
+    body = resp.get_json()
+    assert body["error"] == "bounded_envelope must be an object"
+
+
+def test_search_invalid_derive_views_type_rejected(client):
+    resp = client.post(
+        "/v1/mnemos/search",
+        json={
+            "query": "test",
+            "derive_views": "evidence_bundle",
+        },
+    )
+    assert resp.status_code == 400
+    body = resp.get_json()
+    assert body["error"] == "derive_views must be a list of strings"
+
+
+def test_search_invalid_derive_views_entries_rejected(client):
+    resp = client.post(
+        "/v1/mnemos/search",
+        json={
+            "query": "test",
+            "derive_views": ["evidence_bundle", "unknown_view"],
+        },
+    )
+    assert resp.status_code == 400
+    body = resp.get_json()
+    assert body["error"] == "Invalid derive_views entries"
+    assert "unknown_view" in body["invalid"]

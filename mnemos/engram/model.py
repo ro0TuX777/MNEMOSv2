@@ -49,10 +49,36 @@ class Engram:
     edges: List[str] = field(default_factory=list)
     governance: Optional[GovernanceMeta] = field(default=None, repr=False)
 
+    def lineage(self) -> Dict[str, Any]:
+        """
+        Return Phase 1 lineage contract fields.
+
+        Legacy engrams without explicit lineage remain valid through a
+        compatibility shim that derives stable fallback IDs.
+        """
+        artifact_id = str(self.metadata.get("artifact_id") or f"artifact:{self.id}")
+        chunk_id = str(self.metadata.get("chunk_id") or self.id)
+        artifact_version = str(
+            self.metadata.get("artifact_version")
+            or self.metadata.get("version_id")
+            or "v1"
+        )
+        source_uri = str(self.metadata.get("source_uri") or self.source or "")
+        provenance_span = self.metadata.get("provenance_span")
+
+        return {
+            "artifact_id": artifact_id,
+            "artifact_version": artifact_version,
+            "chunk_id": chunk_id,
+            "source_uri": source_uri,
+            "provenance_span": provenance_span,
+        }
+
     def to_dict(
         self,
         include_embedding: bool = False,
         include_governance: bool = False,
+        include_lineage: bool = False,
     ) -> Dict[str, Any]:
         """Serialise to a JSON-safe dictionary.
 
@@ -77,6 +103,8 @@ class Engram:
             d["embedding"] = self.embedding.tolist()
         if include_governance and self.governance is not None:
             d["_governance"] = self.governance.to_dict()
+        if include_lineage:
+            d["_lineage"] = self.lineage()
         return d
 
     @classmethod
@@ -90,6 +118,18 @@ class Engram:
         if "_governance" in data and data["_governance"] is not None:
             governance = GovernanceMeta.from_dict(data["_governance"])
 
+        metadata = dict(data.get("metadata", {}))
+        lineage = data.get("_lineage")
+        if isinstance(lineage, dict):
+            if "artifact_id" in lineage and "artifact_id" not in metadata:
+                metadata["artifact_id"] = lineage["artifact_id"]
+            if "artifact_version" in lineage and "artifact_version" not in metadata:
+                metadata["artifact_version"] = lineage["artifact_version"]
+            if "chunk_id" in lineage and "chunk_id" not in metadata:
+                metadata["chunk_id"] = lineage["chunk_id"]
+            if "provenance_span" in lineage and "provenance_span" not in metadata:
+                metadata["provenance_span"] = lineage["provenance_span"]
+
         return cls(
             id=data.get("id", str(uuid.uuid4())),
             content=data.get("content", ""),
@@ -98,7 +138,7 @@ class Engram:
             source=data.get("source", ""),
             confidence=data.get("confidence", 1.0),
             created_at=data.get("created_at", datetime.utcnow().isoformat() + "Z"),
-            metadata=data.get("metadata", {}),
+            metadata=metadata,
             edges=data.get("edges", []),
             governance=governance,
         )

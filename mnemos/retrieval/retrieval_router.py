@@ -8,6 +8,10 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 
 from mnemos.retrieval.base import BaseRetriever, SearchResult
+from mnemos.retrieval.candidate_envelope import (
+    CandidateEnvelopeConfig,
+    apply_candidate_envelope,
+)
 from mnemos.retrieval.fusion import TierFusion
 from mnemos.retrieval.hybrid_fusion import HybridFusion
 from mnemos.retrieval.policies.fusion_policies import DEFAULT_FUSION_POLICY, FUSION_POLICIES
@@ -43,8 +47,27 @@ class RetrievalRouter:
             "hybrid_last_policy": DEFAULT_FUSION_POLICY,
             "hybrid_last_telemetry": {},
             "hybrid_available": bool(lexical_tier),
+            "candidate_pool_raw_count": 0,
+            "candidate_pool_narrowed_count": 0,
+            "candidate_duplicate_suppressed_count": 0,
+            "candidate_source_cap_applied_count": 0,
         }
         self._hybrid_latencies_ms: List[float] = []
+
+    def _record_candidate_envelope_stats(self, envelope_meta: Dict[str, Any]) -> None:
+        self._stats["candidate_pool_raw_count"] += int(
+            envelope_meta.get("initial_candidate_count", 0)
+        )
+        self._stats["candidate_pool_narrowed_count"] += int(
+            envelope_meta.get("final_candidate_count", 0)
+        )
+        summary = envelope_meta.get("suppression_summary", {}) or {}
+        self._stats["candidate_duplicate_suppressed_count"] += int(
+            summary.get("duplicate_similarity", 0)
+        )
+        self._stats["candidate_source_cap_applied_count"] += int(
+            summary.get("source_cap_exceeded", 0)
+        )
 
     @property
     def semantic_tiers(self) -> List[str]:
@@ -102,18 +125,24 @@ class RetrievalRouter:
         explain: bool = False,
         lexical_top_k: int = 25,
         semantic_top_k: int = 25,
+        bounded_envelope: Optional[Dict[str, Any]] = None,
     ) -> Tuple[List[SearchResult], Dict[str, Any]]:
         mode = retrieval_mode if retrieval_mode in {"semantic", "hybrid"} else "semantic"
         policy = fusion_policy if fusion_policy in FUSION_POLICIES else DEFAULT_FUSION_POLICY
+        envelope_cfg = CandidateEnvelopeConfig.from_request(bounded_envelope)
+        desired_pool = max(top_k, envelope_cfg.candidate_pool_limit) if envelope_cfg.enabled else top_k
 
         if mode == "semantic" or not self._lexical_tier:
             self._stats["semantic_query_count"] += 1
             self._stats["retrieval_mode_counters"]["semantic"] += 1
-            hits = self._semantic_fusion.search(query, top_k=top_k, filters=filters, tiers=tiers)
-            return hits, {
+            hits = self._semantic_fusion.search(query, top_k=desired_pool, filters=filters, tiers=tiers)
+            narrowed, envelope_meta = apply_candidate_envelope(hits, envelope_cfg)
+            self._record_candidate_envelope_stats(envelope_meta)
+            return narrowed[:top_k], {
                 "retrieval_mode": "semantic",
                 "fusion_policy": None,
                 "lexical_available": self.lexical_available,
+                "candidate_envelope": envelope_meta,
             }
 
         start = time.perf_counter()
@@ -129,11 +158,13 @@ class RetrievalRouter:
         fused, telemetry = self._hybrid_fusion.fuse(
             lexical_results=lexical_results,
             semantic_results=semantic_results,
-            top_k=top_k,
+            top_k=desired_pool,
             fusion_policy=policy,
             filters=filters,
             explain=explain,
         )
+        narrowed, envelope_meta = apply_candidate_envelope(fused, envelope_cfg)
+        self._record_candidate_envelope_stats(envelope_meta)
 
         elapsed_ms = (time.perf_counter() - start) * 1000.0
         self._record_hybrid_stats(telemetry, elapsed_ms, policy)
@@ -143,8 +174,9 @@ class RetrievalRouter:
             "fusion_policy": policy,
             "lexical_available": self.lexical_available,
             "telemetry": telemetry,
+            "candidate_envelope": envelope_meta,
         }
-        return fused, meta
+        return narrowed[:top_k], meta
 
     def stats(self) -> Dict[str, Any]:
         out = dict(self._stats)

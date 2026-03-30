@@ -16,6 +16,10 @@ def _clear_mnemos_env(monkeypatch):
         "MNEMOS_AUDIT_ENABLED",
         "MNEMOS_AUDIT_RETENTION_DAYS",
         "MNEMOS_PORT",
+        "MNEMOS_MEMORY_OVER_MAPS_PHASE2",
+        "MNEMOS_MEMORY_OVER_MAPS_PHASE3",
+        "MNEMOS_MEMORY_OVER_MAPS_PHASE4",
+        "MNEMOS_MEMORY_OVER_MAPS_PHASE5",
     ]:
         monkeypatch.delenv(key, raising=False)
 
@@ -37,6 +41,10 @@ def test_config_hybrid_valid_values(monkeypatch):
     monkeypatch.setenv("MNEMOS_LEXICAL_TOP_K", "40")
     monkeypatch.setenv("MNEMOS_SEMANTIC_TOP_K", "30")
     monkeypatch.setenv("MNEMOS_EXPLAIN_DEFAULT", "true")
+    monkeypatch.setenv("MNEMOS_MEMORY_OVER_MAPS_PHASE2", "true")
+    monkeypatch.setenv("MNEMOS_MEMORY_OVER_MAPS_PHASE3", "true")
+    monkeypatch.setenv("MNEMOS_MEMORY_OVER_MAPS_PHASE4", "true")
+    monkeypatch.setenv("MNEMOS_MEMORY_OVER_MAPS_PHASE5", "true")
 
     cfg = MnemosConfig.from_env()
     assert cfg.retrieval_mode == "hybrid"
@@ -44,6 +52,10 @@ def test_config_hybrid_valid_values(monkeypatch):
     assert cfg.lexical_top_k == 40
     assert cfg.semantic_top_k == 30
     assert cfg.explain_default is True
+    assert cfg.memory_over_maps_phase2 is True
+    assert cfg.memory_over_maps_phase3 is True
+    assert cfg.memory_over_maps_phase4 is True
+    assert cfg.memory_over_maps_phase5 is True
 
 
 @pytest.mark.parametrize(

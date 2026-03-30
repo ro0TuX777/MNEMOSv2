@@ -176,6 +176,33 @@ class ForensicLedger:
 
             return transaction_id
 
+    def log_derived_view_generation(
+        self,
+        *,
+        view_type: str,
+        view_id: str,
+        inputs: Dict[str, Any],
+        query_fingerprint: str,
+        governance_state_hash: str,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> int:
+        """Log a Memory Over Maps derived-view generation event."""
+        merged = dict(metadata or {})
+        merged.update({
+            "view_type": view_type,
+            "view_id": view_id,
+            "inputs": inputs,
+            "query_fingerprint": query_fingerprint,
+            "governance_state_hash": governance_state_hash,
+            "tags": "memory_over_maps,derived_view",
+        })
+        return self.log_transaction(
+            component="memory-over-maps",
+            action="derived_view_generation",
+            content=f"Generated {view_type} view {view_id}",
+            metadata=merged,
+        )
+
     # ──────────────────────── Querying ────────────────────────
 
     def get_recent_events(self, limit: int = 10) -> List[Dict[str, Any]]:
