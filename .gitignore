@@ -32,3 +32,11 @@ Thumbs.db
 
 # Environment
 .env
+
+# Local agent/editor settings (machine-specific)
+.claude/settings.local.json
+.claude/settings.json
+
+# Generated benchmark/test artifacts
+tests/_tmp/
+benchmarks/outputs/
