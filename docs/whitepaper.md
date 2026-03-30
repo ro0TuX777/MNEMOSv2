@@ -8,6 +8,7 @@
 > **As of March 30, 2026:** Benchmark conclusions in this whitepaper are date-scoped to the current measured runs.
 > For full methodology, raw artifacts, and latest updates, see `docs/benchmark.md`.
 > **Governance layer (MemArchitect Waves 1 & 2) is implemented** — per-candidate policy pipeline, entity-slot contradiction detection, and advisory/enforced read path modes. Default mode is `off` (conservative); advisory benchmarking against real corpus is the next step before enforced-mode promotion.
+> **Memory Over Maps Phases 1–5 are implemented and benchmark-gated** — source-grounded lineage, bounded candidate envelope, on-demand derived views, cache + invalidation, and bounded semantic reflect evolution all passed phase gates on March 30, 2026.
 
 ---
 
@@ -44,6 +45,7 @@ MNEMOS is **application-agnostic** â€” it knows nothing about the domain of
 - **Profile benchmarks** â€” per-profile retrieval latency, recall, and throughput data
 - **Deployment manifest** â€” `mnemos_profile.yaml` as durable deployment artifact
 - **Governance layer (MemArchitect Waves 1 & 2)** â€” per-candidate policy pipeline (veto, freshness decay, trust/utility modifiers) and cross-candidate entity-slot contradiction detection; advisory and enforced read path modes; default is `off` pending advisory benchmarking
+- **Memory Over Maps lane (Phases 1â€“5)** â€” source-grounded artifact lineage, deterministic candidate narrowing, on-demand derived views, deterministic cache + invalidation with dry-run parity, and bounded semantic reflect benchmark pack
 
 MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of **operational tools** (health audit, contract evolution, onboarding, CI gates, and staged cutover) â€” making it a complete platform that can be deployed with a single `python -m installer`.
 
@@ -364,6 +366,36 @@ The governance behavioral claims are backed by **Governance Validation Pack v1**
 Long-horizon calendar-based decay, contradiction sweep coverage for pairs not retrieved together in the same query, enforced-mode drift behavior, and trust recovery after contradiction penalty are documented as untested in the pack and are the explicit scope drivers for the Wave 4 hygiene runner.
 
 ---
+
+### 4.6 Memory Over Maps (Phase-Gated)
+
+Memory Over Maps is now an implemented architecture lane in MNEMOS and has been advanced only through benchmark-gated phase exits.
+
+| Phase | Capability | Gate Status (March 30, 2026) |
+|---|---|---|
+| 1 | Source-grounded lineage contract + audit hooks | PASS |
+| 2 | Deterministic bounded candidate envelope | PASS |
+| 3 | On-demand derived views (evidence, contradiction, preference, timeline) | PASS |
+| 4 | Derived-view cache + invalidation + dry-run traces | PASS |
+| 5 | Bounded semantic reflect evolution scenarios | PASS |
+
+Current artifact family:
+- `benchmarks/outputs/raw/memory_over_maps_<timestamp>_raw.json`
+- `benchmarks/outputs/summaries/memory_over_maps_<timestamp>_report.md`
+- `benchmarks/outputs/summaries/memory_over_maps_<timestamp>_decision.md`
+
+Latest phase artifacts (March 30, 2026):
+- Phase 1: `benchmarks/outputs/raw/memory_over_maps_20260330_135417_raw.json`, `benchmarks/outputs/summaries/memory_over_maps_20260330_135417_report.md`, `benchmarks/outputs/summaries/memory_over_maps_20260330_135417_decision.md`
+- Phase 2: `benchmarks/outputs/raw/memory_over_maps_20260330_150121_raw.json`, `benchmarks/outputs/summaries/memory_over_maps_20260330_150121_report.md`, `benchmarks/outputs/summaries/memory_over_maps_20260330_150121_decision.md`
+- Phase 3: `benchmarks/outputs/raw/memory_over_maps_20260330_150942_raw.json`, `benchmarks/outputs/summaries/memory_over_maps_20260330_150942_report.md`, `benchmarks/outputs/summaries/memory_over_maps_20260330_150942_decision.md`
+- Phase 4: `benchmarks/outputs/raw/memory_over_maps_20260330_151515_raw.json`, `benchmarks/outputs/summaries/memory_over_maps_20260330_151515_report.md`, `benchmarks/outputs/summaries/memory_over_maps_20260330_151515_decision.md`
+- Phase 5: `benchmarks/outputs/raw/memory_over_maps_20260330_151822_raw.json`, `benchmarks/outputs/summaries/memory_over_maps_20260330_151822_report.md`, `benchmarks/outputs/summaries/memory_over_maps_20260330_151822_decision.md`
+
+Interpretation:
+- Source truth is explicit and traceable.
+- Expensive reasoning is bounded before governance/synthesis work.
+- Derived views are reproducible and input-declared.
+- Cache correctness is validated with explicit invalidation evidence.
 
 ## 5. API Contract
 
@@ -874,6 +906,7 @@ MNEMOS/
 â”œâ”€â”€ mnemos/                    Core library
 â”‚   â”œâ”€â”€ compression/           TurboQuant (arXiv:2504.19874)
 â”‚   â”œâ”€â”€ engram/                Engram model and enrichment
+â”‚   â”œâ”€â”€ memory_over_maps/      Phase-gated source-first memory lane
 â”‚   â”œâ”€â”€ retrieval/             Multi-backend retrieval + fusion
 â”‚   â”‚   â”œâ”€â”€ qdrant_tier.py     Qdrant backend (Core Memory Appliance)
 â”‚   â”‚   â”œâ”€â”€ pgvector_tier.py   pgvector backend (Governance Native)
@@ -906,6 +939,7 @@ MNEMOS/
 â”‚   â”œâ”€â”€ mnemos_ci_gates.py
 â”‚   â””â”€â”€ mnemos_cutover_scaffold.py
 â”œâ”€â”€ benchmarks/                Reproducible benchmark suite
+â”‚   â”œâ”€â”€ run_memory_over_maps_benchmarks.py
 â”œâ”€â”€ tests/                     Unit tests
 â”œâ”€â”€ .github/workflows/         CI gate template
 â”œâ”€â”€ docs/                      Whitepaper + AI dev hand-off
@@ -934,7 +968,7 @@ MNEMOS was designed from the ground up as a reusable memory service. Its archite
 | Staged rollout | Cutover Scaffold |
 | Memory lifecycle governance | Governance Layer (mnemos/governance/) |
 | Contradiction detection & resolution | ContradictionPolicy (Wave 2) |
+| Source-grounded selective synthesis | Memory Over Maps lane (mnemos/memory_over_maps/) |
+| Source-grounded selective synthesis | Memory Over Maps lane (mnemos/memory_over_maps/) |
 
 What remains is a **pure infrastructure service** â€” a reusable, tooling-complete foundation for any application that needs intelligent, compressed, auditable memory.
-
-

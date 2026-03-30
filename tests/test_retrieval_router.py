@@ -125,3 +125,51 @@ def test_router_hybrid_preserves_filters_and_avoids_leakage():
     assert lexical.last_filters == {"source": "dept-legal"}
     assert all(r.engram.source == "dept-legal" for r in results)
     assert all(r.metadata.get("filters_applied") == {"source": "dept-legal"} for r in results)
+
+
+def test_router_phase2_bounded_envelope_applies_caps():
+    semantic = DummyRetriever("qdrant", ["a1", "a2", "a3", "b1", "b2", "c1"])
+
+    class ArtifactAwareRetriever(DummyRetriever):
+        def search(self, query: str, top_k: int = 10, filters: Optional[Dict[str, Any]] = None):
+            out = []
+            artifact_map = {
+                "a1": "art-a",
+                "a2": "art-a",
+                "a3": "art-a",
+                "b1": "art-b",
+                "b2": "art-b",
+                "c1": "art-c",
+            }
+            for i, doc_id in enumerate(self._results[:top_k]):
+                out.append(
+                    SearchResult(
+                        engram=Engram(
+                            id=doc_id,
+                            content=f"content-{doc_id}",
+                            metadata={"artifact_id": artifact_map[doc_id]},
+                        ),
+                        score=float(top_k - i),
+                        tier=self._name,
+                    )
+                )
+            return out
+
+    semantic = ArtifactAwareRetriever("qdrant", ["a1", "a2", "a3", "b1", "b2", "c1"])
+    router = RetrievalRouter(semantic_fusion=TierFusion([semantic]), lexical_tier=None)
+    results, meta = router.search(
+        query="q",
+        top_k=10,
+        bounded_envelope={
+            "enabled": True,
+            "candidate_pool_limit": 3,
+            "dedupe_similarity_threshold": 1.0,
+            "max_per_source_artifact": 1,
+            "diversity_policy": "off",
+        },
+    )
+    assert len(results) == 3
+    env = meta["candidate_envelope"]
+    assert env["enabled"] is True
+    assert env["final_candidate_count"] == 3
+    assert env["suppression_summary"]["source_cap_exceeded"] >= 1

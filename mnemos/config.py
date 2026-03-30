@@ -68,6 +68,13 @@ class MnemosConfig:
     governance_min_score: float = 0.0       # veto threshold (0.0 = disabled)
     governance_freshness_half_life: float = 180.0   # days
 
+    # Memory Over Maps (phase-gated rollout)
+    memory_over_maps_phase1: bool = False
+    memory_over_maps_phase2: bool = False
+    memory_over_maps_phase3: bool = False
+    memory_over_maps_phase4: bool = False
+    memory_over_maps_phase5: bool = False
+
     @staticmethod
     def _parse_bool(name: str, default: str) -> bool:
         raw = os.getenv(name, default).strip().lower()
@@ -142,6 +149,11 @@ class MnemosConfig:
         governance_freshness_half_life = cls._parse_float(
             "MNEMOS_GOVERNANCE_FRESHNESS_HALF_LIFE", "180.0", min_value=1.0
         )
+        memory_over_maps_phase1 = cls._parse_bool("MNEMOS_MEMORY_OVER_MAPS_PHASE1", "false")
+        memory_over_maps_phase2 = cls._parse_bool("MNEMOS_MEMORY_OVER_MAPS_PHASE2", "false")
+        memory_over_maps_phase3 = cls._parse_bool("MNEMOS_MEMORY_OVER_MAPS_PHASE3", "false")
+        memory_over_maps_phase4 = cls._parse_bool("MNEMOS_MEMORY_OVER_MAPS_PHASE4", "false")
+        memory_over_maps_phase5 = cls._parse_bool("MNEMOS_MEMORY_OVER_MAPS_PHASE5", "false")
 
         config = cls(
             profile=os.getenv("MNEMOS_PROFILE", "core_memory_appliance"),
@@ -171,6 +183,11 @@ class MnemosConfig:
             governance_mode=governance_mode,
             governance_min_score=governance_min_score,
             governance_freshness_half_life=governance_freshness_half_life,
+            memory_over_maps_phase1=memory_over_maps_phase1,
+            memory_over_maps_phase2=memory_over_maps_phase2,
+            memory_over_maps_phase3=memory_over_maps_phase3,
+            memory_over_maps_phase4=memory_over_maps_phase4,
+            memory_over_maps_phase5=memory_over_maps_phase5,
         )
 
         logger.info(

@@ -20,6 +20,37 @@
 
 ---
 
+## Memory Over Maps Phase-Gate Results (March 30, 2026)
+
+Phase-gated implementation and validation for the Memory Over Maps lane has been completed through Phase 5 with benchmark artifacts generated per phase.
+
+### Summary
+
+| Phase | Track | Gate Result | Key Metrics |
+|---|---|---|---|
+| Phase 1 | M1 lineage integrity | PASS | lineage completeness 1.0000, orphan derived views 0 |
+| Phase 2 | M2 candidate envelope efficiency | PASS | compression ratio 0.7500, answer-support retention 0.7500 |
+| Phase 3 | M3 on-demand view reproducibility | PASS | reproducibility 1.0000, regeneration mismatches 0 |
+| Phase 4 | M4 cache invalidation correctness | PASS | trigger coverage 1.0000, stale cache survival 0.0000, dry-run parity true |
+| Phase 5 | M5 bounded semantic reflect evolution | PASS | bounded adherence 1.0000, trust recovery delta +0.0800, concurrent success 1.0000 |
+
+### Artifacts
+
+| Phase | Raw JSON | Report | Decision |
+|---|---|---|---|
+| Phase 1 | `benchmarks/outputs/raw/memory_over_maps_20260330_135417_raw.json` | `benchmarks/outputs/summaries/memory_over_maps_20260330_135417_report.md` | `benchmarks/outputs/summaries/memory_over_maps_20260330_135417_decision.md` |
+| Phase 2 | `benchmarks/outputs/raw/memory_over_maps_20260330_150121_raw.json` | `benchmarks/outputs/summaries/memory_over_maps_20260330_150121_report.md` | `benchmarks/outputs/summaries/memory_over_maps_20260330_150121_decision.md` |
+| Phase 3 | `benchmarks/outputs/raw/memory_over_maps_20260330_150942_raw.json` | `benchmarks/outputs/summaries/memory_over_maps_20260330_150942_report.md` | `benchmarks/outputs/summaries/memory_over_maps_20260330_150942_decision.md` |
+| Phase 4 | `benchmarks/outputs/raw/memory_over_maps_20260330_151515_raw.json` | `benchmarks/outputs/summaries/memory_over_maps_20260330_151515_report.md` | `benchmarks/outputs/summaries/memory_over_maps_20260330_151515_decision.md` |
+| Phase 5 | `benchmarks/outputs/raw/memory_over_maps_20260330_151822_raw.json` | `benchmarks/outputs/summaries/memory_over_maps_20260330_151822_report.md` | `benchmarks/outputs/summaries/memory_over_maps_20260330_151822_decision.md` |
+
+### Interpretation
+
+- Memory Over Maps implementation is now phase-complete from source-grounded lineage through bounded retrieval, on-demand synthesis, cache/invalidation, and bounded semantic reflect validation.
+- Promotion posture remains evidence-first: each phase advanced only after its benchmark gate passed.
+
+---
+
 ## Backend Setup For Tracks 1/2/4
 
 Use the benchmark-only backend stack (recommended for clean measurements):
