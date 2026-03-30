@@ -34,6 +34,7 @@ from mnemos.memory_over_maps.view_cache import (
 )
 from mnemos.retrieval.policies.fusion_policies import FUSION_POLICIES
 from mnemos.governance.governor import Governor
+from mnemos.governance.policy_profiles import load_policy_profiles
 from mnemos.governance.read_path import GOVERNANCE_MODES
 
 logger = logging.getLogger("mnemos.service")
@@ -78,9 +79,15 @@ class MnemosRuntime:
             "derived_view_cache_hit_count": 0,
             "derived_view_cache_miss_count": 0,
             "derived_view_invalidated_count": 0,
+            "derived_view_invalidation_events": 0,
+            "derived_view_invalidation_fanout_total": 0,
             "governed_evidence_bundle_total": 0,
             "governed_contradiction_bundle_total": 0,
             "governed_source_trace_complete_total": 0,
+            "economics_query_count": 0,
+            "economics_cost_units_total": 0,
+            "economics_envelope_initial_total": 0,
+            "economics_envelope_final_total": 0,
         }
 
     def initialize(self):
@@ -163,9 +170,15 @@ class MnemosRuntime:
                     self._ledger = ForensicLedger(db_path=self._config.audit_db_path)
 
             # Governance layer (always initialised; off by default)
+            policy_profiles = load_policy_profiles(
+                raw_json=os.getenv("MNEMOS_GOVERNANCE_POLICY_PROFILES_JSON", ""),
+                base_min_score_threshold=self._config.governance_min_score,
+                base_freshness_half_life_days=self._config.governance_freshness_half_life,
+            )
             self._governor = Governor(
                 min_score_threshold=self._config.governance_min_score,
                 freshness_half_life_days=self._config.governance_freshness_half_life,
+                policy_profiles=policy_profiles,
             )
             self._view_cache = DerivedViewCache(ttl_seconds=3600)
 
@@ -190,6 +203,64 @@ class MnemosRuntime:
             "generated_at": _utc_now(),
             "error": self._error,
         }
+
+    @staticmethod
+    def _build_governance_trace(
+        *,
+        decision: Any,
+        raw_rank: Optional[int],
+        final_rank: Optional[int],
+    ) -> Dict[str, Any]:
+        modifiers = {
+            "trust": float(decision.trust_modifier),
+            "utility": float(decision.utility_modifier),
+            "freshness": float(decision.freshness_modifier),
+            "contradiction": float(decision.contradiction_modifier),
+            "veto": float(decision.veto_modifier),
+        }
+        top_factors = sorted(
+            [
+                {"name": k, "value": round(v, 4), "impact": round(abs(v - 1.0), 4)}
+                for k, v in modifiers.items()
+                if abs(v - 1.0) > 1e-9
+            ],
+            key=lambda row: row["impact"],
+            reverse=True,
+        )[:3]
+
+        if not decision.veto_pass:
+            outcome = "vetoed"
+            reason = decision.veto_reason or "vetoed by policy"
+        elif decision.suppressed_by_contradiction:
+            outcome = "contradiction_loser"
+            reason = decision.contradiction_reason or decision.suppressed_reason or "lost contradiction adjudication"
+        elif decision.conflict_status == "winner":
+            outcome = "contradiction_winner"
+            reason = decision.contradiction_reason or "won contradiction adjudication"
+        elif decision.would_be_suppressed_in_enforced_mode:
+            outcome = "would_be_suppressed"
+            reason = decision.suppressed_reason or "would be suppressed in enforced mode"
+        else:
+            outcome = "retained"
+            reason = "retained after governance scoring"
+
+        trace: Dict[str, Any] = {
+            "outcome": outcome,
+            "reason": reason,
+            "score_delta": round(float(decision.governed_score) - float(decision.retrieval_score), 4),
+            "top_factors": top_factors,
+        }
+        if raw_rank is not None:
+            trace["raw_rank"] = int(raw_rank)
+        if final_rank is not None:
+            trace["final_rank"] = int(final_rank)
+        if raw_rank is not None and final_rank is not None:
+            trace["rank_shift"] = int(raw_rank - final_rank)
+        if decision.conflict_group_id:
+            trace["conflict_group_id"] = decision.conflict_group_id
+        if decision.contradiction_winner:
+            trace["contradiction_winner"] = decision.contradiction_winner
+        return trace
 
     def _audit(self, action: str, content: str, status: str = "success",
                metadata: Optional[Dict] = None, latency: float = 0.0):
@@ -247,6 +318,7 @@ class MnemosRuntime:
             "governance": {
                 "supported_modes": sorted(GOVERNANCE_MODES),
                 "default_mode": self._config.governance_mode if self._config else "off",
+                "policy_profiles": self._governor.policy_profile_ids() if self._governor else ["default"],
             },
             "memory_over_maps": {
                 "phase1_enabled": bool(
@@ -316,6 +388,7 @@ class MnemosRuntime:
         explain: Optional[bool],
         governance: Optional[str] = None,
         explain_governance: Optional[bool] = None,
+        governance_profile: Optional[str] = None,
         bounded_envelope: Optional[Dict[str, Any]] = None,
         derive_views: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
@@ -328,6 +401,11 @@ class MnemosRuntime:
         selected_explain = self._config.explain_default if explain is None else bool(explain)
         selected_governance = governance or getattr(self._config, "governance_mode", "off")
         selected_explain_gov = bool(explain_governance) if explain_governance is not None else False
+        selected_profile = governance_profile or ""
+        if not selected_profile and isinstance(filters, dict):
+            selected_profile = str(filters.get("tenant_policy") or filters.get("tenant_id") or "").strip()
+        if selected_profile and self._governor and not self._governor.has_policy_profile(selected_profile):
+            selected_profile = ""
 
         results, mode_meta = self._router.search(
             query=query,
@@ -341,6 +419,7 @@ class MnemosRuntime:
             semantic_top_k=self._config.semantic_top_k,
             bounded_envelope=bounded_envelope if getattr(self._config, "memory_over_maps_phase2", False) else None,
         )
+        raw_rank_by_id = {r.engram.id: idx + 1 for idx, r in enumerate(results)}
 
         # ── Governance ────────────────────────────────────────────────────
         decisions = []
@@ -351,9 +430,12 @@ class MnemosRuntime:
                 query=query,
                 governance_mode=selected_governance,
                 top_k=top_k,
+                governance_profile=selected_profile or None,
             )
 
         derived_views_payload: List[Dict[str, Any]] = []
+        query_cache_hits = 0
+        query_cache_misses = 0
         if (
             bool(getattr(self._config, "memory_over_maps_phase3", False))
             and derive_views
@@ -376,10 +458,12 @@ class MnemosRuntime:
                 if phase4_cache_enabled:
                     cached = self._view_cache.get(cache_key)
                     if cached is not None:
+                        query_cache_hits += 1
                         self._mom_stats["derived_view_cache_hit_count"] += 1
                         cached["_cache"] = {"hit": True, "key": cache_key}
                         view_payload = cached
                     else:
+                        query_cache_misses += 1
                         self._mom_stats["derived_view_cache_miss_count"] += 1
 
                 if view_payload is None:
@@ -447,7 +531,7 @@ class MnemosRuntime:
         decision_map = {d.engram_id: d for d in decisions}
         result_list = []
         include_lineage = bool(getattr(self._config, "memory_over_maps_phase1", False)) and selected_explain
-        for r in results:
+        for idx, r in enumerate(results):
             entry: Dict = {
                 "engram": r.engram.to_dict(include_lineage=include_lineage),
                 "score": round(r.score, 4),
@@ -466,6 +550,11 @@ class MnemosRuntime:
                 entry["governed_score"] = round(dec.governed_score, 4)
                 if selected_explain_gov:
                     entry["governance"] = dec.to_dict_full()
+                    entry["governance_trace"] = self._build_governance_trace(
+                        decision=dec,
+                        raw_rank=raw_rank_by_id.get(r.engram.id),
+                        final_rank=idx + 1,
+                    )
             result_list.append(entry)
 
         payload = self._base_payload()
@@ -480,12 +569,35 @@ class MnemosRuntime:
             "lexical_lane_available": mode_meta.get("lexical_available", False),
             "explain": selected_explain,
         }
+        envelope_meta = mode_meta.get("candidate_envelope") or {}
+        env_initial = int(envelope_meta.get("initial_candidate_count", 0))
+        env_final = int(envelope_meta.get("final_candidate_count", 0))
+        envelope_ratio = round((env_final / env_initial), 4) if env_initial else 0.0
+        cost_units = (
+            env_initial
+            + int(mode_meta.get("telemetry", {}).get("lexical_candidates", 0) or 0)
+            + int(mode_meta.get("telemetry", {}).get("semantic_candidates", 0) or 0)
+            + len(derived_views_payload) * 5
+        )
+        self._mom_stats["economics_query_count"] += 1
+        self._mom_stats["economics_cost_units_total"] += int(cost_units)
+        self._mom_stats["economics_envelope_initial_total"] += env_initial
+        self._mom_stats["economics_envelope_final_total"] += env_final
+        payload["meta"]["economics"] = {
+            "candidate_envelope_initial": env_initial,
+            "candidate_envelope_final": env_final,
+            "candidate_envelope_compression_ratio": envelope_ratio,
+            "derived_view_cache_hits": query_cache_hits,
+            "derived_view_cache_misses": query_cache_misses,
+            "estimated_cost_units": int(cost_units),
+        }
         if mode_meta.get("telemetry"):
             payload["meta"]["hybrid_telemetry"] = mode_meta["telemetry"]
         if mode_meta.get("candidate_envelope"):
             payload["meta"]["candidate_envelope"] = mode_meta["candidate_envelope"]
         if selected_governance != "off":
             payload["meta"]["governance_mode"] = selected_governance
+            payload["meta"]["governance_profile"] = selected_profile or "default"
             payload["meta"]["governance_summary"] = {
                 "candidates_evaluated": len(decisions),
                 "vetoed": sum(1 for d in decisions if not d.veto_pass),
@@ -495,6 +607,21 @@ class MnemosRuntime:
                     1 for d in decisions if d.suppressed_by_contradiction
                 ),
             }
+            if selected_explain_gov:
+                payload["meta"]["governance_explain"] = {
+                    "suppressed_candidates": [
+                        {
+                            "engram_id": d.engram_id,
+                            "reason": d.suppressed_reason or d.veto_reason or d.contradiction_reason,
+                            "vetoed": not d.veto_pass,
+                            "suppressed_by_contradiction": bool(d.suppressed_by_contradiction),
+                            "contradiction_winner": d.contradiction_winner,
+                            "governed_score": round(d.governed_score, 4),
+                        }
+                        for d in decisions
+                        if d.would_be_suppressed_in_enforced_mode
+                    ]
+                }
         if derived_views_payload:
             payload["derived_views"] = derived_views_payload
         return payload
@@ -557,6 +684,7 @@ class MnemosRuntime:
         candidates: List[Dict],
         cited_ids: Optional[List[str]] = None,
         governance_mode: str = "advisory",
+        governance_profile: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Run the Wave 3 reflect loop for a completed query/answer pair.
@@ -617,6 +745,7 @@ class MnemosRuntime:
             decisions=decisions,
             cited_ids=cited_ids,
             governance_mode=governance_mode,
+            governance_profile=governance_profile,
         )
 
         payload["reflect"] = reflect_result.to_dict()
@@ -643,7 +772,45 @@ class MnemosRuntime:
         }
         if self._view_cache is not None:
             payload["stats"]["memory_over_maps"]["derived_view_cache"] = self._view_cache.stats()
+        query_count = max(1, self._mom_stats.get("economics_query_count", 0))
+        env_initial_total = self._mom_stats.get("economics_envelope_initial_total", 0)
+        env_final_total = self._mom_stats.get("economics_envelope_final_total", 0)
+        payload["stats"]["economics"] = {
+            "query_count": self._mom_stats.get("economics_query_count", 0),
+            "avg_estimated_cost_units_per_query": round(
+                self._mom_stats.get("economics_cost_units_total", 0) / query_count, 4
+            ),
+            "envelope_initial_total": env_initial_total,
+            "envelope_final_total": env_final_total,
+            "envelope_compression_ratio": round(
+                (env_final_total / env_initial_total), 4
+            ) if env_initial_total else 0.0,
+            "cache_hit_total": self._mom_stats.get("derived_view_cache_hit_count", 0),
+            "cache_miss_total": self._mom_stats.get("derived_view_cache_miss_count", 0),
+            "cache_hit_ratio": round(
+                self._mom_stats.get("derived_view_cache_hit_count", 0)
+                / max(1, self._mom_stats.get("derived_view_cache_hit_count", 0) + self._mom_stats.get("derived_view_cache_miss_count", 0)),
+                4,
+            ),
+            "invalidation_event_count": self._mom_stats.get("derived_view_invalidation_events", 0),
+            "invalidation_fanout_total": self._mom_stats.get("derived_view_invalidation_fanout_total", 0),
+            "avg_invalidation_fanout": round(
+                self._mom_stats.get("derived_view_invalidation_fanout_total", 0)
+                / max(1, self._mom_stats.get("derived_view_invalidation_events", 0)),
+                4,
+            ),
+        }
         return payload
+
+    def has_governance_profile(self, profile_id: str) -> bool:
+        if self._governor is None:
+            return False
+        return self._governor.has_policy_profile(profile_id)
+
+    def governance_profiles(self) -> List[str]:
+        if self._governor is None:
+            return ["default"]
+        return self._governor.policy_profile_ids()
 
     def invalidate_derived_view_cache(
         self,
@@ -656,6 +823,8 @@ class MnemosRuntime:
         if self._view_cache is None:
             return {"error": "derived view cache unavailable"}
         trace = self._view_cache.invalidate(event_type=event_type, refs=refs, dry_run=dry_run)
+        self._mom_stats["derived_view_invalidation_events"] += 1
+        self._mom_stats["derived_view_invalidation_fanout_total"] += len(trace.get("impacted_keys", []))
         if not dry_run:
             self._mom_stats["derived_view_invalidated_count"] += len(trace.get("impacted_keys", []))
         return trace
@@ -757,6 +926,7 @@ def search():
     explain = body.get("explain")
     governance = body.get("governance")
     explain_governance = body.get("explain_governance")
+    governance_profile = body.get("governance_profile")
     bounded_envelope = body.get("bounded_envelope")
     derive_views = body.get("derive_views")
 
@@ -787,6 +957,15 @@ def search():
     if explain_governance is not None and not isinstance(explain_governance, bool):
         return jsonify({"error": "explain_governance must be a boolean"}), 400
 
+    if governance_profile is not None:
+        if not isinstance(governance_profile, str) or not governance_profile.strip():
+            return jsonify({"error": "governance_profile must be a non-empty string"}), 400
+        if not _runtime.has_governance_profile(governance_profile.strip()):
+            return jsonify({
+                "error": "Invalid governance_profile",
+                "supported_governance_profiles": _runtime.governance_profiles(),
+            }), 400
+
     if bounded_envelope is not None and not isinstance(bounded_envelope, dict):
         return jsonify({"error": "bounded_envelope must be an object"}), 400
 
@@ -814,6 +993,7 @@ def search():
             explain,
             governance,
             explain_governance,
+            governance_profile,
             bounded_envelope,
             derive_views,
         )
@@ -902,6 +1082,15 @@ def governance_reflect():
     governance_mode = body.get("governance_mode", "advisory")
     if governance_mode not in ("off", "advisory", "enforced"):
         return jsonify({"error": "Invalid governance_mode"}), 400
+    governance_profile = body.get("governance_profile")
+    if governance_profile is not None:
+        if not isinstance(governance_profile, str) or not governance_profile.strip():
+            return jsonify({"error": "governance_profile must be a non-empty string"}), 400
+        if not _runtime.has_governance_profile(governance_profile.strip()):
+            return jsonify({
+                "error": "Invalid governance_profile",
+                "supported_governance_profiles": _runtime.governance_profiles(),
+            }), 400
 
     return jsonify(
         _runtime.governance_reflect(
@@ -910,6 +1099,7 @@ def governance_reflect():
             candidates=candidates,
             cited_ids=cited_ids,
             governance_mode=governance_mode,
+            governance_profile=governance_profile.strip() if isinstance(governance_profile, str) else None,
         )
     ), 200
 

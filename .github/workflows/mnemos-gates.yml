@@ -19,7 +19,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txt pytest
 
       - name: Contract validation
         run: python tools/mnemos_ci_gates.py --contract-dir service
@@ -36,7 +36,7 @@ jobs:
         run: python tools/mnemos_health_audit.py
 
       - name: Smoke checks
-        run: python tools/mnemos_ci_gates.py --run-health-audit --smoke-spec tools/mnemos_smoke_spec.json
+        run: python tools/mnemos_ci_gates.py --run-health-audit --smoke-spec tools/mnemos_smoke_spec.json --run-memory-over-maps-gates --run-governance-evidence-gates --run-wave4-hygiene-gate --run-slo-reliability-gate
         continue-on-error: false
 
       - name: Cleanup

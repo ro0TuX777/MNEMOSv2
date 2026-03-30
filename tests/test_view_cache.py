@@ -58,3 +58,8 @@ def test_cache_hit_miss_and_invalidation_dry_run():
     assert key in live["impacted_keys"]
     assert cache.get(key) is None
 
+    stats = cache.stats()
+    assert stats["hit_count"] >= 1
+    assert stats["miss_count"] >= 1
+    assert stats["invalidation_event_count"] >= 2
+    assert stats["invalidated_key_total"] >= 1

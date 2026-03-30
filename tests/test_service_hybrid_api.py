@@ -21,7 +21,7 @@ def test_search_hybrid_valid_request_forwards_params(client, monkeypatch):
     captured: Dict[str, Any] = {}
 
     def fake_search_documents(query, top_k, tiers, filters, retrieval_mode, fusion_policy, explain,
-                              _governance=None, _explain_governance=None, _bounded_envelope=None,
+                              _governance=None, _explain_governance=None, _governance_profile=None, _bounded_envelope=None,
                               _derive_views=None):
         captured["query"] = query
         captured["top_k"] = top_k
@@ -79,7 +79,7 @@ def test_search_hybrid_filter_payload_forwarding(client, monkeypatch):
     captured: Dict[str, Any] = {}
 
     def fake_search_documents(query, top_k, tiers, filters, retrieval_mode, fusion_policy, explain,
-                              _governance=None, _explain_governance=None, _bounded_envelope=None,
+                              _governance=None, _explain_governance=None, _governance_profile=None, _bounded_envelope=None,
                               _derive_views=None):
         captured["filters"] = filters
         return {
@@ -198,3 +198,19 @@ def test_search_invalid_derive_views_entries_rejected(client):
     body = resp.get_json()
     assert body["error"] == "Invalid derive_views entries"
     assert "unknown_view" in body["invalid"]
+
+
+def test_search_invalid_governance_profile_rejected(client, monkeypatch):
+    monkeypatch.setattr(app_mod._runtime, "has_governance_profile", lambda _: False)
+    monkeypatch.setattr(app_mod._runtime, "governance_profiles", lambda: ["default", "tenant_finance"])
+    resp = client.post(
+        "/v1/mnemos/search",
+        json={
+            "query": "test",
+            "governance_profile": "tenant_unknown",
+        },
+    )
+    assert resp.status_code == 400
+    body = resp.get_json()
+    assert body["error"] == "Invalid governance_profile"
+    assert "tenant_finance" in body["supported_governance_profiles"]

@@ -180,6 +180,12 @@ class RetrievalRouter:
 
     def stats(self) -> Dict[str, Any]:
         out = dict(self._stats)
+        raw_total = max(1, int(out.get("candidate_pool_raw_count", 0)))
+        narrowed_total = int(out.get("candidate_pool_narrowed_count", 0))
+        out["candidate_envelope_avg_compression_ratio"] = round(
+            narrowed_total / raw_total, 4
+        )
+        out["candidate_envelope_total_reduction"] = max(0, raw_total - narrowed_total)
         out["supported_retrieval_modes"] = ["semantic", "hybrid"]
         out["supported_fusion_policies"] = sorted(FUSION_POLICIES.keys())
         return out
