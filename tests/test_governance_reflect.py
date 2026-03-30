@@ -490,3 +490,27 @@ class TestUsageDetector:
         r = _make_result(eid="m1")
         labels = det.detect(query="q", answer="a", results=[r], decisions=[])
         assert labels["m1"] == UsageLabel.UNKNOWN
+
+    def test_short_two_token_memory_is_ignored_by_precision_guard(self):
+        det = UsageDetector(overlap_threshold=0.15)
+        r = _make_result(eid="m1", content="system status")
+        d = _make_decision(r)
+        labels = det.detect(
+            query="q",
+            answer="the system status is green",
+            results=[r],
+            decisions=[d],
+        )
+        assert labels["m1"] == UsageLabel.IGNORED
+
+    def test_single_overlap_token_is_ignored_by_precision_guard(self):
+        det = UsageDetector(overlap_threshold=0.15)
+        r = _make_result(eid="m1", content="system status production")
+        d = _make_decision(r)
+        labels = det.detect(
+            query="q",
+            answer="the system is healthy",
+            results=[r],
+            decisions=[d],
+        )
+        assert labels["m1"] == UsageLabel.IGNORED
