@@ -402,6 +402,78 @@ class MnemosRuntime:
         payload["governance"] = self._governor.stats()
         return payload
 
+    def governance_reflect(
+        self,
+        query: str,
+        answer: str,
+        candidates: List[Dict],
+        cited_ids: Optional[List[str]] = None,
+        governance_mode: str = "advisory",
+    ) -> Dict[str, Any]:
+        """
+        Run the Wave 3 reflect loop for a completed query/answer pair.
+
+        ``candidates`` must be a list of engram dicts as returned by
+        /search (each entry needs at least ``id`` and ``content``; include
+        ``_governance`` for full reinforcement accuracy).
+
+        Governance metadata on the in-memory Engram objects is updated.
+        Callers that want durability should re-index the updated engrams.
+        """
+        from mnemos.engram.model import Engram
+        from mnemos.retrieval.base import SearchResult
+        from mnemos.governance.models.governance_decision import GovernanceDecision
+
+        payload = self._base_payload()
+        if self._governor is None:
+            payload["error"] = "Governance layer not initialized"
+            return payload
+
+        # Reconstruct lightweight SearchResult objects from the payload
+        results: List[SearchResult] = []
+        for c in candidates:
+            engram_dict = dict(c)
+            score = float(engram_dict.pop("score", 0.5))
+            tier = engram_dict.pop("tier", "reflect")
+            engram = Engram.from_dict(engram_dict)
+            results.append(SearchResult(engram=engram, score=score, tier=tier))
+
+        # Build minimal GovernanceDecisions from GovernanceMeta state
+        decisions: List[GovernanceDecision] = []
+        for r in results:
+            gov = r.engram.governance
+            veto_pass = True
+            suppressed_by_contradiction = False
+            if gov is not None:
+                veto_pass = (
+                    gov.deletion_state not in ("soft_deleted", "tombstone")
+                    and "toxic" not in gov.policy_flags
+                )
+                suppressed_by_contradiction = gov.conflict_status == "suppressed"
+            decisions.append(
+                GovernanceDecision(
+                    engram_id=r.engram.id,
+                    retrieval_score=r.score,
+                    governed_score=r.score,
+                    veto_pass=veto_pass,
+                    suppressed=(not veto_pass) or suppressed_by_contradiction,
+                    suppressed_by_contradiction=suppressed_by_contradiction,
+                    conflict_status=gov.conflict_status if gov else "none",
+                )
+            )
+
+        reflect_result = self._governor.reflect(
+            query=query,
+            answer=answer,
+            results=results,
+            decisions=decisions,
+            cited_ids=cited_ids,
+            governance_mode=governance_mode,
+        )
+
+        payload["reflect"] = reflect_result.to_dict()
+        return payload
+
     def get_stats(self) -> Dict[str, Any]:
         """Get system-wide statistics."""
         payload = self._base_payload()
@@ -468,6 +540,7 @@ def root():
             "audit": "/v1/mnemos/audit",
             "stats": "/v1/mnemos/stats",
             "governance_stats": "/v1/mnemos/governance/stats",
+            "governance_reflect": "/v1/mnemos/governance/reflect",
         },
     }), 200
 
@@ -612,6 +685,47 @@ def governance_stats():
     if err:
         return jsonify(err), 200
     return jsonify(_runtime.get_governance_stats()), 200
+
+
+@app.post("/v1/mnemos/governance/reflect")
+def governance_reflect():
+    if not _authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    err = _ensure_runtime()
+    if err:
+        return jsonify(err), 200
+
+    body = request.get_json(silent=True) or {}
+
+    query = body.get("query", "")
+    if not isinstance(query, str) or not query.strip():
+        return jsonify({"error": "query is required and must be a non-empty string"}), 400
+
+    answer = body.get("answer", "")
+    if not isinstance(answer, str):
+        return jsonify({"error": "answer must be a string"}), 400
+
+    candidates = body.get("candidates")
+    if not isinstance(candidates, list):
+        return jsonify({"error": "candidates must be a list of engram objects"}), 400
+
+    cited_ids = body.get("cited_ids")
+    if cited_ids is not None and not isinstance(cited_ids, list):
+        return jsonify({"error": "cited_ids must be a list of strings"}), 400
+
+    governance_mode = body.get("governance_mode", "advisory")
+    if governance_mode not in ("off", "advisory", "enforced"):
+        return jsonify({"error": "Invalid governance_mode"}), 400
+
+    return jsonify(
+        _runtime.governance_reflect(
+            query=query,
+            answer=answer,
+            candidates=candidates,
+            cited_ids=cited_ids,
+            governance_mode=governance_mode,
+        )
+    ), 200
 
 
 # ──────────────────── Entry point ────────────────────

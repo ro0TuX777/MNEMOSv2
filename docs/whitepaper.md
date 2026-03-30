@@ -318,6 +318,51 @@ The winner receives `contradiction_modifier = 1.0`; losers receive `0.25`. In en
 
 The governance mode can also be overridden per-request via the `governance` parameter on `POST /v1/mnemos/search`. The `explain_governance: true` parameter returns full modifier breakdowns and conflict state per result.
 
+**Reflect path (Wave 3):**
+
+After retrieval and governance evaluation, the reflect path closes the feedback loop. When the calling application sends back the generated answer alongside the candidate set (`POST /v1/mnemos/governance/reflect`), the `UsageDetector` assigns each memory a usage label:
+
+| Label | Signal |
+|---|---|
+| `USED` | Present in `cited_ids`, or word-overlap with answer ≥ threshold (default 15%) |
+| `IGNORED` | No overlap signal and not cited |
+| `CONTRADICTED` | Was a contradiction loser in the read-path decision |
+| `VETOED` | Failed a policy veto in the read path |
+
+Reinforcement is then applied in-place to each memory's `GovernanceMeta`:
+
+| Label | `utility_score` | `trust_score` | `stability` |
+|---|---|---|---|
+| `USED` | +0.05 | +0.02 | +0.02 |
+| `IGNORED` | −0.01 | — | — |
+| `CONTRADICTED` | −0.03 | −0.02 | — |
+| `VETOED` / `UNKNOWN` | — | — | — |
+
+All deltas are clamped to [0.0, 1.0]. The response includes `utility_deltas` and `trust_deltas` per memory for caller inspection. Persistence is caller-owned; the reflect endpoint is stateless with respect to the backend.
+
+**Validation Evidence:**
+
+The governance behavioral claims are backed by **Governance Validation Pack v1**, a formal proof artifact (`benchmarks/TEMP/Governance_Validation_Pack_v1.md`). The pack consists of 10 named scenarios, each mapping a specific failure mode to a deterministic, in-process test. The following guarantees are proven, not asserted:
+
+| Guarantee | Failure mode addressed |
+|---|---|
+| Reinforcement converges — used memories strengthen toward ceiling, not forever | Runaway score accumulation without a floor |
+| Ignored memories weaken over repeated cycles | Stale utility retention |
+| Contradiction winners and losers separate in utility over time | Contradiction resolution without reinforcement divergence |
+| Stale memories decay via ignore penalties before any backend hygiene run | Obsolete memory retaining pre-decay scores indefinitely |
+| Sub-3-character tokens produce no overlap signal — no false positives from zero-content memories | Short generic content matching every answer |
+| Contradiction state outranks lexical overlap — a loser stays `CONTRADICTED` even when it shares words with the winning answer | Contradiction loser accruing positive reinforcement through phrasing coincidence |
+| Overlap threshold is a documented precision/recall dial, not a hidden heuristic | Unknown precision behavior at deployment time |
+
+**Known precision boundaries (documented, not hidden):**
+
+- Two-token generic memories achieve 100% word overlap with any answer containing both tokens. At the default 0.15 threshold this is a classification false positive. Mitigations: raise the threshold above 0.50, or enforce a minimum content token count at write time.
+- The overlap detector is purely lexical. Proper-noun or entity-name overlap fires regardless of topical relevance. Semantic re-ranking is the long-term mitigation path.
+
+**Tested gaps (Wave 4 input):**
+
+Long-horizon calendar-based decay, contradiction sweep coverage for pairs not retrieved together in the same query, enforced-mode drift behavior, and trust recovery after contradiction penalty are documented as untested in the pack and are the explicit scope drivers for the Wave 4 hygiene runner.
+
 ---
 
 ## 5. API Contract
@@ -724,7 +769,7 @@ Any application that stores, enriches, retrieves, and audits knowledge â€” 
 8. **Process isolation** â€” Each infrastructure component (vector store, audit ledger, service) runs in its own container with independent health checks, volumes, and lifecycle.
 9. **SDK-first integration** â€” Consumer apps use the boundary SDK, never raw HTTP. This ensures readiness, retry, and degradation are handled consistently.
 10. **Tooling-complete** â€” Health audit, contract evolution, onboarding, CI gates, and cutover are included â€” not left as an exercise for the adopter.
-11. **Governance by design** â€” The governance layer is built into the read path, not bolted on. Memory quality scores, freshness decay, contradiction detection, and suppression policies are first-class concerns evaluated at query time. Advisory mode before enforced mode; benchmark evidence drives promotion.
+11. **Governance by design** â€” The governance layer is built into the read path, not bolted on. Reinforcement convergence, contradiction adjudication, freshness decay, and suppression policies are evaluated at query time with deterministic, tunable parameters. Behavioral guarantees are backed by formal validation evidence (Governance Validation Pack v1), not asserted by architecture language alone. Advisory mode before enforced mode; promotion requires benchmark evidence.
 
 ---
 
