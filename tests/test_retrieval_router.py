@@ -173,3 +173,7 @@ def test_router_phase2_bounded_envelope_applies_caps():
     assert env["enabled"] is True
     assert env["final_candidate_count"] == 3
     assert env["suppression_summary"]["source_cap_exceeded"] >= 1
+    stats = router.stats()
+    assert "candidate_envelope_avg_compression_ratio" in stats
+    assert stats["candidate_envelope_avg_compression_ratio"] > 0.0
+    assert "candidate_envelope_total_reduction" in stats

@@ -133,6 +133,7 @@ def run_phase5() -> Dict[str, Any]:
         "criteria": {
             "bounded_candidate_adherence_rate": 1.0,
             "proper_noun_sensitivity_rate_min": 0.9,
+            "generic_short_memory_false_positive_rate_max": 0.0,
             "trust_recovery_delta_min": 0.05,
             "enforced_mode_drift_rate_max": 0.0,
             "concurrent_reflect_success_rate_min": 0.95,
@@ -279,6 +280,7 @@ def render_phase5_report(payload: Dict[str, Any]) -> str:
         "|---|---:|---:|",
         f"| bounded_candidate_adherence_rate | {r['bounded_candidate_adherence_rate']:.4f} | 1.0000 |",
         f"| proper_noun_sensitivity_rate | {r['proper_noun_sensitivity_rate']:.4f} | >= 0.9000 |",
+        f"| generic_short_memory_false_positive_rate | {r['generic_short_memory_false_positive_rate']:.4f} | <= 0.0000 |",
         f"| trust_recovery_delta | {r['trust_recovery_delta']:.4f} | >= 0.0500 |",
         f"| enforced_mode_drift_rate | {r['enforced_mode_drift_rate']:.4f} | <= 0.0000 |",
         f"| concurrent_reflect_success_rate | {r['concurrent_reflect_success_rate']:.4f} | >= 0.9500 |",
@@ -450,6 +452,7 @@ def _phase5_pass(result: Dict[str, Any]) -> bool:
     return (
         result["bounded_candidate_adherence_rate"] == 1.0
         and result["proper_noun_sensitivity_rate"] >= 0.9
+        and result["generic_short_memory_false_positive_rate"] <= 0.0
         and result["trust_recovery_delta"] >= 0.05
         and result["enforced_mode_drift_rate"] <= 0.0
         and result["concurrent_reflect_success_rate"] >= 0.95

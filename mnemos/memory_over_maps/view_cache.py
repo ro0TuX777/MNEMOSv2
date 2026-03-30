@@ -84,19 +84,27 @@ class DerivedViewCache:
     def __init__(self, ttl_seconds: int = 3600):
         self._ttl_seconds = max(1, int(ttl_seconds))
         self._entries: Dict[str, CacheEntry] = {}
+        self._hit_count = 0
+        self._miss_count = 0
+        self._invalidation_event_count = 0
+        self._invalidated_key_total = 0
 
     def get(self, key: str) -> Optional[Dict[str, Any]]:
         entry = self._entries.get(key)
         if not entry:
+            self._miss_count += 1
             return None
         if entry.invalidated:
+            self._miss_count += 1
             return None
         now = time.time()
         if (now - entry.created_at) > self._ttl_seconds:
             entry.invalidated = True
             entry.invalidated_reason = "ttl_expired"
+            self._miss_count += 1
             return None
         entry.last_verified_at = now
+        self._hit_count += 1
         return dict(entry.view)
 
     def set(self, *, key: str, view: Dict[str, Any], dependency_refs: Dict[str, Any]) -> None:
@@ -127,6 +135,9 @@ class DerivedViewCache:
                 if not dry_run:
                     entry.invalidated = True
                     entry.invalidated_reason = reason
+        self._invalidation_event_count += 1
+        if not dry_run:
+            self._invalidated_key_total += len(impacted)
         return {
             "event_type": event_type,
             "dry_run": dry_run,
@@ -175,9 +186,20 @@ class DerivedViewCache:
 
     def stats(self) -> Dict[str, Any]:
         invalidated = sum(1 for e in self._entries.values() if e.invalidated)
+        total_lookups = self._hit_count + self._miss_count
+        avg_fanout = (
+            self._invalidated_key_total / self._invalidation_event_count
+            if self._invalidation_event_count
+            else 0.0
+        )
         return {
             "entry_count": len(self._entries),
             "invalidated_count": invalidated,
             "ttl_seconds": self._ttl_seconds,
+            "hit_count": self._hit_count,
+            "miss_count": self._miss_count,
+            "hit_ratio": round(self._hit_count / total_lookups, 4) if total_lookups else 0.0,
+            "invalidation_event_count": self._invalidation_event_count,
+            "invalidated_key_total": self._invalidated_key_total,
+            "avg_invalidation_fanout": round(avg_fanout, 4),
         }
-

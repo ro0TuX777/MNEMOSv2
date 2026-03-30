@@ -44,6 +44,7 @@ def test_phase5_reflect_runner_meets_baseline_targets():
     result = run_phase5_reflect_bounded_track().to_dict()
     assert result["bounded_candidate_adherence_rate"] == 1.0
     assert result["proper_noun_sensitivity_rate"] >= 0.9
+    assert result["generic_short_memory_false_positive_rate"] <= 0.0
     assert result["trust_recovery_delta"] >= 0.05
     assert result["enforced_mode_drift_rate"] <= 0.0
     assert result["concurrent_reflect_success_rate"] >= 0.95

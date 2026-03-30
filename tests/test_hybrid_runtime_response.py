@@ -154,6 +154,9 @@ def test_runtime_phase2_candidate_envelope_meta_exposed_when_enabled():
 
     assert router.last_kwargs["bounded_envelope"] == {"enabled": True, "candidate_pool_limit": 5}
     assert "candidate_envelope" in out["meta"]
+    assert out["meta"]["economics"]["candidate_envelope_initial"] == 7
+    assert out["meta"]["economics"]["candidate_envelope_final"] == 5
+    assert out["meta"]["economics"]["candidate_envelope_compression_ratio"] == 0.7143
 
 
 def test_runtime_phase3_derived_views_generated_when_enabled():
@@ -234,3 +237,6 @@ def test_runtime_phase4_derived_view_cache_hit_and_invalidate():
         dry_run=False,
     )
     assert trace["impacted_keys"]
+    stats = rt.get_stats()["stats"]["economics"]
+    assert stats["invalidation_event_count"] >= 1
+    assert stats["invalidation_fanout_total"] >= 1

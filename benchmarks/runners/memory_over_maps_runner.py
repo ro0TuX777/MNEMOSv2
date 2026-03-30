@@ -85,6 +85,7 @@ class Phase4CacheInvalidationResult:
 class Phase5ReflectBoundedResult:
     bounded_candidate_adherence_rate: float
     proper_noun_sensitivity_rate: float
+    generic_short_memory_false_positive_rate: float
     trust_recovery_delta: float
     enforced_mode_drift_rate: float
     concurrent_reflect_success_rate: float
@@ -490,6 +491,22 @@ def run_phase5_reflect_bounded_track() -> Phase5ReflectBoundedResult:
     latency_1 = (time.perf_counter() - t0) * 1000.0
     proper_rate = 1.0 if "mem-alice" in pn.used_ids else 0.0
 
+    # 2b) Short generic memory false-positive check.
+    generic = _mk_reflect_candidate(
+        eid="mem-generic",
+        content="system status",
+        trust=0.5,
+    )
+    generic_result = reflect.reflect(
+        query="What is the uptime posture?",
+        answer="The system status is healthy and green.",
+        results=[generic],
+        decisions=_mk_decisions([generic]),
+        cited_ids=None,
+        governance_mode="advisory",
+    )
+    generic_false_positive_rate = 1.0 if "mem-generic" in generic_result.used_ids else 0.0
+
     # 3) Trust recovery via repeated bounded reflective confirmations.
     recovery = _mk_reflect_candidate(
         eid="mem-recovery",
@@ -579,6 +596,7 @@ def run_phase5_reflect_bounded_track() -> Phase5ReflectBoundedResult:
     return Phase5ReflectBoundedResult(
         bounded_candidate_adherence_rate=round(adherence_hits / adherence_checks, 4) if adherence_checks else 0.0,
         proper_noun_sensitivity_rate=round(proper_rate, 4),
+        generic_short_memory_false_positive_rate=round(generic_false_positive_rate, 4),
         trust_recovery_delta=round(trust_after - trust_before, 4),
         enforced_mode_drift_rate=round(drift_rate, 4),
         concurrent_reflect_success_rate=round(successes / runs, 4) if runs else 0.0,
