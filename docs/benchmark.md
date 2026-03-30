@@ -5,6 +5,18 @@
 
 ---
 
+## Runtime vs Dev Execution
+
+- **Runtime deployment:** MNEMOS serving components are expected to run as Docker Compose services (containerized runtime).
+- **Developer execution:** benchmark runners, tooling scripts, and test commands are generally run from host Python unless noted otherwise.
+
+## Enhancement Roadmap
+
+- Program roadmap and 30/60/90 execution plan: `docs/mnemosv2_enhancement_roadmap.md`
+- Operator release/incident runbook: `docs/mnemos_operator_playbook.md`
+
+---
+
 ## Test Environment
 
 | Property | Value |
@@ -32,7 +44,7 @@ Phase-gated implementation and validation for the Memory Over Maps lane has been
 | Phase 2 | M2 candidate envelope efficiency | PASS | compression ratio 0.7500, answer-support retention 0.7500 |
 | Phase 3 | M3 on-demand view reproducibility | PASS | reproducibility 1.0000, regeneration mismatches 0 |
 | Phase 4 | M4 cache invalidation correctness | PASS | trigger coverage 1.0000, stale cache survival 0.0000, dry-run parity true |
-| Phase 5 | M5 bounded semantic reflect evolution | PASS | bounded adherence 1.0000, trust recovery delta +0.0800, concurrent success 1.0000 |
+| Phase 5 | M5 bounded semantic reflect evolution | PASS | bounded adherence 1.0000, short-memory false-positive rate 0.0000, trust recovery delta +0.0800, concurrent success 1.0000 |
 
 ### Artifacts
 
@@ -1062,15 +1074,18 @@ A new enterprise retrieval profile is only added if benchmark outcomes produce a
 
 ---
 
-## Governance Layer: MemArchitect Waves 1 & 2
+## Governance Layer: MemArchitect Waves 1–4
 
-**Product question:** *What does a governed read path look like, and does it produce correct decisions?*
+**Product question:** *What does a governed, self-maintaining memory system look like, and does it produce correct, provably-convergent decisions?*
 
 ### What Was Implemented
 
-Wave 1 and Wave 2 of the MemArchitect governance layer were implemented and test-verified in-codebase (2026-03-30). No infrastructure is required — governance is a pure in-process layer applied post-retrieval inside the existing search path.
+Waves 1–4 of the MemArchitect governance layer were implemented and test-verified in-codebase (2026-03-30). No infrastructure is required — governance is a pure in-process layer applied post-retrieval and as a background hygiene pass. Behavioral guarantees are backed by Governance Validation Pack v1 (`benchmarks/TEMP/Governance_Validation_Pack_v1.md`).
+
+### Waves 1–2 (Query-time governance)
 
 **Wave 1 — Per-candidate policy pipeline**
+
 
 | Component | Description |
 |---|---|
@@ -1114,14 +1129,65 @@ Contradiction winner selection priority (highest first):
 
 Modifiers: winner → `1.0` (no penalty), loser → `0.25`.
 
+### Wave 3 — Reflect path (post-generation reinforcement)
+
+| Component | Description |
+|---|---|
+| `UsageDetector` | Assigns each candidate a `UsageLabel`: `USED` (cited or word-overlap ≥ threshold), `IGNORED`, `CONTRADICTED`, `VETOED`, `UNKNOWN`. Signal priority: veto → contradiction loser → explicit cited_ids → word overlap → IGNORED |
+| `Reinforcement` | Deterministic delta rules applied to `GovernanceMeta` in place: USED (+0.05 utility, +0.02 trust, +0.02 stability), IGNORED (−0.01 utility), CONTRADICTED (−0.03 utility, −0.02 trust). All clamped to [0, 1] |
+| `ReflectPath` | Calls `UsageDetector`, buckets by label, applies `Reinforcement`, returns `ReflectResult` with per-memory deltas and summary counts |
+| `ReflectResult` | Dataclass: `used_ids`, `ignored_ids`, `contradicted_ids`, `vetoed_ids`, `utility_deltas`, `trust_deltas`, `total_reinforced`, `total_penalized` |
+| `ReflectMetrics` | Thread-safe accumulator: 7 counters merged into `Governor.stats()` |
+| `Governor.reflect()` | Entry point; calls `ReflectPath`; records to `ReflectMetrics` |
+| `POST /v1/mnemos/governance/reflect` | REST endpoint; accepts `query`, `answer`, `candidates` (inline JSON), optional `cited_ids`, `governance_mode`; returns `ReflectResult` as JSON |
+
+Overlap threshold: 15% default (fraction of memory tokens present in answer). Tunable via `UsageDetector(overlap_threshold=...)`. Precision-first: known false-positive cases documented in Governance Validation Pack v1.
+
+### Wave 4 — Hygiene path (background memory health)
+
+| Component | Description |
+|---|---|
+| `DecayRunner` | Linear utility decay past inactivity horizon (`horizon_days=60`). `lifecycle_state → "stale"` when `utility_score < stale_threshold` (default 0.20). `last_used_at` takes priority over `created_at`. Floor at `min_utility=0.0`. Dry-run mode |
+| `PrunePromoter` | Composite score floor promotion: `utility × trust × contradiction_factor < composite_floor (0.05)` → `lifecycle_state = "prune_candidate"`. Stale memories always promoted when `respect_stale_state=True`. Dry-run mode |
+| `ContradictionSweepRunner` | Offline entity-slot contradiction detection over full corpus. Groups by `(entity_key, attribute_key)`, calls `ContradictionPolicy.detect_and_resolve()`, writes `conflict_status`/`conflict_group_id`/`superseded_by` back to `GovernanceMeta`. Dry-run mode |
+| `HygienePipeline` | Chains all three in order: decay → prune → sweep. Single `run(engrams, dry_run=False)` call. Returns `HygienePipelineReport` with per-runner sub-reports and `total_mutations` |
+| `HygieneMetrics` | Thread-safe accumulator: 4 counters (`total_decay_runs`, `total_stale_promoted`, `total_prune_candidates`, `total_contradiction_sweep_clusters`) merged into `Governor.stats()` |
+| `Governor.run_hygiene()` | Entry point; accepts optional `DecayConfig`/`PruneConfig` overrides; records to `HygieneMetrics` |
+
+**Non-destructive posture:** hygiene runners only set lifecycle state (`stale`, `prune_candidate`). No physical deletion. No irreversible consolidation.
+
+### Policy Profiles (per-tenant governance tuning)
+
+`GovernancePolicyProfile` is a frozen dataclass encapsulating all tunable governance parameters for a named tenant or deployment context. Profiles allow independent tuning of read-path thresholds, reflect-path precision, and reinforcement deltas without restarting the service.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `min_score_threshold` | `0.0` | Veto floor for retrieval score |
+| `freshness_half_life_days` | `180.0` | Freshness decay half-life |
+| `overlap_threshold` | `0.15` | Word-overlap threshold for USED classification in reflect path |
+| `min_memory_tokens_for_overlap` | `3` | Minimum token length for inclusion in memory word set |
+| `min_overlap_tokens` | `2` | Minimum matched tokens required for USED classification |
+| `utility_used / ignored / contradiction_loser` | `+0.05 / −0.01 / −0.03` | Utility reinforcement deltas |
+| `trust_used / ignored / contradiction_loser` | `+0.02 / 0.0 / −0.02` | Trust reinforcement deltas |
+| `stability_used` | `+0.02` | Stability reinforcement delta |
+
+Profiles are loaded from `MNEMOS_GOVERNANCE_POLICY_PROFILES_JSON` (a JSON object mapping profile name → parameter overrides). The `"default"` profile always exists. Per-request profile selection via the `governance_profile` parameter on `POST /v1/mnemos/search` and `POST /v1/mnemos/governance/reflect`. Active profile IDs are reported in `GET /v1/mnemos/governance/stats`.
+
 ### Test Coverage
 
 | Suite | Tests | Result |
 |---|---:|---|
-| `test_governance.py` (Wave 1 core, updated for 3-tuple return) | 42 | Pass |
+| `test_governance.py` (Wave 1 core, 3-tuple return) | 42 | Pass |
 | `test_governance_contradictions.py` (Wave 2 contradiction detection) | 25 | Pass |
-| `test_service_hybrid_api.py` (API integration, governance-aware signatures) | 7 | Pass |
-| Full suite (all test files, excluding infra-dependent Qdrant tier) | **153** | **Pass** |
+| `test_governance_reflect.py` (Wave 3 reflect path) | 35 | Pass |
+| `test_governance_drift_validation.py` (Governance Validation Pack v1 — 10 scenarios) | 33 | Pass |
+| `test_hygiene_decay.py` (Wave 4 decay runner) | 19 | Pass |
+| `test_hygiene_prune.py` (Wave 4 prune promoter) | 20 | Pass |
+| `test_hygiene_contradiction_sweep.py` (Wave 4 offline sweep) | 14 | Pass |
+| `test_hygiene_pipeline.py` (Wave 4 pipeline + Governor integration) | 8 | Pass |
+| `test_governance_policy_profiles.py` (per-tenant policy profile loading) | 3 | Pass |
+| `test_service_hybrid_api.py` (API integration) | 7 | Pass |
+| Full suite (excluding infra-dependent Qdrant tier) | **321** | **Pass** |
 
 ### Current Governance Posture
 
@@ -1159,10 +1225,12 @@ Environment variables:
 
 ### Next Governance Steps
 
-1. Collect advisory-mode governance summaries on a real corpus to inspect governed score distributions and reorder rates before enabling enforced mode.
-2. Define evidence thresholds for enforced-mode promotion (analogous to Gate A/B/C for retrieval).
-3. Implement Wave 3 — background hygiene jobs: freshness decay, prune candidate promotion, consolidation, and delete cascade — after advisory data is available.
-4. Benchmark contradiction detection precision on real-world entity-slot data to validate the 5-level winner priority chain.
+1. **Governance benchmark pack (A1)** — compare `governance=off` vs `advisory` vs `enforced` on fixture data; measure contradiction leakage rate, stale-memory leakage, irrelevant inclusion, ranking delta after reflect cycles.
+2. **Explain-payload review pack (A3)** — human-readable audit of real governance decisions from realistic queries.
+3. **Threshold tuning report (A4)** — formalize overlap threshold, freshness half-life, veto floor, contradiction modifiers, and reinforcement deltas with evidence from real corpus runs.
+4. **Persistence shim (B1–B4)** — make trust/utility/stability/lifecycle/contradiction outcomes durable across service restarts.
+
+See MemArchitect Completion Program: `benchmarks/TEMP/MNEMOS_MemArchitect_Completion_Program.md`
 
 ---
 

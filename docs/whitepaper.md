@@ -7,8 +7,11 @@
 > [!NOTE]
 > **As of March 30, 2026:** Benchmark conclusions in this whitepaper are date-scoped to the current measured runs.
 > For full methodology, raw artifacts, and latest updates, see `docs/benchmark.md`.
-> **Governance layer (MemArchitect Waves 1 & 2) is implemented** — per-candidate policy pipeline, entity-slot contradiction detection, and advisory/enforced read path modes. Default mode is `off` (conservative); advisory benchmarking against real corpus is the next step before enforced-mode promotion.
+> For release, promotion, rollback, and incident execution runbooks, see `docs/mnemos_operator_playbook.md`.
+> **Governance layer (MemArchitect Waves 1–3) is implemented** — per-candidate policy pipeline, entity-slot contradiction detection, and reflect-path reinforcement are in place; Wave 4 hygiene remains the next expansion lane.
 > **Memory Over Maps Phases 1–5 are implemented and benchmark-gated** — source-grounded lineage, bounded candidate envelope, on-demand derived views, cache + invalidation, and bounded semantic reflect evolution all passed phase gates on March 30, 2026.
+> **Deployment model:** MNEMOS runtime services are deployed as a Docker Compose stack; all serving components run in containers.
+> **Developer model:** tooling, benchmarks, and tests are typically run from host Python unless explicitly containerized.
 
 ---
 
@@ -44,10 +47,13 @@ MNEMOS is **application-agnostic** â€” it knows nothing about the domain of
 - **Guided installer** â€” Q/A + host probes â†’ profile recommendation â†’ compose + env + manifest generation
 - **Profile benchmarks** â€” per-profile retrieval latency, recall, and throughput data
 - **Deployment manifest** â€” `mnemos_profile.yaml` as durable deployment artifact
-- **Governance layer (MemArchitect Waves 1 & 2)** â€” per-candidate policy pipeline (veto, freshness decay, trust/utility modifiers) and cross-candidate entity-slot contradiction detection; advisory and enforced read path modes; default is `off` pending advisory benchmarking
+- **Governance layer (MemArchitect Waves 1-3)** â€” per-candidate policy pipeline (veto, freshness decay, trust/utility modifiers), cross-candidate entity-slot contradiction detection, and reflect-path reinforcement; advisory and enforced read path modes; default is `off` pending advisory benchmarking
 - **Memory Over Maps lane (Phases 1â€“5)** â€” source-grounded artifact lineage, deterministic candidate narrowing, on-demand derived views, deterministic cache + invalidation with dry-run parity, and bounded semantic reflect benchmark pack
+- **Operator playbook** â€” single operational runbook for deploy/promote/rollback/incident execution (`docs/mnemos_operator_playbook.md`)
 
 MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of **operational tools** (health audit, contract evolution, onboarding, CI gates, and staged cutover) â€” making it a complete platform that can be deployed with a single `python -m installer`.
+
+Operationally, the current architecture posture is: fast retrieval substrate + governed memory controls + source-grounded, bounded, on-demand synthesis.
 
 ---
 
@@ -340,7 +346,7 @@ Reinforcement is then applied in-place to each memory's `GovernanceMeta`:
 | `CONTRADICTED` | −0.03 | −0.02 | — |
 | `VETOED` / `UNKNOWN` | — | — | — |
 
-All deltas are clamped to [0.0, 1.0]. The response includes `utility_deltas` and `trust_deltas` per memory for caller inspection. Persistence is caller-owned; the reflect endpoint is stateless with respect to the backend.
+All deltas are clamped to [0.0, 1.0]. The response includes `utility_deltas` and `trust_deltas` per memory for caller inspection. Persistence of governance score updates is caller-owned; the reflect endpoint is stateless with respect to backend score mutation. This is separate from derived-view caching in Memory Over Maps, which stores reproducible read artifacts and invalidates them deterministically without persisting governance mutations.
 
 **Validation Evidence:**
 
@@ -361,9 +367,25 @@ The governance behavioral claims are backed by **Governance Validation Pack v1**
 - Two-token generic memories achieve 100% word overlap with any answer containing both tokens. At the default 0.15 threshold this is a classification false positive. Mitigations: raise the threshold above 0.50, or enforce a minimum content token count at write time.
 - The overlap detector is purely lexical. Proper-noun or entity-name overlap fires regardless of topical relevance. Semantic re-ranking is the long-term mitigation path.
 
-**Tested gaps (Wave 4 input):**
+**Wave 4 — Hygiene path (background memory health):**
 
-Long-horizon calendar-based decay, contradiction sweep coverage for pairs not retrieved together in the same query, enforced-mode drift behavior, and trust recovery after contradiction penalty are documented as untested in the pack and are the explicit scope drivers for the Wave 4 hygiene runner.
+Three runners, chained by `HygienePipeline`, handle long-horizon memory health between query cycles:
+
+| Runner | What it does |
+|---|---|
+| `DecayRunner` | Linear utility decay past inactivity horizon (default 60 days). Sets `lifecycle_state = "stale"` when `utility_score < 0.20`. `last_used_at` takes priority over `created_at`. Floor at 0.0. |
+| `PrunePromoter` | Composite score floor: `utility × trust × contradiction_factor < 0.05` → `lifecycle_state = "prune_candidate"`. Stale memories always promoted. |
+| `ContradictionSweepRunner` | Offline entity-slot contradiction detection over the full corpus. Catches contradictions between memories never co-retrieved in the same query context. Reuses `ContradictionPolicy` resolution logic. |
+
+All runners support `dry_run=True` (compute report, mutate nothing). No physical deletion. No irreversible consolidation. `Governor.run_hygiene()` is the single entry point; hygiene counters are reported via `GET /v1/mnemos/governance/stats`.
+
+**Per-tenant policy profiles:**
+
+`GovernancePolicyProfile` allows per-tenant tuning of read-path thresholds, reflect-path precision, and all reinforcement deltas without restarting the service. Profiles are loaded from `MNEMOS_GOVERNANCE_POLICY_PROFILES_JSON`. The `"default"` profile always exists; additional profiles are selected per-request via `governance_profile` on `POST /v1/mnemos/search` and `POST /v1/mnemos/governance/reflect`.
+
+**Validated gaps (tested in Wave 4):**
+
+Long-horizon calendar-based decay, offline contradiction sweep coverage, and stale-state lifecycle transitions were documented as untested in Validation Pack v1 and are now covered by 61 Wave 4 tests. Remaining open gaps: enforced-mode drift divergence, trust recovery after contradiction penalty, and concurrent reflect cycle safety — scheduled for Phase 2 (persistence) and beyond.
 
 ---
 
@@ -801,7 +823,8 @@ Any application that stores, enriches, retrieves, and audits knowledge â€” 
 8. **Process isolation** â€” Each infrastructure component (vector store, audit ledger, service) runs in its own container with independent health checks, volumes, and lifecycle.
 9. **SDK-first integration** â€” Consumer apps use the boundary SDK, never raw HTTP. This ensures readiness, retry, and degradation are handled consistently.
 10. **Tooling-complete** â€” Health audit, contract evolution, onboarding, CI gates, and cutover are included â€” not left as an exercise for the adopter.
-11. **Governance by design** â€” The governance layer is built into the read path, not bolted on. Reinforcement convergence, contradiction adjudication, freshness decay, and suppression policies are evaluated at query time with deterministic, tunable parameters. Behavioral guarantees are backed by formal validation evidence (Governance Validation Pack v1), not asserted by architecture language alone. Advisory mode before enforced mode; promotion requires benchmark evidence.
+11. **Governance by design** â€” The governance layer is built into the read path, not bolted on. Reinforcement convergence, contradiction adjudication, freshness decay, suppression policies, and background hygiene are evaluated with deterministic, tunable parameters. Per-tenant policy profiles allow threshold and delta tuning without service restarts. Behavioral guarantees are backed by formal validation evidence (Governance Validation Pack v1), not asserted by architecture language alone. Advisory mode before enforced mode; promotion requires benchmark evidence.
+12. **Non-destructive hygiene** â€” Memory health management uses state transitions, not deletions. The hygiene path promotes memories to `stale` or `prune_candidate`; deletion and consolidation are explicit, operator-gated actions. This keeps the governance story auditable and reversible at every stage.
 
 ---
 

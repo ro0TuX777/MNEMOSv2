@@ -58,8 +58,15 @@ class UsageDetector:
             Prefer precision: raise this threshold to avoid false used labels.
     """
 
-    def __init__(self, overlap_threshold: float = 0.15) -> None:
+    def __init__(
+        self,
+        overlap_threshold: float = 0.15,
+        min_memory_tokens_for_overlap: int = 3,
+        min_overlap_tokens: int = 2,
+    ) -> None:
         self._threshold = overlap_threshold
+        self._min_memory_tokens_for_overlap = max(1, int(min_memory_tokens_for_overlap))
+        self._min_overlap_tokens = max(1, int(min_overlap_tokens))
 
     # ── Public API ────────────────────────────────────────────────────────
 
@@ -118,11 +125,13 @@ class UsageDetector:
 
             # Signal 2 — answer-text overlap
             memory_words = _word_set(result.engram.content)
-            if memory_words:
-                overlap = len(answer_words & memory_words) / len(memory_words)
-                if overlap >= self._threshold:
-                    labels[eid] = UsageLabel.USED
-                    continue
+            if len(memory_words) >= self._min_memory_tokens_for_overlap:
+                overlap_tokens = answer_words & memory_words
+                if len(overlap_tokens) >= self._min_overlap_tokens:
+                    overlap = len(overlap_tokens) / len(memory_words)
+                    if overlap >= self._threshold:
+                        labels[eid] = UsageLabel.USED
+                        continue
 
             # Default
             labels[eid] = UsageLabel.IGNORED

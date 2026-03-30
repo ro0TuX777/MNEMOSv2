@@ -1,4 +1,4 @@
-"""
+﻿"""
 Governance drift validation and false-credit inspection pack.
 
 Purpose
@@ -7,25 +7,25 @@ Verify that the Wave 3 reflect loop produces sensible long-run behavior:
 
   Drift scenarios (run N sequential reflect cycles, inspect convergence)
   -----------------------------------------------------------------------
-  Scenario A — repeated winner cited
-  Scenario B — repeated distractor ignored
-  Scenario C — contradiction winner cited repeatedly
-  Scenario D — stale value ignored repeatedly
-  Scenario E — short generic distractor vs longer grounded candidate
+  Scenario A â€” repeated winner cited
+  Scenario B â€” repeated distractor ignored
+  Scenario C â€” contradiction winner cited repeatedly
+  Scenario D â€” stale value ignored repeatedly
+  Scenario E â€” short generic distractor vs longer grounded candidate
 
   False-credit inspection (overlap detector failure modes)
   ---------------------------------------------------------
-  Scenario F — long answer with multi-candidate surface overlap
-  Scenario G — short generic memory content near classification boundary
-  Scenario H — contradiction loser with phrasing overlap (priority ordering)
-  Scenario I — semantically similar but lexically distinct distractor
-  Scenario J — threshold boundary: raising threshold reclassifies borderline
+  Scenario F â€” long answer with multi-candidate surface overlap
+  Scenario G â€” short generic memory content near classification boundary
+  Scenario H â€” contradiction loser with phrasing overlap (priority ordering)
+  Scenario I â€” semantically similar but lexically distinct distractor
+  Scenario J â€” threshold boundary: raising threshold reclassifies borderline
 
 Design notes
 ------------
 - All scenarios run entirely in-process on the same Engram objects.
 - No backend infrastructure required.
-- Assertions check direction, convergence, and bounds — not exact values.
+- Assertions check direction, convergence, and bounds â€” not exact values.
 - Drift tables can be printed with ``pytest -s`` for manual inspection.
 """
 
@@ -42,7 +42,7 @@ from mnemos.governance.reflect_path import ReflectPath
 from mnemos.retrieval.base import SearchResult
 
 
-# ── Shared helpers ────────────────────────────────────────────────────────────
+# â”€â”€ Shared helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 def _make_result(
@@ -106,7 +106,7 @@ def _scores(r: SearchResult) -> tuple[float, float, float]:
     return g.utility_score, g.trust_score, g.stability_score
 
 
-# ── Scenario A: Repeated winner cited ────────────────────────────────────────
+# â”€â”€ Scenario A: Repeated winner cited â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 class TestScenarioA_RepeatedWinner:
@@ -186,7 +186,7 @@ class TestScenarioA_RepeatedWinner:
             assert ts is not None
             timestamps.add(ts)
 
-        # Timestamps should be set (all equal is fine — fast test; set size >= 1)
+        # Timestamps should be set (all equal is fine â€” fast test; set size >= 1)
         assert len(timestamps) >= 1
 
     def test_scores_do_not_exceed_max(self, capsys):
@@ -200,7 +200,7 @@ class TestScenarioA_RepeatedWinner:
             u, t, s = _scores(r)
             history.append((i + 1, round(u, 4), round(t, 4), round(s, 4)))
 
-        print("\nScenario A — repeated winner drift:")
+        print("\nScenario A â€” repeated winner drift:")
         print(f"  {'cycle':>5}  {'utility':>8}  {'trust':>8}  {'stability':>10}")
         for cycle, u, t, s in history:
             print(f"  {cycle:>5}  {u:>8.4f}  {t:>8.4f}  {s:>10.4f}")
@@ -208,7 +208,7 @@ class TestScenarioA_RepeatedWinner:
         assert all(u <= 1.0 and t <= 1.0 and s <= 1.0 for _, u, t, s in history)
 
 
-# ── Scenario B: Repeated distractor ignored ──────────────────────────────────
+# â”€â”€ Scenario B: Repeated distractor ignored â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 class TestScenarioB_RepeatedDistractor:
@@ -277,13 +277,13 @@ class TestScenarioB_RepeatedDistractor:
             u, t, s = _scores(r)
             history.append((i + 1, round(u, 4), round(t, 4)))
 
-        print("\nScenario B — repeated distractor drift:")
+        print("\nScenario B â€” repeated distractor drift:")
         print(f"  {'cycle':>5}  {'utility':>8}  {'trust':>8}")
         for cycle, u, t in history:
             print(f"  {cycle:>5}  {u:>8.4f}  {t:>8.4f}")
 
 
-# ── Scenario C: Contradiction winner cited repeatedly ────────────────────────
+# â”€â”€ Scenario C: Contradiction winner cited repeatedly â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 class TestScenarioC_ContradictionWinnerCited:
@@ -334,7 +334,7 @@ class TestScenarioC_ContradictionWinnerCited:
         dl = _make_decision(loser, suppressed_by_contradiction=True)
         rp = ReflectPath()
 
-        print("\nScenario C — contradiction winner vs loser drift:")
+        print("\nScenario C â€” contradiction winner vs loser drift:")
         print(f"  {'cycle':>5}  {'win_util':>9}  {'lose_util':>10}  {'separation':>11}")
         for i in range(self.N):
             _cycle(rp, [winner, loser], [dw, dl],
@@ -344,14 +344,14 @@ class TestScenarioC_ContradictionWinnerCited:
             print(f"  {i+1:>5}  {wu:>9.4f}  {lu:>10.4f}  {wu-lu:>11.4f}")
 
 
-# ── Scenario D: Stale value ignored repeatedly ───────────────────────────────
+# â”€â”€ Scenario D: Stale value ignored repeatedly â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 class TestScenarioD_StaleValueIgnored:
     """
     A stale memory never cited and with no answer overlap should lose utility
     steadily over many cycles. This simulates a value that used to be relevant
-    but has been superseded — it should naturally decay toward low priority.
+    but has been superseded â€” it should naturally decay toward low priority.
     """
 
     N = 30
@@ -390,13 +390,13 @@ class TestScenarioD_StaleValueIgnored:
                 _cycle(rp, [r], [d], "q", self.ANSWER, cited_ids=None)
             history.append((i + 5, round(r.engram.governance.utility_score, 4)))
 
-        print("\nScenario D — stale value decay:")
+        print("\nScenario D â€” stale value decay:")
         print(f"  {'cycle':>5}  {'utility':>8}")
         for cycle, u in history:
             print(f"  {cycle:>5}  {u:>8.4f}")
 
 
-# ── Scenario E: Short generic vs longer grounded candidate ───────────────────
+# â”€â”€ Scenario E: Short generic vs longer grounded candidate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 class TestScenarioE_GenericVsGrounded:
@@ -419,7 +419,7 @@ class TestScenarioE_GenericVsGrounded:
         "deployment configuration core appliance profile uses Qdrant vector "
         "backend PostgreSQL audit ledger governance mode defaults off"
     )
-    GENERIC = "it on"  # all tokens < 3 chars — fall below word-set floor
+    GENERIC = "it on"  # all tokens < 3 chars â€” fall below word-set floor
 
     def test_grounded_ends_higher_than_generic(self):
         r_grounded = _make_result("grounded", content=self.GROUNDED, utility=0.5)
@@ -442,7 +442,7 @@ class TestScenarioE_GenericVsGrounded:
     def test_short_content_below_word_floor_not_false_positive(self):
         """
         Content with only tokens shorter than 3 characters cannot match
-        anything — the word set will be empty and overlap defaults to 0.
+        anything â€” the word set will be empty and overlap defaults to 0.
         """
         r = _make_result("generic", content="it is at my")  # all tokens < 3 chars
         d = _make_decision(r)
@@ -453,11 +453,11 @@ class TestScenarioE_GenericVsGrounded:
             results=[r],
             decisions=[d],
         )
-        # Empty memory word set → overlap=0.0 → IGNORED
+        # Empty memory word set â†’ overlap=0.0 â†’ IGNORED
         assert labels["generic"] == UsageLabel.IGNORED
 
 
-# ── Scenario F: Long answer with multi-candidate surface overlap ──────────────
+# â”€â”€ Scenario F: Long answer with multi-candidate surface overlap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 class TestScenarioF_LongAnswerMultiOverlap:
@@ -514,43 +514,39 @@ class TestScenarioF_LongAnswerMultiOverlap:
         label_strict = det_strict.detect(query="q", answer=self.ANSWER,
                                          results=[r], decisions=[d])["common"]
 
-        # Document what each threshold produces — this is the inspection output
+        # Document what each threshold produces â€” this is the inspection output
         print(f"\nScenario F boundary: default={label_default.value} strict={label_strict.value}")
 
         # At strict threshold the borderline candidate must be IGNORED
         assert label_strict == UsageLabel.IGNORED
 
 
-# ── Scenario G: Short generic memory near classification boundary ─────────────
+# â”€â”€ Scenario G: Short generic memory near classification boundary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 class TestScenarioG_ShortGenericBoundary:
     """
     Short, generic memory content near the overlap threshold boundary.
-    Documents the threshold at which the precision-first rule holds.
+    Documents precision-guard behavior under default settings.
     """
 
     def test_two_word_content_ignored_at_default_threshold(self):
-        """2-token content can only achieve 0% or 100% overlap — binary."""
+        """2-token content is blocked by precision guards at default settings."""
         r = _make_result("g", content="system status")
         d = _make_decision(r)
         det = UsageDetector(overlap_threshold=0.15)
-        # answer contains "system" and "status"
         labels = det.detect(
             query="q",
             answer="the system status is green and all services are running",
             results=[r],
             decisions=[d],
         )
-        # Both tokens appear in answer → 100% overlap → USED at 0.15 threshold
-        # This is the known false-positive case for generic 2-token content
-        assert labels["g"] == UsageLabel.USED
+        assert labels["g"] == UsageLabel.IGNORED
 
-    def test_raising_threshold_reclassifies_generic_to_ignored(self):
+    def test_raising_threshold_still_reclassifies_weak_overlap(self):
         """
-        At 0.50+ threshold, a 2-token memory classified USED at 0.15 should
-        still be USED (100% overlap) — but a 5-token memory with 1 matching
-        word (20% overlap) would drop below 0.50 and become IGNORED.
+        Threshold tuning still applies to normal-length memories once they pass
+        minimum token-count guards.
         """
         r = _make_result("g5", content="system status active recent deployment")
         d = _make_decision(r)
@@ -558,7 +554,6 @@ class TestScenarioG_ShortGenericBoundary:
         det_low = UsageDetector(overlap_threshold=0.20)
         det_high = UsageDetector(overlap_threshold=0.50)
 
-        # "system" and "status" both appear → 2/5 = 40% → fires at 0.20, not at 0.50
         answer = "the system status was last checked yesterday"
         label_low = det_low.detect(query="q", answer=answer, results=[r], decisions=[d])["g5"]
         label_high = det_high.detect(query="q", answer=answer, results=[r], decisions=[d])["g5"]
@@ -566,14 +561,8 @@ class TestScenarioG_ShortGenericBoundary:
         assert label_low == UsageLabel.USED
         assert label_high == UsageLabel.IGNORED
 
-    def test_known_false_positive_documented(self, capsys):
-        """
-        A short, generic 2-token memory that appears in most answers will be
-        classified as USED at the 0.15 default.  This is the known precision
-        gap.  Operators should either:
-          (a) raise the threshold, or
-          (b) set minimum content length rules upstream.
-        """
+    def test_short_generic_false_positive_closed(self, capsys):
+        """Short generic content should stay IGNORED at default settings."""
         r = _make_result("generic-2tok", content="system status")
         d = _make_decision(r)
         det = UsageDetector(overlap_threshold=0.15)
@@ -584,13 +573,10 @@ class TestScenarioG_ShortGenericBoundary:
             decisions=[d],
         )
         print(
-            "\nScenario G known false-positive: 'system status' -> "
+            "\nScenario G precision guard: 'system status' -> "
             f"{labels['generic-2tok'].value} at threshold=0.15"
         )
-        # Not an assertion — documentation of known behavior for manual review
-
-
-# ── Scenario H: Contradiction loser with phrasing overlap ────────────────────
+        assert labels["generic-2tok"] == UsageLabel.IGNORED
 
 
 class TestScenarioH_ContradictionLoserOverlap:
@@ -666,7 +652,7 @@ class TestScenarioH_ContradictionLoserOverlap:
         assert loser.engram.governance.utility_score < 0.5   # penalized
 
 
-# ── Scenario I: Semantically similar but lexically distinct distractor ────────
+# â”€â”€ Scenario I: Semantically similar but lexically distinct distractor â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 class TestScenarioI_SemanticDistractor:
@@ -674,7 +660,7 @@ class TestScenarioI_SemanticDistractor:
     The overlap detector is lexical.  A semantically relevant memory that uses
     different vocabulary from the answer should be classified as IGNORED.
 
-    This is expected behavior — the detector does not attempt semantic matching.
+    This is expected behavior â€” the detector does not attempt semantic matching.
     It is documented here so that future ML-based attribution can be measured
     against this baseline.
     """
@@ -700,7 +686,7 @@ class TestScenarioI_SemanticDistractor:
         """
         A topically unrelated memory that happens to share words with the answer
         may fire the overlap detector.  This is the known precision gap for
-        lexical-only attribution — document it explicitly.
+        lexical-only attribution â€” document it explicitly.
         """
         # Topically: server infrastructure (irrelevant to Paris/travel answer)
         # Lexically: shares "tower" and "France" with the answer
@@ -716,16 +702,16 @@ class TestScenarioI_SemanticDistractor:
             results=[r],
             decisions=[d],
         )
-        # 3/4 tokens match → 75% overlap → USED at default threshold
+        # 3/4 tokens match â†’ 75% overlap â†’ USED at default threshold
         # This is a known false-positive due to proper-noun overlap
         print(
             f"\nScenario I lexical false-positive: 'eiffel tower france server...' "
             f"-> {labels['infra'].value} at threshold=0.15"
         )
-        # Not an assertion — documented for threshold tuning
+        # Not an assertion â€” documented for threshold tuning
 
 
-# ── Scenario J: Threshold boundary tuning ────────────────────────────────────
+# â”€â”€ Scenario J: Threshold boundary tuning â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 class TestScenarioJ_ThresholdTuning:
@@ -755,8 +741,8 @@ class TestScenarioJ_ThresholdTuning:
             results=[high_overlap, low_overlap],
             decisions=[dh, dl],
         )
-        # high_overlap: "system", "deployed", "production", "high", "availability" ≥ 5/6 → USED
-        # low_overlap: "system" only → 1/4 = 25% < 50% → IGNORED
+        # high_overlap: "system", "deployed", "production", "high", "availability" â‰¥ 5/6 â†’ USED
+        # low_overlap: "system" only â†’ 1/4 = 25% < 50% â†’ IGNORED
         assert labels["high"] == UsageLabel.USED
         assert labels["low"] == UsageLabel.IGNORED
 
@@ -779,3 +765,4 @@ class TestScenarioJ_ThresholdTuning:
                 decisions=[d],
             )["borderline"]
             print(f"  {threshold:>10.2f}  {label.value:>12}")
+

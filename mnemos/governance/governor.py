@@ -19,7 +19,17 @@ from mnemos.governance.policies.contradiction_policy import ContradictionPolicy
 from mnemos.governance.policy_registry import PolicyRegistry
 from mnemos.governance.read_path import ReadPath, GOVERNANCE_MODES
 from mnemos.governance.reflect_path import ReflectPath, ReflectResult
+from mnemos.governance.usage_detector import UsageDetector
+from mnemos.governance.reinforcement import Reinforcement
 from mnemos.governance.telemetry.reflect_metrics import ReflectMetrics
+from mnemos.governance.telemetry.hygiene_metrics import HygieneMetrics
+from mnemos.governance.policy_profiles import GovernancePolicyProfile
+from mnemos.governance.hygiene import (
+    HygienePipeline,
+    HygienePipelineReport,
+    DecayConfig,
+    PruneConfig,
+)
 
 logger = logging.getLogger("mnemos.governance")
 
@@ -61,13 +71,16 @@ class Governor:
         self,
         min_score_threshold: float = 0.0,
         freshness_half_life_days: float = 180.0,
+        policy_profiles: Optional[Dict[str, GovernancePolicyProfile]] = None,
         disabled_policies: Optional[List[str]] = None,
     ):
+        self._base_min_score_threshold = float(min_score_threshold)
+        self._base_freshness_half_life_days = float(freshness_half_life_days)
         registry = PolicyRegistry(disabled_policies=disabled_policies)
         registry.register(
             RelevanceVetoPolicy(
-                min_score_threshold=min_score_threshold,
-                freshness_half_life_days=freshness_half_life_days,
+                min_score_threshold=self._base_min_score_threshold,
+                freshness_half_life_days=self._base_freshness_half_life_days,
             )
         )
         registry.register(UtilityPolicy())
@@ -76,6 +89,15 @@ class Governor:
         self._contradiction_policy = ContradictionPolicy()
         self._read_path = ReadPath(registry, contradiction_policy=self._contradiction_policy)
         self._reflect_path = ReflectPath()
+        self._hygiene_pipeline = HygienePipeline()
+        self._hygiene_metrics = HygieneMetrics()
+        self._policy_profiles: Dict[str, GovernancePolicyProfile] = policy_profiles or {
+            "default": GovernancePolicyProfile(
+                profile_id="default",
+                min_score_threshold=self._base_min_score_threshold,
+                freshness_half_life_days=self._base_freshness_half_life_days,
+            ).validate()
+        }
 
         # ── In-memory aggregate stats (reset on service restart) ───────────
         self._lock = threading.Lock()
@@ -99,6 +121,7 @@ class Governor:
         query: str,
         governance_mode: str = "advisory",
         top_k: int = 10,
+        governance_profile: Optional[str] = None,
     ) -> Tuple[List[SearchResult], List[GovernanceDecision], List[ContradictionRecord]]:
         """
         Apply governance to a list of search results.
@@ -121,7 +144,9 @@ class Governor:
         if governance_mode == "off":
             return results, [], []
 
-        governed, decisions, contradiction_records = self._read_path.apply(
+        profile = self._resolve_profile(governance_profile)
+        read_path = self._read_path if profile.profile_id == "default" else self._build_read_path_for_profile(profile)
+        governed, decisions, contradiction_records = read_path.apply(
             results=results,
             query=query,
             governance_mode=governance_mode,
@@ -139,6 +164,7 @@ class Governor:
         decisions: List[GovernanceDecision],
         cited_ids: Optional[List[str]] = None,
         governance_mode: str = "advisory",
+        governance_profile: Optional[str] = None,
     ) -> ReflectResult:
         """
         Run the post-generation reflect loop for one query/answer pair.
@@ -159,7 +185,9 @@ class Governor:
             ReflectResult with usage labels, applied deltas, and counts.
             GovernanceMeta on the supplied results is mutated in place.
         """
-        reflect_result = self._reflect_path.reflect(
+        profile = self._resolve_profile(governance_profile)
+        reflect_path = self._reflect_path if profile.profile_id == "default" else self._build_reflect_path_for_profile(profile)
+        reflect_result = reflect_path.reflect(
             query=query,
             answer=answer,
             results=results,
@@ -169,6 +197,50 @@ class Governor:
         )
         self._reflect_metrics.record(reflect_result)
         return reflect_result
+
+    def has_policy_profile(self, profile_id: str) -> bool:
+        return profile_id in self._policy_profiles
+
+    def policy_profile_ids(self) -> List[str]:
+        return sorted(self._policy_profiles.keys())
+
+    def run_hygiene(
+        self,
+        engrams: list,
+        now_iso: Optional[str] = None,
+        dry_run: bool = False,
+        decay_config: Optional[DecayConfig] = None,
+        prune_config: Optional[PruneConfig] = None,
+    ) -> HygienePipelineReport:
+        """
+        Run the Wave 4 hygiene pipeline over a list of Engrams.
+
+        Chains: DecayRunner -> PrunePromoter -> ContradictionSweepRunner.
+        All runners mutate GovernanceMeta in place unless dry_run=True.
+
+        Args:
+            engrams:       List of Engram objects to sweep.
+            now_iso:       ISO UTC timestamp for decay; defaults to current UTC time.
+            dry_run:       If True, compute reports without mutating anything.
+            decay_config:  Override decay runner configuration.
+            prune_config:  Override prune promoter configuration.
+
+        Returns:
+            HygienePipelineReport with sub-reports from all three runners.
+        """
+        if decay_config is not None or prune_config is not None:
+            pipeline = HygienePipeline(
+                decay_config=decay_config,
+                prune_config=prune_config,
+            )
+        else:
+            pipeline = self._hygiene_pipeline
+
+        report = pipeline.run(engrams, now_iso=now_iso, dry_run=dry_run)
+        self._hygiene_metrics.record_decay(report.decay)
+        self._hygiene_metrics.record_prune(report.prune)
+        self._hygiene_metrics.record_sweep(report.sweep)
+        return report
 
     def stats(self) -> Dict[str, Any]:
         """Return aggregate governance + reflect statistics."""
@@ -181,6 +253,7 @@ class Governor:
         )
         s["active_policies"] = self._registry.active_policy_names
         s.update(self._reflect_metrics.to_dict())
+        s.update(self._hygiene_metrics.to_dict())
         return s
 
     # ── Internals ─────────────────────────────────────────────────────────
@@ -207,3 +280,33 @@ class Governor:
             self._stats["total_suppressed"] += suppressed
             self._stats["total_contradictions_detected"] += len(contradiction_records)
             self._stats["total_contradiction_suppressed"] += contradiction_suppressed
+
+    def _resolve_profile(self, governance_profile: Optional[str]) -> GovernancePolicyProfile:
+        pid = (governance_profile or "default").strip()
+        profile = self._policy_profiles.get(pid)
+        if profile is None:
+            raise ValueError(
+                f"Unknown governance_profile: {pid!r}. "
+                f"Supported profiles: {', '.join(self.policy_profile_ids())}"
+            )
+        return profile
+
+    def _build_read_path_for_profile(self, profile: GovernancePolicyProfile) -> ReadPath:
+        registry = PolicyRegistry(disabled_policies=None)
+        registry.register(
+            RelevanceVetoPolicy(
+                min_score_threshold=profile.min_score_threshold,
+                freshness_half_life_days=profile.freshness_half_life_days,
+            )
+        )
+        registry.register(UtilityPolicy())
+        return ReadPath(registry, contradiction_policy=self._contradiction_policy)
+
+    def _build_reflect_path_for_profile(self, profile: GovernancePolicyProfile) -> ReflectPath:
+        detector = UsageDetector(
+            overlap_threshold=profile.overlap_threshold,
+            min_memory_tokens_for_overlap=profile.min_memory_tokens_for_overlap,
+            min_overlap_tokens=profile.min_overlap_tokens,
+        )
+        reinforcement = Reinforcement(config=profile.reinforcement_config())
+        return ReflectPath(usage_detector=detector, reinforcement=reinforcement)
