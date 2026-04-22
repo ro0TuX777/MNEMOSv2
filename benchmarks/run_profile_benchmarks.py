@@ -4,7 +4,7 @@ MNEMOS Profile Benchmark Suite - Entry Point
 
 Runs the 5-track profile benchmark suite:
   Track 1: Profile Retrieval (Core vs Governance)
-  Track 2: ColBERT Reranking Uplift
+  Track 2: Cross-Encoder Reranking Uplift
   Track 3: Installer Overhead
   Track 4: Migration & Recovery
   Track 5: Hybrid Retrieval (lexical + semantic fusion)
@@ -170,7 +170,7 @@ def main():
         epilog="""
 Tracks:
   retrieval   Core (Qdrant) vs Governance (pgvector) - requires Docker
-  rerank      ColBERT reranking uplift - requires Docker + colbert-ir
+  rerank      Cross-Encoder reranking uplift - requires Docker
   installer   Installer vs manual deployment - NO Docker required
   migration   Profile migration behavior - requires Docker
   hybrid      Semantic vs lexical vs hybrid fusion policies - requires Docker

@@ -36,8 +36,8 @@ def pgvector_tier(mock_pool):
         tier = PgvectorTier.__new__(PgvectorTier)
         tier._dsn = "postgresql://test:test@localhost:5432/test"
         tier._table_name = "test_vectors"
-        tier._embedding_model_name = "all-MiniLM-L6-v2"
-        tier._embedding_dim = 384
+        tier._embedding_model_name = "BAAI/bge-base-en-v1.5"
+        tier._embedding_dim = 768
         tier._gpu_device = "cpu"
         tier._pool = pool
         tier._model = None
@@ -55,7 +55,7 @@ class TestPgvectorTier:
         """Test indexing engrams with mocked embeddings."""
         mock_model = MagicMock()
         import numpy as np
-        mock_model.encode.return_value = np.random.rand(2, 384).astype(np.float32)
+        mock_model.encode.return_value = np.random.rand(2, 768).astype(np.float32)
         pgvector_tier._model = mock_model
 
         engrams = [
@@ -76,7 +76,7 @@ class TestPgvectorTier:
 
         mock_model = MagicMock()
         import numpy as np
-        mock_model.encode.return_value = np.random.rand(1, 384).astype(np.float32)
+        mock_model.encode.return_value = np.random.rand(1, 768).astype(np.float32)
         pgvector_tier._model = mock_model
 
         # Mock cursor.fetchall() to return a row
@@ -106,7 +106,7 @@ class TestPgvectorTier:
 
         mock_model = MagicMock()
         import numpy as np
-        mock_model.encode.return_value = np.random.rand(1, 384).astype(np.float32)
+        mock_model.encode.return_value = np.random.rand(1, 768).astype(np.float32)
         pgvector_tier._model = mock_model
 
         cursor.fetchall.return_value = [

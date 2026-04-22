@@ -37,7 +37,7 @@ services:
       - ./data:/app/data
     environment:
       - MNEMOS_TIERS=qdrant
-      - MNEMOS_EMBEDDING_MODEL=all-MiniLM-L6-v2
+      - MNEMOS_EMBEDDING_MODEL=BAAI/bge-base-en-v1.5
       - MNEMOS_QUANT_BITS=4
       - MNEMOS_AUDIT_ENABLED=true
       - MNEMOS_PORT=8700

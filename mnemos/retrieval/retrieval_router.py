@@ -25,9 +25,11 @@ class RetrievalRouter:
         *,
         semantic_fusion: TierFusion,
         lexical_tier: Optional[BaseRetriever] = None,
+        reranker: Optional[Any] = None,
     ):
         self._semantic_fusion = semantic_fusion
         self._lexical_tier = lexical_tier
+        self._reranker = reranker
         self._hybrid_fusion = HybridFusion()
         self._stats = {
             "hybrid_query_count": 0,
@@ -136,6 +138,10 @@ class RetrievalRouter:
             self._stats["semantic_query_count"] += 1
             self._stats["retrieval_mode_counters"]["semantic"] += 1
             hits = self._semantic_fusion.search(query, top_k=desired_pool, filters=filters, tiers=tiers)
+            
+            if self._reranker is not None:
+                hits = self._reranker.rerank(query, hits)
+
             narrowed, envelope_meta = apply_candidate_envelope(hits, envelope_cfg)
             self._record_candidate_envelope_stats(envelope_meta)
             return narrowed[:top_k], {
@@ -143,6 +149,7 @@ class RetrievalRouter:
                 "fusion_policy": None,
                 "lexical_available": self.lexical_available,
                 "candidate_envelope": envelope_meta,
+                "reranker_used": self._reranker is not None,
             }
 
         start = time.perf_counter()
@@ -163,6 +170,10 @@ class RetrievalRouter:
             filters=filters,
             explain=explain,
         )
+
+        if self._reranker is not None:
+            fused = self._reranker.rerank(query, fused)
+
         narrowed, envelope_meta = apply_candidate_envelope(fused, envelope_cfg)
         self._record_candidate_envelope_stats(envelope_meta)
 
@@ -175,6 +186,7 @@ class RetrievalRouter:
             "lexical_available": self.lexical_available,
             "telemetry": telemetry,
             "candidate_envelope": envelope_meta,
+            "reranker_used": self._reranker is not None,
         }
         return narrowed[:top_k], meta
 
