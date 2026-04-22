@@ -5,6 +5,18 @@
 
 ---
 
+## Runtime vs Dev Execution
+
+- **Runtime deployment:** MNEMOS serving components are expected to run as Docker Compose services (containerized runtime).
+- **Developer execution:** benchmark runners, tooling scripts, and test commands are generally run from host Python unless noted otherwise.
+
+## Enhancement Roadmap
+
+- Program roadmap and 30/60/90 execution plan: `docs/mnemosv2_enhancement_roadmap.md`
+- Operator release/incident runbook: `docs/mnemos_operator_playbook.md`
+
+---
+
 ## Test Environment
 
 | Property | Value |
@@ -17,6 +29,37 @@
 | **Python** | 3.12.7 |
 | **NumPy** | 1.26.4 |
 | **Date** | 2026-03-28 |
+
+---
+
+## Memory Over Maps Phase-Gate Results (March 30, 2026)
+
+Phase-gated implementation and validation for the Memory Over Maps lane has been completed through Phase 5 with benchmark artifacts generated per phase.
+
+### Summary
+
+| Phase | Track | Gate Result | Key Metrics |
+|---|---|---|---|
+| Phase 1 | M1 lineage integrity | PASS | lineage completeness 1.0000, orphan derived views 0 |
+| Phase 2 | M2 candidate envelope efficiency | PASS | compression ratio 0.7500, answer-support retention 0.7500 |
+| Phase 3 | M3 on-demand view reproducibility | PASS | reproducibility 1.0000, regeneration mismatches 0 |
+| Phase 4 | M4 cache invalidation correctness | PASS | trigger coverage 1.0000, stale cache survival 0.0000, dry-run parity true |
+| Phase 5 | M5 bounded semantic reflect evolution | PASS | bounded adherence 1.0000, short-memory false-positive rate 0.0000, trust recovery delta +0.0800, concurrent success 1.0000 |
+
+### Artifacts
+
+| Phase | Raw JSON | Report | Decision |
+|---|---|---|---|
+| Phase 1 | `benchmarks/outputs/raw/memory_over_maps_20260330_135417_raw.json` | `benchmarks/outputs/summaries/memory_over_maps_20260330_135417_report.md` | `benchmarks/outputs/summaries/memory_over_maps_20260330_135417_decision.md` |
+| Phase 2 | `benchmarks/outputs/raw/memory_over_maps_20260330_150121_raw.json` | `benchmarks/outputs/summaries/memory_over_maps_20260330_150121_report.md` | `benchmarks/outputs/summaries/memory_over_maps_20260330_150121_decision.md` |
+| Phase 3 | `benchmarks/outputs/raw/memory_over_maps_20260330_150942_raw.json` | `benchmarks/outputs/summaries/memory_over_maps_20260330_150942_report.md` | `benchmarks/outputs/summaries/memory_over_maps_20260330_150942_decision.md` |
+| Phase 4 | `benchmarks/outputs/raw/memory_over_maps_20260330_151515_raw.json` | `benchmarks/outputs/summaries/memory_over_maps_20260330_151515_report.md` | `benchmarks/outputs/summaries/memory_over_maps_20260330_151515_decision.md` |
+| Phase 5 | `benchmarks/outputs/raw/memory_over_maps_20260330_151822_raw.json` | `benchmarks/outputs/summaries/memory_over_maps_20260330_151822_report.md` | `benchmarks/outputs/summaries/memory_over_maps_20260330_151822_decision.md` |
+
+### Interpretation
+
+- Memory Over Maps implementation is now phase-complete from source-grounded lineage through bounded retrieval, on-demand synthesis, cache/invalidation, and bounded semantic reflect validation.
+- Promotion posture remains evidence-first: each phase advanced only after its benchmark gate passed.
 
 ---
 
@@ -76,6 +119,32 @@ Alternative (installer-generated stack):
 ```bash
 python -m installer --profile core_memory_appliance
 docker compose -f docker-compose.generated.yml up -d
+```
+
+### Known-Good Bench Env (Port Override)
+
+If host-local `5432` causes auth/collision issues, use this known-good benchmark isolation:
+
+```bash
+# PowerShell
+$env:MNEMOS_BENCH_QDRANT_PORT="6333"
+$env:MNEMOS_BENCH_POSTGRES_PORT="5433"
+$env:MNEMOS_BENCH_QDRANT_URL="http://localhost:6333"
+$env:MNEMOS_BENCH_POSTGRES_DSN="postgresql://mnemos:mnemos@localhost:5433/mnemos"
+
+docker compose -f benchmarks/docker-compose.bench.yml down -v
+docker compose -f benchmarks/docker-compose.bench.yml up -d
+docker compose -f benchmarks/docker-compose.bench.yml ps
+```
+
+Quick verification before running benchmarks:
+
+```bash
+# Postgres over TCP using benchmark DSN
+python -c "import os, psycopg; c=psycopg.connect(os.environ['MNEMOS_BENCH_POSTGRES_DSN'], connect_timeout=5); cur=c.cursor(); cur.execute('select 1'); print(cur.fetchone()); c.close()"
+
+# Qdrant health
+Invoke-WebRequest -UseBasicParsing http://localhost:6333/healthz
 ```
 
 ---
@@ -183,7 +252,7 @@ Goal: produce a defensible real-world relevance truth set so Track 1 can support
 
 #### Scope
 
-- **Corpus:** real PDF corpus (`C:\Users\vin\Downloads\ToLearn`)
+- **Corpus:** real PDF corpus (`<YOUR_PDF_DIR>`)
 - **Queries:** 150 total (minimum), balanced by regime:
   - 50 semantic
   - 50 light_filter
@@ -231,7 +300,7 @@ Goal: produce a defensible real-world relevance truth set so Track 1 can support
 #### Real-World Corpus (56 PDFs, 1,307 engrams)
 
 Run:
-`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "C:\Users\vin\Downloads\ToLearn"`
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_082214_profile_benchmarks.json`
 
@@ -262,7 +331,7 @@ Raw output: `benchmarks/outputs/raw/20260329_082214_profile_benchmarks.json`
 #### Real-World Corpus (80 PDFs, 5,967 engrams)
 
 Run:
-`python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_084456_profile_benchmarks.json`
 
@@ -293,7 +362,7 @@ Raw output: `benchmarks/outputs/raw/20260329_084456_profile_benchmarks.json`
 #### Governance-Focused Run (Relaxed Retrieval Filters, 80 PDFs)
 
 Run:
-`python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_095911_profile_benchmarks.json`
 Report: `benchmarks/outputs/summaries/20260329_095911_report.md`
@@ -317,7 +386,7 @@ Report: `benchmarks/outputs/summaries/20260329_095911_report.md`
 #### Governance-Focused Run (Adversarial + Timestamp Window, 80 PDFs)
 
 Run:
-`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_104803_profile_benchmarks.json`
 Report: `benchmarks/outputs/summaries/20260329_104803_report.md`
@@ -346,7 +415,7 @@ Report: `benchmarks/outputs/summaries/20260329_104803_report.md`
 #### Governance-Focused Run (Retuned Adversarial Pressure, 80 PDFs)
 
 Run:
-`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_111455_profile_benchmarks.json`
 Report: `benchmarks/outputs/summaries/20260329_111455_report.md`
@@ -375,7 +444,7 @@ Report: `benchmarks/outputs/summaries/20260329_111455_report.md`
 #### Governance-Focused Run (Retuned Mid-Failure Attempt, 80 PDFs)
 
 Run:
-`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_113720_profile_benchmarks.json`
 Report: `benchmarks/outputs/summaries/20260329_113720_report.md`
@@ -403,7 +472,7 @@ Report: `benchmarks/outputs/summaries/20260329_113720_report.md`
 #### Governance-Focused Run (Further Retuning, 80 PDFs)
 
 Run:
-`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_115520_profile_benchmarks.json`
 Report: `benchmarks/outputs/summaries/20260329_115520_report.md`
@@ -430,7 +499,7 @@ Report: `benchmarks/outputs/summaries/20260329_115520_report.md`
 #### Governance-Focused Run (Post-Tuning Check, 80 PDFs)
 
 Run:
-`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python -B benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_120756_profile_benchmarks.json`
 Report: `benchmarks/outputs/summaries/20260329_120756_report.md`
@@ -462,14 +531,14 @@ Report: `benchmarks/outputs/summaries/20260329_120756_report.md`
 
 ### What We Tested
 
-- **Corpus:** real PDF corpus (79 PDFs, 5,967 engrams) from `D:\TE\more TE Docs`
+- **Corpus:** real PDF corpus (79 PDFs, 5,967 engrams) from `<YOUR_PDF_DIR>`
 - **Queries:** 50 semantic queries
 - **Depths:** rerank `top-20`, `top-50`, `top-100`
 - **Backends:** Qdrant and pgvector
 - **Command:**
 
 ```bash
-python -B benchmarks/run_profile_benchmarks.py --track rerank --corpus-type real --pdf-dir "D:\TE\more TE Docs"
+python -B benchmarks/run_profile_benchmarks.py --track rerank --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"
 ```
 
 Raw output: `benchmarks/outputs/raw/20260329_124636_profile_benchmarks.json`  
@@ -507,7 +576,7 @@ Baseline: **MRR=0.1207**, **nDCG=0.0455**, **p50=49.2ms**
 ### Latest Rerun (20260329_131856)
 
 Command:
-`python -B benchmarks/run_profile_benchmarks.py --track rerank --corpus-type real --pdf-dir "D:\TE\more TE Docs"`
+`python -B benchmarks/run_profile_benchmarks.py --track rerank --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
 
 Raw output: `benchmarks/outputs/raw/20260329_131856_profile_benchmarks.json`  
 Report: `benchmarks/outputs/summaries/20260329_131856_report.md`
@@ -540,6 +609,43 @@ Rerun takeaway:
 - Results are consistent with the prior Track 2 run.
 - Reranking still decreases quality across all tested depths for both backends.
 - Default policy remains: **no rerank** until model-path/implementation changes.
+
+### Gate A Rerun (20260329_135011, Token-Model Path)
+
+Command:
+`python -B benchmarks/run_profile_benchmarks.py --track rerank --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
+
+Raw output: `benchmarks/outputs/raw/20260329_135011_profile_benchmarks.json`  
+Report: `benchmarks/outputs/summaries/20260329_135011_report.md`
+
+#### Qdrant (Gate A rerun)
+
+Baseline: **MRR=0.1367**, **nDCG=0.0496**, **p50=31.1ms**
+
+| Depth | MRR@10 | Delta MRR | nDCG@10 | Delta nDCG | p50 (ms) | Delta latency (ms) | Delta VRAM (MB) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| top-20 | 0.0719 | -0.0648 | 0.0296 | -0.0200 | 31.2 | +0.1 | +24 |
+| top-50 | 0.0725 | -0.0642 | 0.0326 | -0.0170 | 31.4 | +0.3 | +6 |
+| top-100 | 0.0470 | -0.0897 | 0.0161 | -0.0335 | 31.3 | +0.1 | -26 |
+
+#### pgvector (Gate A rerun)
+
+Baseline: **MRR=0.1407**, **nDCG=0.0521**, **p50=51.5ms**
+
+| Depth | MRR@10 | Delta MRR | nDCG@10 | Delta nDCG | p50 (ms) | Delta latency (ms) | Delta VRAM (MB) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| top-20 | 0.0932 | -0.0475 | 0.0346 | -0.0175 | 51.5 | -0.1 | +23 |
+| top-50 | 0.0659 | -0.0748 | 0.0327 | -0.0194 | 56.5 | +5.0 | +2 |
+| top-100 | 0.0659 | -0.0748 | 0.0327 | -0.0194 | 51.8 | +0.3 | +0 |
+
+Gate A decision:
+- **Model-path caveat check:** pass (no sentence-transformers mean-pooling fallback warning observed).
+- **Uplift check:** fail (all MRR uplifts remain negative across both backends and all depths).
+- **Overall Gate A status:** **FAIL**.
+
+Policy impact:
+- Keep default rerank policy as **no rerank**.
+- Keep reranker classified as non-production for quality uplift until implementation is corrected further.
 
 ---
 
@@ -574,6 +680,560 @@ Rerun takeaway:
 
 ---
 
+## Next-Phase Gates (Post March 29, 2026)
+
+To avoid widening scope before quality evidence is stronger, the next work phase uses explicit go/no-go gates.
+
+### Current Frozen Position
+
+- **Core/Qdrant** remains the operational default (ingest, latency, and QPS).
+- **Governance/pgvector** remains a governance/operational profile, not a proven correctness winner in current policy-pressure runs.
+- **ColBERT rerank (current path)** is disabled by default because Track 2 shows quality degradation at all tested depths.
+- **Migration** is operationally credible, with asymmetric cutover timing (Core -> Governance much slower).
+
+### Gate A: Reranker Correctness
+
+Before any enterprise-profile expansion, reranker implementation must pass:
+
+- Model-loading path confirms token-level late interaction (no degraded mean-pooling fallback path).
+- Track 2 rerun shows non-negative uplift at at least one depth for at least one backend.
+- If all depths remain negative, keep default as **no rerank** and treat reranker as non-production.
+
+#### Track 2 Reranker Correctness Checklist (Test Protocol)
+
+Preflight:
+- Run with bytecode bypass to avoid stale modules:  
+  `python -B benchmarks/run_profile_benchmarks.py --track rerank --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"`
+- Confirm logs do **not** show sentence-transformers mean-pooling fallback for `colbert-ir/colbertv2.0`.
+- Capture artifacts:
+  - `benchmarks/outputs/raw/<timestamp>_profile_benchmarks.json`
+  - `benchmarks/outputs/summaries/<timestamp>_report.md`
+
+Validation checks:
+- Backend coverage: both `qdrant` and `pgvector` tiers complete.
+- Depth coverage: `top-20`, `top-50`, `top-100` all present.
+- Metric sanity: baseline and reranked `MRR@10`, `nDCG@10`, and `p50` exist for each tier/depth.
+
+Pass criteria (Gate A):
+- At least one backend has `MRR uplift >= 0.0000` at one tested depth.
+- No implementation-path caveat in logs indicating degraded fallback behavior.
+
+Fail criteria (Gate A):
+- All backend/depth combinations have negative MRR uplift, or
+- model path still shows degraded fallback behavior.
+
+Decision after run:
+- **Pass:** continue to Gate B (reference-fidelity check).
+- **Fail:** keep default policy as **no rerank**, open/fix reranker implementation issue, rerun Track 2 after fix.
+
+### Gate B: Reference-Fidelity Check (ColBERT)
+
+Before any further rerank product benchmarking, validate MNEMOS reranker behavior against a known-correct ColBERT reference path.
+
+Protocol:
+
+- Use a fixed sanity set (10-20 semantic queries) with a frozen candidate pool per query.
+- Compare five rankers on the same candidates:
+  - Baseline ANN
+  - MNEMOS ColBERT path
+  - Known-correct ColBERT reference stack
+  - Lexical-overlap rerank
+  - Mean-cosine rerank
+- Capture for each query:
+  - top-10 IDs for all rankers
+  - gold-doc rank movement
+  - per-ranker MRR@10 and nDCG@10 summary
+
+Pass criteria (Gate B):
+
+- MNEMOS ColBERT ranking is directionally aligned with reference ColBERT on the sanity set.
+- MNEMOS ColBERT no longer underperforms both trivial baselines (lexical-overlap and mean-cosine) on MRR@10.
+
+Fail criteria (Gate B):
+
+- MNEMOS ColBERT remains directionally misaligned with reference ColBERT, or
+- MNEMOS ColBERT still underperforms both trivial baselines.
+
+Decision after Gate B:
+
+- **Pass:** reopen Track 2 as a product benchmark track.
+- **Fail:** keep reranker experimental/non-production and continue implementation audit.
+
+#### Gate B Run Template
+
+**Objective:** Validate whether the current MNEMOS ColBERT path is directionally aligned with a known-correct ColBERT reference on a fixed sanity set.
+
+**Sanity set**
+- Query set file: `benchmarks/truthsets/gate_b_sanity_queries.json`
+- Candidate pool file: `benchmarks/truthsets/gate_b_candidate_pool.json`
+- Gold labels file: `benchmarks/truthsets/gate_b_labels.json`
+
+Validate inputs before every Gate B run:
+- `python tools/validate_gate_b.py`
+
+Optional bootstrap from latest Track 2 audit artifact:
+- `python tools/bootstrap_gate_b_from_audit.py --raw benchmarks/outputs/raw/<timestamp>_profile_benchmarks.json --tier qdrant --limit 10`
+
+**Reference stack (pin required)**
+- Pin exact model ID, library/runtime versions, and execution backend in the Gate B output.
+- Do not treat Gate B as valid if reference stack versions are omitted.
+- Reference rankings template (scaffold only): `benchmarks/truthsets/gate_b_reference_rankings_template.json`
+
+Generate true reference rankings (official `colbert-ai`) before Gate B:
+- `python tools/generate_gate_b_reference_rankings.py --queries benchmarks/truthsets/gate_b_sanity_queries.json --pool benchmarks/truthsets/gate_b_candidate_pool.json --corpus benchmarks/outputs/datasets/corpus_real.json --out benchmarks/truthsets/gate_b_reference_rankings.json --model-id colbert-ir/colbertv2.0 --device auto`
+
+**Rankers compared**
+1. Baseline ANN
+2. MNEMOS ColBERT
+3. Reference ColBERT
+4. Lexical-overlap rerank
+5. Mean-cosine rerank
+
+**Required outputs**
+- Raw JSON: `benchmarks/outputs/raw/<timestamp>_gate_b_reference_fidelity.json`
+- Summary report: `benchmarks/outputs/summaries/<timestamp>_gate_b_reference_fidelity.md`
+
+Run command:
+- `python tools/run_gate_b_reference_fidelity.py --queries benchmarks/truthsets/gate_b_sanity_queries.json --pool benchmarks/truthsets/gate_b_candidate_pool.json --labels benchmarks/truthsets/gate_b_labels.json --corpus benchmarks/outputs/datasets/corpus_real.json --reference benchmarks/truthsets/gate_b_reference_rankings.json`
+
+**Per-query artifacts**
+- top-10 ranked IDs for all 5 rankers
+- gold-doc rank positions for all 5 rankers
+- score deltas vs baseline
+- overlap between MNEMOS ColBERT top-10 and reference ColBERT top-10
+
+**Aggregate metrics**
+- MRR@10 per ranker
+- nDCG@10 per ranker
+- Recall@10 per ranker
+- mean overlap@10 between MNEMOS ColBERT and reference ColBERT
+- count of queries where MNEMOS ColBERT underperforms both trivial baselines
+
+**Pass criteria**
+- MNEMOS ColBERT is directionally aligned with reference ColBERT on the sanity set
+- MNEMOS ColBERT does not underperform both lexical-overlap and mean-cosine on MRR@10
+
+**Fail criteria**
+- MNEMOS ColBERT remains directionally misaligned with reference ColBERT
+- MNEMOS ColBERT still underperforms both trivial baselines
+
+**Decision**
+- PASS -> reopen Track 2 as a product benchmark
+- FAIL -> keep reranker experimental/non-production and continue implementation audit
+
+#### Gate B Artifact Checklist
+
+- [ ] Fixed sanity query set committed
+- [ ] Fixed candidate pool committed
+- [ ] Gold labels committed
+- [ ] Raw JSON artifact saved
+- [ ] Summary report saved
+- [ ] Aggregate comparison table included
+- [ ] Gate B PASS/FAIL explicitly stated
+
+#### Latest Gate B Result (2026-03-29)
+
+Run artifacts:
+
+- Raw JSON: `benchmarks/outputs/raw/20260329_212017_gate_b_reference_fidelity.json`
+- Summary report: `benchmarks/outputs/summaries/20260329_212017_gate_b_reference_fidelity.md`
+- Reference rankings: `benchmarks/truthsets/gate_b_reference_rankings.json`
+
+Reference stack (pinned):
+
+- `colbert-ai` `0.2.22`
+- Model: `colbert-ir/colbertv2.0`
+- Runtime: `cuda`
+- Torch: `2.6.0+cu124`
+- Transformers: `4.57.6`
+
+Aggregate comparison:
+
+| Ranker | MRR@10 | nDCG@10 | Recall@10 |
+|---|---:|---:|---:|
+| Baseline ANN | 0.5917 | 0.4610 | 0.6083 |
+| MNEMOS ColBERT | 0.2643 | 0.2365 | 0.4083 |
+| Reference ColBERT | 0.6083 | 0.5092 | 0.6667 |
+| Lexical overlap | 1.0000 | 0.9159 | 0.9667 |
+| Mean-cosine | 0.3028 | 0.2843 | 0.4750 |
+
+Key diagnostics:
+
+- Mean overlap@10 (MNEMOS vs reference): `0.4600`
+- Queries where MNEMOS underperforms both trivial baselines: `3 / 10`
+- Gate B PASS: `NO`
+
+Decision:
+
+- Keep reranker **experimental / non-production**.
+- Do not reopen Track 2 product benchmarking until reranker correctness is improved.
+
+#### Gate B Fast Labeling Rubric (10-query sanity set)
+
+Use this to upgrade bootstrapped labels into a human-checked set before execution.
+
+- `relevance=2` (high): directly answers the query intent.
+- `relevance=1` (partial): supporting context, related evidence, or near-hit.
+- `relevance=0` (none): not useful for answering the query.
+
+Minimum per-query quality:
+
+- At least 1 positive label (`relevance > 0`), otherwise replace or repair the query pool.
+- Prefer 2-5 positives per query for stronger rank discrimination.
+
+Set-level quality target:
+
+- Include at least some `relevance=1` labels across the set (avoid purely binary labels).
+- Remove or replace queries where all rankers miss obvious positives due to a poor candidate pool.
+
+### Gate C: Hybrid Retrieval Prototype (No New Profile Yet)
+
+Implement and benchmark lexical + semantic fusion inside current MNEMOS profiles first (not a full OpenSearch/Elastic profile yet).
+
+#### Gate C Scope (Frozen)
+
+- Keep existing profile defaults:
+  - Core/Qdrant default posture unchanged.
+  - Governance/pgvector remains governance/operational posture.
+  - Reranker remains experimental and out-of-scope for Gate C pass/fail.
+- Add hybrid as a **retrieval mode**, not a new deployment profile.
+- Ship deterministic, explainable fusion before introducing ML rankers.
+
+#### Gate C API/Config Contract
+
+`POST /v1/mnemos/search` supports:
+
+- `retrieval_mode`: `semantic | hybrid` (default: `semantic`)
+- `fusion_policy`: `semantic_dominant | balanced | lexical_dominant`
+- `explain`: `true | false`
+
+Hybrid explanations (when `explain=true`) include:
+
+- `component_scores` (`lexical`, `semantic`, `fused`)
+- `retrieval_sources` (`lexical`, `semantic`, or both)
+- `filters_applied`
+- `fusion_policy`
+
+Config knobs:
+
+- `MNEMOS_RETRIEVAL_MODE`
+- `MNEMOS_FUSION_POLICY`
+- `MNEMOS_LEXICAL_TOP_K`
+- `MNEMOS_SEMANTIC_TOP_K`
+- `MNEMOS_EXPLAIN_DEFAULT`
+
+#### Gate C Fusion v1
+
+- Candidate generation: lexical top-k + semantic top-k, union + dedupe.
+- Normalization: deterministic rank-based normalization (v1 frozen choice).
+- Weighted fusion policies:
+  - `semantic_dominant`: 0.25 lexical / 0.75 semantic
+  - `balanced`: 0.50 lexical / 0.50 semantic
+  - `lexical_dominant`: 0.75 lexical / 0.25 semantic
+
+#### Gate C Benchmark Track (Required)
+
+Add a hybrid benchmark comparison track (semantic-only vs lexical-only vs hybrid policies) with enterprise-style query classes:
+
+- exact acronym/control/title lookup
+- phrase-sensitive retrieval
+- procedural retrieval
+- comparative/definition queries
+- mixed enterprise wording (exact + conceptual intent)
+
+Required metrics:
+
+- Recall@10, MRR@10, nDCG@10
+- p50/p95 latency
+- lexical-only contribution rate
+- semantic-only contribution rate
+- overlap rate
+- hybrid win count vs semantic-only
+
+Pass criteria:
+
+- Hybrid wins on at least one enterprise-style query class.
+- Latency remains within acceptable budget (target: p50 <= 1.5x semantic-only unless quality gain is substantial).
+- Explain payload is stable and useful.
+- Results support a clear \"when hybrid wins\" guidance rule.
+
+#### Gate C Run Instructions (`--track hybrid`)
+
+Prerequisites:
+
+- Qdrant available at `MNEMOS_BENCH_QDRANT_URL` (default `http://localhost:6333`)
+- Postgres/pgvector available at `MNEMOS_BENCH_POSTGRES_DSN`
+- Gate C query set present at `benchmarks/truthsets/gate_c_hybrid_queries.json`
+
+Commands:
+
+```bash
+# Synthetic quick run
+python -B benchmarks/run_profile_benchmarks.py --track hybrid --corpus-size 2000 --runs 3
+
+# Real corpus run
+python -B benchmarks/run_profile_benchmarks.py --track hybrid --corpus-type real --pdf-dir "<YOUR_PDF_DIR>" --runs 5
+```
+
+Expected artifacts:
+
+- Raw JSON: `benchmarks/outputs/raw/<timestamp>_profile_benchmarks.json` with `results.hybrid`
+- Summary markdown: `benchmarks/outputs/summaries/<timestamp>_report.md` with Track 5 section
+
+Expected mode rows in Track 5:
+
+- `semantic_only`
+- `lexical_only`
+- `hybrid_semantic_dominant`
+- `hybrid_balanced`
+- `hybrid_lexical_dominant`
+
+Interpretation checklist:
+
+- Compare MRR@10 and nDCG@10 against `semantic_only` by query class.
+- Check `hybrid_win_rate_over_semantic_only` (overall and class-level).
+- Inspect contribution diagnostics:
+  - lexical-only rate (lexical rescue signal)
+  - semantic-only rate (semantic dominance)
+  - both rate (reinforcement overlap)
+- Validate latency budget: hybrid p50 should generally stay within ~1.5x semantic-only unless quality gain is substantial.
+
+#### Gate C Operator Guidance (Provisional, March 29, 2026)
+
+Current evidence posture:
+
+- On **March 29, 2026**, Gate C infrastructure is benchmark-ready (`--track hybrid`), but this environment does not yet include a full successful hybrid benchmark run with all required backends online in the latest artifacts.
+- Because of that, there is **no confirmed differentiated hybrid win rule yet** from finalized Gate C runs.
+
+Interim guidance:
+
+- Keep `semantic` as default retrieval mode in production.
+- Use `hybrid` for targeted evaluation workloads where exact terms/acronyms/titles are known pain points.
+- Start with `fusion_policy=balanced` for evaluation baselines, then compare to `semantic_dominant` and `lexical_dominant` by query class.
+- Promote hybrid for a class only when:
+  - class-level MRR@10 or nDCG@10 improves vs semantic-only, and
+  - latency remains inside acceptable budget for that class.
+
+If a complete Gate C run shows no class-level wins, document that outcome explicitly and keep semantic-only as broad default.
+
+#### Gate C Operator Guidance (Finalized, Real-Corpus Run on March 29, 2026)
+
+Run artifacts:
+
+- Raw JSON: `benchmarks/outputs/raw/20260329_225832_profile_benchmarks.json`
+- Track report: `benchmarks/outputs/summaries/20260329_225832_report.md`
+- Decision report: `benchmarks/outputs/summaries/20260329_225907_gate_c_decision.md`
+
+Observed Gate C outcome:
+
+- Track execution complete: `True`
+- Quality class win found: `False`
+- Latency threshold satisfied: `True`
+- Sprint exit pass: `False`
+
+Final operator guidance from this run:
+
+- Use `semantic` as the default retrieval mode for broad production traffic.
+- Use `hybrid` only for targeted pilot/evaluation queries where exact-term failure is suspected.
+- Do not set a global hybrid default fusion policy yet (`none_keep_semantic_default` from decision report).
+- Do not claim evidence for a future enterprise retrieval profile from this run (`not_yet` in decision report).
+
+#### Gate C Decision Automation
+
+Use the decision helper to evaluate sprint exit criteria from the latest hybrid artifact:
+
+```bash
+# Use latest raw artifact containing results.hybrid
+python tools/evaluate_gate_c.py
+
+# Evaluate a specific artifact and fail CI if sprint exit criteria are not met
+python tools/evaluate_gate_c.py --raw benchmarks/outputs/raw/<timestamp>_profile_benchmarks.json --require-pass
+```
+
+Output:
+
+- `benchmarks/outputs/summaries/<timestamp>_gate_c_decision.md`
+
+The report answers:
+
+1. whether hybrid materially improves any enterprise-style query class
+2. which fusion policy should be default (if any)
+3. whether hybrid is ready for broad exposure
+4. whether evidence justifies a future enterprise profile
+
+### Gate D: Product Message Clarity
+
+A new enterprise retrieval profile is only added if benchmark outcomes produce a clear "when it wins" rule that does not dilute existing profile guidance.
+
+### Immediate Execution Order
+
+1. Complete Gate B reference-fidelity check for the reranker.
+2. Only if Gate B passes, reopen Track 2 product benchmarking.
+3. Run Gate C hybrid prototype track (lexical + semantic fusion).
+4. Re-evaluate enterprise profile decision only after Gate C + Gate D evidence is positive.
+
+---
+
+## Governance Layer: MemArchitect Waves 1–4
+
+**Product question:** *What does a governed, self-maintaining memory system look like, and does it produce correct, provably-convergent decisions?*
+
+### What Was Implemented
+
+Waves 1–4 of the MemArchitect governance layer were implemented and test-verified in-codebase (2026-03-30). No infrastructure is required — governance is a pure in-process layer applied post-retrieval and as a background hygiene pass. Behavioral guarantees are backed by Governance Validation Pack v1 (`benchmarks/TEMP/Governance_Validation_Pack_v1.md`).
+
+### Waves 1–2 (Query-time governance)
+
+**Wave 1 — Per-candidate policy pipeline**
+
+
+| Component | Description |
+|---|---|
+| `GovernanceMeta` | 19-field dataclass attached to each Engram: lifecycle state, trust/utility/stability/retrievability scores, conflict state, deletion state, policy flags, lineage, and Wave 2 entity-slot identity fields |
+| `GovernanceDecision` | Per-candidate outcome record: retrieval score, governed score, all 5 modifier values, veto result, contradiction state, suppression state, `would_be_suppressed_in_enforced_mode` advisory flag |
+| `RelevanceVetoPolicy` | Veto gates: score below configurable threshold, `soft_deleted`/`tombstone` deletion state, `toxic` policy flag, exponential freshness decay |
+| `UtilityPolicy` | Trust and utility modifiers derived from `GovernanceMeta.trust_score` and `utility_score` |
+| `PolicyRegistry` | Ordered per-candidate pipeline with short-circuit on veto; per-policy enable/disable at runtime |
+| `ReadPath` | Advisory (re-rank only, no suppression) and enforced (suppress + re-rank + top-k cap) modes; returns 3-tuple `(results, decisions, contradiction_records)` |
+| `Governor` | Single entry point; wraps registry + read path; thread-safe aggregate stats |
+
+Score formula:
+```
+governed_score = retrieval_score
+              × trust_modifier
+              × utility_modifier
+              × freshness_modifier
+              × contradiction_modifier
+              × veto_modifier
+```
+
+Freshness decay: `exp(-ln(2) / half_life_days × age_days)`. Default half-life: 180 days. Default threshold: 0.0 (disabled).
+
+**Wave 2 — Cross-candidate contradiction detection**
+
+| Component | Description |
+|---|---|
+| `ContradictionRecord` | Cluster record: entity key, attribute key, candidate IDs, normalized values, winner, losers, resolution reason, status |
+| `ContradictionPolicy` | Groups candidates by `(entity_key, attribute_key)`; detects conflicting `normalized_value` claims; selects winner via deterministic 5-level priority chain; applies `1.0`/`0.25` modifiers |
+| `ReadPath` (updated) | Runs `ContradictionPolicy` after per-candidate pipeline; sets `would_be_suppressed_in_enforced_mode` on all decisions |
+| `Governor` (updated) | Wires `ContradictionPolicy`; tracks `total_contradictions_detected` and `total_contradiction_suppressed` in aggregate stats |
+| `GovernanceDecision` (updated) | New fields: `conflict_group_id`, `contradiction_winner`, `contradiction_reason`, `suppressed_by_contradiction`, `would_be_suppressed_in_enforced_mode` |
+
+Contradiction winner selection priority (highest first):
+
+1. `trust_score` (higher wins)
+2. `created_at` (newer wins)
+3. `utility_score` (higher wins)
+4. `source_authority` (higher wins)
+5. `engram.id` (lexicographically lower — deterministic tiebreaker, always resolves)
+
+Modifiers: winner → `1.0` (no penalty), loser → `0.25`.
+
+### Wave 3 — Reflect path (post-generation reinforcement)
+
+| Component | Description |
+|---|---|
+| `UsageDetector` | Assigns each candidate a `UsageLabel`: `USED` (cited or word-overlap ≥ threshold), `IGNORED`, `CONTRADICTED`, `VETOED`, `UNKNOWN`. Signal priority: veto → contradiction loser → explicit cited_ids → word overlap → IGNORED |
+| `Reinforcement` | Deterministic delta rules applied to `GovernanceMeta` in place: USED (+0.05 utility, +0.02 trust, +0.02 stability), IGNORED (−0.01 utility), CONTRADICTED (−0.03 utility, −0.02 trust). All clamped to [0, 1] |
+| `ReflectPath` | Calls `UsageDetector`, buckets by label, applies `Reinforcement`, returns `ReflectResult` with per-memory deltas and summary counts |
+| `ReflectResult` | Dataclass: `used_ids`, `ignored_ids`, `contradicted_ids`, `vetoed_ids`, `utility_deltas`, `trust_deltas`, `total_reinforced`, `total_penalized` |
+| `ReflectMetrics` | Thread-safe accumulator: 7 counters merged into `Governor.stats()` |
+| `Governor.reflect()` | Entry point; calls `ReflectPath`; records to `ReflectMetrics` |
+| `POST /v1/mnemos/governance/reflect` | REST endpoint; accepts `query`, `answer`, `candidates` (inline JSON), optional `cited_ids`, `governance_mode`; returns `ReflectResult` as JSON |
+
+Overlap threshold: 15% default (fraction of memory tokens present in answer). Tunable via `UsageDetector(overlap_threshold=...)`. Precision-first: known false-positive cases documented in Governance Validation Pack v1.
+
+### Wave 4 — Hygiene path (background memory health)
+
+| Component | Description |
+|---|---|
+| `DecayRunner` | Linear utility decay past inactivity horizon (`horizon_days=60`). `lifecycle_state → "stale"` when `utility_score < stale_threshold` (default 0.20). `last_used_at` takes priority over `created_at`. Floor at `min_utility=0.0`. Dry-run mode |
+| `PrunePromoter` | Composite score floor promotion: `utility × trust × contradiction_factor < composite_floor (0.05)` → `lifecycle_state = "prune_candidate"`. Stale memories always promoted when `respect_stale_state=True`. Dry-run mode |
+| `ContradictionSweepRunner` | Offline entity-slot contradiction detection over full corpus. Groups by `(entity_key, attribute_key)`, calls `ContradictionPolicy.detect_and_resolve()`, writes `conflict_status`/`conflict_group_id`/`superseded_by` back to `GovernanceMeta`. Dry-run mode |
+| `HygienePipeline` | Chains all three in order: decay → prune → sweep. Single `run(engrams, dry_run=False)` call. Returns `HygienePipelineReport` with per-runner sub-reports and `total_mutations` |
+| `HygieneMetrics` | Thread-safe accumulator: 4 counters (`total_decay_runs`, `total_stale_promoted`, `total_prune_candidates`, `total_contradiction_sweep_clusters`) merged into `Governor.stats()` |
+| `Governor.run_hygiene()` | Entry point; accepts optional `DecayConfig`/`PruneConfig` overrides; records to `HygieneMetrics` |
+
+**Non-destructive posture:** hygiene runners only set lifecycle state (`stale`, `prune_candidate`). No physical deletion. No irreversible consolidation.
+
+### Policy Profiles (per-tenant governance tuning)
+
+`GovernancePolicyProfile` is a frozen dataclass encapsulating all tunable governance parameters for a named tenant or deployment context. Profiles allow independent tuning of read-path thresholds, reflect-path precision, and reinforcement deltas without restarting the service.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `min_score_threshold` | `0.0` | Veto floor for retrieval score |
+| `freshness_half_life_days` | `180.0` | Freshness decay half-life |
+| `overlap_threshold` | `0.15` | Word-overlap threshold for USED classification in reflect path |
+| `min_memory_tokens_for_overlap` | `3` | Minimum token length for inclusion in memory word set |
+| `min_overlap_tokens` | `2` | Minimum matched tokens required for USED classification |
+| `utility_used / ignored / contradiction_loser` | `+0.05 / −0.01 / −0.03` | Utility reinforcement deltas |
+| `trust_used / ignored / contradiction_loser` | `+0.02 / 0.0 / −0.02` | Trust reinforcement deltas |
+| `stability_used` | `+0.02` | Stability reinforcement delta |
+
+Profiles are loaded from `MNEMOS_GOVERNANCE_POLICY_PROFILES_JSON` (a JSON object mapping profile name → parameter overrides). The `"default"` profile always exists. Per-request profile selection via the `governance_profile` parameter on `POST /v1/mnemos/search` and `POST /v1/mnemos/governance/reflect`. Active profile IDs are reported in `GET /v1/mnemos/governance/stats`.
+
+### Test Coverage
+
+| Suite | Tests | Result |
+|---|---:|---|
+| `test_governance.py` (Wave 1 core, 3-tuple return) | 42 | Pass |
+| `test_governance_contradictions.py` (Wave 2 contradiction detection) | 25 | Pass |
+| `test_governance_reflect.py` (Wave 3 reflect path) | 35 | Pass |
+| `test_governance_drift_validation.py` (Governance Validation Pack v1 — 10 scenarios) | 33 | Pass |
+| `test_hygiene_decay.py` (Wave 4 decay runner) | 19 | Pass |
+| `test_hygiene_prune.py` (Wave 4 prune promoter) | 20 | Pass |
+| `test_hygiene_contradiction_sweep.py` (Wave 4 offline sweep) | 14 | Pass |
+| `test_hygiene_pipeline.py` (Wave 4 pipeline + Governor integration) | 8 | Pass |
+| `test_governance_policy_profiles.py` (per-tenant policy profile loading) | 3 | Pass |
+| `test_service_hybrid_api.py` (API integration) | 7 | Pass |
+| Full suite (excluding infra-dependent Qdrant tier) | **321** | **Pass** |
+
+### Current Governance Posture
+
+| Setting | Value | Rationale |
+|---|---|---|
+| Default mode | `off` | Conservative — no behavior change until advisory benchmarked on real corpus |
+| Advisory mode | Available | All candidates evaluated, none suppressed; enables A/B comparison of governed vs raw ordering |
+| Enforced mode | Available | Suppressed candidates removed and re-ranked; not yet promoted as a default |
+| Min score threshold | `0.0` (disabled) | Enable only when a score floor is evidence-backed on real corpus data |
+| Freshness half-life | `180 days` | Tune per corpus recency requirements |
+
+### Governance API Reference
+
+`POST /v1/mnemos/search` accepts two new parameters:
+
+| Parameter | Type | Values |
+|---|---|---|
+| `governance` | string | `"off"` \| `"advisory"` \| `"enforced"` |
+| `explain_governance` | boolean | `true` \| `false` |
+
+When governance is active (`!= "off"`):
+- Each result includes `governed_score` (float).
+- `meta.governance_summary` reports: `candidates_evaluated`, `vetoed`, `suppressed`, `contradictions_detected`, `contradiction_suppressed`.
+- With `explain_governance: true`, each result includes a full `governance` block with all modifier components, veto reason, conflict state, and `would_be_suppressed_in_enforced_mode`.
+
+`GET /v1/mnemos/governance/stats` returns aggregate query-level statistics: total governed queries, advisory vs enforced split, veto rate, suppression rate, contradiction counts, and active policy names.
+
+Environment variables:
+
+| Variable | Default | Description |
+|---|---|---|
+| `MNEMOS_GOVERNANCE_MODE` | `off` | Default mode for all search requests |
+| `MNEMOS_GOVERNANCE_MIN_SCORE` | `0.0` | Veto threshold (0.0 = disabled) |
+| `MNEMOS_GOVERNANCE_FRESHNESS_HALF_LIFE` | `180.0` | Freshness decay half-life in days |
+
+### Next Governance Steps
+
+1. **Governance benchmark pack (A1)** — compare `governance=off` vs `advisory` vs `enforced` on fixture data; measure contradiction leakage rate, stale-memory leakage, irrelevant inclusion, ranking delta after reflect cycles.
+2. **Explain-payload review pack (A3)** — human-readable audit of real governance decisions from realistic queries.
+3. **Threshold tuning report (A4)** — formalize overlap threshold, freshness half-life, veto floor, contradiction modifiers, and reinforcement deltas with evidence from real corpus runs.
+4. **Persistence shim (B1–B4)** — make trust/utility/stability/lifecycle/contradiction outcomes durable across service restarts.
+
+See MemArchitect Completion Program: `benchmarks/TEMP/MNEMOS_MemArchitect_Completion_Program.md`
+
+---
+
 ## Running the Suite
 
 ```bash
@@ -587,7 +1247,7 @@ python benchmarks/run_profile_benchmarks.py --track installer
 python benchmarks/run_profile_benchmarks.py --corpus-type real --pdf-dir /path/to/pdfs
 
 # Real-world corpus from local test set
-python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "C:\Users\vin\Downloads\ToLearn"
+python benchmarks/run_profile_benchmarks.py --track retrieval --corpus-type real --pdf-dir "<YOUR_PDF_DIR>"
 
 # Fast dev (smaller corpus, fewer runs)
 python benchmarks/run_profile_benchmarks.py --corpus-size 1000 --runs 3

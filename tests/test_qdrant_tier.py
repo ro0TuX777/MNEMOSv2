@@ -44,8 +44,8 @@ def qdrant_tier(mock_qdrant_client):
         tier = QdrantTier.__new__(QdrantTier)
         tier._url = "http://localhost:6333"
         tier._collection_name = "test_engrams"
-        tier._embedding_model_name = "all-MiniLM-L6-v2"
-        tier._embedding_dim = 384
+        tier._embedding_model_name = "BAAI/bge-base-en-v1.5"
+        tier._embedding_dim = 768
         tier._gpu_device = "cpu"
         tier._client = mock_qdrant_client
         tier._model = None
@@ -63,7 +63,7 @@ class TestQdrantTier:
         """Test indexing engrams with mocked embeddings."""
         mock_model = MagicMock()
         import numpy as np
-        mock_model.encode.return_value = np.random.rand(2, 384).astype(np.float32)
+        mock_model.encode.return_value = np.random.rand(2, 768).astype(np.float32)
         qdrant_tier._model = mock_model
 
         engrams = [
@@ -83,7 +83,7 @@ class TestQdrantTier:
         """Test search with mocked Qdrant response."""
         mock_model = MagicMock()
         import numpy as np
-        mock_model.encode.return_value = np.random.rand(1, 384).astype(np.float32)
+        mock_model.encode.return_value = np.random.rand(1, 768).astype(np.float32)
         qdrant_tier._model = mock_model
 
         qdrant_tier._client.search.return_value = [

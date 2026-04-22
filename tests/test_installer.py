@@ -1,10 +1,13 @@
 """Tests for the MNEMOS guided installer."""
 
 import pytest
+import tempfile
+from pathlib import Path
 from installer.profiles import PROFILES, get_profile, list_profiles, ProfileSpec
 from installer.questions import UserAnswers, from_dict
 from installer.probes import ProbeResults
 from installer.recommend import recommend, Recommendation
+from installer.render import render_env, render_manifest
 
 
 # ─────────────────── Profile Tests ───────────────────
@@ -188,3 +191,54 @@ class TestRecommend:
         rec = recommend(answers, _default_probes())
         assert len(rec.reasons) >= 2
         assert any("pgvector" in r.lower() for r in rec.reasons)
+
+
+class TestRenderHybridSettings:
+    def test_render_env_includes_hybrid_controls(self):
+        profile = get_profile("core_memory_appliance")
+        assert profile is not None
+
+        with tempfile.TemporaryDirectory(dir=".") as tmpdir:
+            env_path = render_env(
+                profile,
+                Path(tmpdir),
+                retrieval_mode="hybrid",
+                fusion_policy="lexical_dominant",
+                lexical_top_k=40,
+                semantic_top_k=30,
+                explain_default=True,
+            )
+
+            content = env_path.read_text()
+            assert "MNEMOS_RETRIEVAL_MODE=hybrid" in content
+            assert "MNEMOS_FUSION_POLICY=lexical_dominant" in content
+            assert "MNEMOS_LEXICAL_TOP_K=40" in content
+            assert "MNEMOS_SEMANTIC_TOP_K=30" in content
+            assert "MNEMOS_EXPLAIN_DEFAULT=true" in content
+
+    def test_render_manifest_captures_retrieval_settings(self):
+        rec = Recommendation(
+            profile=PROFILES["governance_native"],
+            confidence="high",
+            reasons=["test"],
+        )
+        answers = UserAnswers()
+        probes = _default_probes()
+
+        with tempfile.TemporaryDirectory(dir=".") as tmpdir:
+            manifest_path = render_manifest(
+                rec,
+                answers,
+                probes,
+                Path(tmpdir),
+                retrieval_mode="hybrid",
+                fusion_policy="balanced",
+                lexical_top_k=25,
+                semantic_top_k=25,
+                explain_default=False,
+            )
+
+            content = manifest_path.read_text()
+            assert "retrieval:" in content
+            assert "mode: hybrid" in content
+            assert "fusion_policy: balanced" in content

@@ -83,12 +83,14 @@ def _build_manifest(app_name: str) -> dict:
             ],
             "post_promote": [
                 "smoke_test_pass",
+                "slo_reliability_gate_pass",
                 "latency_within_budget",
             ],
         },
-        "rollback_trigger": "Any gate failure or manual operator decision",
+        "rollback_trigger": "Any gate failure (including SLO breach) or manual operator decision",
         "notes": [
             "Replace echo commands with real deployment/config commands",
+            "Run: python tools/mnemos_ci_gates.py --run-slo-reliability-gate during canary promotions",
             "Add latency and error-rate thresholds in gates.post_promote",
             "State is tracked in <manifest>.state.json",
         ],

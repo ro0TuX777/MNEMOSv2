@@ -1,23 +1,21 @@
 """
-MNEMOS Benchmark - ColBERT Reranking Runner (Track 2)
+MNEMOS Benchmark - Cross-Encoder Reranking Runner (Track 2)
 ======================================================
 
-Product question: When is ColBERT worth the latency and VRAM cost?
+Product question: When is the Cross-Encoder worth the latency and VRAM cost?
 
-Compares baseline retrieval vs ColBERT candidate reranking at
+Compares baseline retrieval vs Cross-Encoder candidate reranking at
 depths 20/50/100 for both primary tiers (Qdrant and pgvector).
 """
 
 import time
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
 import numpy as np
 
 from benchmarks.datasets.query_generator import BenchmarkQuery
 from benchmarks.metrics.retrieval_metrics import QueryResult, aggregate_results
 from mnemos.engram.model import Engram
-from mnemos.retrieval.base import SearchResult
 
 
 def _get_vram_usage_mb() -> float:
@@ -33,44 +31,6 @@ def _get_vram_usage_mb() -> float:
         return 0.0
 
 
-def _maxsim(query_emb: np.ndarray, doc_emb: np.ndarray) -> float:
-    """ColBERT late-interaction MaxSim score."""
-    sim_matrix = query_emb @ doc_emb.T
-    max_sims = sim_matrix.max(axis=1)
-    return float(max_sims.mean())
-
-
-def _rerank_candidates(
-    query_text: str,
-    candidates: List[SearchResult],
-    colbert_tier: Any,
-    query_cache: Dict[str, np.ndarray],
-    doc_cache: Dict[str, np.ndarray],
-    top_k: int = 10,
-) -> List[SearchResult]:
-    """Rerank primary candidates with ColBERT embeddings."""
-    if not candidates:
-        return []
-
-    if query_text not in query_cache:
-        query_cache[query_text] = colbert_tier._encode_multi_vector(query_text)
-    q_emb = query_cache[query_text]
-
-    rescored: List[Tuple[SearchResult, float]] = []
-    for hit in candidates:
-        did = hit.engram.id
-        if did not in doc_cache:
-            doc_cache[did] = colbert_tier._encode_multi_vector(hit.engram.content)
-        score = _maxsim(q_emb, doc_cache[did])
-        rescored.append((hit, score))
-
-    rescored.sort(key=lambda x: x[1], reverse=True)
-    out: List[SearchResult] = []
-    for hit, score in rescored[:top_k]:
-        out.append(SearchResult(engram=hit.engram, score=score, tier=f"{hit.tier}+colbert"))
-    return out
-
-
 def _run_single_tier_rerank(
     primary_tier_name: str,
     queries: List[BenchmarkQuery],
@@ -78,6 +38,9 @@ def _run_single_tier_rerank(
     rerank_depths: List[int],
     n_runs: int,
     gpu_device: str,
+    enable_audit: bool = False,
+    audit_queries: int = 10,
+    audit_depth: int = 50,
 ) -> Dict[str, Any]:
     from benchmarks.runners.retrieval_runner import _check_backend, _create_tier
 
@@ -102,15 +65,13 @@ def _run_single_tier_rerank(
     semantic_queries = [q for q in queries if q.regime == "semantic"][:50]
     print(f"  [{primary_tier_name}] Using {len(semantic_queries)} semantic queries")
 
-    # Try to initialize ColBERT tier for reranking scorer.
+    # Try to initialize CrossEncoderReranker
     try:
-        from mnemos.retrieval.colbert_tier import ColBERTTier, ColBERTConfig
-        colbert_tier = ColBERTTier(
-            ColBERTConfig(index_dir=f"benchmarks/outputs/tmp_colbert_{primary_tier_name}")
-        )
+        from mnemos.retrieval.cross_encoder import CrossEncoderReranker
+        reranker = CrossEncoderReranker(model_name="BAAI/bge-reranker-base")
     except Exception as e:
-        print(f"    [WARN]  ColBERT unavailable for {primary_tier_name}: {e}")
-        return {"status": "skipped", "reason": "colbert_not_available"}
+        print(f"    [WARN]  Cross-Encoder unavailable for {primary_tier_name}: {e}")
+        return {"status": "skipped", "reason": "reranker_not_available"}
 
     results: Dict[str, Any] = {
         "status": "success",
@@ -147,8 +108,6 @@ def _run_single_tier_rerank(
     print(f"    Baseline MRR={baseline['mrr_at_10']:.4f} p50={baseline['latency_p50_ms']:.1f}ms")
 
     # Depth sweeps
-    query_cache: Dict[str, np.ndarray] = {}
-    doc_cache: Dict[str, np.ndarray] = {}
     depth_results: Dict[str, Any] = {}
 
     for depth in rerank_depths:
@@ -160,9 +119,7 @@ def _run_single_tier_rerank(
             for q in semantic_queries:
                 t0 = time.perf_counter()
                 candidates = primary_tier.search(q.text, top_k=depth)
-                reranked = _rerank_candidates(
-                    q.text, candidates, colbert_tier, query_cache, doc_cache, top_k=10
-                )
+                reranked = reranker.rerank(q.text, candidates, top_k=10)
                 latency = time.perf_counter() - t0
                 run_results.append(QueryResult(
                     query_id=q.id,
@@ -170,9 +127,9 @@ def _run_single_tier_rerank(
                     returned_ids=[r.engram.id for r in reranked],
                     gold_ids=q.gold_ids,
                     latency_s=latency,
-                    tier=f"{primary_tier_name}+colbert@{depth}",
+                    tier=f"{primary_tier_name}+cross_encoder@{depth}",
                 ))
-            reports.append(aggregate_results(run_results, f"{primary_tier_name}+colbert", "semantic"))
+            reports.append(aggregate_results(run_results, f"{primary_tier_name}+cross_encoder", "semantic"))
         vram_after = _get_vram_usage_mb()
 
         med_mrr = float(np.median([r.mrr_at_10 for r in reports]))
@@ -210,16 +167,23 @@ def _run_single_tier_rerank(
         results["recommended_depth"] = viable[0]["depth"]
     else:
         results["recommended_depth"] = None
+
+    if enable_audit:
+        print(f"    [WARN] Audit trace disabled. Reranker natively wraps output, omitting diagnostics.")
+
     return results
 
 
 def run_rerank_benchmark(
     queries: List[BenchmarkQuery],
     corpus: List[Engram],
-    primary_tiers: Optional[List[str]] = None,
-    rerank_depths: Optional[List[int]] = None,
+    primary_tiers: List[str] = None, # type: ignore
+    rerank_depths: List[int] = None, # type: ignore
     n_runs: int = 3,
     gpu_device: str = "cuda",
+    enable_audit: bool = False,
+    audit_queries: int = 10,
+    audit_depth: int = 50,
 ) -> Dict[str, Any]:
     """
     Run Track 2 across primary tiers and rerank depths.
@@ -237,7 +201,7 @@ def run_rerank_benchmark(
         rerank_depths = [20, 50, 100]
 
     print("\n" + "=" * 70)
-    print("  TRACK 2: ColBERT Reranking Uplift")
+    print("  TRACK 2: Cross-Encoder Reranking Uplift")
     print("=" * 70)
 
     out: Dict[str, Any] = {"track": "rerank", "status": "success", "tiers": {}}
@@ -245,7 +209,15 @@ def run_rerank_benchmark(
 
     for tier in primary_tiers:
         out["tiers"][tier] = _run_single_tier_rerank(
-            tier, queries, corpus, rerank_depths, n_runs=n_runs, gpu_device=gpu_device
+            tier,
+            queries,
+            corpus,
+            rerank_depths,
+            n_runs=n_runs,
+            gpu_device=gpu_device,
+            enable_audit=enable_audit,
+            audit_queries=audit_queries,
+            audit_depth=audit_depth,
         )
         if out["tiers"][tier].get("status") == "success":
             any_success = True

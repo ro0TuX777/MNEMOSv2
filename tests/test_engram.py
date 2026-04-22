@@ -60,6 +60,54 @@ class TestEngram:
         assert e2.neuro_tags == e.neuro_tags
         assert e2.confidence == e.confidence
 
+    def test_lineage_defaults_for_legacy_engram(self):
+        e = Engram(id="eng-1", content="hello", source="s3://bucket/doc.txt")
+        lineage = e.lineage()
+        assert lineage["artifact_id"] == "artifact:eng-1"
+        assert lineage["chunk_id"] == "eng-1"
+        assert lineage["artifact_version"] == "v1"
+        assert lineage["source_uri"] == "s3://bucket/doc.txt"
+
+    def test_lineage_respects_metadata_contract(self):
+        e = Engram(
+            id="eng-2",
+            content="hello",
+            metadata={
+                "artifact_id": "art-123",
+                "artifact_version": "v7",
+                "chunk_id": "chunk-9",
+                "provenance_span": {"start": 12, "end": 24},
+            },
+        )
+        lineage = e.lineage()
+        assert lineage["artifact_id"] == "art-123"
+        assert lineage["artifact_version"] == "v7"
+        assert lineage["chunk_id"] == "chunk-9"
+        assert lineage["provenance_span"] == {"start": 12, "end": 24}
+
+    def test_to_dict_include_lineage(self):
+        e = Engram(id="eng-3", content="hello")
+        d = e.to_dict(include_lineage=True)
+        assert "_lineage" in d
+        assert d["_lineage"]["chunk_id"] == "eng-3"
+
+    def test_from_dict_preserves_lineage_into_metadata(self):
+        e = Engram.from_dict(
+            {
+                "id": "eng-4",
+                "content": "hello",
+                "_lineage": {
+                    "artifact_id": "art-1",
+                    "artifact_version": "v2",
+                    "chunk_id": "chunk-1",
+                    "provenance_span": {"start": 0, "end": 5},
+                },
+            }
+        )
+        assert e.metadata["artifact_id"] == "art-1"
+        assert e.metadata["artifact_version"] == "v2"
+        assert e.metadata["chunk_id"] == "chunk-1"
+
 
 class TestEngramBatch:
     def test_batch_ops(self):

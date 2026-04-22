@@ -1,0 +1,31 @@
+[
+  {"id": "hc001", "query_class": "acronym_control_lookup", "domain": "legal", "text": "What does GDPR require for data handling disclosures?", "filters": {}},
+  {"id": "hc002", "query_class": "acronym_control_lookup", "domain": "legal", "text": "Find SOX internal control requirements relevant to quarterly reporting", "filters": {}},
+  {"id": "hc003", "query_class": "acronym_control_lookup", "domain": "medical", "text": "Locate HIPAA privacy compliance gaps for patient data", "filters": {}},
+  {"id": "hc004", "query_class": "acronym_control_lookup", "domain": "technical", "text": "Show API p99 latency guidance for /v1/search operations", "filters": {}},
+  {"id": "hc005", "query_class": "acronym_control_lookup", "domain": "finance", "text": "What is the NII impact from interest rate sensitivity analysis?", "filters": {}},
+
+  {"id": "hc006", "query_class": "title_named_artifact_lookup", "domain": "medical", "text": "Find details for clinical trial NCT-0187", "filters": {}},
+  {"id": "hc007", "query_class": "title_named_artifact_lookup", "domain": "legal", "text": "Retrieve contract MN-2025-017 Section 7.1 obligations", "filters": {}},
+  {"id": "hc008", "query_class": "title_named_artifact_lookup", "domain": "technical", "text": "Locate migration notes for database migration v3.0", "filters": {}},
+  {"id": "hc009", "query_class": "title_named_artifact_lookup", "domain": "medical", "text": "Find post-market surveillance incidents for defibrillator C", "filters": {}},
+  {"id": "hc010", "query_class": "title_named_artifact_lookup", "domain": "finance", "text": "Retrieve audit findings for Subsidiary B in fiscal year 2025", "filters": {}},
+
+  {"id": "hc011", "query_class": "exact_phrase_semantic_expansion", "domain": "technical", "text": "memory profiling leak per request cycle", "filters": {}},
+  {"id": "hc012", "query_class": "exact_phrase_semantic_expansion", "domain": "technical", "text": "container image reduced from old size to new size", "filters": {}},
+  {"id": "hc013", "query_class": "exact_phrase_semantic_expansion", "domain": "finance", "text": "capital allocation policy requires reserves", "filters": {}},
+  {"id": "hc014", "query_class": "exact_phrase_semantic_expansion", "domain": "legal", "text": "board resolution authorises executive appointment", "filters": {}},
+  {"id": "hc015", "query_class": "exact_phrase_semantic_expansion", "domain": "medical", "text": "drug interaction warning may cause QT prolongation", "filters": {}},
+
+  {"id": "hc016", "query_class": "procedural_retrieval", "domain": "technical", "text": "How should we deploy platform-v3 with a canary strategy?", "filters": {}},
+  {"id": "hc017", "query_class": "procedural_retrieval", "domain": "finance", "text": "What steps are required for compliance review discrepancy handling?", "filters": {}},
+  {"id": "hc018", "query_class": "procedural_retrieval", "domain": "medical", "text": "What is the protocol update process after randomized controlled evidence?", "filters": {}},
+  {"id": "hc019", "query_class": "procedural_retrieval", "domain": "legal", "text": "What does subpoena discovery response typically involve?", "filters": {}},
+  {"id": "hc020", "query_class": "procedural_retrieval", "domain": "technical", "text": "How to optimize cache hit rate and eviction strategy for api-gateway?", "filters": {}},
+
+  {"id": "hc021", "query_class": "comparative_definition", "domain": "finance", "text": "Compare moderate versus elevated market risk exposure contexts", "filters": {}},
+  {"id": "hc022", "query_class": "comparative_definition", "domain": "medical", "text": "Difference between non-inferiority and no benefit trial outcomes", "filters": {}},
+  {"id": "hc023", "query_class": "comparative_definition", "domain": "legal", "text": "Compare indemnification clauses and limitation of liability obligations", "filters": {}},
+  {"id": "hc024", "query_class": "comparative_definition", "domain": "technical", "text": "Difference between blue-green and rolling deployment strategies", "filters": {}},
+  {"id": "hc025", "query_class": "comparative_definition", "domain": "technical", "text": "Define throughput versus latency degradation in service incidents", "filters": {}}
+]

@@ -34,6 +34,9 @@ class SearchHit:
     score: float
     tier: str
     tiers: List[str]
+    component_scores: Optional[Dict[str, float]] = None
+    retrieval_sources: Optional[List[str]] = None
+    fusion_policy: Optional[str] = None
 
 
 @dataclass
@@ -167,23 +170,34 @@ class MnemosClient:
                     data=data,
                 )
 
-            except Exception as exc:
+            except requests.HTTPError as exc:
+                # 4xx errors are caller faults — retrying won't help.
+                if exc.response is not None and exc.response.status_code < 500:
+                    return self._envelope(status="unavailable", error=str(exc))
                 last_error = str(exc)
-                if attempt < attempts - 1:
-                    time.sleep(max(0.0, self._cfg.retry_delay_s))
-                    logger.debug(
-                        "MNEMOS request attempt %d/%d failed: %s",
-                        attempt + 1, attempts, last_error,
-                    )
+            except ValueError as exc:
+                # Bad response format (non-dict JSON) — non-transient, don't retry.
+                return self._envelope(status="unavailable", error=str(exc))
+            except (requests.Timeout, requests.ConnectionError, Exception) as exc:
+                last_error = str(exc)
+
+            if attempt < attempts - 1:
+                time.sleep(max(0.0, self._cfg.retry_delay_s))
+                logger.debug(
+                    "MNEMOS request attempt %d/%d failed: %s",
+                    attempt + 1, attempts, last_error,
+                )
 
         return self._envelope(status="unavailable", error=last_error or "remote_error")
 
     # ──────── Readiness ────────
 
     def wait_until_ready(self) -> bool:
-        """Poll ``/health`` until the service is ready or timeout expires.
+        """Poll ``/health`` until the service is healthy or timeout expires.
 
-        Returns True if the service became healthy, False otherwise.
+        Returns True only if the service responds HTTP 200 with
+        ``status == "healthy"`` in the response body. A 200 with
+        ``status == "degraded"`` returns False.
         """
         if self._cfg.autostart_on_demand and self._cfg.autostart_cmd.strip():
             self._maybe_autostart()
@@ -197,8 +211,10 @@ class MnemosClient:
             try:
                 resp = requests.get(health_url, timeout=2.0)
                 if resp.status_code == 200:
-                    logger.info("MNEMOS service is ready at %s", self._cfg.base_url)
-                    return True
+                    body = resp.json()
+                    if isinstance(body, dict) and body.get("status") == "healthy":
+                        logger.info("MNEMOS service is ready at %s", self._cfg.base_url)
+                        return True
             except Exception:
                 pass
             time.sleep(0.4)
@@ -264,6 +280,9 @@ class MnemosClient:
         top_k: int = 10,
         tiers: Optional[List[str]] = None,
         filters: Optional[Dict[str, Any]] = None,
+        retrieval_mode: Optional[str] = None,
+        fusion_policy: Optional[str] = None,
+        explain: Optional[bool] = None,
     ) -> List[SearchHit]:
         """Search across retrieval tiers and return fused results.
 
@@ -281,9 +300,18 @@ class MnemosClient:
             payload["tiers"] = tiers
         if filters:
             payload["filters"] = filters
+        if retrieval_mode:
+            payload["retrieval_mode"] = retrieval_mode
+        if fusion_policy:
+            payload["fusion_policy"] = fusion_policy
+        if explain is not None:
+            payload["explain"] = explain
 
         resp = self._request("POST", "/v1/mnemos/search", payload=payload)
         if not resp.ok:
+            logger.warning(
+                "MNEMOS search failed (status=%s): %s", resp.status, resp.error
+            )
             return []
 
         hits = []
@@ -293,6 +321,9 @@ class MnemosClient:
                 score=r.get("score", 0.0),
                 tier=r.get("tier", ""),
                 tiers=r.get("tiers", []),
+                component_scores=r.get("component_scores"),
+                retrieval_sources=r.get("retrieval_sources"),
+                fusion_policy=r.get("fusion_policy"),
             ))
         return hits
 
@@ -303,6 +334,9 @@ class MnemosClient:
         top_k: int = 10,
         tiers: Optional[List[str]] = None,
         filters: Optional[Dict[str, Any]] = None,
+        retrieval_mode: Optional[str] = None,
+        fusion_policy: Optional[str] = None,
+        explain: Optional[bool] = None,
     ) -> MnemosResponse:
         """Search and return the full MnemosResponse envelope."""
         payload: Dict[str, Any] = {"query": query, "top_k": top_k}
@@ -310,6 +344,12 @@ class MnemosClient:
             payload["tiers"] = tiers
         if filters:
             payload["filters"] = filters
+        if retrieval_mode:
+            payload["retrieval_mode"] = retrieval_mode
+        if fusion_policy:
+            payload["fusion_policy"] = fusion_policy
+        if explain is not None:
+            payload["explain"] = explain
         return self._request("POST", "/v1/mnemos/search", payload=payload)
 
     def get_engram(self, engram_id: str) -> MnemosResponse:
