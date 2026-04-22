@@ -32,6 +32,26 @@ class CrossEncoderReranker:
                 logger.error(f"Failed to load reranker model '{self.model_name}': {e}")
                 raise RuntimeError(f"Reranker unavailable: {e}") from e
 
+    def health(self) -> dict:
+        """Returns the health status of the reranker service."""
+        try:
+            self._initialize()
+            return {
+                "healthy": getattr(self, "_initialized", False) and self._model is not None,
+                "model_loaded": self._model is not None,
+                "last_error": None,
+                "warm": True,  # For in-process, if loaded it's warm
+                "latency_ms": 0.0
+            }
+        except Exception as e:
+            return {
+                "healthy": False,
+                "model_loaded": False,
+                "last_error": str(e),
+                "warm": False,
+                "latency_ms": None
+            }
+
     def rerank(
         self, query: str, results: List[SearchResult], top_k: Optional[int] = None
     ) -> List[SearchResult]:

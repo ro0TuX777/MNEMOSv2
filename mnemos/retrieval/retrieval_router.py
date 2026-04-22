@@ -15,6 +15,11 @@ from mnemos.retrieval.candidate_envelope import (
 from mnemos.retrieval.fusion import TierFusion
 from mnemos.retrieval.hybrid_fusion import HybridFusion
 from mnemos.retrieval.policies.fusion_policies import DEFAULT_FUSION_POLICY, FUSION_POLICIES
+from mnemos.retrieval.policies.rerank_policy import RerankPolicy
+from mnemos.retrieval.policies.query_classifier import get_classifier
+from mnemos.retrieval.telemetry import get_telemetry_sink
+import uuid
+from datetime import datetime, timezone
 
 
 class RetrievalRouter:
@@ -30,6 +35,9 @@ class RetrievalRouter:
         self._semantic_fusion = semantic_fusion
         self._lexical_tier = lexical_tier
         self._reranker = reranker
+        self._rerank_policy = RerankPolicy()
+        self._classifier = get_classifier(self._rerank_policy.config.get("query_family_classifier", {}))
+        self._telemetry_sink = get_telemetry_sink(self._rerank_policy.config.get("telemetry", {}))
         self._hybrid_fusion = HybridFusion()
         self._stats = {
             "hybrid_query_count": 0,
@@ -115,6 +123,130 @@ class RetrievalRouter:
             self._stats["hybrid_latency_p50_ms"] = round(p50, 2)
             self._stats["hybrid_latency_p95_ms"] = round(p95, 2)
 
+    def _apply_conditional_rerank(self, query: str, candidates: List[SearchResult], dense_latency_ms: float) -> Tuple[List[SearchResult], Dict[str, Any]]:
+        telemetry = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "request_id": str(uuid.uuid4()),
+            "query_hash": str(hash(query)),
+            "query_family": "unknown",
+            "query_family_confidence": 0.0,
+            "rerank_eligible": False,
+            "rerank_applied": False,
+            "shadow_evaluated": False,
+            "rerank_model": self._reranker.model_name if getattr(self._reranker, "model_name", None) else "none",
+            "rerank_depth": 0,
+            "rerank_skip_reason": None,
+            "dense_latency_ms": dense_latency_ms,
+            "rerank_latency_ms": 0.0,
+            "total_latency_ms": dense_latency_ms,
+            "circuit_breaker_state": self._rerank_policy.circuit_breaker.state,
+            "dense_top_k": len(candidates),
+            "dense_top1_doc_id": candidates[0].engram.id if candidates else None,
+            "final_top1_doc_id": candidates[0].engram.id if candidates else None,
+            "timeout_occurred": False,
+            "error_occurred": False,
+            "service_healthy": False
+        }
+        
+        family, confidence = self._classifier.classify(query)
+        telemetry["query_family"] = family
+        telemetry["query_family_confidence"] = confidence
+        
+        # Fast exit if no reranker
+        if self._reranker is None:
+            telemetry["rerank_skip_reason"] = "no_reranker_configured"
+            if self._rerank_policy.config.get("telemetry", {}).get("persist_enabled", True):
+                self._telemetry_sink.emit(telemetry)
+            return candidates, telemetry
+            
+        health = self._reranker.health() if hasattr(self._reranker, "health") else {"healthy": True}
+        service_healthy = bool(health.get("healthy"))
+        telemetry["service_healthy"] = service_healthy
+        telemetry["rerank_service_health"] = health
+        
+        eligibility = self._rerank_policy.is_eligible(family, len(candidates), service_healthy)
+        telemetry["rerank_eligible"] = eligibility["eligible"]
+        
+        if not eligibility["eligible"]:
+            if not self._rerank_policy.should_shadow_execute(eligibility["skip_reason"]):
+                telemetry["rerank_skip_reason"] = eligibility["skip_reason"]
+                if self._rerank_policy.config.get("telemetry", {}).get("persist_enabled", True):
+                    self._telemetry_sink.emit(telemetry)
+                return candidates, telemetry
+            
+        depth = self._rerank_policy.get_depth(family)
+        telemetry["rerank_depth"] = depth
+        
+        candidates_to_rerank = candidates[:depth]
+        telemetry["rerank_skip_reason"] = eligibility["skip_reason"]  # May be set by shadow mode
+        
+        t0 = time.perf_counter()
+        
+        try:
+            # Re-initialize or check actual health
+            if getattr(self._reranker, "_initialize", None):
+                 self._reranker._initialize()
+                 if self._reranker._model is None:
+                      raise RuntimeError("Model unavailable")
+                      
+            reranked = self._reranker.rerank(query, candidates_to_rerank)
+            t1 = time.perf_counter()
+            rerank_lat = (t1 - t0) * 1000
+            
+            telemetry["rerank_latency_ms"] = rerank_lat
+            telemetry["total_latency_ms"] = dense_latency_ms + rerank_lat
+            self._rerank_policy.record_latency(family, rerank_lat)
+            self._rerank_policy.circuit_breaker.record_success()
+            
+            # Form final array
+            final_results = reranked + candidates[depth:]
+            
+            # Shadow mode check
+            if not eligibility["eligible"] and self._rerank_policy.should_shadow_execute(eligibility["skip_reason"]):
+                telemetry["shadow_evaluated"] = True
+                telemetry["top3_changed"] = bool({r.engram.id for r in candidates[:3]} != {r.engram.id for r in final_results[:3]})
+                telemetry["top10_changed"] = bool({r.engram.id for r in candidates[:10]} != {r.engram.id for r in final_results[:10]})
+                
+                if self._rerank_policy.config.get("telemetry", {}).get("persist_enabled", True):
+                    self._telemetry_sink.emit(telemetry)
+                # Discard ordering, return original
+                return candidates, telemetry
+                
+            telemetry["rerank_applied"] = True
+            telemetry["final_top1_doc_id"] = final_results[0].engram.id if final_results else None
+            
+            top3_original = {r.engram.id for r in candidates[:3]}
+            top3_new = {r.engram.id for r in final_results[:3]}
+            telemetry["top3_changed"] = bool(top3_original != top3_new)
+            
+            top10_orig = {r.engram.id for r in candidates[:10]}
+            top10_new = {r.engram.id for r in final_results[:10]}
+            telemetry["top10_changed"] = bool(top10_orig != top10_new)
+
+            if self._rerank_policy.config.get("telemetry", {}).get("persist_enabled", True):
+                self._telemetry_sink.emit(telemetry)
+
+            return final_results, telemetry
+            
+        except Exception as e:
+            err_msg = str(e).lower()
+            if "timeout" in err_msg:
+                 telemetry["timeout_occurred"] = True
+                 telemetry["rerank_skip_reason"] = "timeout"
+                 self._rerank_policy.circuit_breaker.record_timeout()
+            else:
+                 telemetry["error_occurred"] = True
+                 telemetry["rerank_skip_reason"] = "error"
+                 self._rerank_policy.circuit_breaker.record_error()
+                 
+            telemetry["rerank_applied"] = False
+            telemetry["shadow_evaluated"] = False
+            
+            if self._rerank_policy.config.get("telemetry", {}).get("persist_enabled", True):
+                self._telemetry_sink.emit(telemetry)
+                
+            return candidates, telemetry
+
     def search(
         self,
         *,
@@ -135,12 +267,13 @@ class RetrievalRouter:
         desired_pool = max(top_k, envelope_cfg.candidate_pool_limit) if envelope_cfg.enabled else top_k
 
         if mode == "semantic" or not self._lexical_tier:
+            t_s = time.perf_counter()
             self._stats["semantic_query_count"] += 1
             self._stats["retrieval_mode_counters"]["semantic"] += 1
             hits = self._semantic_fusion.search(query, top_k=desired_pool, filters=filters, tiers=tiers)
+            t_e = (time.perf_counter() - t_s) * 1000
             
-            if self._reranker is not None:
-                hits = self._reranker.rerank(query, hits)
+            hits, rr_telemetry = self._apply_conditional_rerank(query, hits, t_e)
 
             narrowed, envelope_meta = apply_candidate_envelope(hits, envelope_cfg)
             self._record_candidate_envelope_stats(envelope_meta)
@@ -150,6 +283,7 @@ class RetrievalRouter:
                 "lexical_available": self.lexical_available,
                 "candidate_envelope": envelope_meta,
                 "reranker_used": self._reranker is not None,
+                "rerank_telemetry": rr_telemetry,
             }
 
         start = time.perf_counter()
@@ -171,8 +305,7 @@ class RetrievalRouter:
             explain=explain,
         )
 
-        if self._reranker is not None:
-            fused = self._reranker.rerank(query, fused)
+        fused, rr_telemetry = self._apply_conditional_rerank(query, fused, (time.perf_counter() - start) * 1000)
 
         narrowed, envelope_meta = apply_candidate_envelope(fused, envelope_cfg)
         self._record_candidate_envelope_stats(envelope_meta)
@@ -187,6 +320,7 @@ class RetrievalRouter:
             "telemetry": telemetry,
             "candidate_envelope": envelope_meta,
             "reranker_used": self._reranker is not None,
+            "rerank_telemetry": rr_telemetry,
         }
         return narrowed[:top_k], meta
 
