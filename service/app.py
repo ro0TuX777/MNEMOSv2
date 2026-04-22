@@ -128,14 +128,6 @@ class MnemosRuntime:
                 from mnemos.retrieval.lancedb_tier import LanceDBTier
                 tiers.append(LanceDBTier(db_dir=self._config.lance_dir))
 
-            if self._config.has_colbert:
-                from mnemos.retrieval.colbert_tier import ColBERTTier, ColBERTConfig
-                tiers.append(ColBERTTier(ColBERTConfig(
-                    model_name=self._config.colbert_model,
-                    quantize_bits=self._config.quant_bits,
-                    index_dir=self._config.colbert_index_dir,
-                )))
-
             if not tiers:
                 raise RuntimeError("No retrieval tiers configured. Set MNEMOS_TIERS.")
 
@@ -154,9 +146,16 @@ class MnemosRuntime:
                     table_name=self._config.lexical_table,
                 )
 
+            if getattr(self._config, "use_reranker", False):
+                from mnemos.retrieval.cross_encoder import CrossEncoderReranker
+                reranker = CrossEncoderReranker(model_name=self._config.reranker_model)
+            else:
+                reranker = None
+
             self._router = RetrievalRouter(
                 semantic_fusion=self._semantic_fusion,
                 lexical_tier=self._lexical_tier,
+                reranker=reranker,
             )
 
             # Set up audit ledger
@@ -192,6 +191,14 @@ class MnemosRuntime:
         except Exception as e:
             self._status = "unavailable"
             self._error = str(e)
+            # Reset all components so a retry starts from a clean slate.
+            self._config = None
+            self._semantic_fusion = None
+            self._router = None
+            self._lexical_tier = None
+            self._ledger = None
+            self._governor = None
+            self._view_cache = None
             logger.exception("MNEMOS runtime initialization failed")
             raise
 

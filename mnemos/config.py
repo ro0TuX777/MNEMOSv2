@@ -24,8 +24,12 @@ class MnemosConfig:
 
     # Retrieval tiers
     tiers: List[str] = field(default_factory=lambda: ["qdrant"])
-    embedding_model: str = "all-MiniLM-L6-v2"
-    colbert_model: str = "colbertv2.0"
+    embedding_model: str = "BAAI/bge-base-en-v1.5"
+    long_context_model: str = "nomic-ai/nomic-embed-text-v1"
+
+    # Reranking
+    use_reranker: bool = True
+    reranker_model: str = "BAAI/bge-reranker-base"
 
     # TurboQuant compression
     quant_bits: int = 4   # 0 = disabled, 1-4 = bit-width
@@ -46,7 +50,6 @@ class MnemosConfig:
 
     # Data directories
     data_dir: str = "data"
-    colbert_index_dir: str = "data/colbert"
 
     # Qdrant (Core Memory Appliance)
     qdrant_url: str = "http://localhost:6333"
@@ -158,8 +161,10 @@ class MnemosConfig:
         config = cls(
             profile=os.getenv("MNEMOS_PROFILE", "core_memory_appliance"),
             tiers=tiers,
-            embedding_model=os.getenv("MNEMOS_EMBEDDING_MODEL", "all-MiniLM-L6-v2"),
-            colbert_model=os.getenv("MNEMOS_COLBERT_MODEL", "colbertv2.0"),
+            embedding_model=os.getenv("MNEMOS_EMBEDDING_MODEL", "BAAI/bge-base-en-v1.5"),
+            long_context_model=os.getenv("MNEMOS_LONG_CONTEXT_MODEL", "nomic-ai/nomic-embed-text-v1"),
+            use_reranker=cls._parse_bool("MNEMOS_USE_RERANKER", "true"),
+            reranker_model=os.getenv("MNEMOS_RERANKER_MODEL", "BAAI/bge-reranker-base"),
             quant_bits=quant_bits,
             audit_enabled=cls._parse_bool("MNEMOS_AUDIT_ENABLED", "true"),
             audit_db_path=os.getenv("MNEMOS_AUDIT_DB", "data/audit.db"),
@@ -170,7 +175,6 @@ class MnemosConfig:
             log_level=os.getenv("MNEMOS_LOG_LEVEL", "INFO"),
             gpu_device=os.getenv("MNEMOS_GPU_DEVICE", "cuda"),
             data_dir=os.getenv("MNEMOS_DATA_DIR", "data"),
-            colbert_index_dir=os.getenv("MNEMOS_COLBERT_DIR", "data/colbert"),
             qdrant_url=os.getenv("MNEMOS_QDRANT_URL", "http://localhost:6333"),
             qdrant_collection=os.getenv("MNEMOS_QDRANT_COLLECTION", "mnemos_engrams"),
             pgvector_table=os.getenv("MNEMOS_PGVECTOR_TABLE", "mnemos_vectors"),
@@ -209,9 +213,6 @@ class MnemosConfig:
     def has_pgvector(self) -> bool:
         return "pgvector" in self.tiers
 
-    @property
-    def has_colbert(self) -> bool:
-        return "colbert" in self.tiers
 
     @property
     def has_compression(self) -> bool:
