@@ -233,15 +233,19 @@ Observed on this workload:
 
 #### Cross-Encoder Rerank (Track 2)
 
-*Status: Implemented and validated via synthetic profile suite. Replaces legacy ColBERT late-interaction path.*
+*Status: Implemented as a Conditional Reranking Policy. Replaces legacy ColBERT late-interaction path.*
 
 Reference rerun: `20260422_124854_profile_benchmarks.json` (BAAI/bge-reranker-base run)
 
 Observed on this synthetic workload:
 - **Baseline Qdrant:** MRR=0.5134, nDCG=0.2105, p50=30.5ms
 - **Cross-Encoder limits @50:** MRR=0.3566 (Δ-0.15), nDCG=0.2114 (Δ+0.00), p50=45.5ms (Δ+15ms)
+
+**Production Posture:**
 - While the Cross-Encoder pipeline is significantly more stable operationally than previous late-interaction policies, synthetic zero-shot reranking still shows baseline semantic dominance (negative MRR uplift).
-- Recommended depth is currently `n/a` (no rerank by default) for standard factoid loads.
+- The system is currently in a **shadow-ready conditional state**: Dense-only remains the safe default path.
+- **Conditional Rerank Policy Enforcement:** Code evaluates hard and soft skip reasons before invoking the reranker. Reranking is explicitly gated behind heuristics (scaffolded hybrid zero-shot classifiers returning a low confidence "unknown" to guarantee baseline performance).
+- **Safety Gates & Telemetry:** Real-time `.health()` probes attached to the reranker, timeout circuit-breakers, and durable operational JSONL telemetry sinks (`logs/retrieval_telemetry.jsonl`) collect trigger rates and skip-reason distributions safely before turning reranking fully on.
 
 #### Hybrid Retrieval (Gate C, Real Corpus)
 

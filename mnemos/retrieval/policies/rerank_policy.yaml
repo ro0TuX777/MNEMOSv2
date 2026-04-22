@@ -1,0 +1,69 @@
+rerank_policy:
+  mode: conditional
+  default: off
+  
+  query_family_classifier:
+    mode: heuristic
+    confidence_threshold: 0.65
+    shadow_compare_zero_shot: false
+  enabled_query_families:
+    - code_behavior
+    - hard_negative
+    - multi_clause
+    - why_how
+
+  depth_by_family:
+    code_behavior: 50
+    hard_negative: 50
+    multi_clause: 50
+    why_how: 20
+
+  fallback_on_timeout: dense_only
+  fallback_on_error: dense_only
+  fallback_on_budget_exceeded: dense_only
+
+  guardrails:
+    max_p50_delta_ms: 25
+    max_p95_delta_ms: 60
+    max_timeout_rate: 0.01
+    max_error_rate: 0.005
+
+  family_latency_budgets:
+    code_behavior:
+      max_p50_delta_ms: 25
+      max_p95_delta_ms: 60
+    hard_negative:
+      max_p50_delta_ms: 25
+      max_p95_delta_ms: 60
+    multi_clause:
+      max_p50_delta_ms: 25
+      max_p95_delta_ms: 60
+    why_how:
+      max_p50_delta_ms: 20
+      max_p95_delta_ms: 50
+
+  minimum_candidate_pool: 20
+
+  telemetry:
+    enabled: true
+    sink: jsonl
+    jsonl_path: logs/retrieval_telemetry.jsonl
+    persist_enabled: true
+    log_top3_changed: true
+    log_top10_changed: true
+    log_skip_reasons: true
+    log_latency_breakdown: true
+
+  shadow_mode:
+    enabled_initially: true
+    minimum_eligible_queries: 1000
+    review_window_days: 7
+    hard_skip_reasons:
+      - service_unhealthy
+      - budget_exceeded
+      - circuit_breaker_open
+      - policy_off
+      - policy_dense_only
+    soft_skip_reasons:
+      - family_not_allowed
+      - insufficient_candidates
