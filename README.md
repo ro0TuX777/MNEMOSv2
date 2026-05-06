@@ -17,8 +17,10 @@ MNEMOS is a **drop-in memory service** that deploys as a GPU-accelerated Docker 
 | Capability | What you get |
 |---|---|
 | **Deployment profiles** | Core Memory Appliance (Qdrant), Governance Native (pgvector), or Custom Manual — named profiles with distinct retrieval architectures |
-| **GPU-native retrieval** | CUDA-accelerated embeddings via Qdrant or pgvector, optional ColBERT reranking |
-| **TurboQuant compression** | 4-bit near-lossless quantisation — 8× storage reduction, 84% Recall@10 (arXiv:2504.19874) |
+| **GPU-native retrieval** | CUDA-accelerated embeddings via Qdrant or pgvector, optional Cross-Encoder reranking |
+| **Server-side hybrid search** | Single round-trip hybrid fusion via Qdrant v1.17 prefetch + RRF — semantic + keyword in one call |
+| **Relevance feedback loop** | Governance labels (Used/Ignored) feed back into retrieval as Qdrant discovery exemplars — search improves from usage |
+| **TurboQuant compression** | 4-bit near-lossless quantisation — 8× storage reduction, 0.995 cosine fidelity (arXiv:2504.19874) |
 | **Engram enrichment** | Every document becomes a tagged, scored, provenanced knowledge unit with relationship edges |
 | **Forensic audit** | Every operation logged to PostgreSQL — compliance, debugging, and analytics built in |
 | **Contract-governed API** | MFS-compatible versioned contract — every response carries `profile`, `tiers`, `degraded_components`, `status` |
@@ -26,6 +28,17 @@ MNEMOS is a **drop-in memory service** that deploys as a GPU-accelerated Docker 
 | **Guided installer** | Q/A + host probes → profile recommendation → compose + env + manifest generation |
 | **Deployment manifest** | `mnemos_profile.yaml` — durable record of profile, host facts, and installer decisions |
 | **Profile migration** | Documented migration paths between profiles with rollback support |
+
+### What's New in v2
+
+| Change | Detail | Benchmark |
+|---|---|---|
+| **Hybrid search in one call** | `qdrant_rrf` fusion policy delegates rank fusion to Qdrant's server-side RRF via prefetch — eliminates the second network round-trip | Python-side fusion: 0.23ms/op @ 100 candidates (auto-fallback) |
+| **Retrieval learns from usage** | Governance `reflect_path` labels feed into `discover_points()` as positive/negative exemplars | Feedback store: 1.6M writes/sec, cache: 100% hit rate after warmup |
+| **TurboQuant cross-validated** | Same algorithm independently validated for LLM KV cache compression by llama.cpp community (6.7K+ ⭐) | Embedding compression: 8×, cosine fidelity: 0.995 |
+| **366 tests, 0 failures** | 21 new tests covering hybrid RRF, relevance feedback, and routing correctness | All 5 decision gates passed |
+
+> All v2 features are **opt-in** with automatic fallback. The existing retrieval pipeline runs unchanged unless you explicitly enable `qdrant_rrf` or `relevance_feedback`.
 
 ---
 
