@@ -34,7 +34,7 @@ The installer then probes for GPU, RAM, Docker, NVIDIA runtime, and existing ser
 |---|---|
 | `docker-compose.generated.yml` | Profile-specific Docker stack |
 | `.env.mnemos` | Environment variables |
-| `mnemos_profile.yaml` | Source of truth: profile, host facts, user answers |
+| `mnemos_profile.yaml` | Source of truth: profile, host facts, user answers (generated locally, not committed to repo) |
 
 ### 3. Start
 
@@ -115,7 +115,7 @@ pip install -r requirements.txt
 | `qdrant-client` | Qdrant vector store (Core Memory Appliance) |
 | `pgvector` | pgvector support (Governance Native) |
 | `psycopg[binary]`, `psycopg_pool` | PostgreSQL driver + connection pooling |
-| `sentence-transformers` | Embedding models (MiniLM, ColBERT) |
+| `sentence-transformers` | Embedding + Cross-Encoder reranker models (BGE) |
 | `torch` | GPU-accelerated inference (CUDA) |
 | `numpy`, `scipy` | TurboQuant compression |
 | `gunicorn` | Production WSGI server |
@@ -129,13 +129,24 @@ cp .env.example .env
 | Variable | Default | Description |
 |---|---|---|
 | `MNEMOS_PROFILE` | `core_memory_appliance` | Deployment profile |
-| `MNEMOS_TIERS` | `qdrant` | Active backends: `qdrant`, `pgvector`, `colbert` |
+| `MNEMOS_TIERS` | `qdrant` | Active backends: `qdrant`, `pgvector` |
 | `MNEMOS_GPU_DEVICE` | `cuda` | GPU device (`cuda`, `cuda:0`, `cpu`) |
 | `MNEMOS_QDRANT_URL` | `http://localhost:6333` | Qdrant URL (Core Memory Appliance) |
 | `MNEMOS_POSTGRES_DSN` | *(empty)* | PostgreSQL DSN (required for audit + pgvector) |
 | `MNEMOS_PORT` | `8700` | API port |
 | `MNEMOS_TOKEN` | *(empty)* | Optional bearer auth token |
 | `MNEMOS_QUANT_BITS` | `4` | TurboQuant bit-width (0 = disabled) |
+
+#### v2 Retrieval Config (optional)
+
+These settings are configured in `mnemos/retrieval/policies/rerank_policy.yaml`, not environment variables:
+
+| Setting | Default | Description |
+|---|---|---|
+| `rerank_policy.qdrant_hybrid.enabled` | `true` | Enable Qdrant server-side RRF hybrid fusion |
+| `rerank_policy.relevance_feedback.enabled` | `false` | Feed governance Used/Ignored labels back into retrieval |
+| `rerank_policy.relevance_feedback.max_exemplars` | `5` | Max positive/negative exemplar pairs per query |
+| Fusion policy `qdrant_rrf` | — | Set `fusion_policy: qdrant_rrf` in search requests to use server-side hybrid |
 
 ### 4. Run
 
