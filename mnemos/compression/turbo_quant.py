@@ -20,6 +20,14 @@ Bit-width / MSE bounds (unit-norm vectors):
     2-bit  →  MSE ≤ 0.117
     3-bit  →  MSE ≤ 0.03
     4-bit  →  MSE ≤ 0.009
+
+Cross-domain note:
+    This implementation compresses **embedding vectors** for storage in
+    Qdrant / pgvector.  The same TurboQuant algorithm has been independently
+    validated for **LLM KV cache compression** in llama.cpp
+    (github.com/TheTom/turboquant_plus).  That application uses C/Metal/CUDA
+    kernels and operates at inference time — it is architecturally separate
+    from this module.  See docs/whitepaper.md §4.3 for details.
 """
 
 from __future__ import annotations

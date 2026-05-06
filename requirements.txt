@@ -4,7 +4,7 @@ gunicorn>=21.2
 requests>=2.31
 
 # Vector stores
-qdrant-client>=1.7
+qdrant-client>=1.13
 pgvector>=0.3
 
 # Optional / experimental (not in public profiles)

@@ -1,6 +1,6 @@
 services:
   qdrant:
-    image: qdrant/qdrant:latest
+    image: qdrant/qdrant:v1.17.1
     container_name: mnemos-bench-qdrant
     ports:
       - "${MNEMOS_BENCH_QDRANT_PORT:-6333}:6333"

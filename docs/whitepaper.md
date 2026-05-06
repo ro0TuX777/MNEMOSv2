@@ -198,6 +198,18 @@ Measured on 10K corpus / 100 queries — fraction of true float32 top-10 neighbo
 
 **Why it matters**: Without compression, a 1M-document index at 128 dimensions consumes ~512 MB in float32. With 4-bit TurboQuant, that drops to ~68 MB — enabling deployment on memory-constrained edge devices, smaller cloud instances, and faster cold starts.
 
+#### Cross-domain Validation
+
+The TurboQuant algorithm has been independently validated for **LLM KV cache compression** by the llama.cpp community ([turboquant_plus](https://github.com/TheTom/turboquant_plus), 6.7K+ stars, 30+ testers across Apple Silicon, NVIDIA, and AMD hardware). Key findings that reinforce MNEMOS's algorithm choice:
+
+1. **Rotation Gaussianization confirmed on real model tensors** — Walsh-Hadamard rotation reduces raw KV tensor kurtosis from 900 to 2.9 (Gaussian = 3.0), validating the theoretical foundation used by MNEMOS for embedding rotation.
+2. **Asymmetric sensitivity** — Value tensors (weighted sums) are safely compressible to 2-bit with zero quality loss, while Key tensors (softmax routing) require higher precision. This finding is specific to attention KV pairs and does not apply to MNEMOS's embedding use case, where all dimensions are treated uniformly.
+3. **Cross-architecture stability** — 4-bit TurboQuant achieves 3.8× KV cache compression with near-q8\_0 quality, validated end-to-end from 1.5B to 104B parameter models at up to 128K context length.
+
+> [!NOTE]
+> MNEMOS uses TurboQuant exclusively for **embedding vector compression** (application-side, before storage). The KV cache application operates at a different level of the inference stack and is implemented in C/Metal/CUDA kernels within llama.cpp. The two applications share the same mathematical foundation but have independent implementations.
+
+
 ### 4.4 Profile Retrieval Benchmarks
 
 This section summarizes current measured profile behavior from the reproducible benchmark suite.
