@@ -67,3 +67,21 @@ rerank_policy:
     soft_skip_reasons:
       - family_not_allowed
       - insufficient_candidates
+
+  # ── Qdrant-Native Hybrid Fusion (Phase 2) ──────────────────
+  # When enabled and fusion_policy is set to "qdrant_rrf", hybrid
+  # search is delegated to Qdrant's server-side RRF via prefetch.
+  # Falls back to Python-side HybridFusion if unavailable.
+  qdrant_hybrid:
+    enabled: true
+    default_semantic_limit: 50
+    default_lexical_limit: 50
+
+  # ── Relevance Feedback (Phase 2) ───────────────────────────
+  # Uses governance reflect_path labels (Used/Ignored) as
+  # positive/negative exemplars for Qdrant discovery search.
+  relevance_feedback:
+    enabled: false
+    max_exemplars: 5
+    cache_ttl_seconds: 300
+    feedback_store: in_memory

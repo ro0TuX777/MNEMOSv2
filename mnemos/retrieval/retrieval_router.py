@@ -4,6 +4,7 @@ Retrieval mode router for semantic-only and hybrid search.
 
 from __future__ import annotations
 
+import logging
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -14,12 +15,15 @@ from mnemos.retrieval.candidate_envelope import (
 )
 from mnemos.retrieval.fusion import TierFusion
 from mnemos.retrieval.hybrid_fusion import HybridFusion
+from mnemos.retrieval.qdrant_hybrid import QdrantHybridFusion
 from mnemos.retrieval.policies.fusion_policies import DEFAULT_FUSION_POLICY, FUSION_POLICIES
 from mnemos.retrieval.policies.rerank_policy import RerankPolicy
 from mnemos.retrieval.policies.query_classifier import get_classifier
 from mnemos.retrieval.telemetry import get_telemetry_sink
 import uuid
 from datetime import datetime, timezone
+
+logger = logging.getLogger(__name__)
 
 
 class RetrievalRouter:
@@ -39,6 +43,11 @@ class RetrievalRouter:
         self._classifier = get_classifier(self._rerank_policy.config.get("query_family_classifier", {}))
         self._telemetry_sink = get_telemetry_sink(self._rerank_policy.config.get("telemetry", {}))
         self._hybrid_fusion = HybridFusion()
+
+        # Qdrant-native hybrid RRF — initialised lazily from the first
+        # QdrantTier found in the semantic fusion tiers.
+        self._qdrant_hybrid: Optional[QdrantHybridFusion] = None
+        self._init_qdrant_hybrid(semantic_fusion)
         self._stats = {
             "hybrid_query_count": 0,
             "semantic_query_count": 0,
@@ -63,6 +72,19 @@ class RetrievalRouter:
             "candidate_source_cap_applied_count": 0,
         }
         self._hybrid_latencies_ms: List[float] = []
+
+    def _init_qdrant_hybrid(self, semantic_fusion: TierFusion) -> None:
+        """Try to find a QdrantTier with text_index_ready and wrap it."""
+        try:
+            from mnemos.retrieval.qdrant_tier import QdrantTier
+            for tier in semantic_fusion._tiers:
+                if isinstance(tier, QdrantTier) and getattr(tier, "_text_index_ready", False):
+                    self._qdrant_hybrid = QdrantHybridFusion(tier)
+                    logger.info("QdrantHybridFusion enabled (qdrant_rrf fusion policy available)")
+                    return
+        except Exception:
+            pass
+        logger.debug("QdrantHybridFusion not available — will use Python-side hybrid only")
 
     def _record_candidate_envelope_stats(self, envelope_meta: Dict[str, Any]) -> None:
         self._stats["candidate_pool_raw_count"] += int(
@@ -288,6 +310,49 @@ class RetrievalRouter:
 
         start = time.perf_counter()
 
+        # ── Qdrant-native RRF path ──────────────────────────────
+        if policy == "qdrant_rrf" and self._qdrant_hybrid and self._qdrant_hybrid.available:
+            try:
+                # Compute embedding once for the RRF call
+                query_vec = self._qdrant_hybrid._tier._embed([query])[0]
+                fused, telemetry = self._qdrant_hybrid.fuse(
+                    query=query,
+                    query_vector=query_vec,
+                    top_k=desired_pool,
+                    filters=filters,
+                    semantic_limit=semantic_top_k,
+                    lexical_limit=lexical_top_k,
+                )
+            except Exception as e:
+                logger.warning(f"QdrantHybridFusion failed, falling back to Python hybrid: {e}")
+                # Fall through to Python-side fusion below
+                fused = None
+                telemetry = None
+
+            if fused is not None:
+                fused, rr_telemetry = self._apply_conditional_rerank(
+                    query, fused, (time.perf_counter() - start) * 1000
+                )
+
+                narrowed, envelope_meta = apply_candidate_envelope(fused, envelope_cfg)
+                self._record_candidate_envelope_stats(envelope_meta)
+
+                elapsed_ms = (time.perf_counter() - start) * 1000.0
+                self._record_hybrid_stats(telemetry, elapsed_ms, policy)
+
+                meta = {
+                    "retrieval_mode": "hybrid",
+                    "fusion_policy": policy,
+                    "fusion_engine": "qdrant_rrf",
+                    "lexical_available": self.lexical_available,
+                    "telemetry": telemetry,
+                    "candidate_envelope": envelope_meta,
+                    "reranker_used": self._reranker is not None,
+                    "rerank_telemetry": rr_telemetry,
+                }
+                return narrowed[:top_k], meta
+
+        # ── Python-side hybrid fusion (original path) ──────────
         lexical_results = self._lexical_tier.search(query, top_k=lexical_top_k, filters=filters)
         semantic_results = self._semantic_fusion.search(
             query,
