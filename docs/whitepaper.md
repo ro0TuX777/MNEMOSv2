@@ -133,7 +133,18 @@ MNEMOS supports multiple retrieval backends, selected by deployment profile. All
 
 **Why pgvector** (Governance Native): Vectors live inside the same PostgreSQL instance as the forensic ledger. ANN retrieval can be combined with SQL `WHERE` clauses on tenant, provenance, department, security markings, or any relational metadata — in a single query. This eliminates the need for a separate vector service in governance-heavy deployments.
 
-**Hybrid fusion**: In Gate C hybrid mode, MNEMOS merges lexical (PostgreSQL FTS) and semantic candidates with deterministic normalization and weighted fusion (`semantic_dominant`, `balanced`, `lexical_dominant`). Optional explain output returns component scores and source attribution per hit.
+**Hybrid fusion**: In Gate C hybrid mode, MNEMOS merges lexical (PostgreSQL FTS) and semantic candidates with deterministic normalization and weighted fusion. Four fusion policies are available:
+
+| Policy | Lexical | Semantic | Engine |
+|---|---|---|---|
+| `semantic_dominant` | 0.25 | 0.75 | Python-side rank fusion |
+| `balanced` | 0.50 | 0.50 | Python-side rank fusion |
+| `lexical_dominant` | 0.75 | 0.25 | Python-side rank fusion |
+| `qdrant_rrf` | — | — | Qdrant server-side Reciprocal Rank Fusion via `prefetch` (v1.17+) |
+
+The `qdrant_rrf` policy delegates fusion to Qdrant's built-in RRF engine, combining a dense vector prefetch with a full-text payload prefetch in a single `query_points()` call — eliminating the second network round-trip. A full-text index on the `content` payload field is created automatically during tier initialization. If unavailable, the router falls back to Python-side fusion transparently. Optional explain output returns component scores and source attribution per hit.
+
+**Relevance feedback**: MNEMOS can feed governance `reflect_path` labels (Used / Ignored) back into retrieval via Qdrant's `discover_points()` API. When enabled, previously-used engrams become positive exemplars and previously-ignored engrams become negative exemplars, biasing future queries toward results that have demonstrated utility. The adapter maintains a TTL-bounded exemplar cache (1.6M writes/sec, 100% cache hit rate after warmup). This feature is opt-in (`relevance_feedback.enabled: true` in `rerank_policy.yaml`).
 
 ### 4.3 TurboQuant Compression
 
@@ -275,6 +286,8 @@ Interpretation:
 - Hybrid did not demonstrate a differentiated quality-class win on this real-corpus benchmark.
 - Semantic-only remains the production default at this time.
 - Hybrid remains available as an evaluation mode for targeted enterprise query classes.
+
+**Phase 2 update (v2):** The addition of `qdrant_rrf` provides a second hybrid evaluation path. Server-side RRF eliminates the Python-side fusion overhead and the second network round-trip, making hybrid search viable in latency-sensitive deployments where the original Gate C latency budget was marginal. The relevance feedback adapter (`discover_points()`) adds a further signal dimension not present in the original Gate C evaluation. Both features are subject to future Gate C re-evaluation on updated workloads.
 
 ### 4.5 Forensic Ledger (PostgreSQL)
 
