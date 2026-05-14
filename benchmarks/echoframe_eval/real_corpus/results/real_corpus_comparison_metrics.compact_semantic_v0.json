@@ -1,0 +1,131 @@
+{
+  "metrics": {
+    "queries": 30,
+    "avg_baseline_tokens": 2064.9666666666667,
+    "avg_compact_safe_v0_tokens": 1854.2666666666667,
+    "avg_compact_selective_v0_tokens": 1839.1333333333334,
+    "avg_compact_semantic_v0_tokens": 1770.6666666666667,
+    "queries_sem_beats_safe": 17,
+    "queries_sem_beats_sel": 25,
+    "fallback_count": 0,
+    "fallback_reasons": {
+      "ambiguous_relevance": 0
+    },
+    "high_risk_queries_fallback": 0,
+    "contradiction_queries_fallback": 0,
+    "facts_pinned": 287,
+    "safety_checks": {
+      "dropped_provenance": 0,
+      "dropped_gaps": 0,
+      "dropped_contradictions": 0,
+      "dropped_approval": 0,
+      "lost_unknown_preservation": 0,
+      "lost_numeric_threshold": 0,
+      "lost_date": 0,
+      "lost_negation": 0,
+      "lost_exception": 0,
+      "unsupported_synthesis": 0,
+      "fabricated_sources": 0
+    },
+    "categories": {
+      "architecture": {
+        "count": 4,
+        "b_tok": 7585,
+        "safe_tok": 6600,
+        "sel_tok": 6629,
+        "sem_tok": 6029
+      },
+      "governance": {
+        "count": 2,
+        "b_tok": 5410,
+        "safe_tok": 3978,
+        "sel_tok": 3994,
+        "sem_tok": 3541
+      },
+      "policy": {
+        "count": 3,
+        "b_tok": 6929,
+        "safe_tok": 5741,
+        "sel_tok": 5536,
+        "sem_tok": 5534
+      },
+      "config": {
+        "count": 3,
+        "b_tok": 2875,
+        "safe_tok": 3409,
+        "sel_tok": 3245,
+        "sem_tok": 3244
+      },
+      "multi-hop": {
+        "count": 2,
+        "b_tok": 6917,
+        "safe_tok": 4564,
+        "sel_tok": 4579,
+        "sem_tok": 4072
+      },
+      "contradiction": {
+        "count": 2,
+        "b_tok": 5280,
+        "safe_tok": 6601,
+        "sel_tok": 6616,
+        "sem_tok": 6603
+      },
+      "stale vs current": {
+        "count": 2,
+        "b_tok": 3063,
+        "safe_tok": 2732,
+        "sel_tok": 2747,
+        "sem_tok": 2734
+      },
+      "obligation": {
+        "count": 3,
+        "b_tok": 8591,
+        "safe_tok": 6034,
+        "sel_tok": 5793,
+        "sem_tok": 5792
+      },
+      "high-risk": {
+        "count": 3,
+        "b_tok": 5190,
+        "safe_tok": 6976,
+        "sel_tok": 6999,
+        "sem_tok": 6979
+      },
+      "unknown": {
+        "count": 3,
+        "b_tok": 4023,
+        "safe_tok": 4198,
+        "sel_tok": 4219,
+        "sem_tok": 4201
+      },
+      "definition": {
+        "count": 2,
+        "b_tok": 3005,
+        "safe_tok": 2614,
+        "sel_tok": 2629,
+        "sem_tok": 2463
+      },
+      "multi-source": {
+        "count": 1,
+        "b_tok": 3081,
+        "safe_tok": 2181,
+        "sel_tok": 2188,
+        "sem_tok": 1928
+      }
+    }
+  },
+  "gates": {
+    "Gate_B_Provenance": "PASS",
+    "Gate_C_Governance_Preservation": "PASS",
+    "Gate_D_Token_Efficiency": "FAIL",
+    "Numeric_Threshold_Preservation": "PASS",
+    "Date_Preservation": "PASS",
+    "Negation_Preservation": "PASS",
+    "Exception_Language_Preservation": "PASS",
+    "No_Fabricated_Sources": "PASS",
+    "Semantic_Fact_Drops_Documented": "PASS",
+    "High_Risk_Do_Not_Overcompress": "PASS",
+    "Unknown_Do_Not_Become_Confident": "PASS",
+    "No_Unsupported_Synthesis": "PASS"
+  }
+}

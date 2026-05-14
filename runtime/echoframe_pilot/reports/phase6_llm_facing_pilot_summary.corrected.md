@@ -1,0 +1,28 @@
+# EchoFrame Phase 6 LLM-Facing Pilot Summary
+- **Total Runtime Calls Observed**: 2000
+- **Configured Sample Rate**: 0.05
+- **Events Excluded By Sample Rate**: 0
+- **Eligible Pilot Events**: 2000
+- **Events Excluded By Admission Gate**: 1896
+- **Selected EchoFrame LLM-Facing Events**: 104
+- **Actual LLM-Facing Rate (vs Total)**: 0.0520
+- **Actual LLM-Facing Rate (vs Eligible)**: 0.0520
+- **Pilot Selection Rate**: 0.05
+- **Baseline Fallback Events**: 1896
+- **Failure Rate**: 0.00%
+
+## Metrics
+- **Avg Baseline Tokens**: 1989.00
+- **Avg EchoFrame Tokens**: 52.98
+- **Avg Token Ratio**: 0.0266 (p95: 0.0256, p99: 0.0266)
+- **Avg Stability Score**: 1.0000 (min: 1.0000)
+
+## Safety and Exclusions
+- **Safety Gate Failures**: 0
+- **Validator Failures**: 0
+- **Non-Promotable Packets**: 0
+- **Exclusion Reasons**: high_risk_excluded
+
+## Recommendation Logic
+**PROMOTE TO 25% LLM-FACING PILOT**
+All safety gates pass, answer quality holds, and token/stability targets hold.

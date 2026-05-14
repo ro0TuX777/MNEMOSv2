@@ -414,6 +414,13 @@ class MnemosRuntime:
         if selected_profile and self._governor and not self._governor.has_policy_profile(selected_profile):
             selected_profile = ""
 
+        # Extract session context without polluting DB filters
+        shadow_session_id = "default_session"
+        shadow_turn_id = "unknown_turn"
+        if filters:
+            if "session_id" in filters: shadow_session_id = filters.pop("session_id")
+            if "turn_id" in filters: shadow_turn_id = filters.pop("turn_id")
+
         results, mode_meta = self._router.search(
             query=query,
             top_k=top_k,
@@ -631,6 +638,38 @@ class MnemosRuntime:
                 }
         if derived_views_payload:
             payload["derived_views"] = derived_views_payload
+            
+        try:
+            from mnemos.experimental.echoframe_shadow import EchoFrameShadowAdapter
+            pilot_packet = EchoFrameShadowAdapter.observe_search(
+                query=query, 
+                baseline_payload=payload, 
+                session_id=shadow_session_id,
+                turn_id=shadow_turn_id
+            )
+            if pilot_packet is not None:
+                # Pilot mode is active, selected, and all safety gates passed.
+                # Replace the entire payload context with the EchoFrame packet.
+                payload["results"] = [{
+                    "engram": {
+                        "content": pilot_packet,
+                        "id": "echoframe-pilot-packet",
+                        "source": "mnemos-echoframe",
+                        "metadata": {
+                            "echoframe_pilot": True,
+                            "original_result_count": len(results)
+                        }
+                    },
+                    "score": 1.0,
+                    "tier": "echoframe_pilot"
+                }]
+        except Exception as exc:
+            try:
+                from mnemos.experimental.echoframe_shadow import EchoFrameShadowAdapter
+                EchoFrameShadowAdapter.emit_failure(query, exc)
+            except Exception:
+                pass
+
         return payload
 
     def get_engram(self, engram_id: str) -> Dict[str, Any]:

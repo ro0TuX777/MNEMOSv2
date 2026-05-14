@@ -1,0 +1,24 @@
+{
+  "total_runtime_calls_observed": 1000,
+  "eligible_pilot_events": 199,
+  "selected_echoframe_llm_facing_events": 195,
+  "baseline_fallback_events": 4,
+  "pilot_selection_rate": 0.9798994974874372,
+  "failure_rate": 0.0,
+  "average_baseline_tokens": 19338.874371859296,
+  "average_echoframe_tokens": 1175.0201005025126,
+  "average_token_ratio": 0.06075948775034846,
+  "p95_token_ratio": 0.7637,
+  "p99_token_ratio": 0.9707,
+  "average_stability_score": 1.0,
+  "minimum_stability_score": 1.0,
+  "exclusion_reasons": [
+    "high_risk_excluded"
+  ],
+  "safety_gate_failures": [],
+  "validator_failures": 0,
+  "non_promotable_packets": 0,
+  "fallback_to_baseline_count": 4,
+  "answer_quality_review_pass_count": 50,
+  "answer_quality_review_fail_count": 0
+}

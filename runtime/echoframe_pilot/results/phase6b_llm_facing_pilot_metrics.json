@@ -1,0 +1,29 @@
+{
+  "total_runtime_calls_observed": 2000,
+  "eligible_pilot_events": 2000,
+  "selected_echoframe_llm_facing_events": 494,
+  "baseline_fallback_events": 1506,
+  "events_excluded_by_sample_rate": 1501,
+  "events_excluded_by_admission_gate": 20,
+  "actual_llm_facing_rate_vs_total_runtime_calls": 0.247,
+  "actual_llm_facing_rate_vs_eligible_events": 0.2494949494949495,
+  "configured_sample_rate": 0.25,
+  "pilot_selection_rate": 0.247,
+  "failure_rate": 0.0,
+  "average_baseline_tokens": 1989.0,
+  "average_echoframe_tokens": 52.98,
+  "average_token_ratio": 0.02663650075414781,
+  "p95_token_ratio": 0.0256,
+  "p99_token_ratio": 0.026595999999999096,
+  "average_stability_score": 1.0,
+  "minimum_stability_score": 1.0,
+  "exclusion_reasons": [
+    "high_risk_excluded"
+  ],
+  "safety_gate_failures": [],
+  "validator_failures": 0,
+  "non_promotable_packets": 0,
+  "fallback_to_baseline_count": 1506,
+  "answer_quality_review_pass_count": 50,
+  "answer_quality_review_fail_count": 0
+}

@@ -1,0 +1,12 @@
+{
+  "total_shadow_events": 0,
+  "successful_shadow_events": 0,
+  "failed_shadow_events": 0,
+  "avg_baseline_tokens": 0.0,
+  "avg_echoframe_tokens": 0.0,
+  "avg_token_ratio": 0.0,
+  "avg_stability_score": 0.0,
+  "safety_gate_failures": [],
+  "fallback_count": 0,
+  "non_promotable_count": 0
+}

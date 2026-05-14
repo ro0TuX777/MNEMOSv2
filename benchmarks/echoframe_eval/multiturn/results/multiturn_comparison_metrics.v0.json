@@ -1,0 +1,27 @@
+{
+  "queries": 24,
+  "avg_baseline_tokens": 2027.4583333333333,
+  "avg_minEvidence_tokens": 1007.6666666666666,
+  "avg_hysteresis_tokens": 1010.4583333333334,
+  "source_retention_rate": 2.706422018348624,
+  "source_drop_rate": 0.5504587155963303,
+  "evidence_render_level_churn": 0.7522935779816514,
+  "unjustified_churn": 0,
+  "total_source_appearances": 109,
+  "stability_score": 1.0,
+  "safety_checks": {
+    "dropped_provenance": 0,
+    "dropped_gaps": 0,
+    "dropped_contradictions": 0,
+    "dropped_approval": 0,
+    "lost_unknown_preservation": 0,
+    "lost_numeric_threshold": 0,
+    "lost_date": 0,
+    "lost_negation": 0,
+    "lost_exception": 0,
+    "fabricated_sources": 0,
+    "premature_drop_governance": 0,
+    "premature_drop_contradiction": 0,
+    "unexplained_render_change": 0
+  }
+}

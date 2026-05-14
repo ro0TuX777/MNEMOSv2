@@ -1,0 +1,426 @@
+{
+  "run_id": "baseline_run_1be8e9f3",
+  "timestamp": "2026-05-13T23:14:21Z",
+  "results": [
+    {
+      "query_id": "Q-001",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: What is the maximum token limit for the CONCORD admission pipeline?",
+      "token_count": 165,
+      "latency_ms": 50.22,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-002",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: Which port does the VAGUS resource monitor listen on by default?",
+      "token_count": 165,
+      "latency_ms": 50.24,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-003",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: Explain how a ForgeLedger HMAC signature relates to a CONCORD admission failure.",
+      "token_count": 180,
+      "latency_ms": 50.42,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-004",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: If the Qdrant backend goes down, how does the CoreEngine fallback behavior trigger?",
+      "token_count": 195,
+      "latency_ms": 50.18,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-005",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: Is auto-approval allowed for external API requests?",
+      "token_count": 105,
+      "latency_ms": 50.21,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-006",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: What is the default embedding model?",
+      "token_count": 90,
+      "latency_ms": 50.57,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-007",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: What are the required parameters for the BaseInferenceProvider initialization?",
+      "token_count": 135,
+      "latency_ms": 50.62,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-008",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: Show me the error handling block in the qdrant_tier.py upsert method.",
+      "token_count": 165,
+      "latency_ms": 50.23,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-009",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: What must happen before a vector memory is permanently deleted?",
+      "token_count": 150,
+      "latency_ms": 50.53,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-010",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: Who is authorized to bypass the VAGUS resource limits?",
+      "token_count": 135,
+      "latency_ms": 50.26,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-011",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: What is the name of this project?",
+      "token_count": 105,
+      "latency_ms": 50.27,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-012",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: How do I run the test suite?",
+      "token_count": 105,
+      "latency_ms": 50.16,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-013",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: I need to dump all user session memories to a public bucket.",
+      "token_count": 180,
+      "latency_ms": 50.24,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-014",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: Change the CONCORD admission threshold to 0.",
+      "token_count": 105,
+      "latency_ms": 50.5,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-015",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: Summarize the architecture of the Core Engine.",
+      "token_count": 105,
+      "latency_ms": 50.47,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-016",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: Summarize the architecture of the Core Engine.",
+      "token_count": 105,
+      "latency_ms": 50.5,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-017",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: What is the procedure for deploying to the legacy v1 cluster?",
+      "token_count": 165,
+      "latency_ms": 50.19,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-018",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: Use the DAWN pipeline to parse this text.",
+      "token_count": 120,
+      "latency_ms": 50.14,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-019",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: What is the exact API key for the production AWS account?",
+      "token_count": 165,
+      "latency_ms": 50.35,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    },
+    {
+      "query_id": "Q-020",
+      "selected_evidence_ids": [
+        "doc_1",
+        "doc_2"
+      ],
+      "rendered_context_packet": "Simulated raw context for query: How does MNEMOS integrate with the undocumented Project X?",
+      "token_count": 135,
+      "latency_ms": 50.52,
+      "provenance_fields": [
+        "source_doc_1.md",
+        "source_doc_2.md"
+      ],
+      "evidence_gaps": [],
+      "contradiction_flags": [],
+      "governance_flags": [
+        "STANDARD_RETRIEVAL"
+      ],
+      "answer_text": "Simulated generated answer.",
+      "pass_fail_notes": "Stubbed baseline execution."
+    }
+  ]
+}

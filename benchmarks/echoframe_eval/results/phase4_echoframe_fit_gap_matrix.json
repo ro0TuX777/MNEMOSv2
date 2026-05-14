@@ -1,0 +1,23 @@
+{
+  "fit_gap_matrix": {
+    "evidence_ir_scope_model": "GAP",
+    "keyframe_delta_model": "GAP",
+    "decode_levels": "MATCH",
+    "packet_renderer": "PARTIAL_MATCH",
+    "fact_extraction": "PARTIAL_MATCH",
+    "semantic_scoring": "GAP",
+    "hysteresis_controller": "PARTIAL_MATCH",
+    "source_level_evidence_minimization": "MATCH",
+    "provenance_model": "PARTIAL_MATCH",
+    "governance_signal_preservation": "MATCH",
+    "contradiction_handling": "MATCH",
+    "unknown_evidence_gap_preservation": "MATCH",
+    "multi_turn_state_isolation": "MATCH",
+    "telemetry_receipts": "MATCH",
+    "configuration_model": "PARTIAL_MATCH",
+    "failure_handling": "MATCH",
+    "test_harnesses": "MATCH",
+    "license_compatibility": "NOT_APPLICABLE",
+    "dependency_footprint": "CONFLICT"
+  }
+}

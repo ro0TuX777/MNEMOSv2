@@ -1,0 +1,106 @@
+{
+  "metrics": {
+    "queries": 30,
+    "avg_baseline_tokens": 1819.9,
+    "avg_json_v0_tokens": 1394.4333333333334,
+    "avg_compact_v0_tokens": 1215.3666666666666,
+    "avg_compact_safe_v0_tokens": 1226.8333333333333,
+    "queries_safe_beats_baseline": 26,
+    "queries_safe_loses_to_baseline": 4,
+    "packets_with_multiple_sources": 30,
+    "packets_with_contradictions": 2,
+    "packets_with_approval": 2,
+    "packets_with_unknown": 2,
+    "best_case_reduction": 0.40162271805273836,
+    "worst_case_regression": 1.9888111888111888,
+    "safety_checks": {
+      "dropped_provenance": 0,
+      "dropped_gaps": 0,
+      "dropped_contradictions": 0,
+      "dropped_approval": 0,
+      "lost_unknown_preservation": 0,
+      "lost_numeric_threshold": 0,
+      "lost_date": 0,
+      "lost_negation": 0,
+      "lost_exception": 0,
+      "unsupported_synthesis": 0
+    },
+    "categories": {
+      "exact date retrieval": {
+        "count": 3,
+        "b_tok": 6332,
+        "s_tok": 3078
+      },
+      "definition lookup": {
+        "count": 3,
+        "b_tok": 5940,
+        "s_tok": 3025
+      },
+      "multi-hop definition dependency": {
+        "count": 3,
+        "b_tok": 5148,
+        "s_tok": 2817
+      },
+      "policy exception retrieval": {
+        "count": 3,
+        "b_tok": 5545,
+        "s_tok": 2644
+      },
+      "obligation / must / shall retrieval": {
+        "count": 2,
+        "b_tok": 3685,
+        "s_tok": 2026
+      },
+      "contradiction across sections": {
+        "count": 2,
+        "b_tok": 3641,
+        "s_tok": 7070
+      },
+      "stale vs current section resolution": {
+        "count": 2,
+        "b_tok": 4554,
+        "s_tok": 2024
+      },
+      "large excerpt compression": {
+        "count": 2,
+        "b_tok": 3729,
+        "s_tok": 2235
+      },
+      "multi-source synthesis": {
+        "count": 2,
+        "b_tok": 3652,
+        "s_tok": 1800
+      },
+      "high-risk governance query": {
+        "count": 2,
+        "b_tok": 2189,
+        "s_tok": 4283
+      },
+      "unknown / insufficient evidence preservation": {
+        "count": 2,
+        "b_tok": 3982,
+        "s_tok": 2248
+      },
+      "API or config key recall": {
+        "count": 2,
+        "b_tok": 3896,
+        "s_tok": 2062
+      },
+      "exact numeric threshold retrieval": {
+        "count": 2,
+        "b_tok": 2304,
+        "s_tok": 1493
+      }
+    }
+  },
+  "gates": {
+    "Gate_B_Provenance": "PASS",
+    "Gate_C_Governance_Preservation": "PASS",
+    "Gate_D_Token_Efficiency": "PASS",
+    "Numeric_Threshold_Preservation": "PASS",
+    "Date_Preservation": "PASS",
+    "Negation_Preservation": "PASS",
+    "Exception_Language_Preservation": "PASS",
+    "No_Unsupported_Synthesis": "PASS"
+  }
+}

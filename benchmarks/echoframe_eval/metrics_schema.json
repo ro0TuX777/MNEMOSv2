@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MNEMOS Baseline Result Schema",
+  "type": "object",
+  "required": [
+    "run_type",
+    "adapter",
+    "timestamp",
+    "mnemos_commit",
+    "query_count",
+    "stub_mode",
+    "run_id",
+    "baseline_health",
+    "retrieval_health",
+    "results"
+  ],
+  "properties": {
+    "run_type": { "type": "string" },
+    "adapter": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "mnemos_commit": { "type": "string" },
+    "query_count": { "type": "integer" },
+    "stub_mode": { "type": "boolean" },
+    "run_id": { "type": "string" },
+    "baseline_health": { "type": "string" },
+    "retrieval_health": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string" },
+        "vector_store_available": { "type": "boolean" },
+        "vector_dimension_match": { "type": "boolean" },
+        "lexical_retrieval_available": { "type": "boolean" },
+        "governance_trace_available": { "type": "boolean" },
+        "fallback_used": { "type": "boolean" },
+        "warnings": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "query_id",
+          "category",
+          "query",
+          "health_status",
+          "selected_evidence_ids"
+        ],
+        "properties": {
+          "query_id": { "type": "string" },
+          "category": { "type": "string" },
+          "query": { "type": "string" },
+          "health_status": { "type": "string" },
+          "warnings": { "type": "array", "items": { "type": "string" } },
+          "fallback_used": { "type": "boolean" },
+          "error_type": { "type": ["string", "null"] },
+          "selected_evidence_ids": { "type": "array", "items": { "type": "string" } },
+          "selected_source_ids": { "type": "array", "items": { "type": "string" } },
+          "retrieval_scores": { "type": "array", "items": { "type": "number" } },
+          "rendered_context": { "type": "string" },
+          "context_token_count": { "type": "integer" },
+          "answer_text": { "type": ["string", "null"] },
+          "answer_token_count": { "type": ["integer", "null"] },
+          "latency_ms": { "type": "number" },
+          "provenance_present": { "type": "boolean" },
+          "evidence_gaps": { "type": "array", "items": { "type": "string" } },
+          "contradiction_flags": { "type": "array", "items": { "type": "string" } },
+          "governance_flags": { "type": "array", "items": { "type": "string" } },
+          "approval_required": { "type": "boolean" },
+          "unknown_preserved": { "type": "boolean" },
+          "errors": { "type": ["string", "null"] },
+          "notes": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,187 @@
+{
+  "Profile A (Baseline)": {
+    "metrics": {
+      "queries": 30,
+      "avg_baseline_tokens": 2064.9666666666667,
+      "avg_compact_safe_v0_tokens": 1854.2666666666667,
+      "avg_compact_selective_v0_tokens": 1839.1333333333334,
+      "avg_compact_semantic_v0_tokens": 1770.6666666666667,
+      "facts_extracted": 0,
+      "facts_pinned": 287,
+      "facts_semantically_selected": 0,
+      "facts_dropped": 0,
+      "safety_checks": {
+        "dropped_provenance": 0,
+        "dropped_gaps": 0,
+        "dropped_contradictions": 0,
+        "dropped_approval": 0,
+        "lost_unknown_preservation": 0,
+        "lost_numeric_threshold": 0,
+        "lost_date": 0,
+        "lost_negation": 0,
+        "lost_exception": 0,
+        "fabricated_sources": 0
+      }
+    },
+    "gates": {
+      "Gate_B_Provenance": "PASS",
+      "Gate_C_Governance_Preservation": "PASS",
+      "Gate_D_Token_Efficiency": "FAIL",
+      "Numeric_Threshold_Preservation": "PASS",
+      "Date_Preservation": "PASS",
+      "Negation_Preservation": "PASS",
+      "Exception_Language_Preservation": "PASS",
+      "No_Fabricated_Sources": "PASS",
+      "Unknown_Do_Not_Become_Confident": "PASS"
+    },
+    "ratio": 0.8574795396213014
+  },
+  "Profile B (Stricter)": {
+    "metrics": {
+      "queries": 30,
+      "avg_baseline_tokens": 2064.9666666666667,
+      "avg_compact_safe_v0_tokens": 1854.2666666666667,
+      "avg_compact_selective_v0_tokens": 1839.1333333333334,
+      "avg_compact_semantic_v0_tokens": 1770.6666666666667,
+      "facts_extracted": 0,
+      "facts_pinned": 287,
+      "facts_semantically_selected": 0,
+      "facts_dropped": 0,
+      "safety_checks": {
+        "dropped_provenance": 0,
+        "dropped_gaps": 0,
+        "dropped_contradictions": 0,
+        "dropped_approval": 0,
+        "lost_unknown_preservation": 0,
+        "lost_numeric_threshold": 0,
+        "lost_date": 0,
+        "lost_negation": 0,
+        "lost_exception": 0,
+        "fabricated_sources": 0
+      }
+    },
+    "gates": {
+      "Gate_B_Provenance": "PASS",
+      "Gate_C_Governance_Preservation": "PASS",
+      "Gate_D_Token_Efficiency": "FAIL",
+      "Numeric_Threshold_Preservation": "PASS",
+      "Date_Preservation": "PASS",
+      "Negation_Preservation": "PASS",
+      "Exception_Language_Preservation": "PASS",
+      "No_Fabricated_Sources": "PASS",
+      "Unknown_Do_Not_Become_Confident": "PASS"
+    },
+    "ratio": 0.8574795396213014
+  },
+  "Profile C (Aggressive)": {
+    "metrics": {
+      "queries": 30,
+      "avg_baseline_tokens": 2064.9666666666667,
+      "avg_compact_safe_v0_tokens": 1854.2666666666667,
+      "avg_compact_selective_v0_tokens": 1839.1333333333334,
+      "avg_compact_semantic_v0_tokens": 1770.6666666666667,
+      "facts_extracted": 0,
+      "facts_pinned": 287,
+      "facts_semantically_selected": 0,
+      "facts_dropped": 0,
+      "safety_checks": {
+        "dropped_provenance": 0,
+        "dropped_gaps": 0,
+        "dropped_contradictions": 0,
+        "dropped_approval": 0,
+        "lost_unknown_preservation": 0,
+        "lost_numeric_threshold": 0,
+        "lost_date": 0,
+        "lost_negation": 0,
+        "lost_exception": 0,
+        "fabricated_sources": 0
+      }
+    },
+    "gates": {
+      "Gate_B_Provenance": "PASS",
+      "Gate_C_Governance_Preservation": "PASS",
+      "Gate_D_Token_Efficiency": "FAIL",
+      "Numeric_Threshold_Preservation": "PASS",
+      "Date_Preservation": "PASS",
+      "Negation_Preservation": "PASS",
+      "Exception_Language_Preservation": "PASS",
+      "No_Fabricated_Sources": "PASS",
+      "Unknown_Do_Not_Become_Confident": "PASS"
+    },
+    "ratio": 0.8574795396213014
+  },
+  "Profile D (Max Strict)": {
+    "metrics": {
+      "queries": 30,
+      "avg_baseline_tokens": 2064.9666666666667,
+      "avg_compact_safe_v0_tokens": 1854.2666666666667,
+      "avg_compact_selective_v0_tokens": 1839.1333333333334,
+      "avg_compact_semantic_v0_tokens": 1770.6666666666667,
+      "facts_extracted": 0,
+      "facts_pinned": 287,
+      "facts_semantically_selected": 0,
+      "facts_dropped": 0,
+      "safety_checks": {
+        "dropped_provenance": 0,
+        "dropped_gaps": 0,
+        "dropped_contradictions": 0,
+        "dropped_approval": 0,
+        "lost_unknown_preservation": 0,
+        "lost_numeric_threshold": 0,
+        "lost_date": 0,
+        "lost_negation": 0,
+        "lost_exception": 0,
+        "fabricated_sources": 0
+      }
+    },
+    "gates": {
+      "Gate_B_Provenance": "PASS",
+      "Gate_C_Governance_Preservation": "PASS",
+      "Gate_D_Token_Efficiency": "FAIL",
+      "Numeric_Threshold_Preservation": "PASS",
+      "Date_Preservation": "PASS",
+      "Negation_Preservation": "PASS",
+      "Exception_Language_Preservation": "PASS",
+      "No_Fabricated_Sources": "PASS",
+      "Unknown_Do_Not_Become_Confident": "PASS"
+    },
+    "ratio": 0.8574795396213014
+  },
+  "Profile E (Budget Strict)": {
+    "metrics": {
+      "queries": 30,
+      "avg_baseline_tokens": 2064.9666666666667,
+      "avg_compact_safe_v0_tokens": 1854.2666666666667,
+      "avg_compact_selective_v0_tokens": 1839.1333333333334,
+      "avg_compact_semantic_v0_tokens": 1770.6666666666667,
+      "facts_extracted": 0,
+      "facts_pinned": 287,
+      "facts_semantically_selected": 0,
+      "facts_dropped": 0,
+      "safety_checks": {
+        "dropped_provenance": 0,
+        "dropped_gaps": 0,
+        "dropped_contradictions": 0,
+        "dropped_approval": 0,
+        "lost_unknown_preservation": 0,
+        "lost_numeric_threshold": 0,
+        "lost_date": 0,
+        "lost_negation": 0,
+        "lost_exception": 0,
+        "fabricated_sources": 0
+      }
+    },
+    "gates": {
+      "Gate_B_Provenance": "PASS",
+      "Gate_C_Governance_Preservation": "PASS",
+      "Gate_D_Token_Efficiency": "FAIL",
+      "Numeric_Threshold_Preservation": "PASS",
+      "Date_Preservation": "PASS",
+      "Negation_Preservation": "PASS",
+      "Exception_Language_Preservation": "PASS",
+      "No_Fabricated_Sources": "PASS",
+      "Unknown_Do_Not_Become_Confident": "PASS"
+    },
+    "ratio": 0.8574795396213014
+  }
+}

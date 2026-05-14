@@ -1,0 +1,122 @@
+{
+  "metrics": {
+    "queries": 30,
+    "avg_baseline_tokens": 2064.9666666666667,
+    "avg_compact_semantic_v0_tokens": 1770.6666666666667,
+    "avg_compact_semantic_minEvidence_v0_tokens": 1324.8333333333333,
+    "queries_min_beats_sem": 22,
+    "fallback_count": 0,
+    "fallback_reasons": {
+      "ambiguous_relevance": 0
+    },
+    "high_risk_queries_fallback": 0,
+    "contradiction_queries_fallback": 0,
+    "facts_pinned": 287,
+    "evidence_windows_rendered": 0,
+    "evidence_sources_pointer_only": 548,
+    "evidence_sources_E2": 127,
+    "evidence_sources_E3": 225,
+    "evidence_sources_E4": 0,
+    "categories": {
+      "architecture": {
+        "count": 4,
+        "b_tok": 7585,
+        "sem_tok": 6029,
+        "min_tok": 2719
+      },
+      "governance": {
+        "count": 2,
+        "b_tok": 5410,
+        "sem_tok": 3541,
+        "min_tok": 1405
+      },
+      "policy": {
+        "count": 3,
+        "b_tok": 6929,
+        "sem_tok": 5534,
+        "min_tok": 4514
+      },
+      "config": {
+        "count": 3,
+        "b_tok": 2875,
+        "sem_tok": 3244,
+        "min_tok": 3247
+      },
+      "multi-hop": {
+        "count": 2,
+        "b_tok": 6917,
+        "sem_tok": 4072,
+        "min_tok": 1479
+      },
+      "contradiction": {
+        "count": 2,
+        "b_tok": 5280,
+        "sem_tok": 6603,
+        "min_tok": 5243
+      },
+      "stale vs current": {
+        "count": 2,
+        "b_tok": 3063,
+        "sem_tok": 2734,
+        "min_tok": 3513
+      },
+      "obligation": {
+        "count": 3,
+        "b_tok": 8591,
+        "sem_tok": 5792,
+        "min_tok": 4695
+      },
+      "high-risk": {
+        "count": 3,
+        "b_tok": 5190,
+        "sem_tok": 6979,
+        "min_tok": 5985
+      },
+      "unknown": {
+        "count": 3,
+        "b_tok": 4023,
+        "sem_tok": 4201,
+        "min_tok": 4909
+      },
+      "definition": {
+        "count": 2,
+        "b_tok": 3005,
+        "sem_tok": 2463,
+        "min_tok": 1309
+      },
+      "multi-source": {
+        "count": 1,
+        "b_tok": 3081,
+        "sem_tok": 1928,
+        "min_tok": 727
+      }
+    },
+    "safety_checks": {
+      "dropped_provenance": 0,
+      "dropped_gaps": 0,
+      "dropped_contradictions": 0,
+      "dropped_approval": 0,
+      "lost_unknown_preservation": 0,
+      "lost_numeric_threshold": 0,
+      "lost_date": 0,
+      "lost_negation": 0,
+      "lost_exception": 0,
+      "unsupported_synthesis": 0,
+      "fabricated_sources": 0
+    }
+  },
+  "gates": {
+    "Gate_B_Provenance": "PASS",
+    "Gate_C_Governance_Preservation": "PASS",
+    "Gate_D_Token_Efficiency": "PASS",
+    "Numeric_Threshold_Preservation": "PASS",
+    "Date_Preservation": "PASS",
+    "Negation_Preservation": "PASS",
+    "Exception_Language_Preservation": "PASS",
+    "No_Fabricated_Sources": "PASS",
+    "Semantic_Fact_Drops_Documented": "PASS",
+    "High_Risk_Do_Not_Overcompress": "PASS",
+    "Unknown_Do_Not_Become_Confident": "PASS",
+    "No_Unsupported_Synthesis": "PASS"
+  }
+}

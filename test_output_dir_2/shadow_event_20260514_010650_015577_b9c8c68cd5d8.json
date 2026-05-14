@@ -1,0 +1,22 @@
+{
+  "event_type": "echoframe.shadow_packet_generated",
+  "timestamp": "2026-05-14T01:06:50.015577",
+  "session_id": "default_session",
+  "turn_id": "unknown_turn",
+  "query_hash": "c2a19bef61dd75f8",
+  "renderer_mode": "compact_semantic_minEvidence_hysteresis_v0",
+  "baseline_token_count": 16,
+  "echoframe_token_count": 60,
+  "token_ratio": 3.75,
+  "selected_evidence_count": 1,
+  "source_count": 1,
+  "e0_pointer_only_count": 0,
+  "e2_window_count": 1,
+  "e3_full_excerpt_count": 0,
+  "stability_score": 1.0,
+  "unjustified_churn": 0,
+  "safety_gate_failures": [],
+  "fallback_used": false,
+  "fallback_reason": null,
+  "llm_context_modified": false
+}

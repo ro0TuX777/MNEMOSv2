@@ -13,6 +13,35 @@
 > **Deployment model:** MNEMOS runtime services are deployed as a Docker Compose stack; all serving components run in containers.
 > **Developer model:** tooling, benchmarks, and tests are typically run from host Python unless explicitly containerized.
 
+> **EchoFrame Integration (Phase 9) is implemented and accepted** — MNEMOS now incorporates the EchoFrame context optimizer as the stable default-on path for eligible read traffic, ensuring massive LLM context compression without sacrificing governance integrity.
+
+---
+
+## Abstract: EchoFrame Integration
+
+EchoFrame is MNEMOS’s governed evidence codec. MNEMOS decides what evidence is valid. EchoFrame packs that evidence into the smallest safe form the LLM can use.
+
+EchoFrame turns MNEMOS from this:
+
+> Retrieve a lot of evidence → send large raw context to LLM
+
+into this:
+
+> Retrieve governed evidence → compress into source-traceable packet → send only what the LLM needs
+
+### Strategic value for MNEMOS
+
+EchoFrame gives MNEMOS four big upgrades:
+
+1. **Efficiency**
+   Much smaller LLM-facing context.
+2. **Stability**
+   Less context thrash across multi-turn sessions.
+3. **Governance compatibility**
+   Source pointers, flags, gaps, and fallback rules remain intact.
+4. **Local-model readiness**
+   Better fit for constrained local runtimes and smaller context windows.
+
 ---
 
 ## 1. Problem Statement

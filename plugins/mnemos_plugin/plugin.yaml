@@ -1,0 +1,30 @@
+id: mnemos.plugin
+name: MNEMOS Universal Plugin
+version: 1.0.0
+enabled: true
+description: MNEMOS universal memory retrieval plugin.
+requires:
+  forgeroot_core: ">=0.1.0"
+integrity:
+  mode: "hash_pinned"
+  hashes: 
+    - "CD103CF83A59A314495D0554C24D46BB48973DE35E0208EF78B308C9510C8A0E"
+    - "2E6114485D067C03B5424A715CFB63A8536281E41FF0F6FD0BB6312F45BBC8BA"
+entrypoints:
+  commands:
+    - name: search
+      handler: commands.search:execute
+  hooks:
+    - name: before_search
+      handler: hooks.before_search:evaluate
+      fail_closed: true
+      timeout_ms: 2000
+permissions:
+  filesystem:
+    read:
+      - "."
+    write: []
+  network:
+    enabled: false
+  shell:
+    enabled: false

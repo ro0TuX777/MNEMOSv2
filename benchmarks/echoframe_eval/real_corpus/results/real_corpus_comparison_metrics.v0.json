@@ -1,0 +1,101 @@
+{
+  "metrics": {
+    "queries": 30,
+    "avg_baseline_tokens": 2064.9666666666667,
+    "avg_compact_safe_v0_tokens": 1854.2666666666667,
+    "queries_safe_beats_baseline": 16,
+    "queries_safe_loses_to_baseline": 14,
+    "packets_with_multiple_sources": 30,
+    "packets_with_contradictions": 0,
+    "packets_with_approval": 3,
+    "packets_with_unknown": 0,
+    "best_case_reduction": 0.6521739130434783,
+    "worst_case_regression": 2.2729805013927575,
+    "safety_checks": {
+      "dropped_provenance": 0,
+      "dropped_gaps": 0,
+      "dropped_contradictions": 0,
+      "dropped_approval": 0,
+      "lost_unknown_preservation": 0,
+      "lost_numeric_threshold": 0,
+      "lost_date": 0,
+      "lost_negation": 0,
+      "lost_exception": 0,
+      "unsupported_synthesis": 0,
+      "fabricated_sources": 0
+    },
+    "categories": {
+      "architecture": {
+        "count": 4,
+        "b_tok": 7585,
+        "s_tok": 6600
+      },
+      "governance": {
+        "count": 2,
+        "b_tok": 5410,
+        "s_tok": 3978
+      },
+      "policy": {
+        "count": 3,
+        "b_tok": 6929,
+        "s_tok": 5741
+      },
+      "config": {
+        "count": 3,
+        "b_tok": 2875,
+        "s_tok": 3409
+      },
+      "multi-hop": {
+        "count": 2,
+        "b_tok": 6917,
+        "s_tok": 4564
+      },
+      "contradiction": {
+        "count": 2,
+        "b_tok": 5280,
+        "s_tok": 6601
+      },
+      "stale vs current": {
+        "count": 2,
+        "b_tok": 3063,
+        "s_tok": 2732
+      },
+      "obligation": {
+        "count": 3,
+        "b_tok": 8591,
+        "s_tok": 6034
+      },
+      "high-risk": {
+        "count": 3,
+        "b_tok": 5190,
+        "s_tok": 6976
+      },
+      "unknown": {
+        "count": 3,
+        "b_tok": 4023,
+        "s_tok": 4198
+      },
+      "definition": {
+        "count": 2,
+        "b_tok": 3005,
+        "s_tok": 2614
+      },
+      "multi-source": {
+        "count": 1,
+        "b_tok": 3081,
+        "s_tok": 2181
+      }
+    }
+  },
+  "gates": {
+    "Gate_B_Provenance": "PASS",
+    "Gate_C_Governance_Preservation": "PASS",
+    "Gate_D_Token_Efficiency": "FAIL",
+    "Numeric_Threshold_Preservation": "PASS",
+    "Date_Preservation": "PASS",
+    "Negation_Preservation": "PASS",
+    "Exception_Language_Preservation": "PASS",
+    "No_Unsupported_Synthesis": "PASS",
+    "No_Fabricated_Sources": "PASS"
+  }
+}

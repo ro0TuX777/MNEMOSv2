@@ -1,0 +1,49 @@
+{
+  "metrics": {
+    "original_20": {
+      "queries": 20,
+      "failures": 1
+    },
+    "expanded_hardened": {
+      "queries": 20,
+      "failures": 1
+    },
+    "overall": {
+      "queries": 40,
+      "failures": 2,
+      "baseline_tokens": 33796,
+      "compact_tokens": 26540
+    },
+    "safety_checks": {
+      "dropped_provenance": 0,
+      "dropped_gaps": 0,
+      "dropped_contradictions": 0,
+      "dropped_approval": 0,
+      "lost_unknown_preservation": 0,
+      "invalid_empty_packet": 0,
+      "confident_claim_when_unknown": 0,
+      "lost_numeric_threshold": 2,
+      "lost_date": 0,
+      "lost_negation": 0,
+      "lost_exception": 0
+    },
+    "packets_with_multiple_sources": 40,
+    "packets_with_contradictions": 0,
+    "packets_with_approval": 0,
+    "packets_with_unknown": 0,
+    "compact_larger_than_baseline": 24,
+    "compact_smaller_than_baseline": 16,
+    "worst_case_regression": 7.12,
+    "best_case_reduction": 0.27835051546391754
+  },
+  "gates": {
+    "Gate_B_Provenance": "PASS",
+    "Gate_C_Governance_Preservation": "PASS",
+    "Gate_D_Token_Efficiency": "PASS",
+    "Gate_F_Explainability": "PASS",
+    "Numeric_Threshold_Preservation": "FAIL",
+    "Date_Preservation": "PASS",
+    "Negation_Preservation": "PASS",
+    "Exception_Language_Preservation": "PASS"
+  }
+}
