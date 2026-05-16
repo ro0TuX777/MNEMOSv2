@@ -95,6 +95,9 @@ for hit in client.search("gravitational wave detection", top_k=5):
 │              REST API (:8700)                 │
 │  /index  /search  /engrams  /audit  /stats   │
 ├──────────────────────────────────────────────┤
+│        EchoFrame Context Codec Layer         │
+│  ~97% LLM Context Compression & Governance   │
+├──────────────────────────────────────────────┤
 │           Engram Enrichment Layer            │
 ├──────────────────────────────────────────────┤
 │  Core Mem App    │ Gov Native      │ Portable│
@@ -103,7 +106,7 @@ for hit in client.search("gravitational wave detection", top_k=5):
 ├──────────────────────────────────────────────┤
 │        TurboQuant Compression (4-bit)        │
 ├──────────────────────────────────────────────┤
-│       Forensic Ledger (PostgreSQL)           │
+│   Forensic Ledger (Postgres) | SQLite FTS5   │
 └──────────────────────────────────────────────┘
 ```
 

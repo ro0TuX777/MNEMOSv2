@@ -96,6 +96,9 @@ MNEMOS is organised as a layered stack with a pluggable retrieval tier selected 
 │                       REST API (:8700)                      │
 │   /index   /search   /engrams   /audit   /stats            │
 ├────────────────────────────────────────────────────────────┤
+│           EchoFrame Context Codec Layer (Phase 9)          │
+│   Governance-safe ~97% LLM Context Compression Packet      │
+├────────────────────────────────────────────────────────────┤
 │                  Engram Enrichment Layer                    │
 │   neuro-tags · provenance · confidence · relationship      │
 │   edges · extensible metadata                              │
@@ -115,7 +118,7 @@ MNEMOS is organised as a layered stack with a pluggable retrieval tier selected 
 │   BGE Base (Default) │ Nomic (Long-Context)                │
 │   + optional Cross-Encoder Rerank Lane                     │
 ├────────────────────────────────────────────────────────────┤
-│          Forensic Ledger (PostgreSQL audit trail)           │
+│       Forensic Ledger (Postgres) | SQLite Sidecar          │
 │   Immutable · every operation logged · replayable          │
 │   tsvector FTS · connection pooling · SQLite fallback      │
 └────────────────────────────────────────────────────────────┘
