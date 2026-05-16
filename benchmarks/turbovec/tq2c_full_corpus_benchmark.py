@@ -70,8 +70,8 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
     os.makedirs(sum_dir, exist_ok=True)
     
-    to_learn_dir = r"C:\Users\vin\Downloads\ToLearn"
-    sigint_dir = r"C:\Users\vin\Downloads\SIGINT"
+    to_learn_dir = os.path.join("data", "corpus", "ToLearn")
+    sigint_dir = os.path.join("data", "corpus", "SIGINT")
     
     print("Loading model for extraction...")
     model = SentenceTransformer("BAAI/bge-base-en-v1.5")

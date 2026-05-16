@@ -2,8 +2,8 @@ import os
 import glob
 import PyPDF2
 
-SIGINT_DIR = r"C:\Users\vin\Downloads\SIGINT"
-OUTPUT_DIR = r"G:\MNEMOS\benchmarks\echoframe_eval\phase10\datasets\sigint_corpus"
+SIGINT_DIR = os.path.join("data", "corpus", "SIGINT")
+OUTPUT_DIR = os.path.join("benchmarks", "echoframe_eval", "phase10", "datasets", "sigint_corpus")
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
