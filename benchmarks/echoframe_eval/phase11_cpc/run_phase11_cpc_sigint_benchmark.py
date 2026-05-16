@@ -14,7 +14,7 @@ from sentence_segmenter import SentenceSegmenter
 from cpc_style_sentence_ranker import CPCStyleSentenceRanker
 from protected_sentence_policy import ProtectedSentencePolicy
 
-SIGINT_DIR = "G:/MNEMOS/benchmarks/echoframe_eval/phase10/datasets/sigint_corpus/*.md"
+SIGINT_DIR = "benchmarks/echoframe_eval/phase10/datasets/sigint_corpus/*.md"
 
 def create_stable_packet(facts_text, evidence_text):
     return f"[ECHO_FRAME_HEADER]\nGOVERNANCE: approval_required\n[FACTS]\n{facts_text}\n[EVIDENCE]\n{evidence_text}\n[END_FRAME]"
@@ -126,7 +126,7 @@ def run_benchmark():
             "avg_ps_ret_rate": np.mean([r["ps_ret_rate"] for r in mode_data])
         }
         
-    out_dir = "G:/MNEMOS/benchmarks/echoframe_eval/phase11_cpc/"
+    out_dir = "benchmarks/echoframe_eval/phase11_cpc/"
     
     with open(out_dir + "results/phase11_cpc_sigint_benchmark.json", "w") as f:
         json.dump(final_json, f, indent=2)

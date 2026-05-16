@@ -32,6 +32,7 @@ Thumbs.db
 
 # Environment
 .env
+.env.mnemos
 
 # Local agent/editor settings (machine-specific)
 .claude/settings.local.json
@@ -41,10 +42,18 @@ Thumbs.db
 tests/_tmp/
 benchmarks/outputs/
 runtime/
-runtime/
-*.pyc
+
+# Scratch / temp files
 temp_*.txt
 smoke.py
 list_models.py
 
-runtime/
+# Generated compose (machine-specific)
+docker-compose.generated.yml
+
+# Upstream experiments (not part of MNEMOS core)
+_tmp_echoframe_upstream/
+showcase/
+
+# Offline bundle output
+mnemos_offline_bundle/

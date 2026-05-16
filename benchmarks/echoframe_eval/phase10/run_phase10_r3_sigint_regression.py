@@ -12,7 +12,7 @@ try:
 except ImportError:
     PromptCompressor = None
 
-SIGINT_DIR = "G:/MNEMOS/benchmarks/echoframe_eval/phase10/datasets/sigint_corpus/*.md"
+SIGINT_DIR = "benchmarks/echoframe_eval/phase10/datasets/sigint_corpus/*.md"
 
 def create_stable_packet(facts_text, evidence_text):
     return f"[ECHO_FRAME_HEADER]\nGOVERNANCE: approval_required\n[FACTS]\n{facts_text}\n[EVIDENCE]\n{evidence_text}\n[END_FRAME]"
@@ -127,7 +127,7 @@ def run_r3_regression():
             "total_fallbacks": sum([1 for r in mode_data if r["fallback"]])
         }
         
-    out_dir = "G:/MNEMOS/benchmarks/echoframe_eval/phase10/"
+    out_dir = "benchmarks/echoframe_eval/phase10/"
     with open(out_dir + "results/phase10_r3_sigint_regression.json", "w") as f:
         json.dump(final_json, f, indent=2)
         

@@ -13,7 +13,7 @@ try:
 except ImportError:
     PromptCompressor = None
 
-SIGINT_CORPUS_DIR = "G:/MNEMOS/benchmarks/echoframe_eval/phase10/datasets/sigint_corpus/*.md"
+SIGINT_CORPUS_DIR = "benchmarks/echoframe_eval/phase10/datasets/sigint_corpus/*.md"
 
 PROTECTED_PATTERNS = {
     "source_pointer": r"(?i)source:\s*\[.*?\]|source\s+\d+|Source:",

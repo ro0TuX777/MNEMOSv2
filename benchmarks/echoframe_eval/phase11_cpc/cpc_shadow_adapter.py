@@ -7,7 +7,7 @@ MNEMOS_CPC_SHADOW_MODE = "protected_sentence_cpc_v0"
 MNEMOS_CPC_SHADOW_MIN_EVIDENCE_TOKENS = 1200
 MNEMOS_CPC_SHADOW_ALLOW_HIGH_RISK = False
 MNEMOS_CPC_SHADOW_REQUIRE_PROTECTED_RETENTION = True
-MNEMOS_CPC_SHADOW_OUTPUT_DIR = "G:/MNEMOS/runtime/cpc_shadow/"
+MNEMOS_CPC_SHADOW_OUTPUT_DIR = "runtime/cpc_shadow/"
 
 os.makedirs(os.path.join(MNEMOS_CPC_SHADOW_OUTPUT_DIR, "results"), exist_ok=True)
 os.makedirs(os.path.join(MNEMOS_CPC_SHADOW_OUTPUT_DIR, "reports"), exist_ok=True)
@@ -80,7 +80,7 @@ def run_shadow_simulation():
     with open(os.path.join(MNEMOS_CPC_SHADOW_OUTPUT_DIR, "reports", "phase11c_cpc_shadow_recommendation.md"), "w") as f:
         f.write("# Phase 11-C Recommendation\n\n```text\nADOPT CPC IN SHADOW FOR LARGE ELIGIBLE WINDOWS:\n  CPC improves over stable EchoFrame by >=10% with zero safety failures.\n```\n\nThe shadow adapter gates are proven to securely block LLM compression on high-risk, unapproved, or short context windows. It remains completely disabled by default.\n")
 
-    print("Phase 11-C Shadow Adapter successfully deployed to G:/MNEMOS/runtime/cpc_shadow/")
+    print("Phase 11-C Shadow Adapter successfully deployed to runtime/cpc_shadow/")
 
 if __name__ == "__main__":
     run_shadow_simulation()

@@ -14,8 +14,8 @@ except:
     PromptCompressor = None
 
 # --- CONFIG ---
-DOCS_DIR = "G:/MNEMOS/docs/echoframe/*.md"
-REPORTS_DIR = "G:/MNEMOS/runtime/echoframe_default/reports/*.md"
+DOCS_DIR = "docs/echoframe/*.md"
+REPORTS_DIR = "runtime/echoframe_default/reports/*.md"
 
 PROTECTED_PATTERNS = {
     "source_pointer": r"(?i)source:\s*\[.*?\]|source\s+\d+|Source:",
@@ -185,7 +185,7 @@ def run_real_benchmark():
             "avg_zipf": avg_zipf
         }
         
-    out_dir = "G:/MNEMOS/benchmarks/echoframe_eval/phase10/"
+    out_dir = "benchmarks/echoframe_eval/phase10/"
     with open(out_dir + "results/phase10_llmlingua_comparison.real.json", "w") as f:
         json.dump(final_json, f, indent=2)
         

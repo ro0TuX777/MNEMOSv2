@@ -17,7 +17,7 @@ def run_benchmark():
         "--out", "benchmarks/outputs/raw_100k"
     ]
     env = os.environ.copy()
-    env["PYTHONPATH"] = "g:\\MNEMOS"
+    env["PYTHONPATH"] = "os.path.dirname(os.path.dirname(os.path.abspath(__file__)))"
     print("Running benchmark...")
     subprocess.run(cmd, env=env, check=True)
 

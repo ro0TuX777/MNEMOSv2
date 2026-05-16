@@ -141,6 +141,6 @@ def generate_report(json_path):
     print(f"Generated {decision_path}")
 
 if __name__ == "__main__":
-    latest_file = sorted(glob.glob("G:/MNEMOS/benchmarks/outputs/benchmark_results_*.json"))[-1]
+    latest_file = sorted(glob.glob("benchmarks/outputs/benchmark_results_*.json"))[-1]
     print(f"Reading target file: {latest_file}")
     generate_report(latest_file)

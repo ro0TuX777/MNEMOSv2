@@ -7,7 +7,7 @@ MNEMOS_CPC_SHADOW_MODE = "protected_sentence_cpc_v0"
 MNEMOS_CPC_SHADOW_MIN_EVIDENCE_TOKENS = 1200
 MNEMOS_CPC_SHADOW_ALLOW_HIGH_RISK = False
 MNEMOS_CPC_SHADOW_REQUIRE_PROTECTED_RETENTION = True
-MNEMOS_CPC_SHADOW_OUTPUT_DIR = "G:/MNEMOS/runtime/cpc_shadow/"
+MNEMOS_CPC_SHADOW_OUTPUT_DIR = "runtime/cpc_shadow/"
 
 os.makedirs(os.path.join(MNEMOS_CPC_SHADOW_OUTPUT_DIR, "results"), exist_ok=True)
 os.makedirs(os.path.join(MNEMOS_CPC_SHADOW_OUTPUT_DIR, "reports"), exist_ok=True)
