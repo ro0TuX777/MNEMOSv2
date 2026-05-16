@@ -36,6 +36,8 @@ MNEMOS is a **drop-in memory service** that deploys as a GPU-accelerated Docker 
 | **Hybrid search in one call** | `qdrant_rrf` fusion policy delegates rank fusion to Qdrant's server-side RRF via prefetch — eliminates the second network round-trip | Python-side fusion: 0.23ms/op @ 100 candidates (auto-fallback) |
 | **Retrieval learns from usage** | Governance `reflect_path` labels feed into `discover_points()` as positive/negative exemplars | Feedback store: 1.6M writes/sec, cache: 100% hit rate after warmup |
 | **TurboQuant cross-validated** | Same algorithm independently validated for LLM KV cache compression by llama.cpp community (6.7K+ ⭐) | Embedding compression: 8×, cosine fidelity: 0.995 |
+| **EchoFrame Context Codec** | Governed evidence codec that compresses retrieved context into high-density reference pointers for the LLM | ~97% reduction in LLM-facing context tokens with zero provenance loss |
+| **Portable Memory Appliance** | A true local/offline, file-backed deployment profile via Turbovec (Rust SIMD) + SQLite FTS5 | 17.48ms hybrid RRF p50, 4.05MB index on 10K chunks |
 | **366 tests, 0 failures** | 21 new tests covering hybrid RRF, relevance feedback, and routing correctness | All 5 decision gates passed |
 
 > All v2 features are **opt-in** with automatic fallback. The existing retrieval pipeline runs unchanged unless you explicitly enable `qdrant_rrf` or `relevance_feedback`.
@@ -48,6 +50,7 @@ MNEMOS is a **drop-in memory service** that deploys as a GPU-accelerated Docker 
 |---|---|---|
 | **Core Memory Appliance** | Qdrant + PostgreSQL + MNEMOS (3 containers) | Semantic memory, agent systems, general-purpose RAG |
 | **Governance Native** | PostgreSQL/pgvector + MNEMOS (2 containers) | Provenance-heavy, metadata-filtered, compliance-aware retrieval |
+| **Portable Memory Appliance** | Turbovec + SQLite (0 containers, in-process) | Air-gapped systems, laptops, field kits, zero-Docker constraints (Experimental) |
 | **Custom Manual** | Operator-defined | Advanced multi-tier setups, experimentation |
 
 ---
@@ -94,9 +97,9 @@ for hit in client.search("gravitational wave detection", top_k=5):
 ├──────────────────────────────────────────────┤
 │           Engram Enrichment Layer            │
 ├──────────────────────────────────────────────┤
-│  Core Memory     │   Governance Native       │
-│  Qdrant (CUDA)   │   pgvector (Postgres)     │
-│  + opt. ColBERT  │   + opt. ColBERT          │
+│  Core Mem App    │ Gov Native      │ Portable│
+│  Qdrant (CUDA)   │ pgvector (SQL)  │ Turbovec│
+│  + Cross-Encoder │ + Cross-Encoder │ + SQLite│
 ├──────────────────────────────────────────────┤
 │        TurboQuant Compression (4-bit)        │
 ├──────────────────────────────────────────────┤
