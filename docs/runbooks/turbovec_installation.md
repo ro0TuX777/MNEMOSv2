@@ -75,3 +75,62 @@ MNEMOS_PROFILE=core_memory_appliance
 MNEMOS_RETRIEVAL_BACKEND=qdrant
 MNEMOS_TURBOVEC_ENABLED=false
 ```
+
+---
+
+## Offline / Air-Gapped Installation
+
+For environments without internet access, MNEMOS provides a two-step bundle workflow.
+
+### Step 1: Prepare the Bundle (Internet-Connected Machine)
+On a machine with internet access and the same OS/architecture as the target:
+```bash
+python scripts/prepare_offline_bundle.py --output-dir ./mnemos_offline_bundle
+```
+
+This downloads:
+- All Python wheel dependencies (~1-2 GB, includes PyTorch)
+- The `BAAI/bge-base-en-v1.5` embedding model (~400 MB)
+- A clean copy of the MNEMOS source tree
+
+Options:
+```bash
+# Target a specific platform
+python scripts/prepare_offline_bundle.py --platform manylinux2014_x86_64
+
+# Skip model download (if already staged)
+python scripts/prepare_offline_bundle.py --skip-model
+```
+
+### Step 2: Install on the Air-Gapped Target
+Copy the entire `mnemos_offline_bundle/` directory to the target machine (USB, SCP, etc.), then:
+```bash
+cd mnemos_offline_bundle
+python install_offline_bundle.py
+```
+
+The installer will:
+1. Create a Python virtual environment
+2. Install all packages from the bundled wheels (no internet required)
+3. Stage the embedding model for local use
+4. Compile Turbovec from source (if Rust nightly is available)
+5. Generate a `.env.mnemos` configuration file
+6. Run a smoke test to verify the installation
+
+Options:
+```bash
+# Skip Turbovec compilation (uses mock adapter)
+python install_offline_bundle.py --skip-turbovec
+
+# Custom venv path
+python install_offline_bundle.py --venv /opt/mnemos/venv
+
+# Install into current environment (no venv)
+python install_offline_bundle.py --skip-venv
+```
+
+### Target Machine Prerequisites
+The air-gapped target still requires:
+- **Python 3.11+**
+- **Rust Nightly** (for Turbovec compilation; optional if using `--skip-turbovec`)
+
