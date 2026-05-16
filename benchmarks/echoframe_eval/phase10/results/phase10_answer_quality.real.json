@@ -1,0 +1,26 @@
+{
+  "A": {
+    "answer_correctness_rate": 1.0,
+    "manual_pass_rate": 1.0
+  },
+  "B": {
+    "answer_correctness_rate": 1.0,
+    "manual_pass_rate": 1.0
+  },
+  "C": {
+    "answer_correctness_rate": 0.2,
+    "manual_pass_rate": 0.0
+  },
+  "D": {
+    "answer_correctness_rate": 1.0,
+    "manual_pass_rate": 1.0
+  },
+  "E": {
+    "answer_correctness_rate": 1.0,
+    "manual_pass_rate": 1.0
+  },
+  "F": {
+    "answer_correctness_rate": 1.0,
+    "manual_pass_rate": 1.0
+  }
+}

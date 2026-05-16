@@ -1,0 +1,30 @@
+name: "portable_memory_appliance"
+description: "A lightweight, local-first retrieval profile utilizing Turbovec and SQLite."
+status: "experimental"
+requires_explicit_opt_in: true
+platform_warnings:
+  linux:
+    status: warn
+    reason: "turbovec currently requires nightly Rust build path unless a compatible wheel is available"
+  windows:
+    status: supported_experimental
+default_profile: false
+fallback_profile: "core_memory_appliance"
+shadow_eligible: true
+dependencies:
+  system: []
+  python:
+    - "turbovec>=0.1.0"
+  containers: [] # Intentionally skips Qdrant
+
+environment:
+  MNEMOS_PROFILE: "portable_memory_appliance"
+  MNEMOS_RETRIEVAL_BACKEND: "turbovec"
+  MNEMOS_TURBOVEC_ENABLED: "true"
+
+storage:
+  directories:
+    - "runtime/turbovec_storage"
+
+post_install_verifications:
+  - check_turbovec_import: "python -c 'import turbovec'"

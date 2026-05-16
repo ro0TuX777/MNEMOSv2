@@ -40,3 +40,11 @@ Thumbs.db
 # Generated benchmark/test artifacts
 tests/_tmp/
 benchmarks/outputs/
+runtime/
+runtime/
+*.pyc
+temp_*.txt
+smoke.py
+list_models.py
+
+runtime/

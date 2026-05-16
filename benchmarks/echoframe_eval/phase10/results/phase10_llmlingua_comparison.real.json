@@ -1,0 +1,146 @@
+{
+  "A": {
+    "avg_tokens": 291.8181818181818,
+    "median_tokens": 298.0,
+    "p95_tokens": 614.0,
+    "avg_latency": 0.0,
+    "p95_latency": 0.0,
+    "span_failures": {
+      "source_pointer": 0,
+      "governance_flag": 0,
+      "date": 0,
+      "number": 0,
+      "config_key": 0,
+      "exception_clause": 0,
+      "negation": 0
+    },
+    "total_span_failures": 0,
+    "avg_zipf": {
+      "COMPRESSION": 291.8181818181818,
+      "CARDINALITY": 162.9090909090909,
+      "AUC": 5.775014457105664,
+      "SLOPE": -0.5155690655787646,
+      "POWER_LAW": 0.17271817113547494
+    }
+  },
+  "B": {
+    "avg_tokens": 301.8181818181818,
+    "median_tokens": 308.0,
+    "p95_tokens": 624.0,
+    "avg_latency": 0.0,
+    "p95_latency": 0.0,
+    "span_failures": {
+      "source_pointer": 0,
+      "governance_flag": 0,
+      "date": 0,
+      "number": 0,
+      "config_key": 0,
+      "exception_clause": 0,
+      "negation": 0
+    },
+    "total_span_failures": 0,
+    "avg_zipf": {
+      "COMPRESSION": 301.8181818181818,
+      "CARDINALITY": 172.0,
+      "AUC": 5.793507325306964,
+      "SLOPE": -0.4988526257034824,
+      "POWER_LAW": 0.17154291365742083
+    }
+  },
+  "C": {
+    "avg_tokens": 112.45454545454545,
+    "median_tokens": 124.0,
+    "p95_tokens": 214.0,
+    "avg_latency": 27.48097072948109,
+    "p95_latency": 80.24942874908447,
+    "span_failures": {
+      "source_pointer": 1,
+      "governance_flag": 5,
+      "date": 0,
+      "number": 11,
+      "config_key": 5,
+      "exception_clause": 2,
+      "negation": 3
+    },
+    "total_span_failures": 27,
+    "avg_zipf": {
+      "COMPRESSION": 112.45454545454545,
+      "CARDINALITY": 78.63636363636364,
+      "AUC": 3.19289739928464,
+      "SLOPE": -0.3989336044327821,
+      "POWER_LAW": 0.1500070463298165
+    }
+  },
+  "D": {
+    "avg_tokens": 122.45454545454545,
+    "median_tokens": 134.0,
+    "p95_tokens": 224.0,
+    "avg_latency": 15.227859670465643,
+    "p95_latency": 28.164267539978027,
+    "span_failures": {
+      "source_pointer": 1,
+      "governance_flag": 1,
+      "date": 0,
+      "number": 11,
+      "config_key": 5,
+      "exception_clause": 2,
+      "negation": 3
+    },
+    "total_span_failures": 23,
+    "avg_zipf": {
+      "COMPRESSION": 122.45454545454545,
+      "CARDINALITY": 88.36363636363636,
+      "AUC": 3.2003671427385068,
+      "SLOPE": -0.36872465292817186,
+      "POWER_LAW": 0.14628006513485034
+    }
+  },
+  "E": {
+    "avg_tokens": 122.45454545454545,
+    "median_tokens": 134.0,
+    "p95_tokens": 224.0,
+    "avg_latency": 15.227859670465643,
+    "p95_latency": 28.164267539978027,
+    "span_failures": {
+      "source_pointer": 1,
+      "governance_flag": 1,
+      "date": 0,
+      "number": 11,
+      "config_key": 5,
+      "exception_clause": 2,
+      "negation": 3
+    },
+    "total_span_failures": 23,
+    "avg_zipf": {
+      "COMPRESSION": 122.45454545454545,
+      "CARDINALITY": 88.36363636363636,
+      "AUC": 3.2003671427385068,
+      "SLOPE": -0.36872465292817186,
+      "POWER_LAW": 0.14628006513485034
+    }
+  },
+  "F": {
+    "avg_tokens": 301.8181818181818,
+    "median_tokens": 308.0,
+    "p95_tokens": 624.0,
+    "avg_latency": 0.0,
+    "p95_latency": 0.0,
+    "span_failures": {
+      "source_pointer": 0,
+      "governance_flag": 0,
+      "date": 0,
+      "number": 0,
+      "config_key": 0,
+      "exception_clause": 0,
+      "negation": 0
+    },
+    "total_span_failures": 0,
+    "avg_zipf": {
+      "COMPRESSION": 301.8181818181818,
+      "CARDINALITY": 172.0,
+      "AUC": 5.793507325306964,
+      "SLOPE": -0.4988526257034824,
+      "POWER_LAW": 0.17154291365742083
+    }
+  }
+}

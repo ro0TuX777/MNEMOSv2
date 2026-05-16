@@ -61,8 +61,9 @@ Today, each project re-implements these capabilities from scratch — writing cu
 
 **MNEMOS** (Multi-tier Neuro-tagged Engram Memory with Optimal Near-lossless Index Compression) is a GPU-accelerated, production-grade memory service for AI-native applications. It deploys via **named deployment profiles** — each profile defines a retrieval backend, container topology, and operational posture:
 
-- **Core Memory Appliance** — Qdrant + PostgreSQL + MNEMOS (3 containers). Semantic ANN with payload filtering.
+- **Core Memory Appliance** — Qdrant + PostgreSQL + MNEMOS (3 containers). Semantic ANN with payload filtering. (Default)
 - **Governance Native** — PostgreSQL/pgvector + MNEMOS (2 containers). ANN + SQL metadata filtering in one query.
+- **Portable Memory Appliance** — Turbovec + SQLite (0 containers, embedded). Compact, local-first, file-backed retrieval profile for air-gapped and offline systems. (Experimental opt-in)
 - **Custom Manual** — Operator-defined configuration for advanced multi-backend setups.
 - **Hybrid Retrieval Mode (Gate C)** - optional lexical + semantic fusion mode inside existing profiles (not a separate profile).
 
@@ -101,10 +102,10 @@ MNEMOS is organised as a layered stack with a pluggable retrieval tier selected 
 ├────────────────────────────────────────────────────────────┤
 │            Retrieval (profile-selected)                     │
 │                                                             │
-│  ┌──────────────────────────┐  ┌────────────────────────┐  │
-│  │  Core Memory Appliance   │  │   Governance Native    │  │
-│  │  Qdrant (HNSW, CUDA)     │  │   pgvector (Postgres)  │  │
-│  └──────────────────────────┘  └────────────────────────┘  │
+│  ┌────────────────────┐  ┌────────────────────┐  ┌──────────────────┐  │
+│  │ Core Mem Appliance │  │ Governance Native  │  │ Portable Profile │  │
+│  │ Qdrant (HNSW)      │  │ pgvector (SQL)     │  │ Turbovec (SIMD)  │  │
+│  └────────────────────┘  └────────────────────┘  └──────────────────┘  │
 ├────────────────────────────────────────────────────────────┤
 │             TurboQuant Compression Layer                    │
 │   4-bit quantised storage · 8× raw compression             │
@@ -153,6 +154,7 @@ MNEMOS supports multiple retrieval backends, selected by deployment profile. All
 |---|---|---|---|
 | **Qdrant** | Core Memory Appliance | BAAI/bge-base-en-v1.5 (768-dim, CUDA) | Fast semantic ANN, HNSW index, payload filtering, horizontal scaling |
 | **pgvector** | Governance Native | BAAI/bge-base-en-v1.5 (768-dim, CUDA) | ANN + SQL metadata filtering in one query, single-database deployment |
+| **Turbovec** | Portable Memory Appliance | BAAI/bge-base-en-v1.5 (768-dim, CPU/SIMD) | Compact, local-first, file-backed. Enables air-gapped/offline deployments without Docker. |
 | **PostgreSQL FTS** | Hybrid mode (Core/Governance) | n/a (lexical lane) | Exact-term/title/acronym retrieval via full-text lexical matching |
 | **Cross-Encoder** | Precision Lane (optional) | BAAI/bge-reranker-base | Dense reranking for long-context and technical text via stateless cross-encoder |
 
@@ -161,6 +163,8 @@ MNEMOS supports multiple retrieval backends, selected by deployment profile. All
 **Why Qdrant** (Core Memory Appliance): Standalone service with its own HNSW index, snapshotting, replication, and sharding. Supports concurrent reads and writes without single-process bottlenecks, payload-based filtering without post-filtering, and survives independently of the MNEMOS process.
 
 **Why pgvector** (Governance Native): Vectors live inside the same PostgreSQL instance as the forensic ledger. ANN retrieval can be combined with SQL `WHERE` clauses on tenant, provenance, department, security markings, or any relational metadata — in a single query. This eliminates the need for a separate vector service in governance-heavy deployments.
+
+**Why Turbovec** (Portable Memory Appliance): Provides a true local/offline deployment posture without a background vector database container. Combines a rust-native SIMD-accelerated dense index with a SQLite metadata sidecar. Perfect for laptops, field kits, or anywhere Docker is a friction point, while completely preserving MNEMOS governance.
 
 **Hybrid fusion**: In Gate C hybrid mode, MNEMOS merges lexical (PostgreSQL FTS) and semantic candidates with deterministic normalization and weighted fusion. Four fusion policies are available:
 
@@ -700,7 +704,25 @@ MNEMOS ships with named deployment profiles that determine the retrieval backend
 
 2 containers. Vectors and audit share one Postgres instance. ANN retrieval can be combined with SQL `WHERE` clauses on tenant, provenance, or security markings — in a single query. Recommended when metadata filtering matters more than raw ANN throughput.
 
-### Profile C: Custom Manual
+### Profile C: Portable Memory Appliance
+
+**Best for:** Air-gapped systems, laptops, field kits, offline agents, and zero-Docker constraints.
+
+| Component | Service | Container |
+|---|---|---|
+| Vector store | Turbovec (Embedded, SIMD-accelerated) | None (In-Process) |
+| Audit ledger | SQLite (Embedded Sidecar) | None (In-Process) |
+| Service | MNEMOS (Local execution) | None (Local process) |
+
+0 containers. This is an opt-in, experimental profile running purely local and file-backed (`index.tvim`, `metadata.sqlite`). It provides low-latency hybrid RRF retrieval and compact storage while preserving the 100% source_uri / engram_uuid traceability of the containerized profiles. Note: Linux operators must compile via Nightly Rust until CI wheel artifacts are fully stabilized.
+
+**The Strategic Win of the Portable Memory Appliance:**
+Turbovec was not added to replace Qdrant—the strategic win is entirely about providing a governed, offline memory profile. Adding Turbovec fundamentally advanced MNEMOS across four dimensions:
+1. **A True Local/Offline Profile**: Before Turbovec, MNEMOS relied heavily on Docker, Postgres, and Qdrant. The Portable Memory Appliance provides a file-backed profile perfectly suited for air-gapped systems, WebOps portable deployments, laptops, and offline agents where Docker is a prohibitive friction point.
+2. **Proven Real-Corpus Performance**: Turbovec successfully processed the 10,718 semantic chunk benchmark corpus at ~300 docs/sec, maintaining a compact 4.05 MB index and achieving 17.48 ms hybrid RRF p50 latency with 100% post-restore hybrid retrieval parity.
+3. **Uncompromised Governance**: The SQLite sidecar preserves the entire MNEMOS governance posture (engram_uuids, source_uri, metadata filtering, soft deletes, and SHA-256 backup archive integrity) without requiring an active PostgreSQL database.
+4. **Enhanced Operational Discipline**: The implementation forced architectural improvements that benefit all profiles, including durable persistence contracts, atomic backup/restore tools, runtime profile selection interfaces, and strict capability reporting.
+### Profile D: Custom Manual
 
 **Best for:** Advanced operators, multi-tier setups, experimentation.
 
@@ -790,6 +812,7 @@ volumes:
 | Core Memory Appliance | 3 | ~2 GB | ~200 MB base | Required (CUDA) |
 | Core + Cross-Encoder reranking | 3 | ~4 GB | ~400 MB base | Required (CUDA) |
 | Governance Native | 2 | ~1.5 GB | ~150 MB base | Required (CUDA) |
+| Portable Memory Appliance | 0 (In-process) | < 1 GB | < 100 MB base | CPU (AVX-512) |
 | Governance + Cross-Encoder | 2 | ~3.5 GB | ~350 MB base | Required (CUDA, ≥8 GB VRAM) |
 
 ---

@@ -74,3 +74,13 @@ The final validation drill simulated a full production workload with a mix of sa
 EchoFrame successfully transforms MNEMOS from a high-overhead retrieval engine into an ultra-efficient, local-model-ready knowledge platform. By achieving a **~97% reduction in LLM-facing context size** with zero degradation in source traceability or governance compliance, EchoFrame drastically lowers inference costs and context window pressure. 
 
 Its strict fail-closed architecture ensures that critical governance boundaries—such as high-risk queries and required approvals—are never compromised, defaulting to the robust baseline MNEMOS behavior whenever necessary.
+
+## 6. Synergy with Deployment Profiles
+
+EchoFrame acts as a universally compatible codec across all three of MNEMOS's deployment postures:
+
+1. **Core Memory Appliance (Qdrant)**: Production default for high-throughput semantic RAG.
+2. **Governance Native (pgvector)**: Single-database deployment for compliance-heavy environments.
+3. **Portable Memory Appliance (Turbovec + SQLite)**: An experimental, compact, file-backed retrieval profile designed for true local, offline, or air-gapped systems without container dependencies.
+
+Adding Turbovec was immensely valuable to MNEMOS, not as a replacement for Qdrant, but because it created a credible third deployment posture. By drastically reducing LLM context size (~97%), EchoFrame compounds the value of the **Portable Memory Appliance**. Turbovec enables MNEMOS to run locally without Docker or heavy infrastructure, while EchoFrame ensures the connected local LLMs (which often have strictly constrained context windows and memory limits) are not overwhelmed by retrieved evidence. Together, they create a highly viable, governed, offline AI appliance without sacrificing any of MNEMOS's core source-traceability.

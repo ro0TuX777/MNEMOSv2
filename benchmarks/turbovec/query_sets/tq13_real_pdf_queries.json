@@ -1,0 +1,512 @@
+[
+  {
+    "query_id": "semantic_001",
+    "query": "Explain the broad strategic goals and methodologies outlined in document 1.",
+    "query_type": "semantic_recall",
+    "expected_dataset": "ToLearn",
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "semantic_002",
+    "query": "Explain the broad strategic goals and methodologies outlined in document 2.",
+    "query_type": "semantic_recall",
+    "expected_dataset": "ToLearn",
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "semantic_003",
+    "query": "Explain the broad strategic goals and methodologies outlined in document 3.",
+    "query_type": "semantic_recall",
+    "expected_dataset": "ToLearn",
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "semantic_004",
+    "query": "Explain the broad strategic goals and methodologies outlined in document 4.",
+    "query_type": "semantic_recall",
+    "expected_dataset": "ToLearn",
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "semantic_005",
+    "query": "Explain the broad strategic goals and methodologies outlined in document 5.",
+    "query_type": "semantic_recall",
+    "expected_dataset": "ToLearn",
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "semantic_006",
+    "query": "Explain the broad strategic goals and methodologies outlined in document 6.",
+    "query_type": "semantic_recall",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "semantic_007",
+    "query": "Explain the broad strategic goals and methodologies outlined in document 7.",
+    "query_type": "semantic_recall",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "semantic_008",
+    "query": "Explain the broad strategic goals and methodologies outlined in document 8.",
+    "query_type": "semantic_recall",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "semantic_009",
+    "query": "Explain the broad strategic goals and methodologies outlined in document 9.",
+    "query_type": "semantic_recall",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "semantic_010",
+    "query": "Explain the broad strategic goals and methodologies outlined in document 10.",
+    "query_type": "semantic_recall",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "acronym_001",
+    "query": "What are the reporting channels and definitions for SIGINT operations?",
+    "query_type": "acronym_exact_term",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "SIGINT"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "acronym_002",
+    "query": "What are the reporting channels and definitions for COMINT operations?",
+    "query_type": "acronym_exact_term",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "COMINT"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "acronym_003",
+    "query": "What are the reporting channels and definitions for ELINT operations?",
+    "query_type": "acronym_exact_term",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "ELINT"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "acronym_004",
+    "query": "What are the reporting channels and definitions for NSA operations?",
+    "query_type": "acronym_exact_term",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "NSA"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "acronym_005",
+    "query": "What are the reporting channels and definitions for CIA operations?",
+    "query_type": "acronym_exact_term",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "CIA"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "acronym_006",
+    "query": "What are the reporting channels and definitions for OSINT operations?",
+    "query_type": "acronym_exact_term",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "OSINT"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "acronym_007",
+    "query": "What are the reporting channels and definitions for HUMINT operations?",
+    "query_type": "acronym_exact_term",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "HUMINT"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "acronym_008",
+    "query": "What are the reporting channels and definitions for MASINT operations?",
+    "query_type": "acronym_exact_term",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "MASINT"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "acronym_009",
+    "query": "What are the reporting channels and definitions for GEOINT operations?",
+    "query_type": "acronym_exact_term",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "GEOINT"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "acronym_010",
+    "query": "What are the reporting channels and definitions for FISINT operations?",
+    "query_type": "acronym_exact_term",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "FISINT"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "source_001",
+    "query": "According to the source document 1, what is the main objective?",
+    "query_type": "source_specific",
+    "expected_dataset": "ToLearn",
+    "expected_source_contains": [
+      "doc_1"
+    ],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "source_002",
+    "query": "According to the source document 2, what is the main objective?",
+    "query_type": "source_specific",
+    "expected_dataset": "ToLearn",
+    "expected_source_contains": [
+      "doc_2"
+    ],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "source_003",
+    "query": "According to the source document 3, what is the main objective?",
+    "query_type": "source_specific",
+    "expected_dataset": "ToLearn",
+    "expected_source_contains": [
+      "doc_3"
+    ],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "source_004",
+    "query": "According to the source document 4, what is the main objective?",
+    "query_type": "source_specific",
+    "expected_dataset": "ToLearn",
+    "expected_source_contains": [
+      "doc_4"
+    ],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "source_005",
+    "query": "According to the source document 5, what is the main objective?",
+    "query_type": "source_specific",
+    "expected_dataset": "ToLearn",
+    "expected_source_contains": [
+      "doc_5"
+    ],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "source_006",
+    "query": "According to the source document 6, what is the main objective?",
+    "query_type": "source_specific",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [
+      "doc_6"
+    ],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "source_007",
+    "query": "According to the source document 7, what is the main objective?",
+    "query_type": "source_specific",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [
+      "doc_7"
+    ],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "source_008",
+    "query": "According to the source document 8, what is the main objective?",
+    "query_type": "source_specific",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [
+      "doc_8"
+    ],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "source_009",
+    "query": "According to the source document 9, what is the main objective?",
+    "query_type": "source_specific",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [
+      "doc_9"
+    ],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "source_010",
+    "query": "According to the source document 10, what is the main objective?",
+    "query_type": "source_specific",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [
+      "doc_10"
+    ],
+    "expected_terms": [],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "policy_001",
+    "query": "What is the official procedure regarding retention?",
+    "query_type": "policy_procedure",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "retention"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "policy_002",
+    "query": "What is the official procedure regarding compliance?",
+    "query_type": "policy_procedure",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "compliance"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "policy_003",
+    "query": "What is the official procedure regarding authorization?",
+    "query_type": "policy_procedure",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "authorization"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "policy_004",
+    "query": "What is the official procedure regarding legal?",
+    "query_type": "policy_procedure",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "legal"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "policy_005",
+    "query": "What is the official procedure regarding audit?",
+    "query_type": "policy_procedure",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "audit"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "policy_006",
+    "query": "What is the official procedure regarding penalty?",
+    "query_type": "policy_procedure",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "penalty"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "policy_007",
+    "query": "What is the official procedure regarding access control?",
+    "query_type": "policy_procedure",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "access control"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "policy_008",
+    "query": "What is the official procedure regarding classification?",
+    "query_type": "policy_procedure",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "classification"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "policy_009",
+    "query": "What is the official procedure regarding data sharing?",
+    "query_type": "policy_procedure",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "data sharing"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "policy_010",
+    "query": "What is the official procedure regarding destruction?",
+    "query_type": "policy_procedure",
+    "expected_dataset": "SIGINT",
+    "expected_source_contains": [],
+    "expected_terms": [
+      "destruction"
+    ],
+    "should_have_answer": true
+  },
+  {
+    "query_id": "gap_001",
+    "query": "What does this corpus say about lunar mining safety waivers?",
+    "query_type": "evidence_gap",
+    "expected_dataset": null,
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": false
+  },
+  {
+    "query_id": "gap_002",
+    "query": "What does this corpus say about recipe for chocolate cake?",
+    "query_type": "evidence_gap",
+    "expected_dataset": null,
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": false
+  },
+  {
+    "query_id": "gap_003",
+    "query": "What does this corpus say about 1994 World Cup winner?",
+    "query_type": "evidence_gap",
+    "expected_dataset": null,
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": false
+  },
+  {
+    "query_id": "gap_004",
+    "query": "What does this corpus say about Jupiter's moons count?",
+    "query_type": "evidence_gap",
+    "expected_dataset": null,
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": false
+  },
+  {
+    "query_id": "gap_005",
+    "query": "What does this corpus say about capital of Australia?",
+    "query_type": "evidence_gap",
+    "expected_dataset": null,
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": false
+  },
+  {
+    "query_id": "gap_006",
+    "query": "What does this corpus say about nuclear reactor build guide?",
+    "query_type": "evidence_gap",
+    "expected_dataset": null,
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": false
+  },
+  {
+    "query_id": "gap_007",
+    "query": "What does this corpus say about common cold symptoms?",
+    "query_type": "evidence_gap",
+    "expected_dataset": null,
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": false
+  },
+  {
+    "query_id": "gap_008",
+    "query": "What does this corpus say about President of France?",
+    "query_type": "evidence_gap",
+    "expected_dataset": null,
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": false
+  },
+  {
+    "query_id": "gap_009",
+    "query": "What does this corpus say about boiling point of water?",
+    "query_type": "evidence_gap",
+    "expected_dataset": null,
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": false
+  },
+  {
+    "query_id": "gap_010",
+    "query": "What does this corpus say about chess rules?",
+    "query_type": "evidence_gap",
+    "expected_dataset": null,
+    "expected_source_contains": [],
+    "expected_terms": [],
+    "should_have_answer": false
+  }
+]
