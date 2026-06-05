@@ -41,8 +41,8 @@ class MockSemanticRetriever(BaseRetriever):
 
 # ─── Dataset Generation ────────────────────────────────────────────
 
-def create_engram(eid, content, edges=None, gov=None, lineage=None, tags=None):
-    e = Engram(id=eid, content=content, edges=edges or [], neuro_tags=tags or [])
+def create_engram(eid, content, edges=None, gov=None, lineage=None, tags=None, confidence=1.0):
+    e = Engram(id=eid, content=content, edges=edges or [], neuro_tags=tags or [], confidence=confidence)
     if gov:
         e.governance = gov
     # Set lineage metadata
@@ -69,11 +69,13 @@ def generate_synthetic_graph():
     mock_semantic_results = {}
     utility_labels = {} # candidate_id -> "useful" or "useless"
     
-    # Hub node: highly connected, shows up across multiple queries
+    # Hub node: highly connected (degree 50), shows up across multiple queries
     hub_node = create_engram(
         "hub_node_01", "Generic enterprise architecture hub",
+        edges=["dummy"] * 50,
         lineage={"artifact_id": "art_hub", "source_uri": "uri_hub", "chunk_id": "c_hub"},
-        tags=["useless"]
+        tags=["useless"],
+        confidence=0.5
     )
     engram_dict[hub_node.id] = hub_node
     utility_labels[hub_node.id] = "useless"
@@ -93,8 +95,10 @@ def generate_synthetic_graph():
         useful_id = f"useful_{i}"
         e_useful = create_engram(
             useful_id, f"Support fact answering {qtext}",
+            edges=["dummy"] * 1,
             lineage={"artifact_id": f"art_{i}", "source_uri": f"uri_{i}", "chunk_id": "c1"},
-            tags=["useful"]
+            tags=["useful"],
+            confidence=0.9
         )
         engram_dict[useful_id] = e_useful
         edges1.append(useful_id)
@@ -104,8 +108,10 @@ def generate_synthetic_graph():
         useless_id = f"useless_{i}"
         e_useless = create_engram(
             useless_id, f"Irrelevant details somewhat related to {qtext}",
+            edges=["dummy"] * 2,
             lineage={"artifact_id": f"art_x_{i}", "source_uri": f"uri_x_{i}", "chunk_id": "c2"},
-            tags=["useless"]
+            tags=["useless"],
+            confidence=0.2
         )
         engram_dict[useless_id] = e_useless
         edges2.append(useless_id)
@@ -174,6 +180,9 @@ def main():
         "total_useless_candidates": 0,
         "total_gov_filtered": 0,
         "total_lineage_filtered": 0,
+        "total_score_filtered": 0,
+        "total_hub_penalty_filtered": 0,
+        "avg_graph_scores": [],
         "latencies_ms": [],
         "hub_frequency": {},
         "per_query_records": []
@@ -195,6 +204,12 @@ def main():
         metrics["total_unique_graph_candidates"] += telemetry.get("graph_unique_candidate_count", 0)
         metrics["total_gov_filtered"] += telemetry.get("graph_governance_filtered_count", 0)
         metrics["total_lineage_filtered"] += telemetry.get("graph_lineage_filtered_count", 0)
+        metrics["total_score_filtered"] += telemetry.get("graph_score_filtered_count", 0)
+        metrics["total_hub_penalty_filtered"] += telemetry.get("graph_hub_penalty_filtered_count", 0)
+        
+        avg_score = telemetry.get("graph_avg_graph_score", 0.0)
+        if avg_score > 0:
+            metrics["avg_graph_scores"].append(avg_score)
         
         useful = 0
         useless = 0
@@ -229,6 +244,15 @@ def main():
     hubs = {k: v for k, v in metrics["hub_frequency"].items() if v > 1}
     metrics["hub_nodes_detected"] = len(hubs)
     metrics["hub_occurrences"] = hubs
+    
+    if metrics["avg_graph_scores"]:
+        metrics["overall_avg_graph_score"] = round(sum(metrics["avg_graph_scores"]) / len(metrics["avg_graph_scores"]), 4)
+    else:
+        metrics["overall_avg_graph_score"] = 0.0
+        
+    metrics["useful_candidate_rate"] = 0.0
+    if metrics["total_graph_candidates"] > 0:
+        metrics["useful_candidate_rate"] = round(metrics["total_useful_candidates"] / metrics["total_graph_candidates"], 4)
     
     # Save
     out_path = Path(__file__).parent / "mg_test_2_metrics.json"

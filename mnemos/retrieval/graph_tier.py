@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 class EngramResolver(Protocol):
     def get_by_id(self, engram_id: str) -> Optional[Engram]:
         ...
+    def get_degree(self, engram_id: str) -> int:
+        ...
 
 class InMemoryEngramResolver:
     def __init__(self, engrams: Dict[str, Engram] = None):
@@ -27,6 +29,10 @@ class InMemoryEngramResolver:
         
     def get_by_id(self, engram_id: str) -> Optional[Engram]:
         return self._store.get(engram_id)
+        
+    def get_degree(self, engram_id: str) -> int:
+        eng = self.get_by_id(engram_id)
+        return len(eng.edges) if eng else 0
 
 @dataclass
 class GraphCandidate:
@@ -50,7 +56,8 @@ class GraphCandidate:
             "graph_score": self.graph_score,
             "lineage_complete": self.lineage_complete,
             "governance_state": self.governance_state,
-            "retrieval_reason": self.retrieval_reason
+            "retrieval_reason": self.retrieval_reason,
+            "filtered_reason": getattr(self, "filtered_reason", None)
         }
 
 class GraphTier:
@@ -80,10 +87,13 @@ class GraphTier:
     def expand_candidates(
         self,
         seed_candidates: List[SearchResult],
+        query_embedding: Optional[np.ndarray] = None,
         max_depth: int = 1,
         max_neighbors_per_seed: int = 5,
         max_total_graph_candidates: int = 20,
-        max_seed_candidates: int = 10
+        max_seed_candidates: int = 10,
+        hub_degree_threshold: int = 5,
+        score_threshold: float = 0.5
     ) -> Tuple[List[GraphCandidate], Dict[str, Any]]:
         
         start_time = time.perf_counter()
@@ -95,9 +105,22 @@ class GraphTier:
             
         seeds_to_process = seed_candidates[:max_seed_candidates]
         
+        import math
+        import numpy as np
+
         discovered_candidates: List[GraphCandidate] = []
         ineligible_candidates: List[GraphCandidate] = []
         seen_ids = set()
+        
+        # Telemetry counters
+        filtered_gov_count = 0
+        filtered_lin_count = 0
+        filtered_score_count = 0
+        hub_candidates = 0
+        repeated_candidate_counts = {}
+        sum_graph_score = 0.0
+        min_graph_score = float('inf')
+        max_graph_score = -float('inf')
         
         # Pre-fill seen with seeds to avoid returning seeds as graph candidates
         for seed in seed_candidates:
@@ -129,38 +152,96 @@ class GraphTier:
                     
                 seen_ids.add(neighbor_id)
                 
-                # Check neighbor governance
+                # 2. Check neighbor governance
                 if self._is_blocked(neighbor_engram):
-                    filtered_count += 1
+                    filtered_gov_count += 1
                     continue
                     
+                # 3. Check lineage
                 lineage_ok = self._is_lineage_complete(neighbor_engram)
                 gov_state = neighbor_engram.governance.lifecycle_state if neighbor_engram.governance else "active"
                 
+                # 4. Hub/Relevance Scoring
+                degree = self.resolver.get_degree(neighbor_id)
+                if degree > hub_degree_threshold:
+                    hub_candidates += 1
+                    
+                hub_penalty = 1.0 / (1.0 + math.log1p(max(0, degree - hub_degree_threshold)))
+                
+                relevance_score = 1.0
+                if query_embedding is not None and neighbor_engram.embedding is not None:
+                    # simple cosine similarity
+                    norm_q = np.linalg.norm(query_embedding)
+                    norm_e = np.linalg.norm(neighbor_engram.embedding)
+                    if norm_q > 0 and norm_e > 0:
+                        relevance_score = np.dot(query_embedding, neighbor_engram.embedding) / (norm_q * norm_e)
+                elif neighbor_engram.confidence is not None:
+                    relevance_score = neighbor_engram.confidence
+                
+                graph_score = relevance_score * hub_penalty
+
                 gc = GraphCandidate(
                     engram=neighbor_engram,
                     seed_id=seed_engram.id,
                     edge_path=[seed_engram.id, neighbor_id],
                     edge_depth=1,
+                    graph_score=graph_score,
                     lineage_complete=lineage_ok,
                     governance_state=gov_state
                 )
                 
-                if lineage_ok:
-                    discovered_candidates.append(gc)
-                else:
+                # Track for telemetry
+                gc.candidate_degree = degree
+                gc.hub_penalty = hub_penalty
+                gc.relevance_score = relevance_score
+                gc.score_threshold = score_threshold
+                
+                if not lineage_ok:
+                    gc.filtered_reason = "lineage_incomplete"
                     ineligible_candidates.append(gc)
+                    filtered_lin_count += 1
+                    continue
+                    
+                # 5. Score threshold filtering
+                if graph_score < score_threshold:
+                    gc.filtered_reason = "score_below_threshold"
+                    ineligible_candidates.append(gc)
+                    filtered_score_count += 1
+                    continue
+
+                repeated_candidate_counts[neighbor_id] = repeated_candidate_counts.get(neighbor_id, 0) + 1
+                sum_graph_score += graph_score
+                min_graph_score = min(min_graph_score, graph_score)
+                max_graph_score = max(max_graph_score, graph_score)
+
+                discovered_candidates.append(gc)
                     
             if len(discovered_candidates) >= max_total_graph_candidates:
                 break
                 
+        # 6. Telemetry emission
         latency_ms = (time.perf_counter() - start_time) * 1000
         
+        avg_score = sum_graph_score / len(discovered_candidates) if discovered_candidates else 0.0
+        min_score = min_graph_score if discovered_candidates else 0.0
+        max_score = max_graph_score if discovered_candidates else 0.0
+        
+        top_repeated = sorted(repeated_candidate_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+
         telemetry = {
             "graph_candidate_count": len(discovered_candidates),
-            "graph_governance_filtered_count": filtered_count,
-            "graph_lineage_filtered_count": len(ineligible_candidates),
+            "graph_governance_filtered_count": filtered_gov_count,
+            "graph_lineage_filtered_count": filtered_lin_count,
+            "graph_score_filtered_count": filtered_score_count,
+            "graph_hub_penalty_filtered_count": sum(1 for c in ineligible_candidates if getattr(c, "hub_penalty", 1.0) < 1.0 and c.filtered_reason == "score_below_threshold"),
             "graph_latency_ms": round(latency_ms, 2),
+            "graph_avg_graph_score": round(avg_score, 4),
+            "graph_min_graph_score": round(min_score, 4),
+            "graph_max_graph_score": round(max_score, 4),
+            "graph_hub_candidate_count": hub_candidates,
+            "graph_top_repeated_candidate_ids": [cid for cid, count in top_repeated if count > 1],
+            "graph_score_threshold": score_threshold,
+            "hub_degree_threshold": hub_degree_threshold,
             "ineligible_candidates": [c.to_dict() for c in ineligible_candidates]
         }
         
