@@ -35,10 +35,14 @@ class RetrievalRouter:
         semantic_fusion: TierFusion,
         lexical_tier: Optional[BaseRetriever] = None,
         reranker: Optional[Any] = None,
+        graph_tier: Optional[Any] = None,
+        graph_shadow_enabled: bool = False,
     ):
         self._semantic_fusion = semantic_fusion
         self._lexical_tier = lexical_tier
         self._reranker = reranker
+        self._graph_tier = graph_tier
+        self._graph_shadow_enabled = graph_shadow_enabled
         self._rerank_policy = RerankPolicy()
         self._classifier = get_classifier(self._rerank_policy.config.get("query_family_classifier", {}))
         self._telemetry_sink = get_telemetry_sink(self._rerank_policy.config.get("telemetry", {}))
@@ -269,6 +273,72 @@ class RetrievalRouter:
                 
             return candidates, telemetry
 
+    def _run_graph_shadow(self, final_results: List[SearchResult], envelope_cfg: CandidateEnvelopeConfig) -> Optional[Dict[str, Any]]:
+        if not self._graph_shadow_enabled or not self._graph_tier:
+            return None
+            
+        import time
+        
+        # 1. Use final returned hits as seeds (copy to avoid mutation)
+        seeds = []
+        for r in final_results:
+            # We copy SearchResult but Engram is treated as immutable for read-only
+            seeds.append(SearchResult(engram=r.engram, score=r.score, tier=r.tier))
+            
+        # 2. Expand graph candidates
+        graph_candidates, g_meta = self._graph_tier.expand_candidates(
+            seed_candidates=seeds,
+            max_depth=1,
+            max_neighbors_per_seed=5,
+            max_total_graph_candidates=20,
+            max_seed_candidates=10
+        )
+        
+        # 3. Calculate overlap
+        final_ids = {h.engram.id for h in final_results}
+        overlap_count = sum(1 for c in graph_candidates if c.engram.id in final_ids)
+        
+        # 4. Candidate envelope shadow simulation
+        from mnemos.retrieval.candidate_envelope import apply_candidate_envelope
+        shadow_search_hits = [
+            SearchResult(engram=c.engram, score=c.graph_score or 1.0, tier="graph_shadow")
+            for c in graph_candidates
+        ]
+        survived, _ = apply_candidate_envelope(shadow_search_hits, envelope_cfg)
+        
+        # 5. Build telemetry
+        gc_count = len(graph_candidates)
+        lin_complete = sum(1 for c in graph_candidates if c.lineage_complete)
+        token_est = sum(len(c.engram.content.split()) * 1.3 for c in graph_candidates)
+        
+        source_dist = {}
+        for c in graph_candidates:
+            art_id = c.engram.lineage().get("artifact_id") or "unknown"
+            source_dist[art_id] = source_dist.get(art_id, 0) + 1
+            
+        telemetry = {
+            "enabled": True,
+            "mode": "edge_traversal_v0",
+            "mutated_results": False,
+            "seed_candidate_count": len(seeds),
+            "graph_candidate_count": gc_count,
+            "graph_unique_candidate_count": gc_count - overlap_count,
+            "graph_latency_ms": g_meta.get("graph_latency_ms", 0.0),
+            "graph_overlap_with_returned_final": overlap_count,
+            "graph_shadow_envelope_survival_count": len(survived),
+            "graph_governance_filtered_count": g_meta.get("graph_governance_filtered_count", 0),
+            "graph_candidate_lineage_complete_count": lin_complete,
+            "graph_candidate_lineage_complete_ratio": lin_complete / gc_count if gc_count > 0 else 1.0,
+            "graph_lineage_filtered_count": g_meta.get("graph_lineage_filtered_count", 0),
+            "graph_avg_edge_depth": 1.0 if gc_count > 0 else 0.0,
+            "graph_candidate_token_estimate": int(token_est),
+            "graph_source_distribution": source_dist,
+            "candidates": [c.to_dict() for c in graph_candidates],
+            "ineligible_candidates": g_meta.get("ineligible_candidates", [])
+        }
+        
+        return telemetry
+
     def search(
         self,
         *,
@@ -299,7 +369,11 @@ class RetrievalRouter:
 
             narrowed, envelope_meta = apply_candidate_envelope(hits, envelope_cfg)
             self._record_candidate_envelope_stats(envelope_meta)
-            return narrowed[:top_k], {
+            final_results = narrowed[:top_k]
+            
+            graph_telemetry = self._run_graph_shadow(final_results, envelope_cfg)
+            
+            meta = {
                 "retrieval_mode": "semantic",
                 "fusion_policy": None,
                 "lexical_available": self.lexical_available,
@@ -307,6 +381,10 @@ class RetrievalRouter:
                 "reranker_used": self._reranker is not None,
                 "rerank_telemetry": rr_telemetry,
             }
+            if graph_telemetry:
+                meta["graph_shadow_telemetry"] = graph_telemetry
+                
+            return final_results, meta
 
         start = time.perf_counter()
 
@@ -336,9 +414,12 @@ class RetrievalRouter:
 
                 narrowed, envelope_meta = apply_candidate_envelope(fused, envelope_cfg)
                 self._record_candidate_envelope_stats(envelope_meta)
+                final_results = narrowed[:top_k]
 
                 elapsed_ms = (time.perf_counter() - start) * 1000.0
                 self._record_hybrid_stats(telemetry, elapsed_ms, policy)
+
+                graph_telemetry = self._run_graph_shadow(final_results, envelope_cfg)
 
                 meta = {
                     "retrieval_mode": "hybrid",
@@ -350,7 +431,10 @@ class RetrievalRouter:
                     "reranker_used": self._reranker is not None,
                     "rerank_telemetry": rr_telemetry,
                 }
-                return narrowed[:top_k], meta
+                if graph_telemetry:
+                    meta["graph_shadow_telemetry"] = graph_telemetry
+                    
+                return final_results, meta
 
         # ── Python-side hybrid fusion (original path) ──────────
         lexical_results = self._lexical_tier.search(query, top_k=lexical_top_k, filters=filters)
@@ -374,9 +458,12 @@ class RetrievalRouter:
 
         narrowed, envelope_meta = apply_candidate_envelope(fused, envelope_cfg)
         self._record_candidate_envelope_stats(envelope_meta)
+        final_results = narrowed[:top_k]
 
         elapsed_ms = (time.perf_counter() - start) * 1000.0
         self._record_hybrid_stats(telemetry, elapsed_ms, policy)
+
+        graph_telemetry = self._run_graph_shadow(final_results, envelope_cfg)
 
         meta = {
             "retrieval_mode": "hybrid",
@@ -387,7 +474,10 @@ class RetrievalRouter:
             "reranker_used": self._reranker is not None,
             "rerank_telemetry": rr_telemetry,
         }
-        return narrowed[:top_k], meta
+        if graph_telemetry:
+            meta["graph_shadow_telemetry"] = graph_telemetry
+            
+        return final_results, meta
 
     def stats(self) -> Dict[str, Any]:
         out = dict(self._stats)

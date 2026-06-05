@@ -1,0 +1,19 @@
+{
+  "operation": "backup",
+  "status": "success",
+  "timestamp": "2026-05-16T16:18:38.660480",
+  "profile_dir": "C:\\Users\\vin\\AppData\\Local\\Temp\\tmp_8tnlfg1",
+  "archive_path": "C:\\Users\\vin\\AppData\\Local\\Temp\\tmpsyczbtj6\\test_backup.zip",
+  "file_hashes": {
+    "index.tvim": "03b1e3559dcf4b73ec17dbff73c82962d3306c8aafe99bd82ad64c16a08bd8fc",
+    "metadata.sqlite": "cf8d589f18a1cc0fcddf1a796e2070e5e5f5d0467cee6b9cca71263200656dfa",
+    "manifest.json": "8750aec76d41d62f55b5f4398ce6a0607f621ba35734812ba6bf8c7c1ed1652c"
+  },
+  "validation": {
+    "manifest_valid": true,
+    "sqlite_integrity": "ok",
+    "checksums_valid": true,
+    "load_validation": true
+  },
+  "error": null
+}

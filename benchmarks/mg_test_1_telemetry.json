@@ -1,0 +1,52 @@
+{
+  "enabled": true,
+  "mode": "edge_traversal_v0",
+  "mutated_results": false,
+  "seed_candidate_count": 3,
+  "graph_candidate_count": 1,
+  "graph_unique_candidate_count": 1,
+  "graph_latency_ms": 0.02,
+  "graph_overlap_with_returned_final": 0,
+  "graph_shadow_envelope_survival_count": 1,
+  "graph_governance_filtered_count": 2,
+  "graph_candidate_lineage_complete_count": 1,
+  "graph_candidate_lineage_complete_ratio": 1.0,
+  "graph_lineage_filtered_count": 1,
+  "graph_avg_edge_depth": 1.0,
+  "graph_candidate_token_estimate": 2,
+  "graph_source_distribution": {
+    "art_2": 1
+  },
+  "candidates": [
+    {
+      "candidate_id": "neighbor_2",
+      "seed_id": "seed_1",
+      "edge_path": [
+        "seed_1",
+        "neighbor_2"
+      ],
+      "edge_depth": 1,
+      "edge_type": "related_to",
+      "graph_score": null,
+      "lineage_complete": true,
+      "governance_state": "active",
+      "retrieval_reason": "linked_neighbor_from_seed"
+    }
+  ],
+  "ineligible_candidates": [
+    {
+      "candidate_id": "neighbor_6",
+      "seed_id": "seed_7",
+      "edge_path": [
+        "seed_7",
+        "neighbor_6"
+      ],
+      "edge_depth": 1,
+      "edge_type": "related_to",
+      "graph_score": null,
+      "lineage_complete": false,
+      "governance_state": "active",
+      "retrieval_reason": "linked_neighbor_from_seed"
+    }
+  ]
+}

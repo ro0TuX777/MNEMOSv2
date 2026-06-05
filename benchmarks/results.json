@@ -6,7 +6,7 @@
       "n_docs": 10000,
       "mse": "0.00282",
       "theoretical_mse": 0.36,
-      "mse_pass": "\u2705",
+      "mse_pass": "[OK]",
       "avg_cosine_similarity": 0.7994,
       "raw_compression_ratio": 32.0,
       "file_compression_ratio": 31.1,
@@ -19,7 +19,7 @@
       "n_docs": 10000,
       "mse": "0.000907",
       "theoretical_mse": 0.117,
-      "mse_pass": "\u2705",
+      "mse_pass": "[OK]",
       "avg_cosine_similarity": 0.9406,
       "raw_compression_ratio": 16.0,
       "file_compression_ratio": 16.3,
@@ -32,7 +32,7 @@
       "n_docs": 10000,
       "mse": "0.000266",
       "theoretical_mse": 0.03,
-      "mse_pass": "\u2705",
+      "mse_pass": "[OK]",
       "avg_cosine_similarity": 0.9831,
       "raw_compression_ratio": 8.0,
       "file_compression_ratio": 10.9,
@@ -45,7 +45,7 @@
       "n_docs": 10000,
       "mse": "7.3e-05",
       "theoretical_mse": 0.009,
-      "mse_pass": "\u2705",
+      "mse_pass": "[OK]",
       "avg_cosine_similarity": 0.9954,
       "raw_compression_ratio": 8.0,
       "file_compression_ratio": 8.3,
@@ -58,7 +58,7 @@
       "n_docs": 10000,
       "mse": "0.000945",
       "theoretical_mse": 0.36,
-      "mse_pass": "\u2705",
+      "mse_pass": "[OK]",
       "avg_cosine_similarity": 0.7983,
       "raw_compression_ratio": 32.0,
       "file_compression_ratio": 31.7,
@@ -71,7 +71,7 @@
       "n_docs": 10000,
       "mse": "0.000305",
       "theoretical_mse": 0.117,
-      "mse_pass": "\u2705",
+      "mse_pass": "[OK]",
       "avg_cosine_similarity": 0.9398,
       "raw_compression_ratio": 16.0,
       "file_compression_ratio": 16.5,
@@ -84,7 +84,7 @@
       "n_docs": 10000,
       "mse": "9e-05",
       "theoretical_mse": 0.03,
-      "mse_pass": "\u2705",
+      "mse_pass": "[OK]",
       "avg_cosine_similarity": 0.9827,
       "raw_compression_ratio": 8.0,
       "file_compression_ratio": 11.0,
@@ -97,7 +97,7 @@
       "n_docs": 10000,
       "mse": "2.5e-05",
       "theoretical_mse": 0.009,
-      "mse_pass": "\u2705",
+      "mse_pass": "[OK]",
       "avg_cosine_similarity": 0.9953,
       "raw_compression_ratio": 8.0,
       "file_compression_ratio": 8.4,
@@ -184,49 +184,49 @@
       "dim": 128,
       "n_docs": 100,
       "bits": 4,
-      "elapsed_s": 0.026,
-      "docs_per_sec": 3842.0,
-      "ms_per_doc": 0.26
+      "elapsed_s": 0.0143,
+      "docs_per_sec": 6993.0,
+      "ms_per_doc": 0.143
     },
     {
       "dim": 128,
       "n_docs": 1000,
       "bits": 4,
-      "elapsed_s": 0.0298,
-      "docs_per_sec": 33589.0,
-      "ms_per_doc": 0.03
+      "elapsed_s": 0.0176,
+      "docs_per_sec": 56895.0,
+      "ms_per_doc": 0.018
     },
     {
       "dim": 128,
       "n_docs": 10000,
       "bits": 4,
-      "elapsed_s": 0.0569,
-      "docs_per_sec": 175685.0,
-      "ms_per_doc": 0.006
+      "elapsed_s": 0.0425,
+      "docs_per_sec": 235151.0,
+      "ms_per_doc": 0.004
     },
     {
       "dim": 384,
       "n_docs": 100,
       "bits": 4,
-      "elapsed_s": 0.0524,
-      "docs_per_sec": 1909.0,
-      "ms_per_doc": 0.524
+      "elapsed_s": 0.0335,
+      "docs_per_sec": 2982.0,
+      "ms_per_doc": 0.335
     },
     {
       "dim": 384,
       "n_docs": 1000,
       "bits": 4,
-      "elapsed_s": 0.0633,
-      "docs_per_sec": 15810.0,
-      "ms_per_doc": 0.063
+      "elapsed_s": 0.0412,
+      "docs_per_sec": 24275.0,
+      "ms_per_doc": 0.041
     },
     {
       "dim": 384,
       "n_docs": 10000,
       "bits": 4,
-      "elapsed_s": 0.1488,
-      "docs_per_sec": 67195.0,
-      "ms_per_doc": 0.015
+      "elapsed_s": 0.1197,
+      "docs_per_sec": 83537.0,
+      "ms_per_doc": 0.012
     }
   ],
   "scale_projection": [
