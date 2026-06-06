@@ -24,6 +24,8 @@ class EngramResolver(Protocol):
         ...
     def get_edge_type(self, source_id: str, target_id: str) -> str:
         ...
+    def prefetch(self, engram_ids: List[str]) -> None:
+        ...
 
 class InMemoryEngramResolver:
     def __init__(self, engrams: Dict[str, Engram] = None):
@@ -38,6 +40,9 @@ class InMemoryEngramResolver:
         
     def get_edge_type(self, source_id: str, target_id: str) -> str:
         return "structural"  # Base implementation
+
+    def prefetch(self, engram_ids: List[str]) -> None:
+        pass
 
 @dataclass
 class GraphCandidate:
@@ -138,6 +143,15 @@ class GraphTier:
         # Pre-fill seen with seeds to avoid returning seeds as graph candidates
         for seed in seed_candidates:
             seen_ids.add(seed.engram.id)
+            
+        # Collect neighbor IDs upfront to allow batched prefetching (N+1 avoidance)
+        all_neighbor_ids = set()
+        for seed_res in seeds_to_process:
+            if not self._is_blocked(seed_res.engram):
+                for nid in seed_res.engram.edges[:max_neighbors_per_seed]:
+                    if nid not in seen_ids:
+                        all_neighbor_ids.add(nid)
+        self.resolver.prefetch(list(all_neighbor_ids))
             
         filtered_count = 0
         
