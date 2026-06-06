@@ -22,6 +22,8 @@ class EngramResolver(Protocol):
         ...
     def get_degree(self, engram_id: str) -> int:
         ...
+    def get_edge_type(self, source_id: str, target_id: str) -> str:
+        ...
 
 class InMemoryEngramResolver:
     def __init__(self, engrams: Dict[str, Engram] = None):
@@ -33,6 +35,9 @@ class InMemoryEngramResolver:
     def get_degree(self, engram_id: str) -> int:
         eng = self.get_by_id(engram_id)
         return len(eng.edges) if eng else 0
+        
+    def get_edge_type(self, source_id: str, target_id: str) -> str:
+        return "structural"  # Base implementation
 
 @dataclass
 class GraphCandidate:
@@ -42,6 +47,8 @@ class GraphCandidate:
     edge_depth: int
     edge_type: str = "related_to"
     graph_score: Optional[float] = None
+    relevance_score: Optional[float] = None
+    hub_penalty: Optional[float] = None
     lineage_complete: bool = False
     governance_state: str = "active"
     retrieval_reason: str = "linked_neighbor_from_seed"
@@ -54,6 +61,8 @@ class GraphCandidate:
             "edge_depth": self.edge_depth,
             "edge_type": self.edge_type,
             "graph_score": self.graph_score,
+            "relevance_score": self.relevance_score,
+            "hub_penalty": self.hub_penalty,
             "lineage_complete": self.lineage_complete,
             "governance_state": self.governance_state,
             "retrieval_reason": self.retrieval_reason,
@@ -93,7 +102,11 @@ class GraphTier:
         max_total_graph_candidates: int = 20,
         max_seed_candidates: int = 10,
         hub_degree_threshold: int = 5,
-        score_threshold: float = 0.5
+        score_threshold: float = 0.2,
+        hub_penalty_floor: float = 0.0,
+        relevance_min_threshold: float = 0.0,
+        disable_hub_penalty: bool = False,
+        disable_scoring: bool = False
     ) -> Tuple[List[GraphCandidate], Dict[str, Any]]:
         
         start_time = time.perf_counter()
@@ -166,26 +179,35 @@ class GraphTier:
                 if degree > hub_degree_threshold:
                     hub_candidates += 1
                     
-                hub_penalty = 1.0 / (1.0 + math.log1p(max(0, degree - hub_degree_threshold)))
+                hub_penalty = 1.0
+                if not disable_hub_penalty and not disable_scoring:
+                    calculated_penalty = 1.0 / (1.0 + math.log1p(max(0, degree - hub_degree_threshold)))
+                    hub_penalty = max(hub_penalty_floor, calculated_penalty)
                 
                 relevance_score = 1.0
-                if query_embedding is not None and neighbor_engram.embedding is not None:
-                    # simple cosine similarity
-                    norm_q = np.linalg.norm(query_embedding)
-                    norm_e = np.linalg.norm(neighbor_engram.embedding)
-                    if norm_q > 0 and norm_e > 0:
-                        relevance_score = np.dot(query_embedding, neighbor_engram.embedding) / (norm_q * norm_e)
-                elif neighbor_engram.confidence is not None:
-                    relevance_score = neighbor_engram.confidence
+                if not disable_scoring:
+                    if query_embedding is not None and neighbor_engram.embedding is not None:
+                        # simple cosine similarity
+                        norm_q = np.linalg.norm(query_embedding)
+                        norm_e = np.linalg.norm(neighbor_engram.embedding)
+                        if norm_q > 0 and norm_e > 0:
+                            relevance_score = np.dot(query_embedding, neighbor_engram.embedding) / (norm_q * norm_e)
+                    elif neighbor_engram.confidence is not None:
+                        relevance_score = neighbor_engram.confidence
                 
                 graph_score = relevance_score * hub_penalty
+
+                edge_type = self.resolver.get_edge_type(seed_engram.id, neighbor_id)
 
                 gc = GraphCandidate(
                     engram=neighbor_engram,
                     seed_id=seed_engram.id,
                     edge_path=[seed_engram.id, neighbor_id],
                     edge_depth=1,
+                    edge_type=edge_type,
                     graph_score=graph_score,
+                    relevance_score=relevance_score,
+                    hub_penalty=hub_penalty,
                     lineage_complete=lineage_ok,
                     governance_state=gov_state
                 )
@@ -203,11 +225,17 @@ class GraphTier:
                     continue
                     
                 # 5. Score threshold filtering
-                if graph_score < score_threshold:
-                    gc.filtered_reason = "score_below_threshold"
-                    ineligible_candidates.append(gc)
-                    filtered_score_count += 1
-                    continue
+                if not disable_scoring:
+                    # Hypothetical split threshold filtering check
+                    hypothetically_filtered = False
+                    if relevance_min_threshold > 0 and relevance_score < relevance_min_threshold:
+                        hypothetically_filtered = True
+                    
+                    if graph_score < score_threshold:
+                        gc.filtered_reason = "score_below_threshold"
+                        ineligible_candidates.append(gc)
+                        filtered_score_count += 1
+                        continue
 
                 repeated_candidate_counts[neighbor_id] = repeated_candidate_counts.get(neighbor_id, 0) + 1
                 sum_graph_score += graph_score
@@ -226,6 +254,17 @@ class GraphTier:
         min_score = min_graph_score if discovered_candidates else 0.0
         max_score = max_graph_score if discovered_candidates else 0.0
         
+        sum_rel_score_before = sum(getattr(c, "relevance_score", 1.0) for c in discovered_candidates) + sum(getattr(c, "relevance_score", 1.0) for c in ineligible_candidates)
+        avg_rel_score_before = sum_rel_score_before / (len(discovered_candidates) + len(ineligible_candidates)) if (discovered_candidates or ineligible_candidates) else 0.0
+        
+        sum_graph_score_after = sum(getattr(c, "graph_score", 1.0) for c in discovered_candidates) + sum(getattr(c, "graph_score", 1.0) for c in ineligible_candidates)
+        avg_graph_score_after = sum_graph_score_after / (len(discovered_candidates) + len(ineligible_candidates)) if (discovered_candidates or ineligible_candidates) else 0.0
+        
+        high_rel_hub_penalized = [
+            c for c in ineligible_candidates 
+            if c.filtered_reason == "score_below_threshold" and getattr(c, "relevance_score", 0.0) >= 0.8
+        ]
+        
         top_repeated = sorted(repeated_candidate_counts.items(), key=lambda x: x[1], reverse=True)[:5]
 
         telemetry = {
@@ -234,6 +273,10 @@ class GraphTier:
             "graph_lineage_filtered_count": filtered_lin_count,
             "graph_score_filtered_count": filtered_score_count,
             "graph_hub_penalty_filtered_count": sum(1 for c in ineligible_candidates if getattr(c, "hub_penalty", 1.0) < 1.0 and c.filtered_reason == "score_below_threshold"),
+            "high_relevance_hub_penalized_count": len(high_rel_hub_penalized),
+            "candidates_below_threshold_but_high_relevance": [c.to_dict() for c in high_rel_hub_penalized],
+            "avg_score_before_hub_penalty": round(avg_rel_score_before, 4),
+            "avg_score_after_hub_penalty": round(avg_graph_score_after, 4),
             "graph_latency_ms": round(latency_ms, 2),
             "graph_avg_graph_score": round(avg_score, 4),
             "graph_min_graph_score": round(min_score, 4),
@@ -242,6 +285,8 @@ class GraphTier:
             "graph_top_repeated_candidate_ids": [cid for cid, count in top_repeated if count > 1],
             "graph_score_threshold": score_threshold,
             "hub_degree_threshold": hub_degree_threshold,
+            "hub_penalty_floor": hub_penalty_floor,
+            "relevance_min_threshold": relevance_min_threshold,
             "ineligible_candidates": [c.to_dict() for c in ineligible_candidates]
         }
         

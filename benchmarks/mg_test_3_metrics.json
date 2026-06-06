@@ -1,0 +1,18 @@
+{
+  "mg_test_3": {
+    "queries_run": 50,
+    "evidence_gap_delta": 0.0,
+    "citation_preservation_rate": 1.0,
+    "unsupported_claim_rate": -0.08,
+    "contradiction_rate": 0.0,
+    "graph_candidate_used_rate": 0.08163265306122448,
+    "packet_token_delta": 6,
+    "graph_source_diversity_delta": 1.5,
+    "faithfulness_score_delta": 0.08,
+    "governance_warning_preservation_rate": 1.0,
+    "graph_s_tag_usage_count": 4,
+    "baseline_s_tag_preservation_count": 250,
+    "known_missing_support_cases": 49,
+    "graph_candidates_used_in_missing": 4
+  }
+}

@@ -316,6 +316,16 @@ class RetrievalRouter:
             art_id = c.engram.lineage().get("artifact_id") or "unknown"
             source_dist[art_id] = source_dist.get(art_id, 0) + 1
             
+        # Edge source tracking
+        edge_sources = {"structural": 0, "semantic": 0, "mixed": 0, "distractor": 0}
+        for c in graph_candidates:
+            if c.engram.id not in final_ids:
+                etype = getattr(c, "edge_type", "structural")
+                if etype in edge_sources:
+                    edge_sources[etype] += 1
+                else:
+                    edge_sources["structural"] += 1
+            
         telemetry = {
             "enabled": True,
             "mode": "edge_traversal_v0",
@@ -340,8 +350,18 @@ class RetrievalRouter:
             "graph_top_repeated_candidate_ids": g_meta.get("graph_top_repeated_candidate_ids", []),
             "graph_score_threshold": g_meta.get("graph_score_threshold", 0.5),
             "hub_degree_threshold": g_meta.get("hub_degree_threshold", 5),
+            "hub_penalty_floor": g_meta.get("hub_penalty_floor", 0.0),
+            "relevance_min_threshold": g_meta.get("relevance_min_threshold", 0.0),
+            "high_relevance_hub_penalized_count": g_meta.get("high_relevance_hub_penalized_count", 0),
+            "avg_score_before_hub_penalty": g_meta.get("avg_score_before_hub_penalty", 0.0),
+            "avg_score_after_hub_penalty": g_meta.get("avg_score_after_hub_penalty", 0.0),
+            "candidates_below_threshold_but_high_relevance": g_meta.get("candidates_below_threshold_but_high_relevance", []),
             "graph_candidate_token_estimate": int(token_est),
             "graph_source_distribution": source_dist,
+            "structural_graph_unique_candidates": edge_sources["structural"],
+            "semantic_graph_unique_candidates": edge_sources["semantic"],
+            "mixed_graph_unique_candidates": edge_sources["mixed"],
+            "distractor_graph_unique_candidates": edge_sources["distractor"],
             "candidates": [c.to_dict() for c in graph_candidates],
             "ineligible_candidates": g_meta.get("ineligible_candidates", [])
         }
@@ -361,35 +381,98 @@ class RetrievalRouter:
         lexical_top_k: int = 25,
         semantic_top_k: int = 25,
         bounded_envelope: Optional[Dict[str, Any]] = None,
+        graph_experiment_params: Optional[Dict[str, Any]] = None,
     ) -> Tuple[List[SearchResult], Dict[str, Any]]:
-        mode = retrieval_mode if retrieval_mode in {"semantic", "hybrid"} else "semantic"
+        mode = retrieval_mode if retrieval_mode in {"semantic", "hybrid", "graph_hybrid_experimental"} else "semantic"
         policy = fusion_policy if fusion_policy in FUSION_POLICIES else DEFAULT_FUSION_POLICY
         envelope_cfg = CandidateEnvelopeConfig.from_request(bounded_envelope)
         desired_pool = max(top_k, envelope_cfg.candidate_pool_limit) if envelope_cfg.enabled else top_k
 
-        if mode == "semantic" or not self._lexical_tier:
+        if mode in {"semantic", "graph_hybrid_experimental"} or not self._lexical_tier:
             t_s = time.perf_counter()
             self._stats["semantic_query_count"] += 1
-            self._stats["retrieval_mode_counters"]["semantic"] += 1
+            if mode == "graph_hybrid_experimental":
+                self._stats["retrieval_mode_counters"]["semantic"] += 1 # Or track separately
+            else:
+                self._stats["retrieval_mode_counters"]["semantic"] += 1
             hits = self._semantic_fusion.search(query, top_k=desired_pool, filters=filters, tiers=tiers)
             t_e = (time.perf_counter() - t_s) * 1000
             
             hits, rr_telemetry = self._apply_conditional_rerank(query, hits, t_e)
 
+            graph_experiment_telemetry = None
+            if mode == "graph_hybrid_experimental" and self._graph_tier:
+                # 1. Expand graph from hits
+                g_cands, g_meta = self._graph_tier.expand_candidates(
+                    seed_candidates=hits,
+                    max_depth=1,
+                    max_neighbors_per_seed=5,
+                    max_total_graph_candidates=20,
+                    max_seed_candidates=10
+                )
+                
+                # 2. Filter governance/lineage/scoring
+                # Use defaults: hub_penalty_floor=0.2, score_threshold=0.2
+                eligible = []
+                for c in g_cands:
+                    if c.graph_score and c.graph_score >= 0.2 and c.lineage_complete:
+                         if not c.engram.governance or c.engram.governance.conflict_status != "vetoed":
+                             eligible.append(SearchResult(engram=c.engram, score=c.graph_score, tier="graph"))
+
+                # 3. Merge helper
+                def merge_graph_candidates_for_experiment(primary_candidates, graph_candidates, preserve_primary_top_k=5, graph_quota=3, graph_ratio_cap=0.2):
+                    tel = {
+                        "graph_candidates_pre_merge": len(graph_candidates),
+                        "graph_candidates_inserted_pre_envelope": 0,
+                        "primary_top_k_preserved": min(len(primary_candidates), preserve_primary_top_k),
+                        "primary_candidates_displaced_count": 0,
+                        "graph_displacement_rate": 0.0,
+                        "merge_policy": "lane_aware_quota_v0"
+                    }
+                    if not graph_candidates:
+                        return primary_candidates, tel
+                        
+                    max_graph = min(graph_quota, int(len(primary_candidates) * graph_ratio_cap))
+                    inserted = graph_candidates[:max_graph]
+                    tel["graph_candidates_inserted_pre_envelope"] = len(inserted)
+                    
+                    merged = primary_candidates[:preserve_primary_top_k] + inserted + primary_candidates[preserve_primary_top_k:]
+                    tel["primary_candidates_displaced_count"] = len(inserted)
+                    tel["graph_displacement_rate"] = len(inserted) / len(primary_candidates) if primary_candidates else 0.0
+                    tel["graph_candidate_ratio_pre_envelope"] = len(inserted) / len(merged) if merged else 0.0
+                    return merged, tel
+
+                g_params = graph_experiment_params or {}
+                hits, graph_experiment_telemetry = merge_graph_candidates_for_experiment(
+                    hits, eligible,
+                    preserve_primary_top_k=g_params.get("preserve_primary_top_k", 5),
+                    graph_quota=g_params.get("graph_quota", 1),
+                    graph_ratio_cap=g_params.get("graph_ratio_cap", 0.1)
+                )
+
             narrowed, envelope_meta = apply_candidate_envelope(hits, envelope_cfg)
             self._record_candidate_envelope_stats(envelope_meta)
             final_results = narrowed[:top_k]
             
+            if graph_experiment_telemetry:
+                survived = sum(1 for c in final_results if c.tier == "graph")
+                graph_experiment_telemetry["graph_candidates_survived_envelope"] = survived
+                inserted = graph_experiment_telemetry["graph_candidates_inserted_pre_envelope"]
+                graph_experiment_telemetry["graph_candidates_dropped_by_envelope"] = inserted - survived
+                graph_experiment_telemetry["graph_candidate_ratio_post_envelope"] = survived / len(final_results) if final_results else 0.0
+
             graph_telemetry = self._run_graph_shadow(final_results, envelope_cfg)
             
             meta = {
-                "retrieval_mode": "semantic",
+                "retrieval_mode": mode,
                 "fusion_policy": None,
                 "lexical_available": self.lexical_available,
                 "candidate_envelope": envelope_meta,
                 "reranker_used": self._reranker is not None,
                 "rerank_telemetry": rr_telemetry,
             }
+            if graph_experiment_telemetry:
+                meta["graph_experiment_telemetry"] = graph_experiment_telemetry
             if graph_telemetry:
                 meta["graph_shadow_telemetry"] = graph_telemetry
                 
@@ -496,6 +579,6 @@ class RetrievalRouter:
             narrowed_total / raw_total, 4
         )
         out["candidate_envelope_total_reduction"] = max(0, raw_total - narrowed_total)
-        out["supported_retrieval_modes"] = ["semantic", "hybrid"]
+        out["supported_retrieval_modes"] = ["semantic", "hybrid", "graph_hybrid_experimental"]
         out["supported_fusion_policies"] = sorted(FUSION_POLICIES.keys())
         return out

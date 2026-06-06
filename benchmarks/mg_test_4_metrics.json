@@ -1,0 +1,29 @@
+{
+  "mg_test_4": {
+    "queries_run": 50,
+    "evidence_gap_delta": 0.0,
+    "citation_preservation_rate": 0.998,
+    "unsupported_claim_rate": -0.02,
+    "contradiction_rate": 0.0,
+    "graph_candidate_used_rate": 0.02040816326530612,
+    "packet_token_delta": 0,
+    "governance_leakage": 0,
+    "lineage_leakage": 0,
+    "candidate_envelope_bypasses": 0,
+    "governance_warning_preservation_rate": 1.0,
+    "known_missing_support_cases": 49,
+    "graph_candidates_used_in_missing": 1,
+    "graph_candidates_pre_merge": 1,
+    "graph_candidates_inserted_pre_envelope": 1,
+    "graph_candidates_survived_envelope": 1,
+    "graph_candidates_dropped_by_envelope": 0,
+    "graph_candidate_ratio_pre_envelope": 0.0009523809523809524,
+    "graph_candidate_ratio_post_envelope": 0.002,
+    "primary_top_k_preserved": 250,
+    "primary_candidates_displaced_count": 1,
+    "graph_displacement_rate": 0.001,
+    "merge_policy": "lane_aware_quota_v0",
+    "baseline_retrieval_unchanged": true,
+    "p95_latency": 146.00240500294603
+  }
+}
