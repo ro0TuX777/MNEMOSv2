@@ -37,12 +37,14 @@ class RetrievalRouter:
         reranker: Optional[Any] = None,
         graph_tier: Optional[Any] = None,
         graph_shadow_enabled: bool = False,
+        enable_experimental_graph_hybrid: bool = False,
     ):
         self._semantic_fusion = semantic_fusion
         self._lexical_tier = lexical_tier
         self._reranker = reranker
         self._graph_tier = graph_tier
         self._graph_shadow_enabled = graph_shadow_enabled
+        self._enable_experimental_graph_hybrid = enable_experimental_graph_hybrid
         self._rerank_policy = RerankPolicy()
         self._classifier = get_classifier(self._rerank_policy.config.get("query_family_classifier", {}))
         self._telemetry_sink = get_telemetry_sink(self._rerank_policy.config.get("telemetry", {}))
@@ -388,6 +390,24 @@ class RetrievalRouter:
         envelope_cfg = CandidateEnvelopeConfig.from_request(bounded_envelope)
         desired_pool = max(top_k, envelope_cfg.candidate_pool_limit) if envelope_cfg.enabled else top_k
 
+        experimental_telemetry = None
+        if mode == "graph_hybrid_experimental":
+            if not self._enable_experimental_graph_hybrid:
+                mode = "semantic"
+                experimental_telemetry = {
+                    "experimental_graph_hybrid_requested": True,
+                    "experimental_graph_hybrid_enabled": False,
+                    "experimental_graph_hybrid_action": "fallback_to_semantic",
+                    "warning": "GRAPH_HYBRID_EXPERIMENTAL_NOT_ENABLED"
+                }
+            else:
+                experimental_telemetry = {
+                    "experimental_graph_hybrid_requested": True,
+                    "experimental_graph_hybrid_enabled": True,
+                    "experimental_graph_hybrid_action": "executed",
+                    "warning": "EXPERIMENTAL_IN_MEMORY_VALIDATED_ONLY"
+                }
+
         if mode in {"semantic", "graph_hybrid_experimental"} or not self._lexical_tier:
             t_s = time.perf_counter()
             self._stats["semantic_query_count"] += 1
@@ -471,6 +491,8 @@ class RetrievalRouter:
                 "reranker_used": self._reranker is not None,
                 "rerank_telemetry": rr_telemetry,
             }
+            if experimental_telemetry:
+                meta["experimental_graph_telemetry"] = experimental_telemetry
             if graph_experiment_telemetry:
                 meta["graph_experiment_telemetry"] = graph_experiment_telemetry
             if graph_telemetry:
