@@ -4,9 +4,12 @@
 
 A containerised, contract-governed memory and retrieval service for AI-native applications.
 
----
-
 ## The Problem
+
+### Project Status
+* GRAPH_HYBRID_EXPERIMENTAL_LIMITED_PILOT_READY
+* SCHEMA_FACT_PASSAGE_EXTRACTION_BLOCKED_PENDING_SEPARATE_REVIEW
+
 
 Every AI application that persists and retrieves knowledge re-implements the same infrastructure from scratch — embedding pipelines, vector databases, ad-hoc search logic, compression hacks, and no audit trail. The result is fragile, inconsistent, and impossible to reuse across projects.
 
