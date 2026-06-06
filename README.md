@@ -7,6 +7,7 @@ A containerised, contract-governed memory and retrieval service for AI-native ap
 ## The Problem
 
 ### Project Status
+* MNEMOS_MEMGRAPHRAG_READ_ONLY_GRAPH_RETRIEVAL_PASS
 * GRAPH_HYBRID_EXPERIMENTAL_LIMITED_PILOT_READY
 * SCHEMA_FACT_PASSAGE_EXTRACTION_BLOCKED_PENDING_SEPARATE_REVIEW
 
