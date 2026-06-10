@@ -40,3 +40,6 @@ Thumbs.db
 # Generated benchmark/test artifacts
 tests/_tmp/
 benchmarks/outputs/
+
+# Runtime telemetry sinks (operational data, not source)
+logs/retrieval_telemetry.jsonl
