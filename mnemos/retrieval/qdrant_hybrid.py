@@ -103,10 +103,12 @@ class QdrantHybridFusion:
 
         try:
             # Build prefetch arms
+            vector_name = "dense_768" if getattr(self._tier, "_uses_nomic_mrl", False) else None
             semantic_prefetch = Prefetch(
                 query=query_vector,
                 limit=semantic_limit,
                 filter=query_filter,
+                using=vector_name,
             )
 
             lexical_prefetch = Prefetch(
@@ -121,6 +123,7 @@ class QdrantHybridFusion:
                     ]
                     + (query_filter.must if query_filter and query_filter.must else []),
                 ),
+                using=vector_name,
             )
 
             # Single round-trip: Qdrant fuses both arms via RRF

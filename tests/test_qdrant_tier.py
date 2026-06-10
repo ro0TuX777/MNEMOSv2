@@ -150,6 +150,44 @@ class TestQdrantTier:
         call_kwargs = qdrant_tier._client.query_points.call_args.kwargs
         assert call_kwargs.get("query_filter") is not None
 
+    def test_nomic_search_uses_prefix_and_named_vectors(self, qdrant_tier):
+        """Nomic v1.5 cutover searches dense_64 prefetch + dense_768 rescore."""
+        mock_model = MagicMock()
+        import numpy as np
+        mock_model.encode.return_value = np.random.rand(1, 768).astype(np.float32)
+        qdrant_tier._model = mock_model
+        qdrant_tier._embedding_model_name = "nomic-ai/nomic-embed-text-v1.5"
+        qdrant_tier._embedding_dim = 768
+        qdrant_tier._client.query_points.return_value = MockQueryResponse([])
+
+        results = qdrant_tier.search("hello", top_k=5)
+
+        assert results == []
+        mock_model.encode.assert_called_once()
+        assert mock_model.encode.call_args.args[0] == ["search_query: hello"]
+        call_kwargs = qdrant_tier._client.query_points.call_args.kwargs
+        assert call_kwargs["using"] == "dense_768"
+        assert "prefetch" in call_kwargs
+
+    def test_nomic_index_uses_document_prefix_and_named_vectors(self, qdrant_tier):
+        """Nomic v1.5 indexing stores both MRL and full named vectors."""
+        mock_model = MagicMock()
+        import numpy as np
+        mock_model.encode.return_value = np.random.rand(1, 768).astype(np.float32)
+        qdrant_tier._model = mock_model
+        qdrant_tier._embedding_model_name = "nomic-ai/nomic-embed-text-v1.5"
+        qdrant_tier._embedding_dim = 768
+
+        count = qdrant_tier.index([Engram(id="e1", content="hello", source="test")])
+
+        assert count == 1
+        mock_model.encode.assert_called_once()
+        assert mock_model.encode.call_args.args[0] == ["search_document: hello"]
+        point = qdrant_tier._client.upsert.call_args.kwargs["points"][0]
+        assert set(point.vector) == {"dense_64", "dense_768"}
+        assert len(point.vector["dense_64"]) == 64
+        assert len(point.vector["dense_768"]) == 768
+
     def test_delete_empty(self, qdrant_tier):
         assert qdrant_tier.delete([]) == 0
 

@@ -15,7 +15,7 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=mnemos_audit
+      - POSTGRES_DB=mnemos
       - POSTGRES_USER=mnemos
       - POSTGRES_PASSWORD=mnemos
     volumes:
@@ -37,15 +37,20 @@ services:
       - ./data:/app/data
     environment:
       - MNEMOS_TIERS=qdrant
-      - MNEMOS_EMBEDDING_MODEL=BAAI/bge-base-en-v1.5
+      - MNEMOS_EMBEDDING_MODEL=nomic-ai/nomic-embed-text-v1.5
+      - MNEMOS_EMBEDDING_MODEL_NAME=nomic-embed-text-v1.5
+      - "MNEMOS_EMBEDDING_MODEL_PREFIX_DOC=search_document: "
+      - "MNEMOS_EMBEDDING_MODEL_PREFIX_QUERY=search_query: "
+      - MNEMOS_BUDGET_AWARE_ROUTING=true
+      - MNEMOS_LATENCY_BUDGET_MS=75
       - MNEMOS_QUANT_BITS=4
       - MNEMOS_AUDIT_ENABLED=true
       - MNEMOS_PORT=8700
       - MNEMOS_LOG_LEVEL=INFO
       - MNEMOS_GPU_DEVICE=cuda
       - MNEMOS_QDRANT_URL=http://qdrant:6333
-      - MNEMOS_QDRANT_COLLECTION=mnemos_engrams
-      - MNEMOS_POSTGRES_DSN=postgresql://mnemos:mnemos@postgres:5432/mnemos_audit
+      - MNEMOS_QDRANT_COLLECTION=mnemos_engrams_nomic_mrl
+      - MNEMOS_POSTGRES_DSN=postgresql://mnemos:mnemos@postgres:5432/mnemos
       - NVIDIA_VISIBLE_DEVICES=all
     depends_on:
       qdrant:

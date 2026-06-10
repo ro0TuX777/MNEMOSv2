@@ -6,11 +6,27 @@ Late-interaction precision rescoring using HuggingFace CrossEncoders.
 """
 
 import logging
+import sys
 from typing import List, Optional
 
 from mnemos.retrieval.base import SearchResult
 
 logger = logging.getLogger(__name__)
+
+
+def _ensure_transformer_runtime_compat() -> None:
+    """Patch slim Python builds for torch._dynamo import compatibility."""
+    if not hasattr(sys, "get_int_max_str_digits"):
+        def get_int_max_str_digits() -> int:
+            return 4300
+
+        sys.get_int_max_str_digits = get_int_max_str_digits  # type: ignore[attr-defined]
+
+    if not hasattr(sys, "set_int_max_str_digits"):
+        def set_int_max_str_digits(maxdigits: int) -> None:
+            return None
+
+        sys.set_int_max_str_digits = set_int_max_str_digits  # type: ignore[attr-defined]
 
 
 class CrossEncoderReranker:
@@ -24,6 +40,7 @@ class CrossEncoderReranker:
     def _initialize(self):
         if not self._initialized:
             try:
+                _ensure_transformer_runtime_compat()
                 from sentence_transformers import CrossEncoder
                 self._model = CrossEncoder(self.model_name)
                 self._initialized = True

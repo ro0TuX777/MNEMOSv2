@@ -10,13 +10,47 @@ will be removed in Qdrant v1.18).
 """
 
 import logging
+import sys
 import uuid as _uuid
 from typing import Any, Dict, List, Literal, Optional
+
+import numpy as np
 
 from mnemos.engram.model import Engram
 from mnemos.retrieval.base import BaseRetriever, SearchResult
 
 logger = logging.getLogger(__name__)
+
+NOMIC_V15_MODEL_MARKER = "nomic-embed-text-v1.5"
+NOMIC_DOC_PREFIX = "search_document: "
+NOMIC_QUERY_PREFIX = "search_query: "
+NOMIC_MRL_DIM = 64
+NOMIC_FULL_DIM = 768
+
+
+def _ensure_transformer_runtime_compat() -> None:
+    """Patch slim Python builds for torch._dynamo import compatibility."""
+    if not hasattr(sys, "get_int_max_str_digits"):
+        def get_int_max_str_digits() -> int:
+            return 4300
+
+        sys.get_int_max_str_digits = get_int_max_str_digits  # type: ignore[attr-defined]
+
+    if not hasattr(sys, "set_int_max_str_digits"):
+        def set_int_max_str_digits(maxdigits: int) -> None:
+            return None
+
+        sys.set_int_max_str_digits = set_int_max_str_digits  # type: ignore[attr-defined]
+
+
+def _mrl_slice(matrix: Any, dim: int = NOMIC_MRL_DIM) -> np.ndarray:
+    matrix = np.asarray(matrix, dtype=np.float32)
+    mean = matrix.mean(axis=1, keepdims=True)
+    var = matrix.var(axis=1, keepdims=True)
+    normed = (matrix - mean) / np.sqrt(var + 1e-5)
+    sliced = normed[:, :dim]
+    norms = np.linalg.norm(sliced, axis=1, keepdims=True)
+    return sliced / np.clip(norms, 1e-12, None)
 
 
 class QdrantTier(BaseRetriever):
@@ -33,11 +67,19 @@ class QdrantTier(BaseRetriever):
         self._url = url
         self._collection_name = collection_name
         self._embedding_model_name = embedding_model
-        self._embedding_dim = embedding_dim
+        self._embedding_dim = NOMIC_FULL_DIM if self._uses_nomic_mrl_model(embedding_model) else embedding_dim
         self._gpu_device = gpu_device
         self._client = None
         self._model = None
         self._initialize()
+
+    @staticmethod
+    def _uses_nomic_mrl_model(model_name: str) -> bool:
+        return NOMIC_V15_MODEL_MARKER in model_name
+
+    @property
+    def _uses_nomic_mrl(self) -> bool:
+        return self._uses_nomic_mrl_model(self._embedding_model_name)
 
     def _initialize(self):
         """Initialize Qdrant client and ensure collection exists."""
@@ -109,27 +151,50 @@ class QdrantTier(BaseRetriever):
         """Lazy-load the sentence transformer model (GPU-accelerated)."""
         if self._model is None:
             try:
+                _ensure_transformer_runtime_compat()
                 from sentence_transformers import SentenceTransformer
-                self._model = SentenceTransformer(
-                    self._embedding_model_name, device=self._gpu_device
-                )
+                kwargs = {"device": self._gpu_device}
+                if self._uses_nomic_mrl:
+                    kwargs["trust_remote_code"] = True
+                self._model = SentenceTransformer(self._embedding_model_name, **kwargs)
                 logger.info(
                     f"Loaded embedding model: {self._embedding_model_name} "
                     f"(device={self._gpu_device})"
                 )
             except Exception as e:
                 logger.warning(f"GPU load failed ({e}), falling back to CPU")
+                _ensure_transformer_runtime_compat()
                 from sentence_transformers import SentenceTransformer
-                self._model = SentenceTransformer(
-                    self._embedding_model_name, device="cpu"
-                )
+                kwargs = {"device": "cpu"}
+                if self._uses_nomic_mrl:
+                    kwargs["trust_remote_code"] = True
+                self._model = SentenceTransformer(self._embedding_model_name, **kwargs)
         return self._model
 
     def _embed(self, texts: List[str]) -> List[List[float]]:
         """Generate embeddings for a list of texts."""
+        return self._embed_query(texts).tolist()
+
+    def _embed_documents(self, texts: List[str]) -> np.ndarray:
         model = self._get_embedder()
-        embeddings = model.encode(texts, normalize_embeddings=True)
-        return embeddings.tolist()
+        if self._uses_nomic_mrl:
+            texts = [NOMIC_DOC_PREFIX + text for text in texts]
+        return np.asarray(model.encode(texts, normalize_embeddings=True), dtype=np.float32)
+
+    def _embed_query(self, texts: List[str]) -> np.ndarray:
+        model = self._get_embedder()
+        if self._uses_nomic_mrl:
+            texts = [NOMIC_QUERY_PREFIX + text for text in texts]
+        return np.asarray(model.encode(texts, normalize_embeddings=True), dtype=np.float32)
+
+    def _point_vector(self, embedding: np.ndarray):
+        if not self._uses_nomic_mrl:
+            return embedding.tolist()
+        dense_64 = _mrl_slice(embedding.reshape(1, -1), NOMIC_MRL_DIM)[0]
+        return {
+            "dense_64": dense_64.tolist(),
+            "dense_768": embedding.tolist(),
+        }
 
     @staticmethod
     def _make_trace_id() -> str:
@@ -188,7 +253,7 @@ class QdrantTier(BaseRetriever):
             from qdrant_client.models import PointStruct
 
             texts = [e.content for e in engrams]
-            embeddings = self._embed(texts)
+            embeddings = self._embed_documents(texts)
 
             points = []
             for i, e in enumerate(engrams):
@@ -208,7 +273,7 @@ class QdrantTier(BaseRetriever):
 
                 points.append(PointStruct(
                     id=self._to_point_id(e.id),
-                    vector=embeddings[i],
+                    vector=self._point_vector(embeddings[i]),
                     payload=payload,
                 ))
 
@@ -239,7 +304,7 @@ class QdrantTier(BaseRetriever):
             return []
 
         try:
-            query_vec = self._embed([query])[0]
+            query_vec = self._embed_query([query])[0]
 
             # Build Qdrant filter if provided
             query_filter = self._build_filter(filters)
@@ -250,14 +315,32 @@ class QdrantTier(BaseRetriever):
                 f"trace={trace_id}"
             )
 
-            # query_points() is the canonical API from qdrant-client >= 1.13.
-            response = self._client.query_points(
-                collection_name=self._collection_name,
-                query=query_vec,
-                limit=top_k,
-                query_filter=query_filter,
-                with_payload=True,
-            )
+            if self._uses_nomic_mrl:
+                from qdrant_client.models import Prefetch
+
+                coarse = _mrl_slice(query_vec.reshape(1, -1), NOMIC_MRL_DIM)[0]
+                response = self._client.query_points(
+                    collection_name=self._collection_name,
+                    prefetch=Prefetch(
+                        query=coarse.tolist(),
+                        using="dense_64",
+                        limit=max(top_k * 3, top_k),
+                        filter=query_filter,
+                    ),
+                    query=query_vec.tolist(),
+                    using="dense_768",
+                    limit=top_k,
+                    with_payload=True,
+                )
+            else:
+                # query_points() is the canonical API from qdrant-client >= 1.13.
+                response = self._client.query_points(
+                    collection_name=self._collection_name,
+                    query=query_vec.tolist(),
+                    limit=top_k,
+                    query_filter=query_filter,
+                    with_payload=True,
+                )
             results = getattr(response, "points", response)
 
             return [self._hit_to_result(hit) for hit in results]
