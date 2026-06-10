@@ -57,7 +57,11 @@ def build_cache_key(
     chunk_ids: Sequence[str],
     governance_state_hash_value: str,
     synthesis_policy_version: str = "default",
+    embedding_model_name: str = "unversioned",
 ) -> str:
+    # embedding_model_name isolates cache lanes per embedding space: an
+    # embedding-model cutover (e.g. BGE -> Nomic) starts a fresh lane instead
+    # of leaving prior-model entries reachable within the TTL window.
     parts = [
         view_type,
         query_fingerprint_value,
@@ -65,6 +69,7 @@ def build_cache_key(
         chunk_set_hash(chunk_ids),
         governance_state_hash_value,
         synthesis_policy_version,
+        embedding_model_name,
     ]
     return _stable_hash("||".join(parts))
 

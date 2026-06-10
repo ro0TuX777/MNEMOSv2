@@ -56,6 +56,7 @@ def _mk_runtime_with_router(router):
         memory_over_maps_phase2=False,
         memory_over_maps_phase3=False,
         memory_over_maps_phase4=False,
+        embedding_model="BAAI/bge-base-en-v1.5",
     )
     rt._router = router
     rt._semantic_fusion = None

@@ -472,6 +472,7 @@ class MnemosRuntime:
                     chunk_ids=li.get("chunk_ids", []),
                     governance_state_hash_value=ghash,
                     synthesis_policy_version="default",
+                    embedding_model_name=self._config.embedding_model,
                 )
                 if phase4_cache_enabled:
                     cached = self._view_cache.get(cache_key)
