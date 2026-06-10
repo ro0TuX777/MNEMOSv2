@@ -78,6 +78,14 @@ class MnemosConfig:
     memory_over_maps_phase4: bool = False
     memory_over_maps_phase5: bool = False
 
+    # PIT-1 Governed Derived Fact Lane Scaffold
+    derived_enabled: bool = False
+    derived_whitelist: List[str] = field(default_factory=lambda: ["eval_dashboard", "governance_auditor"])
+
+    # PIT-3 Derived Fact Shadow Packet Limits
+    pit3_max_derived_facts_per_shadow_packet: int = 5
+    pit3_max_derived_fact_tokens: int = 500
+
     @staticmethod
     def _parse_bool(name: str, default: str) -> bool:
         raw = os.getenv(name, default).strip().lower()
@@ -158,6 +166,13 @@ class MnemosConfig:
         memory_over_maps_phase4 = cls._parse_bool("MNEMOS_MEMORY_OVER_MAPS_PHASE4", "false")
         memory_over_maps_phase5 = cls._parse_bool("MNEMOS_MEMORY_OVER_MAPS_PHASE5", "false")
 
+        derived_enabled = cls._parse_bool("MNEMOS_DERIVED_ENABLED", "false")
+        derived_whitelist_raw = os.getenv("MNEMOS_DERIVED_WHITELIST", "eval_dashboard,governance_auditor")
+        derived_whitelist = [w.strip() for w in derived_whitelist_raw.split(",") if w.strip()]
+
+        pit3_max_derived_facts_per_shadow_packet = cls._parse_int("MNEMOS_PIT3_MAX_DERIVED_FACTS_PER_SHADOW_PACKET", "5", min_value=1)
+        pit3_max_derived_fact_tokens = cls._parse_int("MNEMOS_PIT3_MAX_DERIVED_FACT_TOKENS", "500", min_value=1)
+
         config = cls(
             profile=os.getenv("MNEMOS_PROFILE", "core_memory_appliance"),
             tiers=tiers,
@@ -192,6 +207,10 @@ class MnemosConfig:
             memory_over_maps_phase3=memory_over_maps_phase3,
             memory_over_maps_phase4=memory_over_maps_phase4,
             memory_over_maps_phase5=memory_over_maps_phase5,
+            derived_enabled=derived_enabled,
+            derived_whitelist=derived_whitelist,
+            pit3_max_derived_facts_per_shadow_packet=pit3_max_derived_facts_per_shadow_packet,
+            pit3_max_derived_fact_tokens=pit3_max_derived_fact_tokens,
         )
 
         logger.info(

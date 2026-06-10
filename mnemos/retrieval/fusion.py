@@ -96,6 +96,14 @@ class TierFusion:
 
         return fused[:top_k]
 
+    def get_engrams(self, engram_ids: List[str]) -> List[Dict[str, Any]]:
+        """Delegate fetching engrams by ID to the underlying tiers."""
+        results = []
+        for tier in self._tiers:
+            if hasattr(tier, "get_engrams"):
+                results.extend(tier.get_engrams(engram_ids))
+        return results
+
     def index(self, engrams, tiers: Optional[List[str]] = None) -> Dict[str, int]:
         """Index engrams across all (or specified) tiers."""
         active_tiers = self._tiers

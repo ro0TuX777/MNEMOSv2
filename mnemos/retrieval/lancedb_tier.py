@@ -71,10 +71,11 @@ class LanceDBTier(BaseRetriever):
 
     def index(self, engrams: List[Engram]) -> int:
         """Index engrams into LanceDB."""
-        if not self._db or not engrams:
+        if self._db is None or not engrams:
             return 0
 
         try:
+            import json
             texts = [e.content for e in engrams]
             embeddings = self._embed(texts)
 
@@ -88,9 +89,10 @@ class LanceDBTier(BaseRetriever):
                     "confidence": e.confidence,
                     "neuro_tags": ",".join(e.neuro_tags),
                     "created_at": e.created_at,
+                    "metadata_json": json.dumps(e.metadata) if e.metadata else "{}",
+                    "governance_json": json.dumps(e.governance.__dict__) if getattr(e, "governance", None) else "{}",
                 })
 
-            import pyarrow as pa
             if self._table is None:
                 self._table = self._db.create_table(self._table_name, records)
             else:
@@ -102,13 +104,27 @@ class LanceDBTier(BaseRetriever):
             logger.error(f"LanceDB indexing failed: {e}")
             return 0
 
+    def get_engrams(self, engram_ids: List[str]) -> List[Dict[str, Any]]:
+        """Fetch raw engrams by ID."""
+        if self._table is None or not engram_ids:
+            return []
+        try:
+            # Construct a SQL IN clause for ids
+            formatted_ids = ", ".join([f"'{eid}'" for eid in engram_ids])
+            res = self._table.search().where(f"id IN ({formatted_ids})").to_list()
+            return res
+        except Exception as e:
+            logger.error(f"Failed to fetch engrams by ID from LanceDB: {e}")
+            return []
+
     def search(self, query: str, top_k: int = 10,
                filters: Optional[Dict[str, Any]] = None) -> List[SearchResult]:
         """Hybrid search in LanceDB."""
-        if not self._table:
+        if self._table is None:
             return []
 
         try:
+            import json
             query_vec = self._embed([query])[0]
 
             results = (
@@ -121,6 +137,21 @@ class LanceDBTier(BaseRetriever):
             search_results = []
             for row in results:
                 neuro_tags = row.get("neuro_tags", "").split(",") if row.get("neuro_tags") else []
+                metadata = json.loads(row.get("metadata_json", "{}"))
+                gov_dict = json.loads(row.get("governance_json", "{}"))
+                
+                # Mock GovernanceMeta if needed
+                from mnemos.governance.models.memory_state import GovernanceMeta
+                governance = None
+                if gov_dict:
+                    status_val = gov_dict.pop("status", None)
+                    auth_val = gov_dict.pop("authority_type", None)
+                    governance = GovernanceMeta(**gov_dict)
+                    if status_val:
+                        governance.status = status_val
+                    if auth_val:
+                        governance.authority_type = auth_val
+
                 engram = Engram(
                     id=row["id"],
                     content=row.get("content", ""),
@@ -128,6 +159,8 @@ class LanceDBTier(BaseRetriever):
                     confidence=float(row.get("confidence", 1.0)),
                     neuro_tags=[t for t in neuro_tags if t],
                     created_at=row.get("created_at", ""),
+                    metadata=metadata,
+                    governance=governance,
                 )
                 # LanceDB returns _distance — convert to similarity
                 distance = row.get("_distance", 0.0)
@@ -145,7 +178,7 @@ class LanceDBTier(BaseRetriever):
 
     def delete(self, engram_ids: List[str]) -> int:
         """Delete engrams from LanceDB."""
-        if not self._table or not engram_ids:
+        if self._table is None or not engram_ids:
             return 0
         try:
             id_list = ", ".join(f"'{eid}'" for eid in engram_ids)

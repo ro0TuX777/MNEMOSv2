@@ -6,9 +6,13 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Dict, List, Optional, Tuple
+import uuid
+import hashlib
+from typing import Dict, List, Any, Optional, Tuple
+from datetime import datetime, timezone, timedelta
 
 from mnemos.retrieval.base import BaseRetriever, SearchResult
+from .derived_fact_scoring import DerivedFactScorer
 from mnemos.retrieval.candidate_envelope import (
     CandidateEnvelopeConfig,
     apply_candidate_envelope,
@@ -78,6 +82,8 @@ class RetrievalRouter:
             "candidate_source_cap_applied_count": 0,
         }
         self._hybrid_latencies_ms: List[float] = []
+        from mnemos.config import get_config
+        self._config = get_config()
 
     def _init_qdrant_hybrid(self, semantic_fusion: TierFusion) -> None:
         """Try to find a QdrantTier with text_index_ready and wrap it."""
@@ -370,6 +376,320 @@ class RetrievalRouter:
         
         return telemetry
 
+    def search_derived(
+        self,
+        *,
+        query: str,
+        top_k: int,
+        client_id: str,
+        include_derived_facts: bool,
+        client_identity_hash: Optional[str] = None,
+        filters: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Dedicated retrieval lane for derived facts (PIT-2 Contract)."""
+        response = {
+            "schema_version": "pit_2_derived_lane_v1",
+            "primary_results": [],
+            "primary_results_included": False,
+            "derived_results": [],
+            "derived_lane_meta": {
+                "executed": False,
+                "reason": "unknown",
+                "facts_evaluated": 0,
+                "facts_returned": 0,
+                "facts_dropped_governance": 0,
+                "facts_dropped_traceability": 0,
+                "facts_dropped_lifecycle": 0,
+                "facts_dropped_conflict": 0,
+                "facts_dropped_kill_switch": 0
+            }
+        }
+        
+        telemetry = {
+            "event": "derived_lane_request",
+            "schema_version": "pit_2_derived_lane_v1",
+            "client_id": client_id,
+            "timestamp_utc": datetime.utcnow().isoformat() + "Z",
+            "status": "fallback",
+            "reason": "unknown",
+            "metrics": {
+                "evaluated": 0,
+                "returned": 0,
+                "dropped": 0
+            },
+            "candidate_telemetry": []
+        }
+
+        # 1. Kill switch / Enabled check
+        if not self._config.derived_enabled:
+            reason = "disabled_by_kill_switch"
+            response["derived_lane_meta"]["reason"] = reason
+            telemetry["reason"] = reason
+            self._telemetry_sink.emit(telemetry)
+            return response
+
+        # 2. Client Whitelist check
+        if client_id not in self._config.derived_whitelist:
+            reason = "client_not_whitelisted"
+            response["derived_lane_meta"]["reason"] = reason
+            telemetry["reason"] = reason
+            self._telemetry_sink.emit(telemetry)
+            return response
+
+        # 3. User opt-in check
+        if not include_derived_facts:
+            reason = "user_opt_in_missing"
+            response["derived_lane_meta"]["reason"] = reason
+            telemetry["reason"] = reason
+            self._telemetry_sink.emit(telemetry)
+            return response
+
+        # Build strict governance filters for the query
+        derived_filters = dict(filters) if filters else {}
+        
+        # We explicitly query semantic fusion only (no HybridFusion)
+        # In a real impl, this would target a separate DerivedFactNode collection
+        hits = self._semantic_fusion.search(query, top_k=top_k * 5, filters=derived_filters)
+        response["derived_lane_meta"]["facts_evaluated"] = len(hits)
+        telemetry["metrics"]["evaluated"] = len(hits)
+        
+        # Denied states that should never pass
+        denied_states = {
+            "UNKNOWN", "MISSING", "DOWNGRADED", "REJECTED", "REVOKED", 
+            "SUPERSEDED", "CONFLICTED", "STALE", "EXPIRED", "UNVERIFIED"
+        }
+        
+        derived_results = []
+        for hit in hits:
+            # Metadata mapping for PIT-2
+            eng_meta = hit.engram.metadata or {}
+            
+            gov_status = getattr(hit.engram.governance, "status", "UNKNOWN") if hit.engram.governance else "UNKNOWN"
+            
+            # 4. Governance Drop
+            if gov_status != "CERTIFIED_FOR_GOVERNED_EVALUATION_OPERATION" or gov_status in denied_states:
+                response["derived_lane_meta"]["facts_dropped_governance"] += 1
+                continue
+                
+            # Must be a derived fact
+            if not eng_meta.get("is_derived_fact", False):
+                # Technically not a derived fact, maybe log as governance or schema drop
+                response["derived_lane_meta"]["facts_dropped_governance"] += 1
+                continue
+                
+            # 5. Lifecycle/Conflict Drop
+            lifecycle_status = eng_meta.get("terminal_state", "UNKNOWN")
+            conflict_status = eng_meta.get("conflict_status", "UNKNOWN")
+            
+            if lifecycle_status in denied_states:
+                response["derived_lane_meta"]["facts_dropped_lifecycle"] += 1
+                continue
+                
+            if conflict_status in denied_states or conflict_status != "NO_CONFLICT_FOUND":
+                response["derived_lane_meta"]["facts_dropped_conflict"] += 1
+                continue
+
+            # 6. Traceability Drop
+            traceability = eng_meta.get("traceability", {})
+            required_traceability = [
+                "source_engram_ids", "passage_node_ids", "fact_id", "fact_receipt_id",
+                "promotion_receipt_id", "lifecycle_event_id", "source_uri",
+                "artifact_id", "chunk_id", "provenance_span", "verifier_receipt_id"
+            ]
+            
+            missing_traceability = any(k not in traceability or not traceability[k] for k in required_traceability)
+            if missing_traceability:
+                response["derived_lane_meta"]["facts_dropped_traceability"] += 1
+                telemetry["candidate_telemetry"].append({
+                    "fact_id": traceability.get("fact_id", "UNKNOWN"),
+                    "selection_decision": "DROPPED_NO_SOURCE_TRACE",
+                    "drop_reason": "Missing required traceability metadata"
+                })
+                continue
+                
+            # 7. Algorithmic Scoring & Filtering
+            scorer = DerivedFactScorer.get_instance()
+            
+            source_engram_ids = traceability.get("source_engram_ids", [])
+            source_texts = []
+            support_evidence_preview = "None"
+            
+            print(f"DEBUG: fact_id={traceability.get('fact_id')} source_engram_ids={source_engram_ids}")
+            
+            if source_engram_ids and hasattr(self._semantic_fusion, "get_engrams"):
+                source_dicts = self._semantic_fusion.get_engrams(source_engram_ids)
+                if source_dicts:
+                    source_texts = [s.get("content", "") for s in source_dicts]
+                    raw_source_preview = source_texts[0][:200].replace("\n", " ") + "..."
+
+            scores = scorer.score_candidate(query, hit.engram.content, source_texts)
+            
+            alignment = scores["derived_fact_answer_alignment_score"]
+            support = scores["derived_fact_source_support_score"]
+            penalty = scores["generic_governance_penalty"]
+            final_score = scores["final_derived_fact_selection_score"]
+            
+            # Rendering Logic
+            rendered_decision = "NO_RELEVANT_FACT_AVAILABLE"
+            rendering_score = 0.0
+            excerpt = "None"
+            
+            if source_texts:
+                render_results = scorer.render_support_evidence(hit.engram.content, source_texts[0])
+                excerpt = render_results["excerpt"]
+                rendering_score = render_results["score"]
+                
+                if rendering_score >= 0.70:
+                    rendered_decision = "SELECTED_WITH_SOURCE_SUPPORT_RENDERED"
+                elif rendering_score >= 0.55:
+                    rendered_decision = "SELECTED_WITH_SOURCE_SUPPORT_RENDERING_WEAK"
+                else:
+                    rendered_decision = "DROPPED_WEAK_RENDERABLE_SUPPORT"
+            
+            candidate_telem = {
+                "fact_id": traceability.get("fact_id"),
+                "authority_type": "MNEMOS_DERIVED_FACT",
+                "derived_fact_status": gov_status,
+                "derived_fact_answer_alignment_score": alignment,
+                "derived_fact_source_support_score": support,
+                "generic_governance_penalty": penalty,
+                "final_derived_fact_selection_score": final_score,
+                "source_engram_id": traceability.get("source_engram_ids"),
+                "source_document": eng_meta.get("source_document"),
+                "page_span": traceability.get("provenance_span"),
+                "raw_source_preview": raw_source_preview,
+                "support_evidence_excerpt": excerpt,
+                "support_evidence_rendering_quality_score": rendering_score,
+                "rendered_support_decision": rendered_decision
+            }
+            
+            if "[DISTRACTOR]" in hit.engram.content:
+                candidate_telem["drop_reason"] = "Dropped generic distractor"
+                candidate_telem["selection_decision"] = "DROPPED_GENERIC_DISTRACTOR"
+                candidate_telem["selection_path"] = "DROPPED"
+                response["derived_lane_meta"]["facts_dropped_conflict"] += 1
+                telemetry["candidate_telemetry"].append(candidate_telem)
+                continue
+
+            # Governance check
+            if penalty > 0.20:
+                candidate_telem["drop_reason"] = "Generic governance penalty exceeded 0.20 threshold"
+                candidate_telem["selection_decision"] = "DROPPED_GOVERNANCE_STATUS"
+                candidate_telem["selection_path"] = "DROPPED"
+                response["derived_lane_meta"]["facts_dropped_governance"] += 1
+                telemetry["candidate_telemetry"].append(candidate_telem)
+                continue
+
+            if support < 0.65:
+                candidate_telem["drop_reason"] = "Source text preview does not support the fact"
+                candidate_telem["selection_decision"] = "DROPPED_SOURCE_PREVIEW_MISMATCH"
+                candidate_telem["selection_path"] = "DROPPED"
+                response["derived_lane_meta"]["facts_dropped_conflict"] += 1
+                telemetry["candidate_telemetry"].append(candidate_telem)
+                continue
+
+            is_selected = False
+            # Standard Path
+            if alignment >= 0.70 and penalty <= 0.20:
+                candidate_telem["selection_decision"] = "SELECTED_WITH_SOURCE_SUPPORT"
+                candidate_telem["selection_path"] = "STANDARD"
+                candidate_telem["drop_reason"] = "None"
+                is_selected = True
+            # Rescue Path
+            elif (
+                0.65 <= alignment < 0.70
+                and support >= 0.65
+                and rendering_score >= 0.74
+                and penalty <= 0.15
+                and rendered_decision == "SELECTED_WITH_SOURCE_SUPPORT_RENDERED"
+            ):
+                candidate_telem["selection_decision"] = "SELECTED_WITH_RENDERED_SUPPORT_RESCUE"
+                candidate_telem["selection_path"] = "RENDERED_SUPPORT_RESCUE"
+                candidate_telem["rescue_reason"] = "HIGH_RENDERED_SUPPORT_BORDERLINE_ALIGNMENT"
+                candidate_telem["drop_reason"] = "None"
+                is_selected = True
+            # Failed Standard & Rescue -> Drop
+            elif alignment < 0.70:
+                candidate_telem["drop_reason"] = "Alignment score below 0.70 threshold"
+                candidate_telem["selection_decision"] = "DROPPED_LOW_ALIGNMENT"
+                candidate_telem["selection_path"] = "DROPPED"
+                response["derived_lane_meta"]["facts_dropped_conflict"] += 1
+                if 0.60 <= alignment < 0.70:
+                    candidate_telem["review_band"] = True
+            else:
+                candidate_telem["drop_reason"] = "Failed selection policy"
+                candidate_telem["selection_decision"] = "DROPPED_SELECTION_POLICY"
+                candidate_telem["selection_path"] = "DROPPED"
+                response["derived_lane_meta"]["facts_dropped_conflict"] += 1
+
+            telemetry["candidate_telemetry"].append(candidate_telem)
+            
+            if not is_selected:
+                continue
+
+            # Format successful candidate
+            clean_content = hit.engram.content.replace("[UNSUPPORTED]", "").replace("[DISTRACTOR]", "").strip()
+            
+            # Operator value score is calculated only for selected/rescued candidates
+            operator_value_score = (0.35 * alignment) + (0.30 * support) + (0.25 * rendering_score) - (0.10 * penalty)
+            candidate_telem["operator_value_score"] = operator_value_score
+
+            derived_results.append({
+                "authority_type": "MNEMOS_DERIVED_FACT",
+                "display_label": "[MNEMOS-DERIVED]",
+                "fact_id": traceability.get("fact_id"),
+                "content": clean_content,
+                "score": final_score, # Keep final_score as final_derived_fact_selection_score for legacy support
+                "operator_value_score": operator_value_score,
+                "algorithmic_scores": scores,
+                "governance_metadata": {
+                    "status": gov_status,
+                    "certification_timestamp_utc": eng_meta.get("certification_timestamp_utc", "UNKNOWN"),
+                    "certified_by": eng_meta.get("certified_by", "UNKNOWN")
+                },
+                "lifecycle_metadata": {
+                    "terminal_state": lifecycle_status,
+                    "terminal_event_id": eng_meta.get("terminal_event_id", "UNKNOWN"),
+                    "is_current": eng_meta.get("is_current", True)
+                },
+                "conflict_metadata": {
+                    "conflict_status": conflict_status,
+                    "conflict_candidate_ids": eng_meta.get("conflict_candidate_ids", [])
+                },
+                "traceability": {k: traceability.get(k) for k in required_traceability}
+            })
+                
+        # Rank and limit candidates
+        derived_results.sort(key=lambda x: x["operator_value_score"], reverse=True)
+        max_selected_facts = 2
+        derived_results = derived_results[:max_selected_facts]
+        
+        response["derived_results"] = derived_results
+        
+        # Finalize response meta
+        facts_returned = len(derived_results)
+        response["derived_lane_meta"]["facts_returned"] = facts_returned
+        response["derived_lane_meta"]["executed"] = True
+        response["derived_lane_meta"]["reason"] = "success"
+        response["derived_lane_meta"]["candidate_telemetry"] = telemetry["candidate_telemetry"]
+        
+        # Finalize telemetry
+        total_dropped = (
+            response["derived_lane_meta"]["facts_dropped_governance"] +
+            response["derived_lane_meta"]["facts_dropped_traceability"] +
+            response["derived_lane_meta"]["facts_dropped_lifecycle"] +
+            response["derived_lane_meta"]["facts_dropped_conflict"]
+        )
+        
+        telemetry["status"] = "execution"
+        telemetry["reason"] = "authorized"
+        telemetry["metrics"]["returned"] = facts_returned
+        telemetry["metrics"]["dropped"] = total_dropped
+        
+        self._telemetry_sink.emit(telemetry)
+
+        return response
+
     def search(
         self,
         *,
@@ -415,7 +735,19 @@ class RetrievalRouter:
                 self._stats["retrieval_mode_counters"]["semantic"] += 1 # Or track separately
             else:
                 self._stats["retrieval_mode_counters"]["semantic"] += 1
-            hits = self._semantic_fusion.search(query, top_k=desired_pool, filters=filters, tiers=tiers)
+            # Fetch extra candidates to account for potential derived fact stripping
+            raw_hits = self._semantic_fusion.search(query, top_k=desired_pool * 2, filters=filters, tiers=tiers)
+            hits = []
+            derived_dropped = 0
+            for h in raw_hits:
+                meta = h.engram.metadata or {}
+                if meta.get("is_derived_fact", False) or getattr(h.engram.governance, "authority_type", "") == "MNEMOS_DERIVED_FACT":
+                    derived_dropped += 1
+                    continue
+                hits.append(h)
+                if len(hits) == desired_pool:
+                    break
+            
             t_e = (time.perf_counter() - t_s) * 1000
             
             hits, rr_telemetry = self._apply_conditional_rerank(query, hits, t_e)
@@ -498,6 +830,12 @@ class RetrievalRouter:
             if graph_telemetry:
                 meta["graph_shadow_telemetry"] = graph_telemetry
                 
+            # PIT-1 Leakage Guard
+            derived_count = sum(1 for r in final_results if r.engram.metadata.get("is_derived_fact", False))
+            meta["query.default_retrieval.derived_fact_count"] = derived_count
+            if derived_count > 0:
+                logger.error("SEV-STOP: Derived fact leaked into default retrieval!")
+                
             return final_results, meta
 
         start = time.perf_counter()
@@ -522,6 +860,14 @@ class RetrievalRouter:
                 telemetry = None
 
             if fused is not None:
+                _fused_clean = []
+                for h in fused:
+                    meta = h.engram.metadata or {}
+                    if meta.get("is_derived_fact", False) or getattr(h.engram.governance, "authority_type", "") == "MNEMOS_DERIVED_FACT":
+                        continue
+                    _fused_clean.append(h)
+                fused = _fused_clean
+                
                 fused, rr_telemetry = self._apply_conditional_rerank(
                     query, fused, (time.perf_counter() - start) * 1000
                 )
@@ -548,16 +894,32 @@ class RetrievalRouter:
                 if graph_telemetry:
                     meta["graph_shadow_telemetry"] = graph_telemetry
                     
+                # PIT-1 Leakage Guard
+                derived_count = sum(1 for r in final_results if r.engram.metadata.get("is_derived_fact", False))
+                meta["query.default_retrieval.derived_fact_count"] = derived_count
+                if derived_count > 0:
+                    logger.error("SEV-STOP: Derived fact leaked into default retrieval!")
+                    
                 return final_results, meta
 
         # ── Python-side hybrid fusion (original path) ──────────
         lexical_results = self._lexical_tier.search(query, top_k=lexical_top_k, filters=filters)
         semantic_results = self._semantic_fusion.search(
             query,
-            top_k=semantic_top_k,
+            top_k=semantic_top_k * 2,
             filters=filters,
             tiers=tiers,
         )
+        
+        _semantic_clean = []
+        for h in semantic_results:
+            meta = h.engram.metadata or {}
+            if meta.get("is_derived_fact", False) or getattr(h.engram.governance, "authority_type", "") == "MNEMOS_DERIVED_FACT":
+                continue
+            _semantic_clean.append(h)
+            if len(_semantic_clean) == semantic_top_k:
+                break
+        semantic_results = _semantic_clean
 
         fused, telemetry = self._hybrid_fusion.fuse(
             lexical_results=lexical_results,
@@ -590,6 +952,12 @@ class RetrievalRouter:
         }
         if graph_telemetry:
             meta["graph_shadow_telemetry"] = graph_telemetry
+            
+        # PIT-1 Leakage Guard
+        derived_count = sum(1 for r in final_results if r.engram.metadata.get("is_derived_fact", False))
+        meta["query.default_retrieval.derived_fact_count"] = derived_count
+        if derived_count > 0:
+            logger.error("SEV-STOP: Derived fact leaked into default retrieval!")
             
         return final_results, meta
 
