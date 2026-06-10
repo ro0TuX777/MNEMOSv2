@@ -40,6 +40,7 @@ Thumbs.db
 # Generated benchmark/test artifacts
 tests/_tmp/
 benchmarks/outputs/
+migration_checkpoint.json
 
 # Runtime telemetry sinks (operational data, not source)
 logs/retrieval_telemetry.jsonl
