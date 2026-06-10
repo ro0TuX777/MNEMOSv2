@@ -270,8 +270,15 @@ class QdrantTier(BaseRetriever):
 
     @staticmethod
     def _build_filter(filters: Optional[Dict[str, Any]]):
-        """Translate MNEMOS metadata filters into a Qdrant Filter object."""
-        if not filters:
+        """Translate MNEMOS metadata filters into a Qdrant Filter object.
+
+        The reserved key ``__exclude_derived__`` (injected by the retrieval
+        router for default search paths) becomes a server-side must_not
+        condition on the derived-fact payload flag (PIT-1 primary filter).
+        """
+        filters = dict(filters) if filters else {}
+        exclude_derived = bool(filters.pop("__exclude_derived__", False))
+        if not filters and not exclude_derived:
             return None
 
         from qdrant_client.models import (
@@ -280,6 +287,13 @@ class QdrantTier(BaseRetriever):
             MatchValue,
             Range,
         )
+
+        must_not = None
+        if exclude_derived:
+            # Engram metadata is flattened into payload as app_<key>.
+            must_not = [
+                FieldCondition(key="app_is_derived_fact", match=MatchValue(value=True))
+            ]
 
         conditions = []
         for k, v in filters.items():
@@ -309,7 +323,7 @@ class QdrantTier(BaseRetriever):
                 FieldCondition(key=k, match=MatchValue(value=v))
             )
 
-        return Filter(must=conditions)
+        return Filter(must=conditions or None, must_not=must_not)
 
     # ──────────────────── result conversion ───────────────────
 

@@ -157,6 +157,50 @@ class RetrievalRouter:
             self._stats["hybrid_latency_p50_ms"] = round(p50, 2)
             self._stats["hybrid_latency_p95_ms"] = round(p95, 2)
 
+    @staticmethod
+    def _is_derived(result: SearchResult) -> bool:
+        """True when a result is a derived fact (PIT-1: barred from default retrieval)."""
+        engram = result.engram
+        meta = getattr(engram, "metadata", None) or {}
+        if meta.get("is_derived_fact", False):
+            return True
+        return getattr(getattr(engram, "governance", None), "authority_type", "") == "MNEMOS_DERIVED_FACT"
+
+    def _derived_overfetch_factor(self) -> int:
+        """Over-fetch only when an active tier cannot exclude derived facts server-side."""
+        try:
+            tier_names = self._semantic_fusion.tier_names
+        except Exception:
+            return 2
+        # qdrant (must_not payload filter) and pgvector (SQL condition) both
+        # honor the __exclude_derived__ sentinel server-side.
+        return 1 if tier_names and all(t in ("qdrant", "pgvector") for t in tier_names) else 2
+
+    def _apply_leakage_guard(self, final_results: List[SearchResult], meta: Dict[str, Any]) -> List[SearchResult]:
+        """
+        PIT-1 leakage guard — defense in depth behind the Qdrant payload filter.
+
+        strip (default): leaked derived facts are removed and the event logged.
+        canary: leaked facts are returned unmodified; the log marks the signal.
+        Mode comes from MNEMOS_PIT_LEAKAGE_MODE.
+        """
+        leaked = sum(1 for r in final_results if self._is_derived(r))
+        meta["query.default_retrieval.derived_fact_count"] = leaked
+        if leaked == 0:
+            return final_results
+        mode = getattr(self._config, "pit_leakage_mode", "strip")
+        if mode == "canary":
+            logger.error(
+                f"CANARY-SIGNAL: {leaked} derived fact(s) leaked into default retrieval "
+                "(returned unmodified in canary mode)"
+            )
+            return final_results
+        logger.error(
+            f"SEV-STOP: {leaked} derived fact(s) leaked into default retrieval — stripped from results"
+        )
+        meta["query.default_retrieval.derived_facts_stripped"] = leaked
+        return [r for r in final_results if not self._is_derived(r)]
+
     def _apply_conditional_rerank(self, query: str, candidates: List[SearchResult], dense_latency_ms: float) -> Tuple[List[SearchResult], Dict[str, Any]]:
         telemetry = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -735,19 +779,24 @@ class RetrievalRouter:
                 self._stats["retrieval_mode_counters"]["semantic"] += 1 # Or track separately
             else:
                 self._stats["retrieval_mode_counters"]["semantic"] += 1
-            # Fetch extra candidates to account for potential derived fact stripping
-            raw_hits = self._semantic_fusion.search(query, top_k=desired_pool * 2, filters=filters, tiers=tiers)
+            # Server-side derived-fact exclusion (Qdrant must_not payload filter);
+            # over-fetch only when a tier without payload filtering is active.
+            effective_filters = dict(filters or {})
+            effective_filters["__exclude_derived__"] = True
+            raw_hits = self._semantic_fusion.search(
+                query,
+                top_k=desired_pool * self._derived_overfetch_factor(),
+                filters=effective_filters,
+                tiers=tiers,
+            )
             hits = []
-            derived_dropped = 0
             for h in raw_hits:
-                meta = h.engram.metadata or {}
-                if meta.get("is_derived_fact", False) or getattr(h.engram.governance, "authority_type", "") == "MNEMOS_DERIVED_FACT":
-                    derived_dropped += 1
+                if self._is_derived(h):
                     continue
                 hits.append(h)
                 if len(hits) == desired_pool:
                     break
-            
+
             t_e = (time.perf_counter() - t_s) * 1000
             
             hits, rr_telemetry = self._apply_conditional_rerank(query, hits, t_e)
@@ -831,11 +880,7 @@ class RetrievalRouter:
                 meta["graph_shadow_telemetry"] = graph_telemetry
                 
             # PIT-1 Leakage Guard
-            derived_count = sum(1 for r in final_results if r.engram.metadata.get("is_derived_fact", False))
-            meta["query.default_retrieval.derived_fact_count"] = derived_count
-            if derived_count > 0:
-                logger.error("SEV-STOP: Derived fact leaked into default retrieval!")
-                
+            final_results = self._apply_leakage_guard(final_results, meta)
             return final_results, meta
 
         start = time.perf_counter()
@@ -860,13 +905,7 @@ class RetrievalRouter:
                 telemetry = None
 
             if fused is not None:
-                _fused_clean = []
-                for h in fused:
-                    meta = h.engram.metadata or {}
-                    if meta.get("is_derived_fact", False) or getattr(h.engram.governance, "authority_type", "") == "MNEMOS_DERIVED_FACT":
-                        continue
-                    _fused_clean.append(h)
-                fused = _fused_clean
+                fused = [h for h in fused if not self._is_derived(h)]
                 
                 fused, rr_telemetry = self._apply_conditional_rerank(
                     query, fused, (time.perf_counter() - start) * 1000
@@ -895,26 +934,23 @@ class RetrievalRouter:
                     meta["graph_shadow_telemetry"] = graph_telemetry
                     
                 # PIT-1 Leakage Guard
-                derived_count = sum(1 for r in final_results if r.engram.metadata.get("is_derived_fact", False))
-                meta["query.default_retrieval.derived_fact_count"] = derived_count
-                if derived_count > 0:
-                    logger.error("SEV-STOP: Derived fact leaked into default retrieval!")
-                    
+                final_results = self._apply_leakage_guard(final_results, meta)
                 return final_results, meta
 
         # ── Python-side hybrid fusion (original path) ──────────
         lexical_results = self._lexical_tier.search(query, top_k=lexical_top_k, filters=filters)
+        _semantic_filters = dict(filters or {})
+        _semantic_filters["__exclude_derived__"] = True
         semantic_results = self._semantic_fusion.search(
             query,
-            top_k=semantic_top_k * 2,
-            filters=filters,
+            top_k=semantic_top_k * self._derived_overfetch_factor(),
+            filters=_semantic_filters,
             tiers=tiers,
         )
-        
+
         _semantic_clean = []
         for h in semantic_results:
-            meta = h.engram.metadata or {}
-            if meta.get("is_derived_fact", False) or getattr(h.engram.governance, "authority_type", "") == "MNEMOS_DERIVED_FACT":
+            if self._is_derived(h):
                 continue
             _semantic_clean.append(h)
             if len(_semantic_clean) == semantic_top_k:
@@ -954,11 +990,7 @@ class RetrievalRouter:
             meta["graph_shadow_telemetry"] = graph_telemetry
             
         # PIT-1 Leakage Guard
-        derived_count = sum(1 for r in final_results if r.engram.metadata.get("is_derived_fact", False))
-        meta["query.default_retrieval.derived_fact_count"] = derived_count
-        if derived_count > 0:
-            logger.error("SEV-STOP: Derived fact leaked into default retrieval!")
-            
+        final_results = self._apply_leakage_guard(final_results, meta)
         return final_results, meta
 
     def stats(self) -> Dict[str, Any]:

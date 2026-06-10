@@ -86,6 +86,10 @@ class MnemosConfig:
     pit3_max_derived_facts_per_shadow_packet: int = 5
     pit3_max_derived_fact_tokens: int = 500
 
+    # PIT-1 leakage guard behavior when a derived fact survives the
+    # server-side filters: "strip" removes it, "canary" returns it and logs.
+    pit_leakage_mode: str = "strip"
+
     @staticmethod
     def _parse_bool(name: str, default: str) -> bool:
         raw = os.getenv(name, default).strip().lower()
@@ -173,6 +177,13 @@ class MnemosConfig:
         pit3_max_derived_facts_per_shadow_packet = cls._parse_int("MNEMOS_PIT3_MAX_DERIVED_FACTS_PER_SHADOW_PACKET", "5", min_value=1)
         pit3_max_derived_fact_tokens = cls._parse_int("MNEMOS_PIT3_MAX_DERIVED_FACT_TOKENS", "500", min_value=1)
 
+        pit_leakage_mode = os.getenv("MNEMOS_PIT_LEAKAGE_MODE", "strip").strip().lower()
+        if pit_leakage_mode not in ("strip", "canary"):
+            logger.warning(
+                f"Invalid MNEMOS_PIT_LEAKAGE_MODE={pit_leakage_mode!r}; falling back to 'strip'"
+            )
+            pit_leakage_mode = "strip"
+
         config = cls(
             profile=os.getenv("MNEMOS_PROFILE", "core_memory_appliance"),
             tiers=tiers,
@@ -211,6 +222,7 @@ class MnemosConfig:
             derived_whitelist=derived_whitelist,
             pit3_max_derived_facts_per_shadow_packet=pit3_max_derived_facts_per_shadow_packet,
             pit3_max_derived_fact_tokens=pit3_max_derived_fact_tokens,
+            pit_leakage_mode=pit_leakage_mode,
         )
 
         logger.info(

@@ -218,7 +218,14 @@ class PgvectorTier(BaseRetriever):
 
             if filters:
                 for key, value in filters.items():
-                    if key == "confidence_min":
+                    if key == "__exclude_derived__":
+                        # PIT-1 server-side derived-fact exclusion (router-injected
+                        # sentinel; see retrieval_router). JSONB bool renders 'true'.
+                        if value:
+                            conditions.append(
+                                "(metadata->>'is_derived_fact') IS DISTINCT FROM 'true'"
+                            )
+                    elif key == "confidence_min":
                         conditions.append("confidence >= %s")
                         params.append(float(value))
                     elif key == "neuro_tag":
