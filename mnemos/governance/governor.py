@@ -156,6 +156,27 @@ class Governor:
         self._record_stats(governance_mode, results, decisions, contradiction_records)
         return governed, decisions, contradiction_records
 
+    def effective_min_score(self, governance_profile: Optional[str] = None) -> float:
+        """Score-floor veto threshold in effect for the given policy profile."""
+        profile = self._profile_or_default(governance_profile)
+        if profile is not None:
+            return float(profile.min_score_threshold)
+        return self._base_min_score_threshold
+
+    def effective_freshness_half_life(self, governance_profile: Optional[str] = None) -> float:
+        """Freshness decay half-life (days) in effect for the given policy profile."""
+        profile = self._profile_or_default(governance_profile)
+        if profile is not None:
+            return float(profile.freshness_half_life_days)
+        return self._base_freshness_half_life_days
+
+    def _profile_or_default(self, governance_profile: Optional[str] = None):
+        """Non-raising profile lookup for explain paths (falls back to default)."""
+        profile = self._policy_profiles.get(governance_profile or "default")
+        if profile is None:
+            profile = self._policy_profiles.get("default")
+        return profile
+
     def reflect(
         self,
         query: str,

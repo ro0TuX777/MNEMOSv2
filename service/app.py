@@ -33,6 +33,7 @@ from mnemos.memory_over_maps.view_cache import (
     query_fingerprint,
 )
 from mnemos.retrieval.policies.fusion_policies import FUSION_POLICIES
+from mnemos.governance.counterfactuals import compute_counterfactuals
 from mnemos.governance.governor import Governor
 from mnemos.governance.policy_profiles import load_policy_profiles
 from mnemos.governance.read_path import GOVERNANCE_MODES
@@ -627,7 +628,20 @@ class MnemosRuntime:
                         }
                         for d in decisions
                         if d.would_be_suppressed_in_enforced_mode
-                    ]
+                    ],
+                    "counterfactuals": compute_counterfactuals(
+                        decisions,
+                        top_n=3,
+                        min_score_threshold=self._governor.effective_min_score(
+                            selected_profile or None
+                        ) if self._governor else 0.0,
+                        created_at_by_id={
+                            r.engram.id: r.engram.created_at for r in results
+                        },
+                        freshness_half_life_days=self._governor.effective_freshness_half_life(
+                            selected_profile or None
+                        ) if self._governor else 180.0,
+                    ),
                 }
         if derived_views_payload:
             payload["derived_views"] = derived_views_payload
