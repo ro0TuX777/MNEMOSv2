@@ -3,13 +3,13 @@
   "created": "2026-06-11",
   "description": "Anchor queries for the Matryoshka migration shadow replay (docs/reports/matryoshka_migration_shadow_replay_spec.md). Seeded from gate_c hybrid query classes plus semantic/long-context coverage. expected_ids are corpus-specific: operators MUST fill them for their golden queries before treating recall regression verdicts as meaningful - without expected_ids a query contributes Jaccard drift only. Tenants append their golden queries with tenant set.",
   "anchors": [
-    { "query_id": "anchor_acr_01", "class": "acronym", "tenant": null, "query": "What does GDPR require for data handling disclosures?", "expected_ids": null },
-    { "query_id": "anchor_acr_02", "class": "acronym", "tenant": null, "query": "Find SOX internal control requirements relevant to quarterly reporting", "expected_ids": null },
-    { "query_id": "anchor_acr_03", "class": "acronym", "tenant": null, "query": "Locate HIPAA privacy compliance gaps for patient data", "expected_ids": null },
-    { "query_id": "anchor_sem_01", "class": "semantic", "tenant": null, "query": "How should an organisation respond when sensitive records are accessed without authorisation?", "expected_ids": null },
-    { "query_id": "anchor_sem_02", "class": "semantic", "tenant": null, "query": "Summarise the obligations a company has after discovering a security incident", "expected_ids": null },
-    { "query_id": "anchor_exact_01", "class": "exact_term", "tenant": null, "query": "right to erasure article 17", "expected_ids": null },
-    { "query_id": "anchor_exact_02", "class": "exact_term", "tenant": null, "query": "section 404 management assessment", "expected_ids": null },
-    { "query_id": "anchor_long_01", "class": "long_context", "tenant": null, "query": "Compare the notification timelines, scope of covered entities, and penalty structures across the major data protection regulations in the corpus, focusing on which regulation imposes the strictest breach disclosure deadline", "expected_ids": null }
+    { "query_id": "anchor_acr_01", "class": "acronym", "tenant": null, "query": "What does GDPR require for data handling disclosures?", "expected_ids": ["ref_gdpr_disclosure"] },
+    { "query_id": "anchor_acr_02", "class": "acronym", "tenant": null, "query": "Find SOX internal control requirements relevant to quarterly reporting", "expected_ids": ["ref_sox_404_controls"] },
+    { "query_id": "anchor_acr_03", "class": "acronym", "tenant": null, "query": "Locate HIPAA privacy compliance gaps for patient data", "expected_ids": ["ref_hipaa_privacy_gaps"] },
+    { "query_id": "anchor_sem_01", "class": "semantic", "tenant": null, "query": "How should an organisation respond when sensitive records are accessed without authorisation?", "expected_ids": ["ref_unauthorised_access_response"] },
+    { "query_id": "anchor_sem_02", "class": "semantic", "tenant": null, "query": "Summarise the obligations a company has after discovering a security incident", "expected_ids": ["ref_security_incident_obligations"] },
+    { "query_id": "anchor_exact_01", "class": "exact_term", "tenant": null, "query": "right to erasure article 17", "expected_ids": ["ref_gdpr_article_17_erasure"] },
+    { "query_id": "anchor_exact_02", "class": "exact_term", "tenant": null, "query": "section 404 management assessment", "expected_ids": ["ref_sox_section_404_assessment"] },
+    { "query_id": "anchor_long_01", "class": "long_context", "tenant": null, "query": "Compare the notification timelines, scope of covered entities, and penalty structures across the major data protection regulations in the corpus, focusing on which regulation imposes the strictest breach disclosure deadline", "expected_ids": ["ref_cross_regulation_breach_deadlines"] }
   ]
 }

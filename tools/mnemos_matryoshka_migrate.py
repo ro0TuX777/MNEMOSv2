@@ -57,6 +57,10 @@ JACCARD_WARN_THRESHOLD = 0.3   # per-query high-drift operator warning
 JACCARD_PROCEED_MEDIAN = 0.6   # spec promotion matrix (per class median)
 SCORE_DROP_WARN_THRESHOLD = 0.10  # absolute mean top-k score delta considered material
 SCORE_DROP_TOP_K = 3
+MEAN_JACCARD_GATE = 0.40
+RANK1_STABILITY_GATE = 0.70
+MEAN_SCORE_DELTA_GATE = 0.15
+LATENCY_REDUCTION_TARGET = 0.40
 
 
 # ---- pure logic ---------------------------------------------------------
@@ -96,6 +100,92 @@ def nomic_score_significantly_lower(
     if bge_score is None or nomic_score is None:
         return False
     return (bge_score - nomic_score) >= threshold
+
+
+def percentile(values: Sequence[float], pct: float) -> Optional[float]:
+    if not values:
+        return None
+    ordered = sorted(values)
+    if len(ordered) == 1:
+        return ordered[0]
+    rank = (len(ordered) - 1) * (pct / 100.0)
+    low = int(np.floor(rank))
+    high = int(np.ceil(rank))
+    if low == high:
+        return ordered[low]
+    weight = rank - low
+    return ordered[low] * (1.0 - weight) + ordered[high] * weight
+
+
+def replay_gate_metrics(
+    per_query: List[Dict[str, Any]],
+    prefix_sentinel_match: Optional[bool],
+) -> Dict[str, Any]:
+    jaccards = [float(r["jaccard_at_10"]) for r in per_query]
+    stable = [bool(r.get("rank1_stable_top3")) for r in per_query]
+    score_deltas = [
+        float(r["score_delta_abs"])
+        for r in per_query
+        if r.get("score_delta_abs") is not None
+    ]
+    bge_latencies = [
+        float(r["bge_latency_ms"])
+        for r in per_query
+        if r.get("bge_latency_ms") is not None
+    ]
+    nomic_latencies = [
+        float(r["nomic_latency_ms"])
+        for r in per_query
+        if r.get("nomic_latency_ms") is not None
+    ]
+
+    bge_p95 = percentile(bge_latencies, 95)
+    nomic_p95 = percentile(nomic_latencies, 95)
+    budget_p95 = bge_p95 * (1.0 - LATENCY_REDUCTION_TARGET) if bge_p95 is not None else None
+    budget_compliant = (
+        nomic_p95 is not None
+        and budget_p95 is not None
+        and nomic_p95 <= budget_p95
+    )
+
+    mean_jaccard = sum(jaccards) / len(jaccards) if jaccards else 0.0
+    rank1_stability = sum(1 for item in stable if item) / len(stable) if stable else 0.0
+    mean_score_delta = sum(score_deltas) / len(score_deltas) if score_deltas else None
+
+    gates = {
+        "prefix_sentinel": {
+            "threshold": "MATCH == FALSE",
+            "prefix_sentinel_match": prefix_sentinel_match,
+            "pass": prefix_sentinel_match is False,
+        },
+        "mean_jaccard_at_10": {
+            "threshold": f"> {MEAN_JACCARD_GATE}",
+            "value": round(mean_jaccard, 4),
+            "pass": mean_jaccard > MEAN_JACCARD_GATE,
+        },
+        "rank1_stability_top3": {
+            "threshold": f"> {RANK1_STABILITY_GATE}",
+            "value": round(rank1_stability, 4),
+            "pass": rank1_stability > RANK1_STABILITY_GATE,
+        },
+        "score_compression_delta": {
+            "threshold": f"< {MEAN_SCORE_DELTA_GATE}",
+            "mean_delta": round(mean_score_delta, 4) if mean_score_delta is not None else None,
+            "pass": mean_score_delta is not None and mean_score_delta < MEAN_SCORE_DELTA_GATE,
+        },
+        "budget_compliance": {
+            "threshold": "actual_nomic_p95_ms <= 60% of bge_p95_ms",
+            "bge_p95_ms": round(bge_p95, 4) if bge_p95 is not None else None,
+            "actual_nomic_p95_ms": round(nomic_p95, 4) if nomic_p95 is not None else None,
+            "budget_p95_ms": round(budget_p95, 4) if budget_p95 is not None else None,
+            "pass": budget_compliant,
+        },
+    }
+    return {
+        "query_count": len(per_query),
+        "gates": gates,
+        "overall_gate_pass": all(gate["pass"] for gate in gates.values()),
+    }
 
 
 def mrl_slice(matrix: Any, dim: int = MRL_DIM) -> np.ndarray:
@@ -171,6 +261,7 @@ class MigrationState:
     start_time: str = ""
     updated_at: str = ""
     phase0_prefix_check: Optional[bool] = None
+    prefix_sentinel_match: Optional[bool] = None
     phase1_complete: bool = False
     phase2_verdict: Optional[str] = None
 
@@ -268,6 +359,7 @@ def phase0_preflight(client, state: MigrationState, embedder: NomicEmbedder) -> 
         print("Aborting: Embedding engine is ignoring prefixes. Prefix injection is mandatory for Nomic v1.5.")
         sys.exit(2)
     state.phase0_prefix_check = True
+    state.prefix_sentinel_match = False
     print("  [ok] prefix sentinel check passed (prefixed != unprefixed)")
 
     count = client.count(state.source_collection, exact=True).count
@@ -473,15 +565,27 @@ def phase2_replay(client, state: MigrationState, embedder: NomicEmbedder,
 
     per_query: List[Dict[str, Any]] = []
     for anchor in anchors:
+        bge_started = time.perf_counter()
         bge_rows = _search_source_top10(client, state, bge_model, anchor["query"])
+        bge_latency_ms = (time.perf_counter() - bge_started) * 1000.0
+
+        nomic_started = time.perf_counter()
         nomic_rows = _search_target_top10(client, state, embedder, anchor["query"])
+        nomic_latency_ms = (time.perf_counter() - nomic_started) * 1000.0
+
         bge_ids = _ids(bge_rows)
         nomic_ids = _ids(nomic_rows)
         sim = jaccard(bge_ids, nomic_ids)
         displacement = rank_displacement(bge_ids, nomic_ids)
         bge_mean_score = mean_top_score(bge_rows)
         nomic_mean_score = mean_top_score(nomic_rows)
+        score_delta = (
+            abs(bge_mean_score - nomic_mean_score)
+            if bge_mean_score is not None and nomic_mean_score is not None
+            else None
+        )
         significant_score_drop = nomic_score_significantly_lower(bge_mean_score, nomic_mean_score)
+        rank1_stable_top3 = bool(bge_ids and bge_ids[0] in nomic_ids[:3])
 
         expected = set(anchor.get("expected_ids") or [])
         regression = False
@@ -496,9 +600,13 @@ def phase2_replay(client, state: MigrationState, embedder: NomicEmbedder,
             "query_class": anchor.get("class", "semantic"),
             "jaccard_at_10": round(sim, 4),
             "rank_displacement": round(displacement, 4) if displacement is not None else None,
+            "rank1_stable_top3": rank1_stable_top3,
             "bge_mean_top3_score": round(bge_mean_score, 4) if bge_mean_score is not None else None,
             "nomic_mean_top3_score": round(nomic_mean_score, 4) if nomic_mean_score is not None else None,
+            "score_delta_abs": round(score_delta, 4) if score_delta is not None else None,
             "significant_score_drop": significant_score_drop,
+            "bge_latency_ms": round(bge_latency_ms, 4),
+            "nomic_latency_ms": round(nomic_latency_ms, 4),
             "recall_bge": recall_a,
             "recall_nomic": recall_b,
             "labeled_regression": regression,
@@ -522,6 +630,7 @@ def phase2_replay(client, state: MigrationState, embedder: NomicEmbedder,
                   + (f", recall {recall_a}->{recall_b}" if expected else ""))
 
     verdict = replay_verdict(per_query)
+    gate_metrics = replay_gate_metrics(per_query, state.prefix_sentinel_match)
     state.phase2_verdict = verdict["overall"]
     state.save(checkpoint)
 
@@ -533,18 +642,28 @@ def phase2_replay(client, state: MigrationState, embedder: NomicEmbedder,
         "target_model": state.target_model,
         "per_query": per_query,
         "verdict": verdict,
+        "validator_gate_metrics": gate_metrics,
     }
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     SUMMARY_DIR.mkdir(parents=True, exist_ok=True)
     raw_path = RAW_DIR / f"matryoshka_shadow_{timestamp}_raw.json"
     raw_path.write_text(json.dumps(artifact, indent=2), encoding="utf-8")
     decision_path = SUMMARY_DIR / f"matryoshka_shadow_{timestamp}_decision.md"
+    gate_lines = "\n".join(
+        f"- {name}: {'PASS' if gate['pass'] else 'FAIL'} - {json.dumps(gate, sort_keys=True)}"
+        for name, gate in gate_metrics["gates"].items()
+    )
     decision_path.write_text(
         f"# Matryoshka Shadow Replay Decision\n\n- Verdict: **{verdict['overall']}**\n"
+        f"- Validator gates: **{'PASS' if gate_metrics['overall_gate_pass'] else 'FAIL'}**\n"
+        f"{gate_lines}\n"
         f"- Per class: {json.dumps(verdict['per_class'], indent=2)}\n"
         f"- Raw: {raw_path.name}\n",
         encoding="utf-8",
     )
+    print("  validator gates:")
+    for name, gate in gate_metrics["gates"].items():
+        print(f"    {name}: {'PASS' if gate['pass'] else 'FAIL'}")
     print(f"  verdict: {verdict['overall']}  (artifacts: {raw_path.name}, {decision_path.name})")
     return verdict
 

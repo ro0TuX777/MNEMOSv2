@@ -92,6 +92,39 @@ def test_verdict_block_is_absolute_even_with_high_similarity():
     assert verdict["per_class"]["semantic"]["verdict"] == "PROCEED"
 
 
+def test_replay_gate_metrics_validator_thresholds():
+    rows = [
+        {
+            "jaccard_at_10": 0.8,
+            "rank1_stable_top3": True,
+            "score_delta_abs": 0.05,
+            "bge_latency_ms": 100.0,
+            "nomic_latency_ms": 50.0,
+        },
+        {
+            "jaccard_at_10": 0.6,
+            "rank1_stable_top3": True,
+            "score_delta_abs": 0.08,
+            "bge_latency_ms": 120.0,
+            "nomic_latency_ms": 60.0,
+        },
+        {
+            "jaccard_at_10": 0.5,
+            "rank1_stable_top3": True,
+            "score_delta_abs": 0.10,
+            "bge_latency_ms": 140.0,
+            "nomic_latency_ms": 70.0,
+        },
+    ]
+    metrics = mig.replay_gate_metrics(rows, prefix_sentinel_match=False)
+    assert metrics["overall_gate_pass"] is True
+    assert metrics["gates"]["prefix_sentinel"]["pass"] is True
+    assert metrics["gates"]["mean_jaccard_at_10"]["value"] == pytest.approx(0.6333)
+    assert metrics["gates"]["rank1_stability_top3"]["value"] == 1.0
+    assert metrics["gates"]["score_compression_delta"]["mean_delta"] == pytest.approx(0.0767)
+    assert metrics["gates"]["budget_compliance"]["pass"] is True
+
+
 # ---- MigrationState -----------------------------------------------------
 
 
