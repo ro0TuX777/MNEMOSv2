@@ -1,0 +1,117 @@
+{
+  "version": "v1",
+  "created": "2026-06-10",
+  "description": "Labeled reflect-path scenarios for the Phase 6 NLI gate. Gold labels are used/ignored per memory. Categories target the documented precision boundaries of the lexical UsageDetector: generic short-content false positives, proper-noun coincidence, and paraphrase recall misses. Veto/contradiction/citation signals are excluded — they short-circuit before the overlap/NLI stage identically in both detectors.",
+  "categories": {
+    "direct_usage": "Answer restates the memory with shared vocabulary; both detectors should label used.",
+    "paraphrase_usage": "Answer uses the memory's fact reworded with synonyms; lexical overlap falls below threshold (recall miss for lexical).",
+    "short_token_generic": "Generic 3-5 token memories that pass the token floor and lexically overlap the answer ~100% but carry no substantive claim (precision miss for lexical).",
+    "proper_noun_coincidence": "Memory shares entity names with the answer but states a different, unused fact (precision miss for lexical).",
+    "unused_distractor": "Topically unrelated memories; both detectors should label ignored."
+  },
+  "scenarios": [
+    {
+      "scenario_id": "direct_01",
+      "category": "direct_usage",
+      "query": "What were the Q1 revenue figures?",
+      "answer": "Q1 revenue reached 4.2 million dollars, exceeding the forecast by 8 percent. Growth was driven primarily by enterprise subscription renewals.",
+      "memories": [
+        { "id": "direct_01_m1", "content": "Q1 revenue reached 4.2 million dollars, exceeding the internal forecast by 8 percent.", "gold_label": "used" },
+        { "id": "direct_01_m2", "content": "Enterprise subscription renewals were the primary growth driver in the first quarter.", "gold_label": "used" },
+        { "id": "direct_01_m3", "content": "The office lease in Austin was renegotiated in February at a lower rate.", "gold_label": "ignored" }
+      ]
+    },
+    {
+      "scenario_id": "direct_02",
+      "category": "direct_usage",
+      "query": "When did the LIGO detection happen?",
+      "answer": "Gravitational waves were first directly detected by LIGO in September 2015, confirming a major prediction of general relativity.",
+      "memories": [
+        { "id": "direct_02_m1", "content": "LIGO made the first direct detection of gravitational waves in September 2015.", "gold_label": "used" },
+        { "id": "direct_02_m2", "content": "The Hubble Space Telescope was launched in 1990 aboard Space Shuttle Discovery.", "gold_label": "ignored" }
+      ]
+    },
+    {
+      "scenario_id": "paraphrase_01",
+      "category": "paraphrase_usage",
+      "query": "Is the new authentication system ready?",
+      "answer": "The login overhaul has been completed and shipped to all customers as of last week.",
+      "memories": [
+        { "id": "paraphrase_01_m1", "content": "Engineering finished rolling out the rebuilt user sign-in flow to every tenant seven days ago.", "gold_label": "used" },
+        { "id": "paraphrase_01_m2", "content": "The billing migration to the new payment processor is scheduled for next quarter.", "gold_label": "ignored" }
+      ]
+    },
+    {
+      "scenario_id": "paraphrase_02",
+      "category": "paraphrase_usage",
+      "query": "How big is the compressed index?",
+      "answer": "After quantisation the memory footprint drops roughly eightfold, so a million documents need about 68 megabytes.",
+      "memories": [
+        { "id": "paraphrase_02_m1", "content": "TurboQuant 4-bit storage reduces raw embedding size by a factor of eight; one million docs occupy approximately 68 MB.", "gold_label": "used" },
+        { "id": "paraphrase_02_m2", "content": "The forensic ledger logs every mutation to PostgreSQL with a server-side timestamp.", "gold_label": "ignored" }
+      ]
+    },
+    {
+      "scenario_id": "paraphrase_03",
+      "category": "paraphrase_usage",
+      "query": "Who approved the vendor contract?",
+      "answer": "The procurement agreement received sign-off from the chief financial officer on Tuesday.",
+      "memories": [
+        { "id": "paraphrase_03_m1", "content": "The CFO authorized the supplier deal at the start of this week.", "gold_label": "used" },
+        { "id": "paraphrase_03_m2", "content": "Legal flagged two indemnification clauses in the draft for revision.", "gold_label": "ignored" }
+      ]
+    },
+    {
+      "scenario_id": "short_generic_01",
+      "category": "short_token_generic",
+      "query": "Summarize the quarterly results.",
+      "answer": "The quarterly revenue results summary shows strong performance across all regions, with EMEA leading at 14 percent growth.",
+      "memories": [
+        { "id": "short_generic_01_m1", "content": "quarterly revenue results summary", "gold_label": "ignored" },
+        { "id": "short_generic_01_m2", "content": "EMEA posted 14 percent revenue growth, the strongest of all regions this quarter.", "gold_label": "used" }
+      ]
+    },
+    {
+      "scenario_id": "short_generic_02",
+      "category": "short_token_generic",
+      "query": "What is the current project status?",
+      "answer": "The current project status report indicates the deployment milestone was reached ahead of schedule.",
+      "memories": [
+        { "id": "short_generic_02_m1", "content": "current project status report", "gold_label": "ignored" },
+        { "id": "short_generic_02_m2", "content": "project status update notes", "gold_label": "ignored" },
+        { "id": "short_generic_02_m3", "content": "The deployment milestone was completed three days ahead of the planned schedule.", "gold_label": "used" }
+      ]
+    },
+    {
+      "scenario_id": "proper_noun_01",
+      "category": "proper_noun_coincidence",
+      "query": "What did Anthropic announce this week?",
+      "answer": "Anthropic announced a new enterprise tier for Claude with expanded context windows and audit logging.",
+      "memories": [
+        { "id": "proper_noun_01_m1", "content": "Anthropic was founded in 2021 and is headquartered in San Francisco; Claude is its family of models.", "gold_label": "ignored" },
+        { "id": "proper_noun_01_m2", "content": "Anthropic introduced an enterprise tier for Claude featuring larger context windows and audit logging.", "gold_label": "used" }
+      ]
+    },
+    {
+      "scenario_id": "proper_noun_02",
+      "category": "proper_noun_coincidence",
+      "query": "Why was the Qdrant migration delayed?",
+      "answer": "The Qdrant migration slipped two weeks because the HNSW index rebuild exceeded the maintenance window.",
+      "memories": [
+        { "id": "proper_noun_02_m1", "content": "Qdrant supports HNSW indexing, payload filtering, snapshotting, and horizontal scaling for production deployments.", "gold_label": "ignored" },
+        { "id": "proper_noun_02_m2", "content": "The HNSW index rebuild ran past the allotted maintenance window, pushing the Qdrant migration back by two weeks.", "gold_label": "used" }
+      ]
+    },
+    {
+      "scenario_id": "distractor_01",
+      "category": "unused_distractor",
+      "query": "What is the on-call rotation for next month?",
+      "answer": "Next month the on-call rotation starts with the platform team for week one, followed by the data team for weeks two and three.",
+      "memories": [
+        { "id": "distractor_01_m1", "content": "The platform team covers the first week of next month's on-call rotation, then the data team takes weeks two and three.", "gold_label": "used" },
+        { "id": "distractor_01_m2", "content": "Kubernetes cluster autoscaling thresholds were raised to 80 percent CPU utilisation in March.", "gold_label": "ignored" },
+        { "id": "distractor_01_m3", "content": "The annual security audit is performed by an external firm every November.", "gold_label": "ignored" }
+      ]
+    }
+  ]
+}
