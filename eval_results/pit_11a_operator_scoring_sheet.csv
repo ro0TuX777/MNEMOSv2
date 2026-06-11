@@ -1,0 +1,7 @@
+question_id,question_type,baseline_correctness_1_5,shadow_correctness_1_5,baseline_evidence_1_5,shadow_evidence_1_5,baseline_citation_1_5,shadow_citation_1_5,authority_clarity_1_5,derived_fact_usefulness_0_4,baseline_missed_fact_recovered_yes_no,review_burden_delta_-2_to_2,operator_confidence_delta_-2_to_2,safety_issue_yes_no,claim_strength_issue_yes_no,notes,decision
+Q1,,,,,,,,,,,,,,,,
+Q3,,,,,,,,,,,,,,,,
+Q6,,,,,,,,,,,,,,,,
+Q15,,,,,,,,,,,,,,,,
+Q9,,,,,,,,,,,,,,,,
+Q11,,,,,,,,,,,,,,,,

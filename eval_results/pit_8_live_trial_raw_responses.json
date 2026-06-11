@@ -1,0 +1,32 @@
+{
+  "_meta": {
+    "sensitive_local_evaluation_artifact": true,
+    "notice": "Do not expose."
+  },
+  "tests": {
+    "api_v1_query_eval_mode": {
+      "status": 400,
+      "body": "{\"error\":\"evaluation_mode=true not supported on production routes\"}\n"
+    },
+    "api_v1_query_default": {
+      "status": 200,
+      "body": "{\"contract_version\":\"v1\",\"error\":null,\"generated_at\":\"2026-06-07T23:33:27Z\",\"meta\":{\"candidate_envelope\":{\"average_pairwise_similarity\":0.0,\"config_snapshot\":{\"bounded_adjudication_enabled\":true,\"candidate_pool_limit\":40,\"dedupe_similarity_threshold\":0.9,\"diversity_policy\":\"off\",\"enabled\":false,\"max_per_source_artifact\":3},\"diversity_policy_applied\":\"off\",\"enabled\":false,\"final_candidate_count\":0,\"initial_candidate_count\":0,\"post_dedupe_count\":0,\"post_diversity_count\":0,\"post_source_cap_count\":0,\"source_concentration_ratio\":0.0,\"source_distribution\":{},\"suppression_summary\":{\"bounded_limit_exceeded\":0,\"duplicate_similarity\":0,\"low_rank_after_diversity\":0,\"policy_excluded\":0,\"source_cap_exceeded\":0}},\"economics\":{\"candidate_envelope_compression_ratio\":0.0,\"candidate_envelope_final\":0,\"candidate_envelope_initial\":0,\"derived_view_cache_hits\":0,\"derived_view_cache_misses\":0,\"estimated_cost_units\":0},\"explain\":false,\"fusion_policy\":null,\"latency_s\":7.697,\"lexical_lane_available\":false,\"query\":\"test\",\"result_count\":0,\"retrieval_mode\":\"semantic\",\"top_k\":10},\"results\":[],\"source\":\"mnemos-service\",\"status\":\"healthy\"}\n"
+    },
+    "v1_mnemos_search_default": {
+      "status": 200,
+      "body": "{\"contract_version\":\"v1\",\"error\":null,\"generated_at\":\"2026-06-07T23:33:27Z\",\"meta\":{\"candidate_envelope\":{\"average_pairwise_similarity\":0.0,\"config_snapshot\":{\"bounded_adjudication_enabled\":true,\"candidate_pool_limit\":40,\"dedupe_similarity_threshold\":0.9,\"diversity_policy\":\"off\",\"enabled\":false,\"max_per_source_artifact\":3},\"diversity_policy_applied\":\"off\",\"enabled\":false,\"final_candidate_count\":0,\"initial_candidate_count\":0,\"post_dedupe_count\":0,\"post_diversity_count\":0,\"post_source_cap_count\":0,\"source_concentration_ratio\":0.0,\"source_distribution\":{},\"suppression_summary\":{\"bounded_limit_exceeded\":0,\"duplicate_similarity\":0,\"low_rank_after_diversity\":0,\"policy_excluded\":0,\"source_cap_exceeded\":0}},\"economics\":{\"candidate_envelope_compression_ratio\":0.0,\"candidate_envelope_final\":0,\"candidate_envelope_initial\":0,\"derived_view_cache_hits\":0,\"derived_view_cache_misses\":0,\"estimated_cost_units\":0},\"explain\":false,\"fusion_policy\":null,\"latency_s\":0.0,\"lexical_lane_available\":false,\"query\":\"test\",\"result_count\":0,\"retrieval_mode\":\"semantic\",\"top_k\":10},\"results\":[],\"source\":\"mnemos-service\",\"status\":\"healthy\"}\n"
+    },
+    "evaluate_derived_shadow_missing_flags": {
+      "status": 503,
+      "body": "{\"error\":\"derived_lane_disabled\"}\n"
+    },
+    "evaluate_derived_shadow_unauthorized": {
+      "status": 503,
+      "body": "{\"error\":\"derived_lane_disabled\"}\n"
+    },
+    "evaluate_derived_shadow_success": {
+      "status": 503,
+      "body": "{\"error\":\"derived_lane_disabled\"}\n"
+    }
+  }
+}

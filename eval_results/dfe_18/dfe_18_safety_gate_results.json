@@ -1,0 +1,11 @@
+{
+  "baseline_derived_fact_count": 0,
+  "default_retrieval_unchanged": true,
+  "derived_facts_blocked_from_v1_query": true,
+  "safety_issue_count": 0,
+  "authority_label_missing_count": 0,
+  "kill_switch_success": true,
+  "human_feedback_captured": true,
+  "all_facts_visibly_labeled": true,
+  "all_selected_facts_have_rendered_support": true
+}

@@ -1,0 +1,11 @@
+{
+  "baseline_derived_fact_count": 0,
+  "production_echo_derived_count": 0,
+  "unsupported_selected_fact_count": 0,
+  "rescued_generic_distractor_count": 0,
+  "authority_label_missing_count": 0,
+  "source_preview_missing_for_selected_count": 0,
+  "selected_fact_without_rendered_support_count": 0,
+  "kill_switch_success": true,
+  "default_retrieval_unchanged": true
+}

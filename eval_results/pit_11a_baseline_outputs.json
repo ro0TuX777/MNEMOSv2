@@ -1,0 +1,75 @@
+[
+  {
+    "question_id": "Q1",
+    "query": "What are the core capabilities of signals intelligence?",
+    "latency_ms": 2052.906799945049,
+    "results": []
+  },
+  {
+    "question_id": "Q3",
+    "query": "What is the primary role of the intelligence oversight guide?",
+    "latency_ms": 13.977300026454031,
+    "results": []
+  },
+  {
+    "question_id": "Q6",
+    "query": "Who holds authority when automated tools fail?",
+    "latency_ms": 14.10169992595911,
+    "results": []
+  },
+  {
+    "question_id": "Q15",
+    "query": "What are the latency targets for rapid intelligence retrieval?",
+    "latency_ms": 457.1364000439644,
+    "results": [
+      {
+        "engram": {
+          "confidence": 0.85,
+          "content": "ility,\nand human steering reduction, then pAI/MSc will provide not only a useful release but also clearer scientific\nunderstanding of what parts of research automation are truly becoming tractable.\n16\n\nReferences\n[1] Bernardino Romera-Paredes, Mohammadamin Barekatain, Alexander Novikov, Matej Balog, M. Pawan\nKumar, Emilien Dupont, Francisco J. R. Ruiz, Jordan S. Ellenberg, Pengming Wang, Omar Fawzi,\nPushmeet Kohli, and Alhussein Fawzi.\nMathematical discoveries from program search with large\nlanguage models. Nature, 625(7995):468\u2013475, 2024. doi: 10.1038/s41586-023-06924-6. URL https:\n//www.nature.com/articles/s41586-023-06924-6.\n[2] Google DeepMind. Funsearch. GitHub repository, 2023. URL https://github.com/google-deepmind/\nfunsearch. Repository accompanying the FunSearch Nature paper; accessed 2026-03-21.\n[3] Alexander Novikov, Ng\u00e2n V\u02dcu, Marvin Eisenberger, Emilien Dupont, Po-Sen Huang, Adam Zsolt Wag-\nner, Sergey Shirobokov, Borislav Kozlovskii, Francisco J. R. Ruiz, Abbas Mehrabian, M. Pawan Kumar,\nAbigail See, Swarat Chaudhuri, George Holland, Alex Davies, Sebastian Nowozin, Pushmeet Kohli,\nand Matej Balog. Alphaevolve: A coding agent for scientific and algorithmic discovery. arXiv preprint\narXiv:2506.13131, 2025. doi: 10.48550/arXiv.2506.13131. URL https://arxiv.org/abs/2506.13131.\n[4] Bogdan Georgiev, Javier G\u00f3mez-Serrano, Terence Tao, and Adam Zsolt Wagner. Mathematical explo-\nration and discovery at scale. arXiv preprint arXiv:2511.02864, 2025. doi: 10.48550/arXiv.2511.02864.\nURL https://arxiv.org/abs/2511.02864.\n[5] Google DeepMind. Mathematical problem repository for alphaevolve. GitHub repository, 2025. URL\nhttps://github.com/google-deepmind/alphaevolve_repository_of_problems. Repository accom-\npanying the Mathematical exploration and discovery at scale preprint; accessed 2026-03-21.\n[6] Ansh Nagda, Prabhakar Raghavan, and Abhradeep Thakurta. Reinforced generation of combinatorial\nstructures: Ramsey numbers. arXiv preprint arXiv:2603.09172, 2026. doi: 10.48550/arXiv.2603.09172.\nURL https://arxiv.org/abs/2603.09172.\n[7] Donald E. Knuth. Claude\u2019s cycles. Informal note / PDF on Knuth\u2019s preprints page, February 2026. URL\nhttps://cs.stanford.edu/~knuth/papers/claude-cycles.pdf. Dated 2026-02-28; revised 2026-03-\n16.\n[8] Terence Tao. The story of erd\u0151s problem #1026. Blog post on What\u2019s New, December 2025. URL https:\n//terrytao.wordpress.com/2025/12/08/the-story-of-erdos-problem-126/.\nPublished 2025-12-\n08.\n[9] Mohammed Abouzaid, Andrew J. Blumberg, Martin Hairer, Joe Kileel, Tamara G. Kolda, Paul D.\nNelson, Daniel Spielman, Nikhil Srivastava, Rachel Ward, Shmuel Weinberger, and Lauren Williams.\nFirst proof. arXiv preprint arXiv:2602.05192, 2026. doi: 10.48550/arXiv.2602.05192. URL https:\n//arxiv.org/abs/2602.05192.\n[10] First Proof Project. First batch. Project website, February 2026. URL https://1stproof.org/first-\nbatch.html. First-batch page; site lists February 2026 release context; accessed 2026-03-21.\n[11] OpenAI. Our first proof submissions. OpenAI research page, February 2026. URL https://openai.\ncom/index/first-proof-submissions/. Published 2026-02-20.\n[12] Wenlin Zhang and Haobo Ma. Lean 4 formal verification of 8/10 #1stproof problems: Complete proofs\nwith ai\u2013human pipeline, partial qed for q4 & q6.\nZenodo preprint, February 2026.\nURL https:\n//zenodo.org/records/18635744.\nCreated 2026-02-13. Zenodo also lists a second record with the\nsame title and metadata at DOI 10.5281/zenodo.18635110.\n[13] OpenAI. Advancing science and math with gpt-5.2. OpenAI publication, December 2025. URL https:\n//openai.com/index/gpt-5-2-for-science-and-math. Published 2025-12-11.\n17",
+          "created_at": "2026-06-08T07:01:11.797618Z",
+          "edges": [],
+          "id": "d4259b865ad9c51d",
+          "metadata": {
+            "chunk_index": 16,
+            "clearance": "internal",
+            "department": "reinforcement_learning",
+            "domain": "reinforcement_learning",
+            "paper_id": "2604.20622v1",
+            "tenant": "tenant-B",
+            "timestamp": "2023-10-18T00:00:00Z",
+            "timestamp_epoch": 1697540400,
+            "title": "pAI/MSc: ML Theory Research",
+            "total_chunks": 34
+          },
+          "neuro_tags": [
+            "reward",
+            "agent",
+            "environment",
+            "exploration",
+            "trajectory",
+            "reinforcement_learning"
+          ],
+          "source": "arxiv:2604.20622v1"
+        },
+        "score": 0.873,
+        "tier": "lancedb",
+        "tiers": [
+          "lancedb",
+          "reranker"
+        ]
+      }
+    ]
+  },
+  {
+    "question_id": "Q9",
+    "query": "What is the impact of signals intelligence on strategic operations?",
+    "latency_ms": 12.330400058999658,
+    "results": []
+  },
+  {
+    "question_id": "Q11",
+    "query": "How are neural architectures utilized in signals analysis?",
+    "latency_ms": 12.71039992570877,
+    "results": []
+  }
+]

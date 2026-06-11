@@ -1,0 +1,7 @@
+question_id,baseline_correctness_1_5,shadow_correctness_1_5,baseline_evidence_1_5,shadow_evidence_1_5,authority_clarity_1_5,source_support_quality_1_5,rendered_support_quality_1_5,question_alignment_quality_1_5,derived_fact_usefulness_0_4,selected_fact_usefulness_0_4,review_burden_delta_-2_to_2,operator_confidence_delta_-2_to_2,safety_issue_yes_no,claim_strength_issue_yes_no,shadow_result_type,selected_fact_count,best_dropped_candidate_would_have_helped_yes_no,selection_path,rescue_reason,operator_value_score
+Q1,1,2,1,1,5,1,1,1,1,0,-1,0,No,No,DROPPED_UNSUPPORTED,0,No,DROPPED,None,0.0
+Q3,3,5,4,5,5,5,5,4,4,4,-2,2,No,No,SELECTED_SUPPORTED_FACT,2,No,RENDERED_SUPPORT_RESCUE,HIGH_RENDERED_SUPPORT_BORDERLINE_ALIGNMENT,0.65927
+Q6,1,3,1,1,5,1,1,1,1,0,-2,1,No,No,DROPPED_UNSUPPORTED,0,No,DROPPED,None,0.0
+Q15,1,3,1,1,5,1,1,1,1,0,-2,1,No,No,DROPPED_UNSUPPORTED,0,No,DROPPED,None,0.0
+Q9,1,2,1,1,5,1,1,1,1,0,0,0,No,No,DROPPED_UNSUPPORTED,0,No,DROPPED,None,0.0
+Q11,1,3,1,1,5,1,1,1,1,0,-1,0,No,No,DROPPED_GENERIC,0,No,DROPPED,None,0.0

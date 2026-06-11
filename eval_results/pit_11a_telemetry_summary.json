@@ -1,0 +1,7 @@
+{
+  "total_requests": 6,
+  "avg_baseline_ms": 427.1938333210225,
+  "avg_shadow_ms": 1249.1617999815692,
+  "derived_lane_execution_count": 6,
+  "derived_factnodes_rendered": 2
+}

@@ -1,0 +1,19 @@
+{
+  "workloads": [
+    {
+      "query_id": "wq_1",
+      "query": "What is the policy for artifact retention?",
+      "expected_baseline": "Primary engrams indicate artifacts are retained based on lifecycle configuration."
+    },
+    {
+      "query_id": "wq_2",
+      "query": "How is contradiction resolved in candidate envelopes?",
+      "expected_baseline": "Contradiction resolution involves authority modifiers and fallback strategies."
+    },
+    {
+      "query_id": "wq_3",
+      "query": "What triggers automatic promotion to a schema node?",
+      "expected_baseline": "Currently restricted in this environment."
+    }
+  ]
+}

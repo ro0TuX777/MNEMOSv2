@@ -1,0 +1,12 @@
+{
+  "primary_results": [
+    {
+      "engram_id": "eng_11A",
+      "content": "Database outage reported at 10:00 AM."
+    }
+  ],
+  "telemetry": {
+    "query.default_retrieval.derived_fact_count": 0
+  },
+  "answer_summary": "[MOCK_LLM_RESPONSE] Database migration script failed."
+}

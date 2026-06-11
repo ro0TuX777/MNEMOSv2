@@ -1,0 +1,12 @@
+{
+  "total_evaluated_queries": 42,
+  "total_operators_participating": 3,
+  "surfaced_derived_fact_events": 16,
+  "fail_closed_events_documented": 26,
+  "shadow_latency_p50": 1250,
+  "shadow_latency_p90": 3100,
+  "shadow_latency_p95": 4200,
+  "rendering_latency_ms": 190,
+  "selected_fact_count_avg": 0.38,
+  "rescued_fact_count_avg": 0.12
+}

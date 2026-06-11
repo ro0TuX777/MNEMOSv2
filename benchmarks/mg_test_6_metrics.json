@@ -1,0 +1,53 @@
+{
+  "metrics": {
+    "total_trial_queries": 500,
+    "graph_candidates_available": 827,
+    "graph_candidates_inserted": 405,
+    "graph_candidates_survived_envelope": 405,
+    "graph_candidates_used": 130,
+    "citation_integrity_rate": 1.0,
+    "governance_warning_preservation_rate": 1.0,
+    "governance_leakage": 0,
+    "lineage_leakage": 0,
+    "contradiction_delta": 0.0,
+    "unsupported_claim_delta": -0.11,
+    "evidence_gap_delta": -0.09,
+    "operator_usefulness_rating": 0.7923076923076923,
+    "latency_p50_ms": 1.2,
+    "latency_p95_ms": 3.8,
+    "latency_p99_ms": 8.1,
+    "fallback_events": 14,
+    "rollback_events": 1
+  },
+  "feedback_summary": {
+    "categories": {
+      "implementation_question": 68,
+      "policy_document_lookup": 67,
+      "evidence_gap_investigation": 70,
+      "multi_hop_dependency_question": 66,
+      "summary_overview_request": 82,
+      "contradiction_staleness_check": 77,
+      "other": 70
+    },
+    "did_graph_result_help": {
+      "yes": 103,
+      "no": 397
+    },
+    "did_it_add_noise": {
+      "yes": 27,
+      "no": 473
+    },
+    "did_it_surface_missing_evidence": {
+      "yes": 36,
+      "no": 464
+    },
+    "did_it_displace_important_baseline_evidence": {
+      "yes": 0,
+      "no": 500
+    },
+    "should_this_query_have_used_graph_hybrid_experimental": {
+      "yes": 213,
+      "no": 287
+    }
+  }
+}

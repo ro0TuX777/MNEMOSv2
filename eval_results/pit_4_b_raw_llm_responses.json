@@ -1,0 +1,63 @@
+{
+  "schema_version": "pit_4_b_raw_logs_v1",
+  "sensitive_local_evaluation_artifact": true,
+  "calls": [
+    {
+      "type": "baseline_generation",
+      "prompt_payload": {
+        "model": "mock-model",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are an offline evaluation assistant."
+          },
+          {
+            "role": "user",
+            "content": "Answer the question using only the provided facts.\nFacts: [{\"engram_id\": \"eng_11A\", \"content\": \"Database outage reported at 10:00 AM.\"}]\nQuestion: What caused the Q1 database outage?"
+          }
+        ],
+        "temperature": 0.0,
+        "max_tokens": 1024
+      },
+      "response": "[MOCK_LLM_RESPONSE] Database migration script failed."
+    },
+    {
+      "type": "shadow_generation",
+      "prompt_payload": {
+        "model": "mock-model",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are an offline evaluation assistant."
+          },
+          {
+            "role": "user",
+            "content": "Answer the question using the primary facts and derived evaluation packet.\nPrimary: [{\"engram_id\": \"eng_11A\", \"content\": \"Database outage reported at 10:00 AM.\"}]\nDerived Packet: {\"schema_version\": \"pit_3_derived_shadow_packet_v1\", \"shadow_only\": true, \"production_prompt_allowed\": false, \"is_production_prompted\": false, \"derived_fact_count\": 1, \"packet_token_delta\": 20, \"primary_results_included\": false, \"derived_evaluation_payload\": [{\"authority_type\": \"MNEMOS_DERIVED_FACT\", \"display_label\": \"[MNEMOS-DERIVED]\", \"string_prefix\": \"[AUTHORITY: MNEMOS_DERIVED_FACT] [MNEMOS-DERIVED]\", \"content\": \"Database migration script failed due to lack of disk space, causing 14m downtime.\", \"traceability\": {\"source_engram_ids\": [\"eng_11A\", \"eng_22B\"], \"passage_node_ids\": [\"psg_123\"], \"fact_id\": \"dfact_88f9e1\", \"fact_receipt_id\": \"frcpt_123\", \"promotion_receipt_id\": \"promo_111\", \"lifecycle_event_id\": \"evt_456\", \"source_uri\": \"s3://db_logs\", \"artifact_id\": \"art_991\", \"chunk_id\": \"chunk_12\", \"provenance_span\": [120, 184], \"verifier_receipt_id\": \"vfr_9988\"}, \"lifecycle_metadata\": {\"terminal_state\": \"PROMOTION_APPROVED\"}, \"conflict_metadata\": {\"conflict_status\": \"NO_CONFLICT_FOUND\"}, \"authority_matrix\": {\"authority_type\": \"MNEMOS_DERIVED_FACT\", \"display_label\": \"[MNEMOS-DERIVED]\", \"confidence_level\": \"CERTIFIED_FOR_GOVERNED_EVALUATION_OPERATION\", \"source_diversity_count\": 2, \"source_authority_summary\": \"inherits from source Engrams\", \"evidence_gaps\": [], \"known_limitations\": [], \"governance_warnings\": [], \"conflict_status\": \"NO_CONFLICT_FOUND\", \"lifecycle_state\": \"PROMOTION_APPROVED\"}}]}\nQuestion: What caused the Q1 database outage?"
+          }
+        ],
+        "temperature": 0.0,
+        "max_tokens": 1024
+      },
+      "response": "[MOCK_LLM_RESPONSE] Database migration script failed."
+    },
+    {
+      "type": "judge_evaluation",
+      "prompt_payload": {
+        "model": "mock-model",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are an LLM-as-judge evaluator. Output valid JSON only."
+          },
+          {
+            "role": "user",
+            "content": "Evaluate the shadow answer: '[MOCK_LLM_RESPONSE] Database migration script failed.'. Did it use the derived fact? Does it preserve the [MNEMOS-DERIVED] label? Reply with JSON metrics."
+          }
+        ],
+        "temperature": 0.0,
+        "max_tokens": 1024
+      },
+      "response": "[MOCK_LLM_RESPONSE] Database migration script failed."
+    }
+  ]
+}

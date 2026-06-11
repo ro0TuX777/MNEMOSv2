@@ -44,3 +44,7 @@ migration_checkpoint.json
 
 # Runtime telemetry sinks (operational data, not source)
 logs/retrieval_telemetry.jsonl
+
+# Rotated runtime telemetry + local eval corpora (3rd-party PDFs)
+logs/retrieval_telemetry.jsonl*
+eval_corpora/

@@ -1,0 +1,328 @@
+{
+  "tests": {
+    "wq_1": {
+      "contract_version": "v1",
+      "error": null,
+      "generated_at": "2026-06-07T23:52:30Z",
+      "meta": {
+        "candidate_envelope": {
+          "average_pairwise_similarity": 0.0,
+          "config_snapshot": {
+            "bounded_adjudication_enabled": true,
+            "candidate_pool_limit": 40,
+            "dedupe_similarity_threshold": 0.9,
+            "diversity_policy": "off",
+            "enabled": false,
+            "max_per_source_artifact": 3
+          },
+          "diversity_policy_applied": "off",
+          "enabled": false,
+          "final_candidate_count": 0,
+          "initial_candidate_count": 0,
+          "post_dedupe_count": 0,
+          "post_diversity_count": 0,
+          "post_source_cap_count": 0,
+          "source_concentration_ratio": 0.0,
+          "source_distribution": {},
+          "suppression_summary": {
+            "bounded_limit_exceeded": 0,
+            "duplicate_similarity": 0,
+            "low_rank_after_diversity": 0,
+            "policy_excluded": 0,
+            "source_cap_exceeded": 0
+          }
+        },
+        "economics": {
+          "candidate_envelope_compression_ratio": 0.0,
+          "candidate_envelope_final": 0,
+          "candidate_envelope_initial": 0,
+          "derived_view_cache_hits": 0,
+          "derived_view_cache_misses": 0,
+          "estimated_cost_units": 0
+        },
+        "explain": false,
+        "fusion_policy": null,
+        "latency_s": 0.0,
+        "lexical_lane_available": false,
+        "query": "What is the policy for artifact retention?",
+        "result_count": 0,
+        "retrieval_mode": "semantic",
+        "top_k": 10
+      },
+      "results": [],
+      "shadow_evaluation": {
+        "rendered_block": "=== [MNEMOS-DERIVED EVALUATION CONTEXT] ===\n[AUTHORITY: MNEMOS_DERIVED_FACT] [MNEMOS-DERIVED]\nThis is a derived fact.\n\n===========================================",
+        "shadow_packet": {
+          "derived_evaluation_payload": [
+            {
+              "authority_matrix": {
+                "authority_type": "MNEMOS_DERIVED_FACT",
+                "confidence_level": "CERTIFIED_FOR_GOVERNED_EVALUATION_OPERATION",
+                "conflict_status": "NO_CONFLICT_FOUND",
+                "display_label": "[MNEMOS-DERIVED]",
+                "evidence_gaps": [],
+                "governance_warnings": [],
+                "known_limitations": [],
+                "lifecycle_state": "ACTIVE",
+                "source_authority_summary": "inherits from source Engrams",
+                "source_diversity_count": 1
+              },
+              "authority_type": "MNEMOS_DERIVED_FACT",
+              "conflict_metadata": {
+                "conflict_status": "NO_CONFLICT_FOUND"
+              },
+              "content": "This is a derived fact.",
+              "display_label": "[MNEMOS-DERIVED]",
+              "lifecycle_metadata": {
+                "terminal_state": "ACTIVE"
+              },
+              "string_prefix": "[AUTHORITY: MNEMOS_DERIVED_FACT] [MNEMOS-DERIVED]",
+              "traceability": {
+                "artifact_id": "art_1",
+                "chunk_id": "chunk_1",
+                "fact_id": "fact_1",
+                "fact_receipt_id": "rec_1",
+                "lifecycle_event_id": "life_1",
+                "passage_node_ids": [
+                  "pass_1"
+                ],
+                "promotion_receipt_id": "prom_1",
+                "provenance_span": "span_1",
+                "source_engram_ids": [
+                  "eng_1"
+                ],
+                "source_uri": "uri_1",
+                "verifier_receipt_id": "ver_1"
+              }
+            }
+          ],
+          "derived_fact_count": 1,
+          "is_production_prompted": false,
+          "packet_token_delta": 5,
+          "primary_results_included": false,
+          "production_prompt_allowed": false,
+          "schema_version": "pit_3_derived_shadow_packet_v1",
+          "shadow_only": true
+        }
+      },
+      "source": "mnemos-service",
+      "status": "healthy"
+    },
+    "wq_2": {
+      "contract_version": "v1",
+      "error": null,
+      "generated_at": "2026-06-07T23:52:30Z",
+      "meta": {
+        "candidate_envelope": {
+          "average_pairwise_similarity": 0.0,
+          "config_snapshot": {
+            "bounded_adjudication_enabled": true,
+            "candidate_pool_limit": 40,
+            "dedupe_similarity_threshold": 0.9,
+            "diversity_policy": "off",
+            "enabled": false,
+            "max_per_source_artifact": 3
+          },
+          "diversity_policy_applied": "off",
+          "enabled": false,
+          "final_candidate_count": 0,
+          "initial_candidate_count": 0,
+          "post_dedupe_count": 0,
+          "post_diversity_count": 0,
+          "post_source_cap_count": 0,
+          "source_concentration_ratio": 0.0,
+          "source_distribution": {},
+          "suppression_summary": {
+            "bounded_limit_exceeded": 0,
+            "duplicate_similarity": 0,
+            "low_rank_after_diversity": 0,
+            "policy_excluded": 0,
+            "source_cap_exceeded": 0
+          }
+        },
+        "economics": {
+          "candidate_envelope_compression_ratio": 0.0,
+          "candidate_envelope_final": 0,
+          "candidate_envelope_initial": 0,
+          "derived_view_cache_hits": 0,
+          "derived_view_cache_misses": 0,
+          "estimated_cost_units": 0
+        },
+        "explain": false,
+        "fusion_policy": null,
+        "latency_s": 0.0,
+        "lexical_lane_available": false,
+        "query": "How is contradiction resolved in candidate envelopes?",
+        "result_count": 0,
+        "retrieval_mode": "semantic",
+        "top_k": 10
+      },
+      "results": [],
+      "shadow_evaluation": {
+        "rendered_block": "=== [MNEMOS-DERIVED EVALUATION CONTEXT] ===\n[AUTHORITY: MNEMOS_DERIVED_FACT] [MNEMOS-DERIVED]\nThis is a derived fact.\n\n===========================================",
+        "shadow_packet": {
+          "derived_evaluation_payload": [
+            {
+              "authority_matrix": {
+                "authority_type": "MNEMOS_DERIVED_FACT",
+                "confidence_level": "CERTIFIED_FOR_GOVERNED_EVALUATION_OPERATION",
+                "conflict_status": "NO_CONFLICT_FOUND",
+                "display_label": "[MNEMOS-DERIVED]",
+                "evidence_gaps": [],
+                "governance_warnings": [],
+                "known_limitations": [],
+                "lifecycle_state": "ACTIVE",
+                "source_authority_summary": "inherits from source Engrams",
+                "source_diversity_count": 1
+              },
+              "authority_type": "MNEMOS_DERIVED_FACT",
+              "conflict_metadata": {
+                "conflict_status": "NO_CONFLICT_FOUND"
+              },
+              "content": "This is a derived fact.",
+              "display_label": "[MNEMOS-DERIVED]",
+              "lifecycle_metadata": {
+                "terminal_state": "ACTIVE"
+              },
+              "string_prefix": "[AUTHORITY: MNEMOS_DERIVED_FACT] [MNEMOS-DERIVED]",
+              "traceability": {
+                "artifact_id": "art_1",
+                "chunk_id": "chunk_1",
+                "fact_id": "fact_1",
+                "fact_receipt_id": "rec_1",
+                "lifecycle_event_id": "life_1",
+                "passage_node_ids": [
+                  "pass_1"
+                ],
+                "promotion_receipt_id": "prom_1",
+                "provenance_span": "span_1",
+                "source_engram_ids": [
+                  "eng_1"
+                ],
+                "source_uri": "uri_1",
+                "verifier_receipt_id": "ver_1"
+              }
+            }
+          ],
+          "derived_fact_count": 1,
+          "is_production_prompted": false,
+          "packet_token_delta": 5,
+          "primary_results_included": false,
+          "production_prompt_allowed": false,
+          "schema_version": "pit_3_derived_shadow_packet_v1",
+          "shadow_only": true
+        }
+      },
+      "source": "mnemos-service",
+      "status": "healthy"
+    },
+    "wq_3": {
+      "contract_version": "v1",
+      "error": null,
+      "generated_at": "2026-06-07T23:52:30Z",
+      "meta": {
+        "candidate_envelope": {
+          "average_pairwise_similarity": 0.0,
+          "config_snapshot": {
+            "bounded_adjudication_enabled": true,
+            "candidate_pool_limit": 40,
+            "dedupe_similarity_threshold": 0.9,
+            "diversity_policy": "off",
+            "enabled": false,
+            "max_per_source_artifact": 3
+          },
+          "diversity_policy_applied": "off",
+          "enabled": false,
+          "final_candidate_count": 0,
+          "initial_candidate_count": 0,
+          "post_dedupe_count": 0,
+          "post_diversity_count": 0,
+          "post_source_cap_count": 0,
+          "source_concentration_ratio": 0.0,
+          "source_distribution": {},
+          "suppression_summary": {
+            "bounded_limit_exceeded": 0,
+            "duplicate_similarity": 0,
+            "low_rank_after_diversity": 0,
+            "policy_excluded": 0,
+            "source_cap_exceeded": 0
+          }
+        },
+        "economics": {
+          "candidate_envelope_compression_ratio": 0.0,
+          "candidate_envelope_final": 0,
+          "candidate_envelope_initial": 0,
+          "derived_view_cache_hits": 0,
+          "derived_view_cache_misses": 0,
+          "estimated_cost_units": 0
+        },
+        "explain": false,
+        "fusion_policy": null,
+        "latency_s": 0.0,
+        "lexical_lane_available": false,
+        "query": "What triggers automatic promotion to a schema node?",
+        "result_count": 0,
+        "retrieval_mode": "semantic",
+        "top_k": 10
+      },
+      "results": [],
+      "shadow_evaluation": {
+        "rendered_block": "=== [MNEMOS-DERIVED EVALUATION CONTEXT] ===\n[AUTHORITY: MNEMOS_DERIVED_FACT] [MNEMOS-DERIVED]\nThis is a derived fact.\n\n===========================================",
+        "shadow_packet": {
+          "derived_evaluation_payload": [
+            {
+              "authority_matrix": {
+                "authority_type": "MNEMOS_DERIVED_FACT",
+                "confidence_level": "CERTIFIED_FOR_GOVERNED_EVALUATION_OPERATION",
+                "conflict_status": "NO_CONFLICT_FOUND",
+                "display_label": "[MNEMOS-DERIVED]",
+                "evidence_gaps": [],
+                "governance_warnings": [],
+                "known_limitations": [],
+                "lifecycle_state": "ACTIVE",
+                "source_authority_summary": "inherits from source Engrams",
+                "source_diversity_count": 1
+              },
+              "authority_type": "MNEMOS_DERIVED_FACT",
+              "conflict_metadata": {
+                "conflict_status": "NO_CONFLICT_FOUND"
+              },
+              "content": "This is a derived fact.",
+              "display_label": "[MNEMOS-DERIVED]",
+              "lifecycle_metadata": {
+                "terminal_state": "ACTIVE"
+              },
+              "string_prefix": "[AUTHORITY: MNEMOS_DERIVED_FACT] [MNEMOS-DERIVED]",
+              "traceability": {
+                "artifact_id": "art_1",
+                "chunk_id": "chunk_1",
+                "fact_id": "fact_1",
+                "fact_receipt_id": "rec_1",
+                "lifecycle_event_id": "life_1",
+                "passage_node_ids": [
+                  "pass_1"
+                ],
+                "promotion_receipt_id": "prom_1",
+                "provenance_span": "span_1",
+                "source_engram_ids": [
+                  "eng_1"
+                ],
+                "source_uri": "uri_1",
+                "verifier_receipt_id": "ver_1"
+              }
+            }
+          ],
+          "derived_fact_count": 1,
+          "is_production_prompted": false,
+          "packet_token_delta": 5,
+          "primary_results_included": false,
+          "production_prompt_allowed": false,
+          "schema_version": "pit_3_derived_shadow_packet_v1",
+          "shadow_only": true
+        }
+      },
+      "source": "mnemos-service",
+      "status": "healthy"
+    }
+  }
+}
