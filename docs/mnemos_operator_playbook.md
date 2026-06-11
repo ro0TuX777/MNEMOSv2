@@ -121,6 +121,9 @@ Run targeted checks:
   - `python tools/run_slo_reliability_gate.py --stage canary_25 --fail-on-breach`
 - Wave 4 hygiene:
   - `python tools/run_wave4_hygiene.py --mode dry-run --input benchmarks/truthsets/wave4_hygiene_seed.json --fail-on-gate`
+- Phase 10 reconciliation:
+  - `python tools/run_phase10_reconciliation_dry_run.py --mode dry-run --fail-on-conflict`
+  - `python tools/validate_phase10_resolution_gate.py --base-url http://localhost:8700`
 - Memory Over Maps phase-gates:
   - `python -m pytest -q tests/test_memory_over_maps_benchmark_runner.py`
 - Governance evidence:

@@ -23,6 +23,7 @@ logger = logging.getLogger("mnemos.governance.policies.contradiction")
 
 # Contradiction modifiers
 _WINNER_MOD = 1.0
+_RESOLUTION_MOD = 1.25
 _LOSER_MOD = 0.25
 
 
@@ -44,6 +45,11 @@ def _recompute_score(decision: GovernanceDecision) -> float:
         * decision.contradiction_modifier
         * decision.veto_modifier
     )
+
+
+def _is_resolution_engram(result: SearchResult) -> bool:
+    """Return True when a candidate is a synthesized conflict resolution."""
+    return bool((result.engram.metadata or {}).get("is_resolution_engram", False))
 
 
 def _resolution_reason(
@@ -165,6 +171,65 @@ class ContradictionPolicy:
                 len(members),
                 values,
             )
+
+            resolution_members = [
+                item for item in members if _is_resolution_engram(item[1])
+            ]
+            if resolution_members:
+                sorted_resolutions = sorted(
+                    resolution_members,
+                    key=lambda item: (
+                        -item[1].engram.governance.trust_score,
+                        -_parse_ts(item[1].engram.created_at),
+                        -item[1].engram.governance.utility_score,
+                        -item[1].engram.governance.source_authority,
+                        item[1].engram.id,
+                    ),
+                )
+                _, winner_result, winner_decision = sorted_resolutions[0]
+                losers = [
+                    item
+                    for item in members
+                    if item[1].engram.id != winner_result.engram.id
+                ]
+                reason = "resolution engram priority"
+
+                record = ContradictionRecord(
+                    conflict_group_id=conflict_group_id,
+                    entity_key=entity_key,
+                    attribute_key=attribute_key,
+                    candidate_memory_ids=[r.engram.id for _, r, _ in members],
+                    candidate_values={
+                        r.engram.id: r.engram.governance.normalized_value
+                        for _, r, _ in members
+                    },
+                    winner_memory_id=winner_result.engram.id,
+                    loser_memory_ids=[r.engram.id for _, r, _ in losers],
+                    resolution_reason=reason,
+                    status="resolved",
+                )
+                records.append(record)
+
+                winner_decision.contradiction_modifier = _RESOLUTION_MOD
+                winner_decision.conflict_status = "winner"
+                winner_decision.conflict_group_id = conflict_group_id
+                winner_decision.contradiction_reason = reason
+                winner_decision.governed_score = _recompute_score(winner_decision)
+
+                for _, loser_result, loser_decision in losers:
+                    loser_decision.contradiction_modifier = _LOSER_MOD
+                    loser_decision.conflict_status = "suppressed"
+                    loser_decision.conflict_group_id = conflict_group_id
+                    loser_decision.contradiction_winner = winner_result.engram.id
+                    loser_decision.contradiction_reason = reason
+                    loser_decision.suppressed_by_contradiction = True
+                    loser_decision.suppressed = True
+                    loser_decision.suppressed_reason = (
+                        f"contradiction loser (group: {conflict_group_id})"
+                    )
+                    loser_decision.governed_score = _recompute_score(loser_decision)
+
+                continue
 
             # Sort by winner priority (all DESC except id which is ASC)
             sorted_members = sorted(

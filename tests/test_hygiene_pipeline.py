@@ -89,6 +89,7 @@ class TestPipelineChain:
         assert isinstance(report.decay, type(report.decay))
         assert isinstance(report.prune, type(report.prune))
         assert isinstance(report.sweep, type(report.sweep))
+        assert report.reconciliation.dry_run is True
 
     def test_contradiction_sweep_runs_independently(self):
         e1 = _make_engram("w", entity_key="u", attribute_key="x",
@@ -98,6 +99,8 @@ class TestPipelineChain:
         pipeline = HygienePipeline()
         report = pipeline.run([e1, e2], now_iso=_NOW)
         assert report.sweep.contradictions_found == 1
+        assert report.reconciliation.contradictions_found == 1
+        assert len(report.reconciliation.records) == 1
 
 
 # ── Tests: dry-run propagation ────────────────────────────────────────────────

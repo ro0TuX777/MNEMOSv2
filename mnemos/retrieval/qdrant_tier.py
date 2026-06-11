@@ -271,6 +271,16 @@ class QdrantTier(BaseRetriever):
                     if isinstance(v, (str, int, float, bool)):
                         payload[f"app_{k}"] = v
 
+                if e.governance is not None:
+                    governance_payload = e.governance.to_dict()
+                    for k, v in governance_payload.items():
+                        if isinstance(v, (str, int, float, bool)) or v is None:
+                            payload[f"gov_{k}"] = v
+                        elif isinstance(v, list) and all(
+                            isinstance(item, str) for item in v
+                        ):
+                            payload[f"gov_{k}"] = v
+
                 points.append(PointStruct(
                     id=self._to_point_id(e.id),
                     vector=self._point_vector(embeddings[i]),
@@ -482,6 +492,15 @@ class QdrantTier(BaseRetriever):
             metadata=app_meta,
             edges=payload.get("edges", []),
         )
+        governance_payload = {
+            k.removeprefix("gov_"): v
+            for k, v in payload.items()
+            if k.startswith("gov_")
+        }
+        if governance_payload:
+            from mnemos.governance.models.memory_state import GovernanceMeta
+
+            engram.governance = GovernanceMeta.from_dict(governance_payload)
 
         return SearchResult(engram=engram, score=hit.score, tier="qdrant")
 
@@ -528,6 +547,17 @@ class QdrantTier(BaseRetriever):
                     if k.startswith("app_")
                 }
 
+                governance_payload = {
+                    k.removeprefix("gov_"): v
+                    for k, v in payload.items()
+                    if k.startswith("gov_")
+                }
+                governance = None
+                if governance_payload:
+                    from mnemos.governance.models.memory_state import GovernanceMeta
+
+                    governance = GovernanceMeta.from_dict(governance_payload)
+
                 return Engram(
                     id=str(payload.get("_mnemos_id", results[0].id)),
                     content=payload.get("content", ""),
@@ -537,6 +567,7 @@ class QdrantTier(BaseRetriever):
                     created_at=payload.get("created_at", ""),
                     metadata=app_meta,
                     edges=payload.get("edges", []),
+                    governance=governance,
                 )
         except Exception:
             pass

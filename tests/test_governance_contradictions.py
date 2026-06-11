@@ -268,6 +268,43 @@ class TestContradictionModifiers:
         assert dec_map[r2.engram.id].suppressed is True
         assert dec_map[r2.engram.id].suppressed_by_contradiction is True
 
+    def test_resolution_engram_gets_tier_one_priority(self):
+        r_parent_a = _make_result(
+            eid="parent_a",
+            entity_key="project:x",
+            attribute_key="status",
+            normalized_value="cancelled_2024",
+            trust_score=0.95,
+            score=0.8,
+        )
+        r_parent_b = _make_result(
+            eid="parent_b",
+            entity_key="project:x",
+            attribute_key="status",
+            normalized_value="extended_2026",
+            trust_score=0.95,
+            score=0.8,
+        )
+        r_resolution = _make_result(
+            eid="resolution",
+            entity_key="project:x",
+            attribute_key="status",
+            normalized_value="resolution:project:x:status",
+            trust_score=0.7,
+            score=0.8,
+        )
+        r_resolution.engram.metadata["is_resolution_engram"] = True
+
+        records, decisions = _apply_policy([r_parent_a, r_parent_b, r_resolution])
+
+        dec_map = {d.engram_id: d for d in decisions}
+        assert records[0].winner_memory_id == "resolution"
+        assert records[0].resolution_reason == "resolution engram priority"
+        assert dec_map["resolution"].contradiction_modifier == pytest.approx(1.25)
+        assert dec_map["resolution"].governed_score == pytest.approx(1.0)
+        assert dec_map["parent_a"].suppressed_by_contradiction is True
+        assert dec_map["parent_b"].suppressed_by_contradiction is True
+
 
 class TestMultipleGroups:
     def test_same_entity_different_attributes_are_independent(self):

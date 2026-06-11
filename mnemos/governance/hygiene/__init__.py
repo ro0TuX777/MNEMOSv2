@@ -45,6 +45,11 @@ from mnemos.governance.hygiene.contradiction_sweep import (
     ContradictionSweepReport,
     ContradictionSweepRunner,
 )
+from mnemos.governance.hygiene.reconciliation_runner import (
+    ReconciliationRecord,
+    ReconciliationReport,
+    ReconciliationRunner,
+)
 from mnemos.governance.hygiene.clustering_runner import (
     HierarchicalClusterRecord,
     HierarchicalClusteringRunner,
@@ -61,6 +66,7 @@ class HygienePipelineReport:
     decay: DecayReport
     prune: PruneReport
     sweep: ContradictionSweepReport
+    reconciliation: ReconciliationReport
 
     @property
     def total_mutations(self) -> int:
@@ -70,6 +76,7 @@ class HygienePipelineReport:
             + self.prune.promoted
             + self.sweep.winners_set
             + self.sweep.losers_set
+            + self.reconciliation.resolution_engram_writes
         )
 
 
@@ -100,12 +107,14 @@ class HygienePipeline:
         self._decay = DecayRunner(decay_config)
         self._prune = PrunePromoter(prune_config)
         self._sweep = ContradictionSweepRunner()
+        self._reconciliation = ReconciliationRunner()
 
     def run(
         self,
         engrams: List[Engram],
         now_iso: Optional[str] = None,
         dry_run: bool = False,
+        reconciliation_indexer: Optional[object] = None,
     ) -> HygienePipelineReport:
         """
         Run all three hygiene passes over the engram list.
@@ -122,10 +131,17 @@ class HygienePipeline:
         decay_report = self._decay.run(engrams, now_iso=now_iso, dry_run=dry_run)
         prune_report = self._prune.run(engrams, dry_run=dry_run)
         sweep_report = self._sweep.run(engrams, dry_run=dry_run)
+        reconciliation_report = self._reconciliation.run(
+            engrams,
+            sweep_report=sweep_report,
+            dry_run=dry_run or reconciliation_indexer is None,
+            indexer=reconciliation_indexer,
+        )
         return HygienePipelineReport(
             decay=decay_report,
             prune=prune_report,
             sweep=sweep_report,
+            reconciliation=reconciliation_report,
         )
 
 
@@ -139,6 +155,9 @@ __all__ = [
     "ContradictionSweepRecord",
     "ContradictionSweepReport",
     "ContradictionSweepRunner",
+    "ReconciliationRecord",
+    "ReconciliationReport",
+    "ReconciliationRunner",
     "HierarchicalClusterRecord",
     "HierarchicalClusteringRunner",
     "HierarchyReport",
