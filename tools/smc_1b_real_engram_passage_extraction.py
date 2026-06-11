@@ -181,7 +181,7 @@ def run_extraction_pipeline():
     print(f"Processed: {len(engrams)}")
     print(f"Successfully generated: {len(passages)} PassageNodes, {len(receipts)} Receipts")
     print(f"Data output directory: {os.path.abspath(OUTPUT_DIR)}")
-    print(f"Rollback command: Remove-Item -Recurse -Force G:\\MNEMOS\\data\\smc_1b_output")
+    print(f"Rollback command: Remove-Item -Recurse -Force data\\smc_1b_output")
     
     success = (all_have_receipts and span_matches and hash_matches and 
                passage_hash_matches and output_hash_matches and (mutations == 0))

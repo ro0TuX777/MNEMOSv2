@@ -1,5 +1,6 @@
 import json
 import random
+from pathlib import Path
 
 def simulate_trial():
     total_queries = 500
@@ -93,7 +94,7 @@ def simulate_trial():
     total_useful = feedback_summary["did_graph_result_help"]["yes"]
     metrics["operator_usefulness_rating"] = total_useful / max(1, metrics["graph_candidates_used"])
 
-    out_metrics = "g:\\MNEMOS\\benchmarks\\mg_test_6_metrics.json"
+    out_metrics = Path(__file__).resolve().parent / "mg_test_6_metrics.json"
     with open(out_metrics, "w") as f:
         json.dump({"metrics": metrics, "feedback_summary": feedback_summary}, f, indent=2)
 

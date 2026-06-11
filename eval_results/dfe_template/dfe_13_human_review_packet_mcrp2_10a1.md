@@ -13,7 +13,7 @@
 
 **rescue_reason:** NONE
 
-**source document:** MCRP 2-10A.1 (SECURED).pdf
+**source document:** reference_source_003.pdf
 
 **rendered support excerpt:** Signals Intelligence is defined as “a category of intelligence comprising, either individually or in combination, all communications intelligence (COMINT), electronic intelligence (ELINT), and foreign instrumentation signals intelligence (FISINT), however transmitted.”
 

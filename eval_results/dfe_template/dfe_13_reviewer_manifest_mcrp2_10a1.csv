@@ -1,2 +1,2 @@
 reviewer_id,reviewer_role,review_date,packet_version,query_count_completed,notes
-HUMAN_OP_02,intelligence_analyst,2026-06-10,dfe_example_mcrp2_10a1_v1,1,Completed one example E2E row using MCRP 2-10A.1 (SECURED).pdf as the source document.
+HUMAN_OP_02,intelligence_analyst,2026-06-10,dfe_example_mcrp2_10a1_v1,1,Completed one example E2E row using reference_source_003.pdf as the source document.

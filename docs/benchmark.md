@@ -1080,7 +1080,7 @@ A new enterprise retrieval profile is only added if benchmark outcomes produce a
 
 ### What Was Implemented
 
-Waves 1–4 of the MemArchitect governance layer were implemented and test-verified in-codebase (2026-03-30). No infrastructure is required — governance is a pure in-process layer applied post-retrieval and as a background hygiene pass. Behavioral guarantees are backed by Governance Validation Pack v1 (`benchmarks/TEMP/Governance_Validation_Pack_v1.md`).
+Waves 1–4 of the MemArchitect governance layer were implemented and test-verified in-codebase (2026-03-30). No infrastructure is required — governance is a pure in-process layer applied post-retrieval and as a background hygiene pass. Behavioral guarantees are backed by the governance evidence suite (`tests/test_governance*.py`, `tests/test_hygiene_*.py`, and benchmark result artifacts).
 
 ### Waves 1–2 (Query-time governance)
 
@@ -1230,7 +1230,7 @@ Environment variables:
 3. **Threshold tuning report (A4)** — formalize overlap threshold, freshness half-life, veto floor, contradiction modifiers, and reinforcement deltas with evidence from real corpus runs.
 4. **Persistence shim (B1–B4)** — make trust/utility/stability/lifecycle/contradiction outcomes durable across service restarts.
 
-See MemArchitect Completion Program: `benchmarks/TEMP/MNEMOS_MemArchitect_Completion_Program.md`
+See the MemArchitect benchmark and governance sections in this document for the maintained completion evidence.
 
 ---
 

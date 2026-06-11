@@ -248,7 +248,7 @@ def run_extraction_pipeline():
     print(f"Valid FactNodes Generated: {len(valid_facts)}")
     print(f"Unsupported Fact Candidates: {len(unsupported_facts)}")
     print(f"Data output directory: {os.path.abspath(OUTPUT_DIR)}")
-    print(f"Rollback command: Remove-Item -Recurse -Force G:\\MNEMOS\\data\\smc_2_output")
+    print(f"Rollback command: Remove-Item -Recurse -Force data\\smc_2_output")
     
     if success:
         print("\n[PASS] SMC-2: All strict validation gates cleared.")

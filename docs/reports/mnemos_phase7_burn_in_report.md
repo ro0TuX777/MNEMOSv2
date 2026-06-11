@@ -17,7 +17,7 @@ Operational status:
 - BGE_ROLLBACK_CLEANED_UP
 - PHASE_7_COMPLETE
 
-The promoted Nomic Matryoshka runtime remained healthy across restart, audit, Docker validation, stats checks, repeated search activity, and post-cleanup verification. The previous corpus-coverage warning was reduced by seeding five PDF-backed reference passages from `C:\Users\vin\Downloads\SIGINT`; all six fixed smoke queries returned the expected top result across repeated post-restart runs.
+The promoted Nomic Matryoshka runtime remained healthy across restart, audit, Docker validation, stats checks, repeated search activity, and post-cleanup verification. The previous corpus-coverage warning was reduced by seeding five PDF-backed reference passages from a local SIGINT reference corpus; all six fixed smoke queries returned the expected top result across repeated post-restart runs.
 
 Final warning disposition:
 
@@ -76,11 +76,11 @@ Each query was executed three times after service restart. The table reports sta
 | Query | Top Result | Latency | Expected? | Notes |
 |---|---|---:|---|---|
 | GDPR disclosure anchor | `ref_gdpr_disclosure` | `0.069s-25.549s` | Yes | First query after restart was a cold warm-up outlier; warm repeats were `0.069s-0.072s`. |
-| contradiction handling | `ref_pdf_contradiction_handling` | `0.075s-0.166s` | Yes | PDF-backed reference from `mcwp2-22.pdf`; exact expected top result in all rounds. |
-| stale cache survival | `ref_pdf_stale_cache_survival` | `0.069s-0.105s` | Yes | PDF-backed reference from `5210.2.pdf`; exact expected top result in all rounds. |
-| bounded reflect adherence | `ref_pdf_bounded_reflect_adherence` | `0.055s-0.063s` | Yes | PDF-backed reference from `MCRP 2-10A.1 (SECURED).pdf`; exact expected top result in all rounds. |
-| tenant policy profile | `ref_pdf_tenant_policy_profile` | `0.069s-0.077s` | Yes | PDF-backed reference from `CNGBM 2000_01B_20220824.pdf`; exact expected top result in all rounds. |
-| why won lost trace | `ref_pdf_why_won_lost_trace` | `0.089s-0.101s` | Yes | PDF-backed reference from `mcwp2-22.pdf`; exact expected top result in all rounds. |
+| contradiction handling | `ref_pdf_contradiction_handling` | `0.075s-0.166s` | Yes | PDF-backed reference from `reference_source_001.pdf`; exact expected top result in all rounds. |
+| stale cache survival | `ref_pdf_stale_cache_survival` | `0.069s-0.105s` | Yes | PDF-backed reference from `reference_source_002.pdf`; exact expected top result in all rounds. |
+| bounded reflect adherence | `ref_pdf_bounded_reflect_adherence` | `0.055s-0.063s` | Yes | PDF-backed reference from `reference_source_003.pdf`; exact expected top result in all rounds. |
+| tenant policy profile | `ref_pdf_tenant_policy_profile` | `0.069s-0.077s` | Yes | PDF-backed reference from `reference_source_004.pdf`; exact expected top result in all rounds. |
+| why won lost trace | `ref_pdf_why_won_lost_trace` | `0.089s-0.101s` | Yes | PDF-backed reference from `reference_source_001.pdf`; exact expected top result in all rounds. |
 
 ## Stats Verification
 

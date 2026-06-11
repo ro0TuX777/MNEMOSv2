@@ -11,7 +11,7 @@ This report details the execution of the `DFE-12B` Expanded Controlled Operator 
   3. Intelligence Reporting Guidelines
   4. Research & Operational Reports
 - **Evaluation Queries:** 70 queries spanning all 7 required complexity categories.
-- **Manifest Path:** `G:\MNEMOS\eval_corpora\dfe_12b_corpus_manifest.json`
+- **Manifest Path:** `eval_corpora/dfe_12b_corpus_manifest.json` (local evaluation corpus; not published)
 
 ## Hard Safety Gate Validation
 The offline harness was executed against the real corpus, and all structural isolation gates passed explicitly:

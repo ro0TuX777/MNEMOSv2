@@ -21,7 +21,7 @@ Evaluate the shadow output using the provided `dfe_13_human_scoring_sheet.csv`. 
 - Answer: [GOLD_ALIGNED] Found highly relevant governance standard.
 - Derived_FactNodes: 1
 
-**Source Document:** Real_Document_Name.pdf
+**Source Document:** reference_document.pdf
 **Rendered Support Excerpt:** The intelligence activity must strictly adhere to the documented bounds of authorized interception as outlined in the directive.
 **Source Evidence Alignment:** High overlap with query context.
 
@@ -59,7 +59,7 @@ Evaluate the shadow output using the provided `dfe_13_human_scoring_sheet.csv`. 
 - Answer: [GOLD_ALIGNED] Found highly relevant governance standard.
 - Derived_FactNodes: 1
 
-**Source Document:** Real_Document_Name.pdf
+**Source Document:** reference_document.pdf
 **Rendered Support Excerpt:** The intelligence activity must strictly adhere to the documented bounds of authorized interception as outlined in the directive.
 **Source Evidence Alignment:** High overlap with query context.
 
@@ -135,7 +135,7 @@ Evaluate the shadow output using the provided `dfe_13_human_scoring_sheet.csv`. 
 - Answer: [GOLD_ALIGNED] Found highly relevant governance standard.
 - Derived_FactNodes: 1
 
-**Source Document:** Real_Document_Name.pdf
+**Source Document:** reference_document.pdf
 **Rendered Support Excerpt:** The intelligence activity must strictly adhere to the documented bounds of authorized interception as outlined in the directive.
 **Source Evidence Alignment:** High overlap with query context.
 
@@ -173,7 +173,7 @@ Evaluate the shadow output using the provided `dfe_13_human_scoring_sheet.csv`. 
 - Answer: [GOLD_ALIGNED] Found highly relevant governance standard.
 - Derived_FactNodes: 1
 
-**Source Document:** Real_Document_Name.pdf
+**Source Document:** reference_document.pdf
 **Rendered Support Excerpt:** The intelligence activity must strictly adhere to the documented bounds of authorized interception as outlined in the directive.
 **Source Evidence Alignment:** High overlap with query context.
 
@@ -192,7 +192,7 @@ Evaluate the shadow output using the provided `dfe_13_human_scoring_sheet.csv`. 
 - Answer: [GOLD_ALIGNED] Found highly relevant governance standard.
 - Derived_FactNodes: 1
 
-**Source Document:** Real_Document_Name.pdf
+**Source Document:** reference_document.pdf
 **Rendered Support Excerpt:** The intelligence activity must strictly adhere to the documented bounds of authorized interception as outlined in the directive.
 **Source Evidence Alignment:** High overlap with query context.
 
@@ -211,7 +211,7 @@ Evaluate the shadow output using the provided `dfe_13_human_scoring_sheet.csv`. 
 - Answer: [GOLD_ALIGNED] Found highly relevant governance standard.
 - Derived_FactNodes: 1
 
-**Source Document:** Real_Document_Name.pdf
+**Source Document:** reference_document.pdf
 **Rendered Support Excerpt:** The intelligence activity must strictly adhere to the documented bounds of authorized interception as outlined in the directive.
 **Source Evidence Alignment:** High overlap with query context.
 

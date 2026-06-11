@@ -24,13 +24,15 @@ os.environ["MNEMOS_AUDIT_ENABLED"] = "false"
 
 from service.app import app, _runtime
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
 def run_evaluation():
     print("🚀 Initializing PIT-11A Small-Corpus Evaluation Harness (Offline)")
     
     # Initialize runtime
     _runtime.initialize()
 
-    pdf_dir = r"G:\MNEMOS\eval_corpora\pit_11a_small_corpus"
+    pdf_dir = PROJECT_ROOT / "eval_corpora" / "pit_11a_small_corpus"
     print(f"📥 Loading PDFs from {pdf_dir}...")
     corpus_engrams = load_pdf_corpus(pdf_dir)
     print(f"✅ Loaded {len(corpus_engrams)} engrams from PDFs.")
@@ -44,7 +46,7 @@ def run_evaluation():
 
     for source, engrams in file_chunks.items():
         pdf_name = source.replace("arxiv:", "") + ".pdf"
-        file_path = os.path.join(pdf_dir, pdf_name)
+        file_path = pdf_dir / pdf_name
         file_sha256 = "MISSING"
         if os.path.exists(file_path):
             with open(file_path, "rb") as f:
@@ -317,7 +319,7 @@ def run_evaluation():
     print("✅ PIT_11A_BASELINE_LEAKAGE_FIXED")
 
     # --- Write Outputs ---
-    out_dir = Path(r"G:\MNEMOS\eval_results")
+    out_dir = PROJECT_ROOT / "eval_results"
     out_dir.mkdir(exist_ok=True, parents=True)
     
     # 1. Question Set
@@ -355,7 +357,7 @@ def run_evaluation():
             writer.writerow([q["id"], q["query"], "", "", "", "", "", ""])
 
     # 6. Report
-    report_dir = Path(r"G:\MNEMOS\docs\reports")
+    report_dir = PROJECT_ROOT / "docs" / "reports"
     report_dir.mkdir(exist_ok=True, parents=True)
     report_path = report_dir / "pit_11a_small_corpus_operator_evaluation_report.md"
     

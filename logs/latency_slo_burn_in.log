@@ -1,7 +1,0 @@
-2026-06-11T22:00:00Z phase=7 lane=baseline metric=p95_search_latency_ms value=129.0 note="pre-MRL full-vector baseline"
-2026-06-11T22:05:00Z phase=7 lane=mrl_prefetch metric=p95_search_latency_ms value=96.4 note="64-dim coarse prefetch enabled"
-2026-06-11T22:10:00Z phase=7 lane=mrl_prefetch_rescore metric=p95_search_latency_ms value=73.8 note="768-dim rescore after coarse candidate cut"
-2026-06-11T22:15:00Z phase=8 lane=adaptive_budget metric=p95_search_latency_ms value=58.2 note="complexity routing and budget-aware stage shedding active"
-2026-06-11T22:20:00Z phase=8 lane=adaptive_budget metric=p95_search_latency_ms value=51.7 note="EWMA cost model stabilized"
-2026-06-11T22:25:00Z phase=9 lane=hierarchy_isolated metric=p95_search_latency_ms value=47.9 note="summary layer isolates global synthesis route"
-2026-06-11T22:30:00Z phase=10 lane=consensus_active metric=p95_search_latency_ms value=45.0 note="consensus gate active; governed read path stable"

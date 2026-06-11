@@ -1,5 +1,6 @@
 import json
 import random
+from pathlib import Path
 
 def run_live_validation():
     total_queries = 1000
@@ -28,7 +29,7 @@ def run_live_validation():
         "n_plus_one_retrieval_behavior": 0
     }
 
-    out_metrics = "g:\\MNEMOS\\benchmarks\\mg_test_9_live_qdrant_metrics.json"
+    out_metrics = Path(__file__).resolve().parent / "mg_test_9_live_qdrant_metrics.json"
     with open(out_metrics, "w") as f:
         json.dump({"metrics": metrics, "validation_queries": total_queries}, f, indent=2)
 

@@ -456,7 +456,7 @@ All deltas are clamped to [0.0, 1.0]. The response includes `utility_deltas` and
 
 **Validation Evidence:**
 
-The governance behavioral claims are backed by **Governance Validation Pack v1**, a formal proof artifact (`benchmarks/TEMP/Governance_Validation_Pack_v1.md`). The pack consists of 10 named scenarios, each mapping a specific failure mode to a deterministic, in-process test. The following guarantees are proven, not asserted:
+The governance behavioral claims are backed by the maintained governance evidence suite (`tests/test_governance*.py`, `tests/test_hygiene_*.py`, and benchmark result artifacts). The suite consists of named scenarios, each mapping a specific failure mode to a deterministic, in-process test. The following guarantees are proven, not asserted:
 
 | Guarantee | Failure mode addressed |
 |---|---|

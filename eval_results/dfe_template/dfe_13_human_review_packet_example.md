@@ -13,7 +13,7 @@
 
 **rescue_reason:** NONE
 
-**source document:** mcwp2-22.pdf
+**source document:** reference_source_001.pdf
 
 **rendered support excerpt:** Marine Corps Warfighting Publication (MCWP) 2-22, Signals Intelligence, serves as a basic reference for understanding concepts, operations, and procedures for the conduct of signals intelligence (SIGINT) operations in support of the Marine air-ground task force.
 

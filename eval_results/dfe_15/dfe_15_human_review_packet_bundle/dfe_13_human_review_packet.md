@@ -10,7 +10,7 @@
 **selected Derived Fact:** derived_fact_sample_882
 **selection_path:** STANDARD
 **rescue_reason:** NONE
-**source document:** Real_Document_Name.pdf
+**source document:** reference_document.pdf
 **rendered support excerpt:** The intelligence activity must strictly adhere to the documented bounds of authorized interception as outlined in the directive.
 **source citation:** Page 4, Chunk 82, Engram e479778c
 **candidate telemetry summary:** alignment=0.88, support=0.91, rendered=0.85
@@ -50,7 +50,7 @@
 **selected Derived Fact:** derived_fact_sample_882
 **selection_path:** RENDERED_SUPPORT_RESCUE
 **rescue_reason:** HIGH_RENDERED_SUPPORT_BORDERLINE_ALIGNMENT
-**source document:** Real_Document_Name.pdf
+**source document:** reference_document.pdf
 **rendered support excerpt:** The intelligence activity must strictly adhere to the documented bounds of authorized interception as outlined in the directive.
 **source citation:** Page 4, Chunk 82, Engram e479778c
 **candidate telemetry summary:** alignment=0.88, support=0.91, rendered=0.85
@@ -130,7 +130,7 @@
 **selected Derived Fact:** derived_fact_sample_882
 **selection_path:** STANDARD
 **rescue_reason:** NONE
-**source document:** Real_Document_Name.pdf
+**source document:** reference_document.pdf
 **rendered support excerpt:** The intelligence activity must strictly adhere to the documented bounds of authorized interception as outlined in the directive.
 **source citation:** Page 4, Chunk 82, Engram e479778c
 **candidate telemetry summary:** alignment=0.88, support=0.91, rendered=0.85
@@ -170,7 +170,7 @@
 **selected Derived Fact:** derived_fact_sample_882
 **selection_path:** RENDERED_SUPPORT_RESCUE
 **rescue_reason:** HIGH_RENDERED_SUPPORT_BORDERLINE_ALIGNMENT
-**source document:** Real_Document_Name.pdf
+**source document:** reference_document.pdf
 **rendered support excerpt:** The intelligence activity must strictly adhere to the documented bounds of authorized interception as outlined in the directive.
 **source citation:** Page 4, Chunk 82, Engram e479778c
 **candidate telemetry summary:** alignment=0.88, support=0.91, rendered=0.85
@@ -190,7 +190,7 @@
 **selected Derived Fact:** derived_fact_sample_882
 **selection_path:** STANDARD
 **rescue_reason:** NONE
-**source document:** Real_Document_Name.pdf
+**source document:** reference_document.pdf
 **rendered support excerpt:** The intelligence activity must strictly adhere to the documented bounds of authorized interception as outlined in the directive.
 **source citation:** Page 4, Chunk 82, Engram e479778c
 **candidate telemetry summary:** alignment=0.88, support=0.91, rendered=0.85
@@ -210,7 +210,7 @@
 **selected Derived Fact:** derived_fact_sample_882
 **selection_path:** STANDARD
 **rescue_reason:** NONE
-**source document:** Real_Document_Name.pdf
+**source document:** reference_document.pdf
 **rendered support excerpt:** The intelligence activity must strictly adhere to the documented bounds of authorized interception as outlined in the directive.
 **source citation:** Page 4, Chunk 82, Engram e479778c
 **candidate telemetry summary:** alignment=0.88, support=0.91, rendered=0.85
