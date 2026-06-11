@@ -11,13 +11,17 @@ from __future__ import annotations
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 import numpy as np
 
 COMPLEXITY_LABELS = ("CLASS_A", "CLASS_B", "CLASS_C")
+DEFAULT_COMPLEXITY_WEIGHTS = Path(__file__).with_name("complexity_weights.bin")
 
 _ENTAILMENT_INDEX = 1
+_NOMIC_V15_MODEL_MARKER = "nomic-embed-text-v1.5"
+_NOMIC_QUERY_PREFIX = "search_query: "
 
 
 @dataclass(frozen=True)
@@ -152,3 +156,95 @@ class ZeroShotComplexityClassifier(BaseComplexityClassifier):
             latency_ms=latency_ms,
             model_name=self.model_name,
         )
+
+
+class EmbeddedComplexityClassifier(BaseComplexityClassifier):
+    """
+    Lightweight linear classifier over an existing retrieval query embedding.
+
+    For the intended hot path, callers should use classify_vector() with the
+    query vector they already produced for semantic retrieval. classify() is
+    retained for shadow/evaluation use and performs its own embedding.
+    """
+
+    def __init__(
+        self,
+        *,
+        weights_path: Path | str = DEFAULT_COMPLEXITY_WEIGHTS,
+        embedding_model_name: Optional[str] = None,
+        device: Optional[str] = None,
+    ) -> None:
+        self.weights_path = Path(weights_path)
+        payload = np.load(self.weights_path, allow_pickle=True)
+        def scalar(name: str, default: Any) -> Any:
+            if name not in payload.files:
+                return default
+            value = payload[name]
+            return value.item() if getattr(value, "shape", None) == () else value
+
+        self.labels = [str(label) for label in payload["labels"].tolist()]
+        self.weights = np.asarray(payload["weights"], dtype=np.float32)
+        self.bias = np.asarray(payload["bias"], dtype=np.float32)
+        self.embedding_model_name = str(scalar("embedding_model_name", embedding_model_name or "unknown"))
+        if embedding_model_name:
+            self.embedding_model_name = embedding_model_name
+        self.model_name = str(scalar("classifier_name", "embedded-linear-softmax"))
+        self.embedding_dim = int(scalar("embedding_dim", self.weights.shape[1]))
+        self._device = device
+        self._embedder = None
+
+    @classmethod
+    def weights_available(cls, weights_path: Path | str = DEFAULT_COMPLEXITY_WEIGHTS) -> bool:
+        return Path(weights_path).exists()
+
+    def _ensure_embedder(self) -> Any:
+        if self._embedder is None:
+            from mnemos.retrieval.qdrant_tier import _ensure_transformer_runtime_compat
+
+            _ensure_transformer_runtime_compat()
+            from sentence_transformers import SentenceTransformer
+
+            kwargs: Dict[str, Any] = {}
+            if self._device:
+                kwargs["device"] = self._device
+            if _NOMIC_V15_MODEL_MARKER in self.embedding_model_name:
+                kwargs["trust_remote_code"] = True
+            self._embedder = SentenceTransformer(self.embedding_model_name, **kwargs)
+        return self._embedder
+
+    def embed_query(self, query: str) -> np.ndarray:
+        model = self._ensure_embedder()
+        text = f"{_NOMIC_QUERY_PREFIX}{query}" if _NOMIC_V15_MODEL_MARKER in self.embedding_model_name else query
+        vector = np.asarray(model.encode([text], normalize_embeddings=True)[0], dtype=np.float32)
+        return vector
+
+    def classify_vector(self, query_vector: np.ndarray) -> ComplexityResult:
+        started = time.perf_counter()
+        vector = np.asarray(query_vector, dtype=np.float32).reshape(-1)
+        if vector.shape[0] != self.embedding_dim:
+            raise ValueError(f"Expected query vector dim {self.embedding_dim}, got {vector.shape[0]}")
+        logits = self.weights @ vector + self.bias
+        exp = np.exp(logits - np.max(logits))
+        probs = exp / np.clip(exp.sum(), 1e-12, None)
+        index = int(np.argmax(probs))
+        scores = {label: float(probs[i]) for i, label in enumerate(self.labels)}
+        label = self.labels[index]
+        latency_ms = (time.perf_counter() - started) * 1000.0
+        return ComplexityResult(
+            label=label,
+            confidence=float(probs[index]),
+            scores=scores,
+            route_posture=route_posture_for_label(label),
+            latency_ms=latency_ms,
+            model_name=self.model_name,
+        )
+
+    def classify(self, query: str) -> ComplexityResult:
+        return self.classify_vector(self.embed_query(query))
+
+
+def default_complexity_classifier() -> BaseComplexityClassifier:
+    """Prefer the embedded reflex classifier when trained weights exist."""
+    if EmbeddedComplexityClassifier.weights_available():
+        return EmbeddedComplexityClassifier()
+    return ZeroShotComplexityClassifier()

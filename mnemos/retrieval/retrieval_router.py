@@ -221,9 +221,9 @@ class RetrievalRouter:
         if self._complexity_classifier is not None:
             return self._complexity_classifier
         try:
-            from mnemos.retrieval.complexity import ZeroShotComplexityClassifier
+            from mnemos.retrieval.complexity import default_complexity_classifier
 
-            self._complexity_classifier = ZeroShotComplexityClassifier()
+            self._complexity_classifier = default_complexity_classifier()
             return self._complexity_classifier
         except Exception as exc:
             self._complexity_classifier_failed = True

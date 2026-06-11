@@ -12,14 +12,18 @@ import json
 import statistics
 import sys
 import time
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
 from typing import Any, Dict, List
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from mnemos.retrieval.complexity import ZeroShotComplexityClassifier
+from mnemos.retrieval.complexity import (
+    DEFAULT_COMPLEXITY_WEIGHTS,
+    EmbeddedComplexityClassifier,
+    ZeroShotComplexityClassifier,
+)
 
 DEFAULT_TRUTHSET = PROJECT_ROOT / "benchmarks" / "truthsets" / "query_complexity_v1.json"
 RAW_DIR = PROJECT_ROOT / "benchmarks" / "outputs" / "raw"
@@ -42,19 +46,38 @@ def percentile(values: List[float], pct: float) -> float:
 def evaluate(
     *,
     truthset_path: Path,
+    classifier_kind: str,
     model_name: str,
     device: str | None,
+    weights_path: Path,
 ) -> Dict[str, Any]:
     truthset = json.loads(truthset_path.read_text(encoding="utf-8"))
-    classifier = ZeroShotComplexityClassifier(model_name=model_name, device=device)
+    if classifier_kind == "auto":
+        classifier_kind = "embedded" if weights_path.exists() else "zero-shot"
+
+    embedded_classifier: EmbeddedComplexityClassifier | None = None
+    if classifier_kind == "embedded":
+        embedded_classifier = EmbeddedComplexityClassifier(weights_path=weights_path, device=device)
+        classifier = embedded_classifier
+        embedded_vectors = [embedded_classifier.embed_query(item["query"]) for item in truthset["queries"]]
+    elif classifier_kind == "zero-shot":
+        classifier = ZeroShotComplexityClassifier(model_name=model_name, device=device)
+        embedded_vectors = []
+    else:
+        raise ValueError(f"Unsupported classifier kind: {classifier_kind}")
 
     rows: List[Dict[str, Any]] = []
     correct_by_class: Counter[str] = Counter()
     total_by_class: Counter[str] = Counter()
 
-    for item in truthset["queries"]:
+    for index, item in enumerate(truthset["queries"]):
         expected = item["label"]
-        result = classifier.classify(item["query"])
+        if classifier_kind == "embedded":
+            if embedded_classifier is None:
+                raise RuntimeError("Embedded classifier was not initialized")
+            result = embedded_classifier.classify_vector(embedded_vectors[index])
+        else:
+            result = classifier.classify(item["query"])
         ok = result.label == expected
         total_by_class[expected] += 1
         if ok:
@@ -104,15 +127,20 @@ def evaluate(
                 "pass": (correct / total) > 0.85 if total else False,
             },
             "p95_latency_ms": {
-                "threshold": "< 25",
-                "pass": percentile(latencies, 95) < 25 if latencies else False,
+                "threshold": "< 2" if classifier_kind == "embedded" else "< 25",
+                "pass": percentile(latencies, 95) < (2 if classifier_kind == "embedded" else 25)
+                if latencies
+                else False,
             },
         },
     }
     metrics["overall_gate_pass"] = all(g["pass"] for g in metrics["gates"].values())
     return {
         "truthset": str(truthset_path.relative_to(PROJECT_ROOT)),
-        "model_name": model_name,
+        "classifier": classifier_kind,
+        "model_name": classifier.model_name,
+        "embedding_model": getattr(classifier, "embedding_model_name", None),
+        "weights_path": str(weights_path.relative_to(PROJECT_ROOT)) if weights_path.exists() else None,
         "rows": rows,
         "metrics": metrics,
     }
@@ -137,7 +165,9 @@ def write_artifacts(result: Dict[str, Any]) -> tuple[Path, Path]:
     )
     summary_path.write_text(
         "# Phase 8 Complexity Gate Summary\n\n"
+        f"- Classifier: `{result['classifier']}`\n"
         f"- Model: `{result['model_name']}`\n"
+        f"- Embedding model: `{result.get('embedding_model')}`\n"
         f"- Truthset: `{result['truthset']}`\n"
         f"- Overall accuracy: `{metrics['overall_accuracy']:.4f}`\n"
         f"- P95 latency: `{metrics['latency_ms']['p95']:.4f}ms`\n"
@@ -155,17 +185,25 @@ def write_artifacts(result: Dict[str, Any]) -> tuple[Path, Path]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run Phase 8 query complexity gate")
     parser.add_argument("--truthset", type=Path, default=DEFAULT_TRUTHSET)
+    parser.add_argument("--classifier", choices=["auto", "embedded", "zero-shot"], default="auto")
     parser.add_argument("--model-name", default="cross-encoder/nli-deberta-v3-xsmall")
+    parser.add_argument("--weights", type=Path, default=DEFAULT_COMPLEXITY_WEIGHTS)
     parser.add_argument("--device", default=None)
     parser.add_argument("--no-artifacts", action="store_true")
     args = parser.parse_args()
 
     result = evaluate(
         truthset_path=args.truthset,
+        classifier_kind=args.classifier,
         model_name=args.model_name,
         device=args.device,
+        weights_path=args.weights,
     )
     metrics = result["metrics"]
+    print(f"classifier: {result['classifier']}")
+    print(f"model: {result['model_name']}")
+    if result.get("embedding_model"):
+        print(f"embedding model: {result['embedding_model']}")
     print(f"queries: {metrics['query_count']}")
     print(f"overall accuracy: {metrics['overall_accuracy']:.4f}")
     for label, row in metrics["per_class"].items():
