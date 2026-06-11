@@ -39,9 +39,13 @@ def _cosine(a: np.ndarray, b: np.ndarray) -> float:
     return float(np.dot(a, b) / max(float(np.linalg.norm(a) * np.linalg.norm(b)), 1e-12))
 
 
-def _load_class_c(path: Path) -> List[Dict[str, Any]]:
+def _load_class(path: Path, label: str) -> List[Dict[str, Any]]:
     payload = json.loads(path.read_text(encoding="utf-8"))
-    rows = [row for row in payload["queries"] if row.get("label") == "CLASS_C"]
+    return [row for row in payload["queries"] if row.get("label") == label]
+
+
+def _load_class_c(path: Path) -> List[Dict[str, Any]]:
+    rows = _load_class(path, "CLASS_C")
     missing = [row["id"] for row in rows if not row.get("golden_summary")]
     if missing:
         raise ValueError(f"CLASS_C rows missing golden_summary: {missing}")
@@ -119,9 +123,28 @@ def evaluate(
         )
 
     coherence_pass = all(row["has_summary_engram"] for row in rows)
-    similarity_pass = all(float(row["semantic_similarity"]) > 0.7 for row in rows)
+    # Phase 9b directive: with the depth-2 root in the summary layer, the
+    # similarity criterion is the mean across all CLASS_C queries (> 0.72).
+    mean_similarity = (
+        statistics.mean([float(row["semantic_similarity"]) for row in rows]) if rows else 0.0
+    )
+    similarity_pass = mean_similarity > 0.72
     summary_p95 = _percentile(summary_latencies, 95)
     flat_p95 = _percentile(flat_latencies, 95)
+
+    # Phase 9b isolation: standard (CLASS_A) searches through the default
+    # path must never surface summary engrams. Exercise the server-side
+    # sentinel enforcement against the live collection.
+    isolation_rows = []
+    for item in _load_class(truthset.resolve(), "CLASS_A"):
+        hits = tier.search(
+            item["query"], top_k=10, filters={"__exclude_summaries__": True}
+        )
+        leaked = sum(
+            1 for h in hits if (h.engram.metadata or {}).get("is_summary_engram", False)
+        )
+        isolation_rows.append({"id": item["id"], "results": len(hits), "summary_leaks": leaked})
+    isolation_pass = bool(isolation_rows) and all(r["summary_leaks"] == 0 for r in isolation_rows)
 
     # Latency criterion is scale-aware. At small corpora (<~10K points,
     # below Qdrant's full-scan threshold) both paths brute-force in a few
@@ -159,9 +182,17 @@ def evaluate(
         "summary_layer_points": summary_points,
         "leaf_points": total_points - summary_points,
         "candidate_reduction": round(candidate_reduction, 4),
+        "isolation_rows": isolation_rows,
         "gates": {
             "coherence": {"threshold": "all CLASS_C results include a summary engram", "pass": coherence_pass},
-            "semantic_similarity": {"threshold": "each cosine similarity > 0.7", "pass": similarity_pass},
+            "semantic_similarity": {
+                "threshold": "mean cosine similarity > 0.72 (Phase 9b directive; depth-2 root available)",
+                "pass": similarity_pass,
+            },
+            "isolation": {
+                "threshold": "zero summary engrams in CLASS_A default-path results",
+                "pass": isolation_pass,
+            },
             "candidate_reduction": {
                 "threshold": "summary layer candidate pool <= 5% of leaf pool",
                 "pass": reduction_pass,

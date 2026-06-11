@@ -1162,6 +1162,10 @@ class RetrievalRouter:
             # over-fetch only when a tier without payload filtering is active.
             effective_filters = dict(retrieval_filters)
             effective_filters["__exclude_derived__"] = True
+            if not summary_layer_active:
+                # Phase 9b summary isolation: the hierarchy is a protected
+                # tier — only the CLASS_C summary layer retrieves summaries.
+                effective_filters["__exclude_summaries__"] = True
             if budget_plan is not None:
                 effective_filters.update(self._budget_filter_overrides(budget_plan))
             raw_hits = self._semantic_fusion.search(
@@ -1300,11 +1304,14 @@ class RetrievalRouter:
                 )
                 if query_vec is None:
                     query_vec = self._qdrant_hybrid._tier._embed([query])[0]
+                _rrf_filters = dict(retrieval_filters)
+                if not summary_layer_active:
+                    _rrf_filters["__exclude_summaries__"] = True
                 fused, telemetry = self._qdrant_hybrid.fuse(
                     query=query,
                     query_vector=query_vec,
                     top_k=effective_desired_pool,
-                    filters=retrieval_filters,
+                    filters=_rrf_filters,
                     semantic_limit=min(semantic_top_k, effective_desired_pool) if summary_layer_active else semantic_top_k,
                     lexical_limit=min(lexical_top_k, effective_desired_pool) if summary_layer_active else lexical_top_k,
                 )
@@ -1317,6 +1324,13 @@ class RetrievalRouter:
             if fused is not None:
                 telemetry = telemetry or {}
                 fused = [h for h in fused if not self._is_derived(h)]
+                if not summary_layer_active:
+                    # Defense in depth: the RRF lexical prefetch builds its own
+                    # text filter and may surface summary content.
+                    fused = [
+                        h for h in fused
+                        if not (getattr(h.engram, "metadata", None) or {}).get("is_summary_engram", False)
+                    ]
 
                 fused, rr_telemetry = self._rerank_with_budget(
                     budget_plan, query, fused, (time.perf_counter() - start) * 1000
@@ -1377,6 +1391,9 @@ class RetrievalRouter:
         )
         _semantic_filters = dict(retrieval_filters)
         _semantic_filters["__exclude_derived__"] = True
+        if not summary_layer_active:
+            # Phase 9b summary isolation (see semantic path note).
+            _semantic_filters["__exclude_summaries__"] = True
         if budget_plan is not None:
             _semantic_filters.update(self._budget_filter_overrides(budget_plan))
         semantic_results = self._semantic_fusion.search(

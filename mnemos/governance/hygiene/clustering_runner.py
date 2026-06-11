@@ -190,13 +190,29 @@ class HierarchicalClusteringRunner:
         dry_run: bool = True,
         indexer: Optional[EngramIndexer] = None,
         output_path: Optional[Path | str] = None,
+        depth: int = 1,
     ) -> HierarchyReport:
+        """
+        depth=1 (default): cluster leaf engrams into thematic summaries.
+        depth=2 (RAPTOR recursion): cluster only depth-1 summary engrams
+        into a single root summary whose edges point at the depth-1 ids.
+        """
+        if depth not in (1, 2):
+            raise ValueError("depth must be 1 or 2")
         started = time.perf_counter()
-        source_engrams = [
-            engram
-            for engram in engrams
-            if not (getattr(engram, "metadata", {}) or {}).get("is_summary_engram", False)
-        ]
+        if depth == 2:
+            source_engrams = [
+                engram
+                for engram in engrams
+                if (getattr(engram, "metadata", {}) or {}).get("is_summary_engram", False)
+                and int((engram.metadata or {}).get("depth", 0) or 0) == 1
+            ]
+        else:
+            source_engrams = [
+                engram
+                for engram in engrams
+                if not (getattr(engram, "metadata", {}) or {}).get("is_summary_engram", False)
+            ]
         if not source_engrams:
             report = HierarchyReport(
                 dry_run=dry_run,
@@ -210,16 +226,16 @@ class HierarchicalClusteringRunner:
             return report
 
         if vectors is not None and len(source_engrams) != len(engrams):
-            raise ValueError("Explicit vectors must match non-summary source engrams")
+            raise ValueError("Explicit vectors must align with the selected source engrams")
         matrix = self._resolve_vectors(source_engrams, vectors)
-        k = self._choose_cluster_count(len(source_engrams))
+        k = 1 if depth == 2 else self._choose_cluster_count(len(source_engrams))
         assignments, centroids = self._kmeans(matrix, k)
         clusters = self._build_cluster_records(source_engrams, matrix, assignments, centroids)
         summary_writes = 0
         if not dry_run:
             if indexer is None:
                 raise ValueError("indexer is required when dry_run=False")
-            summary_engrams = self._build_summary_engrams(clusters, source_engrams)
+            summary_engrams = self._build_summary_engrams(clusters, source_engrams, depth=depth)
             summary_writes = int(indexer.index(summary_engrams))
         report = HierarchyReport(
             dry_run=dry_run,
@@ -333,27 +349,33 @@ class HierarchicalClusteringRunner:
         self,
         clusters: List[HierarchicalClusterRecord],
         engrams: List[Engram],
+        *,
+        depth: int = 1,
     ) -> List[Engram]:
         by_id = {engram.id: engram for engram in engrams}
         summaries: List[Engram] = []
         for cluster in clusters:
             members = [by_id[eid] for eid in cluster.member_ids if eid in by_id]
-            summary = self.synthesizer.synthesize(cluster_id=cluster.cluster_id, engrams=members)
+            # depth=2 produces exactly one cluster: the corpus root.
+            label = "root" if depth == 2 else cluster.cluster_id
+            summary = self.synthesizer.synthesize(cluster_id=label, engrams=members)
             digest = sha256(("|".join(cluster.member_ids) + summary).encode("utf-8")).hexdigest()[:16]
-            summary_id = f"summary_{cluster.cluster_id}_{digest}"
+            summary_id = f"summary_{label}_{digest}"
             cluster.summary_engram_id = summary_id
             cluster.summary_content = summary
             summaries.append(
                 Engram(
                     id=summary_id,
                     content=summary,
-                    source=f"derived://hierarchy/{cluster.cluster_id}",
+                    source=f"derived://hierarchy/{label}",
                     confidence=1.0,
+                    # Recursive lineage: depth-2 edges point at depth-1
+                    # summary ids, whose own edges point at leaves.
                     edges=list(cluster.member_ids),
                     metadata={
                         "is_summary_engram": True,
-                        "cluster_id": cluster.cluster_id,
-                        "depth": 1,
+                        "cluster_id": label,
+                        "depth": depth,
                         "source_member_count": len(cluster.member_ids),
                         "representative_ids": list(cluster.representative_ids),
                         "synthesis_policy": "smc_or_join_truncate_v1",

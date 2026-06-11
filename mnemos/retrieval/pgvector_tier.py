@@ -241,6 +241,12 @@ class PgvectorTier(BaseRetriever):
                             conditions.append(
                                 "(metadata->>'is_derived_fact') IS DISTINCT FROM 'true'"
                             )
+                    elif key == "__exclude_summaries__":
+                        # Phase 9b summary isolation: protected hierarchy tier.
+                        if value:
+                            conditions.append(
+                                "(metadata->>'is_summary_engram') IS DISTINCT FROM 'true'"
+                            )
                     elif key == "confidence_min":
                         conditions.append("confidence >= %s")
                         params.append(float(value))

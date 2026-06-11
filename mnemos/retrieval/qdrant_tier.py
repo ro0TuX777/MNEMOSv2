@@ -396,11 +396,12 @@ class QdrantTier(BaseRetriever):
         """
         filters = dict(filters) if filters else {}
         exclude_derived = bool(filters.pop("__exclude_derived__", False))
+        exclude_summaries = bool(filters.pop("__exclude_summaries__", False))
         # Budget-plan sentinels are consumed in search(); drop them defensively
         # for callers that pass raw router filters (e.g. hybrid fusion).
         for reserved in ("__mrl_oversample__", "__hnsw_ef__", "__prefetch_only__"):
             filters.pop(reserved, None)
-        if not filters and not exclude_derived:
+        if not filters and not exclude_derived and not exclude_summaries:
             return None
 
         from qdrant_client.models import (
@@ -410,12 +411,19 @@ class QdrantTier(BaseRetriever):
             Range,
         )
 
-        must_not = None
+        must_not = []
         if exclude_derived:
             # Engram metadata is flattened into payload as app_<key>.
-            must_not = [
+            must_not.append(
                 FieldCondition(key="app_is_derived_fact", match=MatchValue(value=True))
-            ]
+            )
+        if exclude_summaries:
+            # Phase 9b: summary engrams are a protected tier — only the
+            # CLASS_C summary layer may retrieve them.
+            must_not.append(
+                FieldCondition(key="app_is_summary_engram", match=MatchValue(value=True))
+            )
+        must_not = must_not or None
 
         conditions = []
         for k, v in filters.items():

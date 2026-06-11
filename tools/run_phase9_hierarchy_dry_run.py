@@ -32,10 +32,23 @@ def _load_qdrant_collection(
     url: str,
     collection: str,
     limit: int,
+    depth: int = 1,
 ) -> Tuple[List[Engram], np.ndarray]:
     from qdrant_client import QdrantClient
+    from qdrant_client.models import FieldCondition, Filter, MatchValue
 
     client = QdrantClient(url=url, timeout=30)
+    # depth=2 scans only depth-1 summaries; depth=1 scans leaves (summaries
+    # are deleted before the scan in --apply mode, and the runner filters
+    # defensively either way).
+    scroll_filter = None
+    if depth == 2:
+        scroll_filter = Filter(
+            must=[
+                FieldCondition(key="app_is_summary_engram", match=MatchValue(value=True)),
+                FieldCondition(key="app_depth", match=MatchValue(value=1)),
+            ]
+        )
     engrams: List[Engram] = []
     vectors: List[np.ndarray] = []
     offset = None
@@ -44,6 +57,7 @@ def _load_qdrant_collection(
             collection_name=collection,
             limit=min(256, limit - len(engrams)),
             offset=offset,
+            scroll_filter=scroll_filter,
             with_payload=True,
             with_vectors=True,
         )
@@ -84,6 +98,8 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=2121)
     parser.add_argument("--clusters", type=int, default=None)
     parser.add_argument("--apply", action="store_true", help="Index generated summary engrams into Qdrant")
+    parser.add_argument("--depth", type=int, choices=(1, 2), default=1,
+                        help="1: summarize leaves; 2: summarize depth-1 summaries into a root")
     parser.add_argument("--embedding-model", default="nomic-ai/nomic-embed-text-v1.5")
     parser.add_argument("--gpu-device", default="cuda")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
@@ -103,13 +119,15 @@ def main() -> int:
         )
 
         cleanup_client = QdrantClient(url=args.qdrant_url, timeout=30)
+        # depth=1 rebuild invalidates the whole hierarchy (root edges would
+        # point at deleted depth-1 ids), so it purges all summaries;
+        # depth=2 rebuild replaces only prior roots.
+        cleanup_must = [FieldCondition(key="app_is_summary_engram", match=MatchValue(value=True))]
+        if args.depth == 2:
+            cleanup_must.append(FieldCondition(key="app_depth", match=MatchValue(value=2)))
         cleanup_client.delete(
             collection_name=args.collection,
-            points_selector=FilterSelector(
-                filter=Filter(
-                    must=[FieldCondition(key="app_is_summary_engram", match=MatchValue(value=True))]
-                )
-            ),
+            points_selector=FilterSelector(filter=Filter(must=cleanup_must)),
         )
         try:
             cleanup_client.create_payload_index(
@@ -124,6 +142,7 @@ def main() -> int:
         url=args.qdrant_url,
         collection=args.collection,
         limit=args.limit,
+        depth=args.depth,
     )
     indexer = None
     if args.apply:
@@ -146,6 +165,7 @@ def main() -> int:
         dry_run=not args.apply,
         indexer=indexer,
         output_path=args.output,
+        depth=args.depth,
     )
     print(f"collection: {args.collection}")
     print(f"engrams scanned: {report.engrams_scanned}")

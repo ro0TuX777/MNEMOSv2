@@ -101,5 +101,59 @@ def test_summary_edges_resolve_to_leaf_engrams_via_api(class_c_query):
     )
 
 
+def test_root_summary_recursive_lineage():
+    """Phase 9b Target 3: grandparent -> parent -> child resolution.
+
+    Root (depth 2) edges resolve to depth-1 summaries via the live API,
+    whose own edges resolve to raw leaves.
+    """
+    from mnemos.retrieval.qdrant_tier import QdrantTier
+
+    tier = QdrantTier(
+        url=QDRANT_URL,
+        collection_name=COLLECTION,
+        embedding_model="nomic-ai/nomic-embed-text-v1.5",
+        embedding_dim=768,
+        gpu_device=os.getenv("MNEMOS_GPU_DEVICE", "cpu"),
+    )
+    hits = tier.search(
+        "overall corpus posture summary",
+        top_k=3,
+        filters={"metadata.is_summary_engram": True, "metadata.depth": 2},
+    )
+    assert hits, "no depth-2 root summary found — run the dry-run tool with --depth 2 --apply"
+    root = hits[0].engram
+    assert root.metadata.get("depth") == 2
+    assert root.source == "derived://hierarchy/root"
+    edges = list(root.edges)
+    assert len(edges) >= 2, "root must reference the depth-1 summaries"
+
+    # Grandparent -> parent: root edges resolve to depth-1 summaries.
+    parents = []
+    for eid in edges:
+        if len(parents) >= 3:
+            break
+        resp = requests.get(f"{BASE_URL}/v1/mnemos/engrams/{eid}", timeout=10)
+        if resp.status_code != 200:
+            continue
+        engram = resp.json().get("engram") or {}
+        meta = engram.get("metadata") or {}
+        if meta.get("is_summary_engram") and meta.get("depth") == 1:
+            parents.append(engram)
+    assert len(parents) >= 3, f"only {len(parents)} root edges resolved to depth-1 summaries"
+
+    # Parent -> child: a depth-1 summary's edges resolve to a raw leaf.
+    leaf_resolved = False
+    for leaf_id in (parents[0].get("edges") or [])[:5]:
+        resp = requests.get(f"{BASE_URL}/v1/mnemos/engrams/{leaf_id}", timeout=10)
+        if resp.status_code != 200:
+            continue
+        leaf = resp.json().get("engram") or {}
+        if leaf.get("content") and not (leaf.get("metadata") or {}).get("is_summary_engram"):
+            leaf_resolved = True
+            break
+    assert leaf_resolved, "depth-1 summary edges did not resolve to raw leaf content"
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
