@@ -304,10 +304,22 @@ class QdrantTier(BaseRetriever):
             return []
 
         try:
+            # W6/W7 budget-plan sentinels (router-injected reserved keys)
+            filters = dict(filters) if filters else {}
+            oversample = float(filters.pop("__mrl_oversample__", 3.0))
+            hnsw_ef = filters.pop("__hnsw_ef__", None)
+            prefetch_only = bool(filters.pop("__prefetch_only__", False))
+
             query_vec = self._embed_query([query])[0]
 
             # Build Qdrant filter if provided
             query_filter = self._build_filter(filters)
+
+            search_params = None
+            if hnsw_ef is not None:
+                from qdrant_client.models import SearchParams
+
+                search_params = SearchParams(hnsw_ef=int(hnsw_ef))
 
             trace_id = self._make_trace_id()
             logger.debug(
@@ -315,7 +327,19 @@ class QdrantTier(BaseRetriever):
                 f"trace={trace_id}"
             )
 
-            if self._uses_nomic_mrl:
+            if self._uses_nomic_mrl and prefetch_only:
+                # Budget floor: coarse 64-dim lane only, no full-dim rescore.
+                coarse = _mrl_slice(query_vec.reshape(1, -1), NOMIC_MRL_DIM)[0]
+                response = self._client.query_points(
+                    collection_name=self._collection_name,
+                    query=coarse.tolist(),
+                    using="dense_64",
+                    limit=top_k,
+                    query_filter=query_filter,
+                    search_params=search_params,
+                    with_payload=True,
+                )
+            elif self._uses_nomic_mrl:
                 from qdrant_client.models import Prefetch
 
                 coarse = _mrl_slice(query_vec.reshape(1, -1), NOMIC_MRL_DIM)[0]
@@ -324,8 +348,9 @@ class QdrantTier(BaseRetriever):
                     prefetch=Prefetch(
                         query=coarse.tolist(),
                         using="dense_64",
-                        limit=max(top_k * 3, top_k),
+                        limit=max(int(top_k * oversample), top_k),
                         filter=query_filter,
+                        params=search_params,
                     ),
                     query=query_vec.tolist(),
                     using="dense_768",
@@ -339,6 +364,7 @@ class QdrantTier(BaseRetriever):
                     query=query_vec.tolist(),
                     limit=top_k,
                     query_filter=query_filter,
+                    search_params=search_params,
                     with_payload=True,
                 )
             results = getattr(response, "points", response)
@@ -361,6 +387,10 @@ class QdrantTier(BaseRetriever):
         """
         filters = dict(filters) if filters else {}
         exclude_derived = bool(filters.pop("__exclude_derived__", False))
+        # Budget-plan sentinels are consumed in search(); drop them defensively
+        # for callers that pass raw router filters (e.g. hybrid fusion).
+        for reserved in ("__mrl_oversample__", "__hnsw_ef__", "__prefetch_only__"):
+            filters.pop(reserved, None)
         if not filters and not exclude_derived:
             return None
 

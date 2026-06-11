@@ -43,6 +43,7 @@ logger = logging.getLogger("mnemos.service")
 
 CONTRACT_VERSION = "v1"
 SUPPORTED_RETRIEVAL_MODES = {"semantic", "hybrid"}
+RESERVED_FILTER_KEYS = {"__mrl_oversample__", "__hnsw_ef__", "__prefetch_only__"}
 
 app = Flask(__name__)
 
@@ -435,6 +436,7 @@ class MnemosRuntime:
         governance_profile: Optional[str] = None,
         bounded_envelope: Optional[Dict[str, Any]] = None,
         derive_views: Optional[List[str]] = None,
+        latency_budget_ms: Optional[float] = None,
     ) -> Dict[str, Any]:
         """Search across tiers and return fused results."""
         import time
@@ -462,6 +464,7 @@ class MnemosRuntime:
             lexical_top_k=self._config.lexical_top_k,
             semantic_top_k=self._config.semantic_top_k,
             bounded_envelope=bounded_envelope if getattr(self._config, "memory_over_maps_phase2", False) else None,
+            latency_budget_ms=latency_budget_ms,
         )
         raw_rank_by_id = {r.engram.id: idx + 1 for idx, r in enumerate(results)}
 
@@ -1026,6 +1029,7 @@ def search():
     governance_profile = body.get("governance_profile")
     bounded_envelope = body.get("bounded_envelope")
     derive_views = body.get("derive_views")
+    latency_budget_ms = body.get("latency_budget_ms")
 
     if not query:
         return jsonify({"error": "No query provided"}), 400
@@ -1065,6 +1069,21 @@ def search():
 
     if bounded_envelope is not None and not isinstance(bounded_envelope, dict):
         return jsonify({"error": "bounded_envelope must be an object"}), 400
+
+    if filters is not None:
+        if not isinstance(filters, dict):
+            return jsonify({"error": "filters must be an object"}), 400
+        reserved = sorted(k for k in filters if k in RESERVED_FILTER_KEYS)
+        if reserved:
+            return jsonify({
+                "error": "Reserved filter key",
+                "reserved_filter_keys": reserved,
+            }), 400
+
+    if latency_budget_ms is not None:
+        if isinstance(latency_budget_ms, bool) or not isinstance(latency_budget_ms, (int, float)) or latency_budget_ms <= 0:
+            return jsonify({"error": "latency_budget_ms must be a positive number"}), 400
+        latency_budget_ms = float(latency_budget_ms)
 
     if derive_views is not None:
         if not isinstance(derive_views, list) or any(not isinstance(v, str) for v in derive_views):
@@ -1107,6 +1126,7 @@ def search():
             governance_profile,
             bounded_envelope,
             derive_views,
+            latency_budget_ms,
         )
 
     derived_cnt = len(res.get("derived_results", []))

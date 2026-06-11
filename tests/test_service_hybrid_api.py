@@ -22,7 +22,7 @@ def test_search_hybrid_valid_request_forwards_params(client, monkeypatch):
 
     def fake_search_documents(query, top_k, tiers, filters, retrieval_mode, fusion_policy, explain,
                               _governance=None, _explain_governance=None, _governance_profile=None, _bounded_envelope=None,
-                              _derive_views=None):
+                              _derive_views=None, _latency_budget_ms=None):
         captured["query"] = query
         captured["top_k"] = top_k
         captured["retrieval_mode"] = retrieval_mode
@@ -80,7 +80,7 @@ def test_search_hybrid_filter_payload_forwarding(client, monkeypatch):
 
     def fake_search_documents(query, top_k, tiers, filters, retrieval_mode, fusion_policy, explain,
                               _governance=None, _explain_governance=None, _governance_profile=None, _bounded_envelope=None,
-                              _derive_views=None):
+                              _derive_views=None, _latency_budget_ms=None):
         captured["filters"] = filters
         return {
             "status": "healthy",
@@ -171,6 +171,20 @@ def test_search_invalid_bounded_envelope_type_rejected(client):
     assert resp.status_code == 400
     body = resp.get_json()
     assert body["error"] == "bounded_envelope must be an object"
+
+
+def test_search_reserved_budget_filter_rejected(client):
+    resp = client.post(
+        "/v1/mnemos/search",
+        json={
+            "query": "test",
+            "filters": {"__prefetch_only__": True},
+        },
+    )
+    assert resp.status_code == 400
+    body = resp.get_json()
+    assert body["error"] == "Reserved filter key"
+    assert body["reserved_filter_keys"] == ["__prefetch_only__"]
 
 
 def test_search_invalid_derive_views_type_rejected(client):

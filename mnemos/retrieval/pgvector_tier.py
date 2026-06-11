@@ -218,7 +218,11 @@ class PgvectorTier(BaseRetriever):
 
             if filters:
                 for key, value in filters.items():
-                    if key == "__exclude_derived__":
+                    if key in ("__mrl_oversample__", "__hnsw_ef__", "__prefetch_only__"):
+                        # Budget-plan sentinels are Qdrant-only knobs; never
+                        # let reserved keys reach the generic JSONB branch.
+                        continue
+                    elif key == "__exclude_derived__":
                         # PIT-1 server-side derived-fact exclusion (router-injected
                         # sentinel; see retrieval_router). JSONB bool renders 'true'.
                         if value:

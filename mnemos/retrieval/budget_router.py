@@ -119,6 +119,31 @@ class BudgetAwareRouter:
     def observe(self, stage: str, latency_ms: float) -> None:
         self._costs.observe(stage, latency_ms)
 
+    def observe_dense(self, dense_ms: float, rescore_ran: bool = True) -> None:
+        """
+        Allocate a combined embed+ANN wall-time measurement across stages.
+
+        The router measures the dense leg as one number; this splits it
+        proportionally to the current stage estimates so the cost model
+        tracks total reality while preserving stage ratios. When the
+        rescore stage was skipped (prefetch-only plan) the rescore
+        estimate is left untouched.
+        """
+        if dense_ms < 0:
+            return
+        est_embed = self._costs.estimate("embed")
+        est_prefetch = self._costs.estimate("prefetch")
+        est_rescore = self._costs.estimate("rescore") if rescore_ran else 0.0
+        total = est_embed + est_prefetch + est_rescore
+        if total <= 0:
+            self._costs.observe("prefetch", dense_ms)
+            return
+        scale = dense_ms / total
+        self._costs.observe("embed", est_embed * scale)
+        self._costs.observe("prefetch", est_prefetch * scale)
+        if rescore_ran:
+            self._costs.observe("rescore", est_rescore * scale)
+
     def stats(self) -> Dict[str, Any]:
         return self._costs.snapshot()
 

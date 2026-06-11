@@ -12,6 +12,7 @@ from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, timezone, timedelta
 
 from mnemos.retrieval.base import BaseRetriever, SearchResult
+from mnemos.retrieval.budget_router import BudgetAwareRouter, StagePlan
 from .derived_fact_scoring import DerivedFactScorer
 from mnemos.retrieval.candidate_envelope import (
     CandidateEnvelopeConfig,
@@ -28,6 +29,10 @@ import uuid
 from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
+
+BUDGET_FILTER_KEYS = frozenset(
+    {"__mrl_oversample__", "__hnsw_ef__", "__prefetch_only__"}
+)
 
 
 class RetrievalRouter:
@@ -84,6 +89,7 @@ class RetrievalRouter:
         self._hybrid_latencies_ms: List[float] = []
         from mnemos.config import get_config
         self._config = get_config()
+        self._budget_router = BudgetAwareRouter()
 
     def _init_qdrant_hybrid(self, semantic_fusion: TierFusion) -> None:
         """Try to find a QdrantTier with text_index_ready and wrap it."""
@@ -158,6 +164,55 @@ class RetrievalRouter:
             self._stats["hybrid_latency_p95_ms"] = round(p95, 2)
 
     @staticmethod
+    def _budget_filter_overrides(plan: StagePlan) -> Dict[str, Any]:
+        """Reserved filter keys consumed server-side by qdrant_tier (W6/W7)."""
+        overrides: Dict[str, Any] = {
+            "__mrl_oversample__": plan.oversample_factor,
+            "__hnsw_ef__": plan.hnsw_ef,
+        }
+        if not plan.rescore:
+            overrides["__prefetch_only__"] = True
+        return overrides
+
+    @staticmethod
+    def _user_filters(filters: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Drop internal execution sentinels from caller-provided filters."""
+        return {
+            key: value
+            for key, value in (filters or {}).items()
+            if key not in BUDGET_FILTER_KEYS
+        }
+
+    def _rerank_with_budget(
+        self,
+        plan: Optional[StagePlan],
+        query: str,
+        candidates: List[SearchResult],
+        dense_latency_ms: float,
+    ) -> Tuple[List[SearchResult], Dict[str, Any]]:
+        """Conditional rerank, skippable by a budget plan; feeds the cost model."""
+        if plan is not None and not plan.rerank:
+            return candidates, {
+                "rerank_eligible": False,
+                "rerank_applied": False,
+                "rerank_skip_reason": "latency_budget",
+                "rerank_latency_ms": 0.0,
+            }
+        results, telemetry = self._apply_conditional_rerank(query, candidates, dense_latency_ms)
+        if telemetry.get("rerank_applied"):
+            self._budget_router.observe("rerank", float(telemetry.get("rerank_latency_ms", 0.0) or 0.0))
+        return results, telemetry
+
+    def _record_budget_outcome(
+        self, plan: Optional[StagePlan], meta: Dict[str, Any], dense_latency_ms: float
+    ) -> None:
+        self._budget_router.observe_dense(
+            dense_latency_ms, rescore_ran=(plan.rescore if plan is not None else True)
+        )
+        if plan is not None:
+            meta["budget_plan"] = plan.to_dict()
+
+    @staticmethod
     def _is_derived(result: SearchResult) -> bool:
         """True when a result is a derived fact (PIT-1: barred from default retrieval)."""
         engram = result.engram
@@ -202,6 +257,7 @@ class RetrievalRouter:
         return [r for r in final_results if not self._is_derived(r)]
 
     def _apply_conditional_rerank(self, query: str, candidates: List[SearchResult], dense_latency_ms: float) -> Tuple[List[SearchResult], Dict[str, Any]]:
+        rerank_model = getattr(self._reranker, "model_name", None) or "none"
         telemetry = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "request_id": str(uuid.uuid4()),
@@ -211,7 +267,7 @@ class RetrievalRouter:
             "rerank_eligible": False,
             "rerank_applied": False,
             "shadow_evaluated": False,
-            "rerank_model": self._reranker.model_name if getattr(self._reranker, "model_name", None) else "none",
+            "rerank_model": rerank_model,
             "rerank_depth": 0,
             "rerank_skip_reason": None,
             "dense_latency_ms": dense_latency_ms,
@@ -557,6 +613,7 @@ class RetrievalRouter:
             source_engram_ids = traceability.get("source_engram_ids", [])
             source_texts = []
             support_evidence_preview = "None"
+            raw_source_preview = ""
             
             print(f"DEBUG: fact_id={traceability.get('fact_id')} source_engram_ids={source_engram_ids}")
             
@@ -748,11 +805,17 @@ class RetrievalRouter:
         semantic_top_k: int = 25,
         bounded_envelope: Optional[Dict[str, Any]] = None,
         graph_experiment_params: Optional[Dict[str, Any]] = None,
+        latency_budget_ms: Optional[float] = None,
     ) -> Tuple[List[SearchResult], Dict[str, Any]]:
         mode = retrieval_mode if retrieval_mode in {"semantic", "hybrid", "graph_hybrid_experimental"} else "semantic"
         policy = fusion_policy if fusion_policy in FUSION_POLICIES else DEFAULT_FUSION_POLICY
         envelope_cfg = CandidateEnvelopeConfig.from_request(bounded_envelope)
         desired_pool = max(top_k, envelope_cfg.candidate_pool_limit) if envelope_cfg.enabled else top_k
+
+        # W6/W7: resolve a stage plan only when the caller supplies a budget;
+        # the no-budget path is byte-identical to pre-budget behavior.
+        budget_plan = self._budget_router.plan(latency_budget_ms) if latency_budget_ms is not None else None
+        user_filters = self._user_filters(filters)
 
         experimental_telemetry = None
         if mode == "graph_hybrid_experimental":
@@ -781,8 +844,10 @@ class RetrievalRouter:
                 self._stats["retrieval_mode_counters"]["semantic"] += 1
             # Server-side derived-fact exclusion (Qdrant must_not payload filter);
             # over-fetch only when a tier without payload filtering is active.
-            effective_filters = dict(filters or {})
+            effective_filters = dict(user_filters)
             effective_filters["__exclude_derived__"] = True
+            if budget_plan is not None:
+                effective_filters.update(self._budget_filter_overrides(budget_plan))
             raw_hits = self._semantic_fusion.search(
                 query,
                 top_k=desired_pool * self._derived_overfetch_factor(),
@@ -798,8 +863,8 @@ class RetrievalRouter:
                     break
 
             t_e = (time.perf_counter() - t_s) * 1000
-            
-            hits, rr_telemetry = self._apply_conditional_rerank(query, hits, t_e)
+
+            hits, rr_telemetry = self._rerank_with_budget(budget_plan, query, hits, t_e)
 
             graph_experiment_telemetry = None
             if mode == "graph_hybrid_experimental" and self._graph_tier:
@@ -881,12 +946,18 @@ class RetrievalRouter:
                 
             # PIT-1 Leakage Guard
             final_results = self._apply_leakage_guard(final_results, meta)
+            self._record_budget_outcome(budget_plan, meta, t_e)
             return final_results, meta
 
         start = time.perf_counter()
 
         # ── Qdrant-native RRF path ──────────────────────────────
-        if policy == "qdrant_rrf" and self._qdrant_hybrid and self._qdrant_hybrid.available:
+        if (
+            policy == "qdrant_rrf"
+            and budget_plan is None
+            and self._qdrant_hybrid
+            and self._qdrant_hybrid.available
+        ):
             try:
                 # Compute embedding once for the RRF call
                 query_vec = self._qdrant_hybrid._tier._embed([query])[0]
@@ -894,7 +965,7 @@ class RetrievalRouter:
                     query=query,
                     query_vector=query_vec,
                     top_k=desired_pool,
-                    filters=filters,
+                    filters=user_filters,
                     semantic_limit=semantic_top_k,
                     lexical_limit=lexical_top_k,
                 )
@@ -905,10 +976,11 @@ class RetrievalRouter:
                 telemetry = None
 
             if fused is not None:
+                telemetry = telemetry or {}
                 fused = [h for h in fused if not self._is_derived(h)]
-                
-                fused, rr_telemetry = self._apply_conditional_rerank(
-                    query, fused, (time.perf_counter() - start) * 1000
+
+                fused, rr_telemetry = self._rerank_with_budget(
+                    budget_plan, query, fused, (time.perf_counter() - start) * 1000
                 )
 
                 narrowed, envelope_meta = apply_candidate_envelope(fused, envelope_cfg)
@@ -935,12 +1007,17 @@ class RetrievalRouter:
                     
                 # PIT-1 Leakage Guard
                 final_results = self._apply_leakage_guard(final_results, meta)
+                self._record_budget_outcome(
+                    budget_plan, meta, (time.perf_counter() - start) * 1000
+                )
                 return final_results, meta
 
         # ── Python-side hybrid fusion (original path) ──────────
-        lexical_results = self._lexical_tier.search(query, top_k=lexical_top_k, filters=filters)
-        _semantic_filters = dict(filters or {})
+        lexical_results = self._lexical_tier.search(query, top_k=lexical_top_k, filters=user_filters)
+        _semantic_filters = dict(user_filters)
         _semantic_filters["__exclude_derived__"] = True
+        if budget_plan is not None:
+            _semantic_filters.update(self._budget_filter_overrides(budget_plan))
         semantic_results = self._semantic_fusion.search(
             query,
             top_k=semantic_top_k * self._derived_overfetch_factor(),
@@ -962,11 +1039,11 @@ class RetrievalRouter:
             semantic_results=semantic_results,
             top_k=desired_pool,
             fusion_policy=policy,
-            filters=filters,
+            filters=user_filters,
             explain=explain,
         )
 
-        fused, rr_telemetry = self._apply_conditional_rerank(query, fused, (time.perf_counter() - start) * 1000)
+        fused, rr_telemetry = self._rerank_with_budget(budget_plan, query, fused, (time.perf_counter() - start) * 1000)
 
         narrowed, envelope_meta = apply_candidate_envelope(fused, envelope_cfg)
         self._record_candidate_envelope_stats(envelope_meta)
@@ -991,6 +1068,7 @@ class RetrievalRouter:
             
         # PIT-1 Leakage Guard
         final_results = self._apply_leakage_guard(final_results, meta)
+        self._record_budget_outcome(budget_plan, meta, elapsed_ms)
         return final_results, meta
 
     def stats(self) -> Dict[str, Any]:
