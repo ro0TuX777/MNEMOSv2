@@ -1,0 +1,508 @@
+{
+  "version": "v1",
+  "created": "2026-06-11",
+  "description": "Phase 8 Adaptive Branching truthset for query-complexity classification. Labels are route-oriented: CLASS_A maps to direct flat vector lookup, CLASS_B maps to multi-hop graph traversal, and CLASS_C maps to global or hierarchical retrieval. Queries are seeded from the Phase 7 SIGINT PDF passages and GDPR benchmark anchors.",
+  "gate_criteria": {
+    "accuracy": "> 0.85",
+    "p95_inference_overhead_ms": "< 25"
+  },
+  "labels": {
+    "CLASS_A": {
+      "name": "Simple",
+      "description": "Direct lookup, factoid, acronym, section, or single-policy retrieval.",
+      "expected_route": "flat_vector"
+    },
+    "CLASS_B": {
+      "name": "Multi-hop",
+      "description": "Relationship, conflict, overlap, lineage, or cross-document linkage retrieval.",
+      "expected_route": "memgraph_traversal"
+    },
+    "CLASS_C": {
+      "name": "Global",
+      "description": "Corpus-level synthesis, thematic summarization, comparison, or policy posture retrieval.",
+      "expected_route": "hierarchical_raptor_future"
+    }
+  },
+  "queries": [
+    {
+      "id": "qc_a_001",
+      "label": "CLASS_A",
+      "query": "What does GDPR require for data handling disclosures?",
+      "source_refs": ["ref_gdpr_disclosure"],
+      "source_family": "gdpr",
+      "rationale": "Single regulation lookup with one expected anchor."
+    },
+    {
+      "id": "qc_a_002",
+      "label": "CLASS_A",
+      "query": "What is GDPR Article 17 about?",
+      "source_refs": ["ref_gdpr_article_17_erasure"],
+      "source_family": "gdpr",
+      "rationale": "Direct article lookup."
+    },
+    {
+      "id": "qc_a_003",
+      "label": "CLASS_A",
+      "query": "Find the GDPR right to erasure anchor.",
+      "source_refs": ["ref_gdpr_article_17_erasure"],
+      "source_family": "gdpr",
+      "rationale": "Exact-anchor retrieval."
+    },
+    {
+      "id": "qc_a_004",
+      "label": "CLASS_A",
+      "query": "Which GDPR reference covers disclosure obligations?",
+      "source_refs": ["ref_gdpr_disclosure"],
+      "source_family": "gdpr",
+      "rationale": "Single GDPR obligation lookup."
+    },
+    {
+      "id": "qc_a_005",
+      "label": "CLASS_A",
+      "query": "Locate the GDPR breach disclosure deadline reference.",
+      "source_refs": ["ref_cross_regulation_breach_deadlines"],
+      "source_family": "gdpr",
+      "rationale": "Single known breach-timeline reference."
+    },
+    {
+      "id": "qc_a_006",
+      "label": "CLASS_A",
+      "query": "What does the corpus say about unauthorized access response?",
+      "source_refs": ["ref_unauthorised_access_response"],
+      "source_family": "gdpr",
+      "rationale": "Single response-obligation lookup."
+    },
+    {
+      "id": "qc_a_007",
+      "label": "CLASS_A",
+      "query": "Find the security incident obligations reference.",
+      "source_refs": ["ref_security_incident_obligations"],
+      "source_family": "gdpr",
+      "rationale": "Direct document lookup."
+    },
+    {
+      "id": "qc_a_008",
+      "label": "CLASS_A",
+      "query": "Which SIGINT passage says accidental collection must be deleted immediately?",
+      "source_refs": ["ref_pdf_bounded_reflect_adherence"],
+      "source_family": "sigint",
+      "rationale": "Single SIGINT oversight fact."
+    },
+    {
+      "id": "qc_a_009",
+      "label": "CLASS_A",
+      "query": "Where is quarterly oversight reporting mentioned for accidental SIGINT collection?",
+      "source_refs": ["ref_pdf_bounded_reflect_adherence"],
+      "source_family": "sigint",
+      "rationale": "Single passage lookup."
+    },
+    {
+      "id": "qc_a_010",
+      "label": "CLASS_A",
+      "query": "Which source describes SIGINT and electronic attack deconfliction?",
+      "source_refs": ["ref_pdf_contradiction_handling"],
+      "source_family": "sigint",
+      "rationale": "Direct concept-to-passage retrieval."
+    },
+    {
+      "id": "qc_a_011",
+      "label": "CLASS_A",
+      "query": "What passage mentions the operations control and analysis center?",
+      "source_refs": ["ref_pdf_contradiction_handling"],
+      "source_family": "sigint",
+      "rationale": "Named entity lookup."
+    },
+    {
+      "id": "qc_a_012",
+      "label": "CLASS_A",
+      "query": "Find the record disposition rule for destroying files after one month.",
+      "source_refs": ["ref_pdf_stale_cache_survival"],
+      "source_family": "sigint",
+      "rationale": "Direct table-rule lookup."
+    },
+    {
+      "id": "qc_a_013",
+      "label": "CLASS_A",
+      "query": "Which passage covers appropriate mission and authority before intelligence activity?",
+      "source_refs": ["ref_pdf_tenant_policy_profile"],
+      "source_family": "sigint",
+      "rationale": "Single policy passage lookup."
+    },
+    {
+      "id": "qc_a_014",
+      "label": "CLASS_A",
+      "query": "Where does the corpus say intelligence activity must not exceed legal authority?",
+      "source_refs": ["ref_pdf_tenant_policy_profile"],
+      "source_family": "sigint",
+      "rationale": "Direct authority constraint lookup."
+    },
+    {
+      "id": "qc_a_015",
+      "label": "CLASS_A",
+      "query": "Which passage lists location of change and nature of change for recommendations?",
+      "source_refs": ["ref_pdf_why_won_lost_trace"],
+      "source_family": "sigint",
+      "rationale": "Single source lookup for trace fields."
+    },
+    {
+      "id": "qc_a_016",
+      "label": "CLASS_A",
+      "query": "Find the source that mentions justification or source of change.",
+      "source_refs": ["ref_pdf_why_won_lost_trace"],
+      "source_family": "sigint",
+      "rationale": "Direct traceability phrase lookup."
+    },
+    {
+      "id": "qc_a_017",
+      "label": "CLASS_A",
+      "query": "What is the SIGINT passage about electronic protection?",
+      "source_refs": ["ref_pdf_contradiction_handling"],
+      "source_family": "sigint",
+      "rationale": "Single local concept lookup."
+    },
+    {
+      "id": "qc_a_018",
+      "label": "CLASS_A",
+      "query": "Where is no retention or analysis of accidental collection stated?",
+      "source_refs": ["ref_pdf_bounded_reflect_adherence"],
+      "source_family": "sigint",
+      "rationale": "Direct compliance fact lookup."
+    },
+    {
+      "id": "qc_a_019",
+      "label": "CLASS_A",
+      "query": "Which reference says an approved mission, authority, and purpose are required?",
+      "source_refs": ["ref_pdf_tenant_policy_profile"],
+      "source_family": "sigint",
+      "rationale": "Single authority requirement lookup."
+    },
+    {
+      "id": "qc_a_020",
+      "label": "CLASS_A",
+      "query": "Find the passage about cut off dates and destruction dates.",
+      "source_refs": ["ref_pdf_stale_cache_survival"],
+      "source_family": "sigint",
+      "rationale": "Direct records-management table lookup."
+    },
+    {
+      "id": "qc_b_001",
+      "label": "CLASS_B",
+      "query": "How do GDPR disclosure duties relate to unauthorized access response obligations?",
+      "source_refs": ["ref_gdpr_disclosure", "ref_unauthorised_access_response"],
+      "source_family": "mixed",
+      "rationale": "Requires linking two GDPR obligation anchors."
+    },
+    {
+      "id": "qc_b_002",
+      "label": "CLASS_B",
+      "query": "Which GDPR incident obligations overlap with the breach disclosure deadline reference?",
+      "source_refs": ["ref_security_incident_obligations", "ref_cross_regulation_breach_deadlines"],
+      "source_family": "gdpr",
+      "rationale": "Requires comparing incident and timeline anchors."
+    },
+    {
+      "id": "qc_b_003",
+      "label": "CLASS_B",
+      "query": "Connect GDPR erasure rights with the SIGINT rule against retaining accidental collection.",
+      "source_refs": ["ref_gdpr_article_17_erasure", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "mixed",
+      "rationale": "Cross-domain privacy-retention relationship."
+    },
+    {
+      "id": "qc_b_004",
+      "label": "CLASS_B",
+      "query": "Which SIGINT authority limits align with GDPR data handling disclosures?",
+      "source_refs": ["ref_pdf_tenant_policy_profile", "ref_gdpr_disclosure"],
+      "source_family": "mixed",
+      "rationale": "Requires linking authority boundaries to disclosure controls."
+    },
+    {
+      "id": "qc_b_005",
+      "label": "CLASS_B",
+      "query": "How does accidental SIGINT collection handling relate to GDPR breach response duties?",
+      "source_refs": ["ref_pdf_bounded_reflect_adherence", "ref_security_incident_obligations"],
+      "source_family": "mixed",
+      "rationale": "Cross-document incident handling relationship."
+    },
+    {
+      "id": "qc_b_006",
+      "label": "CLASS_B",
+      "query": "Which SIGINT deconfliction passage conflicts with collection objectives and what oversight passage constrains collection?",
+      "source_refs": ["ref_pdf_contradiction_handling", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "sigint",
+      "rationale": "Requires linking operational conflict with oversight constraint."
+    },
+    {
+      "id": "qc_b_007",
+      "label": "CLASS_B",
+      "query": "Trace the relationship between approved mission authority and reporting misconduct incidents.",
+      "source_refs": ["ref_pdf_tenant_policy_profile"],
+      "source_family": "sigint",
+      "rationale": "Requires relation extraction within an authority/reporting passage."
+    },
+    {
+      "id": "qc_b_008",
+      "label": "CLASS_B",
+      "query": "Which records-destruction rules are relevant to stale-cache survival and GDPR erasure?",
+      "source_refs": ["ref_pdf_stale_cache_survival", "ref_gdpr_article_17_erasure"],
+      "source_family": "mixed",
+      "rationale": "Cross-domain retention linkage."
+    },
+    {
+      "id": "qc_b_009",
+      "label": "CLASS_B",
+      "query": "Relate source-of-change traceability fields to why a retrieval result won over another.",
+      "source_refs": ["ref_pdf_why_won_lost_trace"],
+      "source_family": "sigint",
+      "rationale": "Maps document-change trace fields to retrieval explainability."
+    },
+    {
+      "id": "qc_b_010",
+      "label": "CLASS_B",
+      "query": "Which SIGINT passage links electronic attack disruption to friendly collection risk?",
+      "source_refs": ["ref_pdf_contradiction_handling"],
+      "source_family": "sigint",
+      "rationale": "Requires relationship between action, disruption, and affected collection."
+    },
+    {
+      "id": "qc_b_011",
+      "label": "CLASS_B",
+      "query": "How do mission authority limits connect to tenant policy profiles in governed retrieval?",
+      "source_refs": ["ref_pdf_tenant_policy_profile"],
+      "source_family": "sigint",
+      "rationale": "Links policy text to runtime governance profile semantics."
+    },
+    {
+      "id": "qc_b_012",
+      "label": "CLASS_B",
+      "query": "Which documents together explain deletion, notification, and reporting after improper collection?",
+      "source_refs": ["ref_pdf_bounded_reflect_adherence", "ref_security_incident_obligations"],
+      "source_family": "mixed",
+      "rationale": "Requires multi-document incident-response chain."
+    },
+    {
+      "id": "qc_b_013",
+      "label": "CLASS_B",
+      "query": "Compare GDPR disclosure obligations with SIGINT quarterly oversight reporting duties.",
+      "source_refs": ["ref_gdpr_disclosure", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "mixed",
+      "rationale": "Two-policy comparison with reporting theme."
+    },
+    {
+      "id": "qc_b_014",
+      "label": "CLASS_B",
+      "query": "Which SIGINT coordination centers are relevant when electronic attack conflicts with collection goals?",
+      "source_refs": ["ref_pdf_contradiction_handling"],
+      "source_family": "sigint",
+      "rationale": "Requires following conflict to coordination entities."
+    },
+    {
+      "id": "qc_b_015",
+      "label": "CLASS_B",
+      "query": "How does the no-retention rule interact with records disposition schedules?",
+      "source_refs": ["ref_pdf_bounded_reflect_adherence", "ref_pdf_stale_cache_survival"],
+      "source_family": "sigint",
+      "rationale": "Requires distinguishing exceptional deletion from ordinary retention schedules."
+    },
+    {
+      "id": "qc_b_016",
+      "label": "CLASS_B",
+      "query": "Which authority statement should govern whether a SIGINT activity may collect information before analysis?",
+      "source_refs": ["ref_pdf_tenant_policy_profile", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "sigint",
+      "rationale": "Links pre-collection authority with accidental collection handling."
+    },
+    {
+      "id": "qc_b_017",
+      "label": "CLASS_B",
+      "query": "Connect GDPR security incident obligations to SIGINT classification spillage handling.",
+      "source_refs": ["ref_security_incident_obligations", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "mixed",
+      "rationale": "Cross-domain incident escalation linkage."
+    },
+    {
+      "id": "qc_b_018",
+      "label": "CLASS_B",
+      "query": "Which change-recommendation fields would support an audit trail for a policy update?",
+      "source_refs": ["ref_pdf_why_won_lost_trace", "ref_pdf_tenant_policy_profile"],
+      "source_family": "sigint",
+      "rationale": "Relates trace fields to policy authority updates."
+    },
+    {
+      "id": "qc_b_019",
+      "label": "CLASS_B",
+      "query": "What linkage exists between electronic protection and preserving friendly collection under conflict?",
+      "source_refs": ["ref_pdf_contradiction_handling"],
+      "source_family": "sigint",
+      "rationale": "Requires relationship reasoning within SIGINT EW concepts."
+    },
+    {
+      "id": "qc_b_020",
+      "label": "CLASS_B",
+      "query": "Which GDPR and SIGINT references together define privacy-preserving deletion after improper access or collection?",
+      "source_refs": ["ref_gdpr_article_17_erasure", "ref_unauthorised_access_response", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "mixed",
+      "rationale": "Requires multiple anchors across domains."
+    },
+    {
+      "id": "qc_c_001",
+      "label": "CLASS_C",
+      "query": "Summarize the overall privacy posture across the GDPR and SIGINT passages.",
+      "source_refs": ["ref_gdpr_disclosure", "ref_gdpr_article_17_erasure", "ref_pdf_bounded_reflect_adherence", "ref_pdf_tenant_policy_profile"],
+      "source_family": "mixed",
+      "rationale": "Requires global synthesis across privacy controls."
+    },
+    {
+      "id": "qc_c_002",
+      "label": "CLASS_C",
+      "query": "What is the corpus-wide stance on deletion, retention, and oversight?",
+      "source_refs": ["ref_pdf_stale_cache_survival", "ref_pdf_bounded_reflect_adherence", "ref_gdpr_article_17_erasure"],
+      "source_family": "mixed",
+      "rationale": "Global retention theme across multiple sources."
+    },
+    {
+      "id": "qc_c_003",
+      "label": "CLASS_C",
+      "query": "Summarize how the corpus balances mission authority with privacy protections.",
+      "source_refs": ["ref_pdf_tenant_policy_profile", "ref_pdf_bounded_reflect_adherence", "ref_gdpr_disclosure"],
+      "source_family": "mixed",
+      "rationale": "Thematic synthesis."
+    },
+    {
+      "id": "qc_c_004",
+      "label": "CLASS_C",
+      "query": "Give a global summary of incident response obligations across the regulatory and SIGINT material.",
+      "source_refs": ["ref_security_incident_obligations", "ref_unauthorised_access_response", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "mixed",
+      "rationale": "Corpus-level incident-response synthesis."
+    },
+    {
+      "id": "qc_c_005",
+      "label": "CLASS_C",
+      "query": "Summarize the main governance themes in the SIGINT passages.",
+      "source_refs": ["ref_pdf_tenant_policy_profile", "ref_pdf_bounded_reflect_adherence", "ref_pdf_contradiction_handling"],
+      "source_family": "sigint",
+      "rationale": "Global SIGINT governance synthesis."
+    },
+    {
+      "id": "qc_c_006",
+      "label": "CLASS_C",
+      "query": "What does the corpus as a whole say about operational conflicts and compliance controls?",
+      "source_refs": ["ref_pdf_contradiction_handling", "ref_pdf_tenant_policy_profile", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "sigint",
+      "rationale": "Synthesis across operational and compliance passages."
+    },
+    {
+      "id": "qc_c_007",
+      "label": "CLASS_C",
+      "query": "Summarize all evidence about data minimization in the corpus.",
+      "source_refs": ["ref_gdpr_article_17_erasure", "ref_pdf_bounded_reflect_adherence", "ref_pdf_stale_cache_survival"],
+      "source_family": "mixed",
+      "rationale": "Global data-minimization theme."
+    },
+    {
+      "id": "qc_c_008",
+      "label": "CLASS_C",
+      "query": "What are the broad differences between routine records retention and emergency deletion duties?",
+      "source_refs": ["ref_pdf_stale_cache_survival", "ref_pdf_bounded_reflect_adherence", "ref_gdpr_article_17_erasure"],
+      "source_family": "mixed",
+      "rationale": "Comparative global synthesis."
+    },
+    {
+      "id": "qc_c_009",
+      "label": "CLASS_C",
+      "query": "Summarize the overall stance of SIGINT on data privacy across the selected passages.",
+      "source_refs": ["ref_pdf_bounded_reflect_adherence", "ref_pdf_tenant_policy_profile", "ref_pdf_contradiction_handling"],
+      "source_family": "sigint",
+      "rationale": "Domain-wide summary."
+    },
+    {
+      "id": "qc_c_010",
+      "label": "CLASS_C",
+      "query": "Create a high-level summary of how the corpus handles authority, traceability, and accountability.",
+      "source_refs": ["ref_pdf_tenant_policy_profile", "ref_pdf_why_won_lost_trace", "ref_gdpr_disclosure"],
+      "source_family": "mixed",
+      "rationale": "Global governance synthesis."
+    },
+    {
+      "id": "qc_c_011",
+      "label": "CLASS_C",
+      "query": "Summarize the privacy and oversight lifecycle implied by the corpus.",
+      "source_refs": ["ref_gdpr_disclosure", "ref_security_incident_obligations", "ref_pdf_bounded_reflect_adherence", "ref_pdf_why_won_lost_trace"],
+      "source_family": "mixed",
+      "rationale": "Lifecycle-level synthesis."
+    },
+    {
+      "id": "qc_c_012",
+      "label": "CLASS_C",
+      "query": "What recurring compliance patterns appear across GDPR and SIGINT references?",
+      "source_refs": ["ref_gdpr_disclosure", "ref_gdpr_article_17_erasure", "ref_pdf_tenant_policy_profile", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "mixed",
+      "rationale": "Corpus-wide pattern extraction."
+    },
+    {
+      "id": "qc_c_013",
+      "label": "CLASS_C",
+      "query": "Summarize how conflict management appears across electronic warfare and privacy governance.",
+      "source_refs": ["ref_pdf_contradiction_handling", "ref_pdf_bounded_reflect_adherence", "ref_security_incident_obligations"],
+      "source_family": "mixed",
+      "rationale": "Global synthesis of conflict themes."
+    },
+    {
+      "id": "qc_c_014",
+      "label": "CLASS_C",
+      "query": "Give an executive summary of the corpus stance on lawful authority before action.",
+      "source_refs": ["ref_pdf_tenant_policy_profile", "ref_gdpr_disclosure", "ref_unauthorised_access_response"],
+      "source_family": "mixed",
+      "rationale": "High-level authority theme."
+    },
+    {
+      "id": "qc_c_015",
+      "label": "CLASS_C",
+      "query": "Summarize all corpus evidence about auditability and why a decision was made.",
+      "source_refs": ["ref_pdf_why_won_lost_trace", "ref_pdf_tenant_policy_profile", "ref_gdpr_disclosure"],
+      "source_family": "mixed",
+      "rationale": "Global auditability and traceability synthesis."
+    },
+    {
+      "id": "qc_c_016",
+      "label": "CLASS_C",
+      "query": "What is the overall difference between operational coordination and legal compliance in the SIGINT passages?",
+      "source_refs": ["ref_pdf_contradiction_handling", "ref_pdf_tenant_policy_profile", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "sigint",
+      "rationale": "Broad intra-domain comparison."
+    },
+    {
+      "id": "qc_c_017",
+      "label": "CLASS_C",
+      "query": "Summarize the corpus-wide treatment of unauthorized, accidental, or improper access.",
+      "source_refs": ["ref_unauthorised_access_response", "ref_security_incident_obligations", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "mixed",
+      "rationale": "Global access-control theme."
+    },
+    {
+      "id": "qc_c_018",
+      "label": "CLASS_C",
+      "query": "Compare the corpus themes of retention schedules, erasure rights, and immediate destruction.",
+      "source_refs": ["ref_pdf_stale_cache_survival", "ref_gdpr_article_17_erasure", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "mixed",
+      "rationale": "Global cross-policy comparison."
+    },
+    {
+      "id": "qc_c_019",
+      "label": "CLASS_C",
+      "query": "Summarize the overall risk-control model implied by the Phase 7 PDF references.",
+      "source_refs": ["ref_pdf_contradiction_handling", "ref_pdf_stale_cache_survival", "ref_pdf_bounded_reflect_adherence", "ref_pdf_tenant_policy_profile", "ref_pdf_why_won_lost_trace"],
+      "source_family": "sigint",
+      "rationale": "All-PDF thematic synthesis."
+    },
+    {
+      "id": "qc_c_020",
+      "label": "CLASS_C",
+      "query": "Provide a corpus-level summary of privacy, authority, retention, and explainability controls.",
+      "source_refs": ["ref_gdpr_disclosure", "ref_gdpr_article_17_erasure", "ref_pdf_bounded_reflect_adherence", "ref_pdf_tenant_policy_profile", "ref_pdf_stale_cache_survival", "ref_pdf_why_won_lost_trace"],
+      "source_family": "mixed",
+      "rationale": "Broadest global summary class."
+    }
+  ]
+}

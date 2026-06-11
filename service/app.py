@@ -437,6 +437,7 @@ class MnemosRuntime:
         bounded_envelope: Optional[Dict[str, Any]] = None,
         derive_views: Optional[List[str]] = None,
         latency_budget_ms: Optional[float] = None,
+        complexity_shadow: bool = False,
     ) -> Dict[str, Any]:
         """Search across tiers and return fused results."""
         import time
@@ -465,6 +466,7 @@ class MnemosRuntime:
             semantic_top_k=self._config.semantic_top_k,
             bounded_envelope=bounded_envelope if getattr(self._config, "memory_over_maps_phase2", False) else None,
             latency_budget_ms=latency_budget_ms,
+            complexity_shadow=complexity_shadow,
         )
         raw_rank_by_id = {r.engram.id: idx + 1 for idx, r in enumerate(results)}
 
@@ -1030,6 +1032,7 @@ def search():
     bounded_envelope = body.get("bounded_envelope")
     derive_views = body.get("derive_views")
     latency_budget_ms = body.get("latency_budget_ms")
+    complexity_shadow = body.get("complexity_shadow", False)
 
     if not query:
         return jsonify({"error": "No query provided"}), 400
@@ -1048,6 +1051,9 @@ def search():
 
     if explain is not None and not isinstance(explain, bool):
         return jsonify({"error": "explain must be a boolean"}), 400
+
+    if not isinstance(complexity_shadow, bool):
+        return jsonify({"error": "complexity_shadow must be a boolean"}), 400
 
     if governance is not None and governance not in GOVERNANCE_MODES:
         return jsonify({
@@ -1127,6 +1133,7 @@ def search():
             bounded_envelope,
             derive_views,
             latency_budget_ms,
+            complexity_shadow,
         )
 
     derived_cnt = len(res.get("derived_results", []))

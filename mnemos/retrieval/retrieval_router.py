@@ -47,6 +47,7 @@ class RetrievalRouter:
         graph_tier: Optional[Any] = None,
         graph_shadow_enabled: bool = False,
         enable_experimental_graph_hybrid: bool = False,
+        complexity_classifier: Optional[Any] = None,
     ):
         self._semantic_fusion = semantic_fusion
         self._lexical_tier = lexical_tier
@@ -54,6 +55,8 @@ class RetrievalRouter:
         self._graph_tier = graph_tier
         self._graph_shadow_enabled = graph_shadow_enabled
         self._enable_experimental_graph_hybrid = enable_experimental_graph_hybrid
+        self._complexity_classifier = complexity_classifier
+        self._complexity_classifier_failed = False
         self._rerank_policy = RerankPolicy()
         self._classifier = get_classifier(self._rerank_policy.config.get("query_family_classifier", {}))
         self._telemetry_sink = get_telemetry_sink(self._rerank_policy.config.get("telemetry", {}))
@@ -211,6 +214,56 @@ class RetrievalRouter:
         )
         if plan is not None:
             meta["budget_plan"] = plan.to_dict()
+
+    def _get_complexity_classifier(self):
+        if self._complexity_classifier_failed:
+            return None
+        if self._complexity_classifier is not None:
+            return self._complexity_classifier
+        try:
+            from mnemos.retrieval.complexity import ZeroShotComplexityClassifier
+
+            self._complexity_classifier = ZeroShotComplexityClassifier()
+            return self._complexity_classifier
+        except Exception as exc:
+            self._complexity_classifier_failed = True
+            logger.error(f"Complexity classifier unavailable: {exc}")
+            return None
+
+    def _run_complexity_shadow(self, query: str, enabled: bool) -> Optional[Dict[str, Any]]:
+        if not enabled:
+            return None
+        classifier = self._get_complexity_classifier()
+        if classifier is None:
+            return {
+                "enabled": True,
+                "status": "unavailable",
+                "error": "complexity_classifier_unavailable",
+            }
+        try:
+            result = classifier.classify(query)
+            if hasattr(result, "to_dict"):
+                payload: Dict[str, Any] = result.to_dict()
+            elif isinstance(result, dict):
+                payload = dict(result)
+            else:
+                payload = {
+                    "label": getattr(result, "label", "UNKNOWN"),
+                    "confidence": getattr(result, "confidence", 0.0),
+                    "route_posture": getattr(result, "route_posture", {}),
+                }
+            payload["enabled"] = True
+            payload["status"] = "ok"
+            payload["mode"] = "shadow"
+            return payload
+        except Exception as exc:
+            logger.error(f"Complexity classifier failed: {exc}")
+            return {
+                "enabled": True,
+                "status": "error",
+                "error": str(exc),
+                "mode": "shadow",
+            }
 
     @staticmethod
     def _is_derived(result: SearchResult) -> bool:
@@ -806,6 +859,7 @@ class RetrievalRouter:
         bounded_envelope: Optional[Dict[str, Any]] = None,
         graph_experiment_params: Optional[Dict[str, Any]] = None,
         latency_budget_ms: Optional[float] = None,
+        complexity_shadow: bool = False,
     ) -> Tuple[List[SearchResult], Dict[str, Any]]:
         mode = retrieval_mode if retrieval_mode in {"semantic", "hybrid", "graph_hybrid_experimental"} else "semantic"
         policy = fusion_policy if fusion_policy in FUSION_POLICIES else DEFAULT_FUSION_POLICY
@@ -816,6 +870,7 @@ class RetrievalRouter:
         # the no-budget path is byte-identical to pre-budget behavior.
         budget_plan = self._budget_router.plan(latency_budget_ms) if latency_budget_ms is not None else None
         user_filters = self._user_filters(filters)
+        complexity_meta = self._run_complexity_shadow(query, complexity_shadow)
 
         experimental_telemetry = None
         if mode == "graph_hybrid_experimental":
@@ -943,6 +998,8 @@ class RetrievalRouter:
                 meta["graph_experiment_telemetry"] = graph_experiment_telemetry
             if graph_telemetry:
                 meta["graph_shadow_telemetry"] = graph_telemetry
+            if complexity_meta:
+                meta["complexity_shadow"] = complexity_meta
                 
             # PIT-1 Leakage Guard
             final_results = self._apply_leakage_guard(final_results, meta)
@@ -1004,6 +1061,8 @@ class RetrievalRouter:
                 }
                 if graph_telemetry:
                     meta["graph_shadow_telemetry"] = graph_telemetry
+                if complexity_meta:
+                    meta["complexity_shadow"] = complexity_meta
                     
                 # PIT-1 Leakage Guard
                 final_results = self._apply_leakage_guard(final_results, meta)
@@ -1065,6 +1124,8 @@ class RetrievalRouter:
         }
         if graph_telemetry:
             meta["graph_shadow_telemetry"] = graph_telemetry
+        if complexity_meta:
+            meta["complexity_shadow"] = complexity_meta
             
         # PIT-1 Leakage Guard
         final_results = self._apply_leakage_guard(final_results, meta)

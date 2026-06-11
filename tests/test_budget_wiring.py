@@ -12,6 +12,7 @@ from mnemos.engram.model import Engram
 from mnemos.retrieval.base import BaseRetriever, SearchResult
 from mnemos.retrieval.fusion import TierFusion
 from mnemos.retrieval.retrieval_router import RetrievalRouter
+from mnemos.retrieval.complexity import ComplexityResult
 
 
 class RecordingRetriever(BaseRetriever):
@@ -53,6 +54,23 @@ def _router():
     tier = RecordingRetriever("qdrant", ["a", "b", "c", "d", "e"])
     router = RetrievalRouter(semantic_fusion=TierFusion([tier]), lexical_tier=None)
     return router, tier
+
+
+class FakeComplexityClassifier:
+    def classify(self, query: str) -> ComplexityResult:
+        return ComplexityResult(
+            label="CLASS_B",
+            confidence=0.91,
+            scores={"CLASS_A": 0.02, "CLASS_B": 0.91, "CLASS_C": 0.07},
+            route_posture={
+                "retrieval_posture": "balanced",
+                "fusion_policy": "balanced",
+                "graph": "trigger_memgraph_rag",
+                "hierarchical": "skip",
+            },
+            latency_ms=1.5,
+            model_name="fake",
+        )
 
 
 def test_no_budget_is_byte_identical_to_pre_budget_path():
@@ -156,6 +174,35 @@ def test_dense_latency_feeds_cost_model():
     router.search(query="q", top_k=3, latency_budget_ms=5000.0)
     after = router._budget_router.stats()["observation_counts"]
     assert after.get("prefetch", 0) > before.get("prefetch", 0)
+
+
+def test_complexity_shadow_records_route_posture():
+    tier = RecordingRetriever("qdrant", ["a", "b", "c"])
+    router = RetrievalRouter(
+        semantic_fusion=TierFusion([tier]),
+        lexical_tier=None,
+        complexity_classifier=FakeComplexityClassifier(),
+    )
+
+    _, meta = router.search(query="q", top_k=3, complexity_shadow=True)
+
+    shadow = meta["complexity_shadow"]
+    assert shadow["status"] == "ok"
+    assert shadow["label"] == "CLASS_B"
+    assert shadow["route_posture"]["graph"] == "trigger_memgraph_rag"
+
+
+def test_complexity_shadow_disabled_by_default():
+    tier = RecordingRetriever("qdrant", ["a", "b", "c"])
+    router = RetrievalRouter(
+        semantic_fusion=TierFusion([tier]),
+        lexical_tier=None,
+        complexity_classifier=FakeComplexityClassifier(),
+    )
+
+    _, meta = router.search(query="q", top_k=3)
+
+    assert "complexity_shadow" not in meta
 
 
 if __name__ == "__main__":
