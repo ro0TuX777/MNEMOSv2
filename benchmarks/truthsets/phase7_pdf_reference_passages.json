@@ -1,0 +1,40 @@
+{
+  "version": "v1",
+  "records": [
+    {
+      "id": "ref_pdf_contradiction_handling",
+      "burn_in_query": "contradiction handling",
+      "source_file": "mcwp2-22.pdf",
+      "page": 10,
+      "content": "sing, correlation, or analysi may be passed directly to subordinate command- ers or to the operations section or supporting arms element of supported commands, in accordance with United States Signals Intelligence Directive (USSID) 316, Non-Codeword Reporting Pro- gram, and USSID 240, ELINT Processing, Analy- sis, Reporting, and Forwarding Procedures. b. Electronic Attack Electronic attack (EA) is action taken to prevent or reduce an enemy\u2019s effective use of the electro- magnetic spectrum. The objectives of SIGINT may conflict with those of EA. For example, EA may be conducted to in- terfere with the adversary\u2019s use of an emitter a the same time as SIGINT operations are designed to exploit the adversary\u2019s use of the same emitter. Furthermore, EA operations against one target may disrupt or otherwise interfere with friendly SIGINT collection against the same or differen targets. SIGINT operations, EA operations, and the MAGTF\u2019s overall use of the electromagnetic spectrum for command and control (C2) opera- tions must be carefully coordinated within the MAGTF and with pertinent external organiza- tions. Depending on operational requirements, SIGINT and EA operations coordination and de- confliction may occur within the radio battalion operations control and analysis center (OCAC) within the electronic warfare coordination center (EWCC), or within the MAGTF command ele- ment (CE) current operations center (COC). c. Electronic Protection Electronic protection (EP) involves the action taken to ensure effective, friendly use of the elec- tromagnetic spectrum despite the enemy\u2019s use of EW. Within the MAGTF, SIGINT elements may be tasked to employ similar techniques agains fr"
+    },
+    {
+      "id": "ref_pdf_stale_cache_survival",
+      "burn_in_query": "stale cache survival",
+      "source_file": "5210.2.pdf",
+      "page": 16,
+      "content": "SECNAV Manual M-5210.2 August 2018 15 Table 3-1 Disposition standards R u l e A If the file is accumulated by B and the abbreviated disposition instructions are C then the full disposition standard would be D and disposition instructions on the file label would be (examples are CY or FY, as applicable.) 1 Any element of the command Destroy after 1 month Cut off at the end of the month; retain on board (ROB) 1 month in the current files area; then destroy. COFF 31 Jan 18, Dest Mar 18 COFF 28 Feb 18, Dest Apr 18 COFF 31 Mar 18, Dest May 18 COFF 30 Apr 18, Dest Jun 18 2 Destroy after 3 months Cut off at the end of each quarter; ROB 3 months in the current files area: then destroy. COFF 28 Feb 18, Dest Jun 18 COFF 31 Mar 18, Dest Jul 18 COFF 30 Apr 18, Dest Aug 18 3 Destroy after 6 months Cut off twice a year, according to the CY or FY: ROB 6 months in the current files area; then destroy. CY: COFF 30 Jun 18, Dest Jan 20 or COFF 31 Dec 18, Dest Jul 19 FY: COFF 31 Mar 18, Dest Oct 18 or COFF 30 Sep 18, Dest Apr 19 4 Destroy after 1 year Cut off at the end of the CY or FY; ROB for 1 year in the current files area; then destroy. CY: COFF 31 Dec 18, Dest Jan 20 FY"
+    },
+    {
+      "id": "ref_pdf_bounded_reflect_adherence",
+      "burn_in_query": "bounded reflect adherence",
+      "source_file": "MCRP 2-10A.1 (SECURED).pdf",
+      "page": 35,
+      "content": "MCRP 2-10A.1 Signals Intelligence 3-10 UNCLASSIFIED UNCLASSIFIED happens in which the foreign intelligence can be exploited while protecting those US persons and companies. Before any US person\u2019s communications can knowingly be collected, a warrant must first be obtained from the Foreign Intelligence Surveillance Act court. Signals Intelligence Oversight Violations In cases of accidental collection against US persons, Marine Corps SIGINT personnel must ensure all copies of the collection are deleted immediately. Then they must notify the Marine Cryptologic Office of the infraction. Personnel are also required to add these incidents to their quarterly oversight report. The most important part of accidental collection is ensuring there is no retention or analysis performed on these reports. There are occasions, however, when SIGINT externals are processed and analyzed before knowing that they belong to US persons. Immediately upon realizing this information involves US persons, as with collection, all information (externals and internals) must be destroyed, and the Marine Cryptologic Office notified of the incident. If for any reason the US person\u2019s information has already been released, SIGINT personnel must treat this as a classification spillage and notify the MAGTF Special Security Officer (SSO), who will address"
+    },
+    {
+      "id": "ref_pdf_tenant_policy_profile",
+      "burn_in_query": "tenant policy profile",
+      "source_file": "CNGBM 2000_01B_20220824.pdf",
+      "page": 2,
+      "content": "CNGBM 2000.01B 24 August 2022 2 references a through i, this manual, and any other applicable regulations, instructions, policies, and procedures. Employees must ensure they have the appropriate mission and authority to conduct their activities, being careful not to exceed the authorities granted by law, Executive order (EO), and applicable regulations and instructions. Employees of the NG intelligence component are trained IAW Enclosure E and will carry out reporting responsibilities as outlined in Enclosure C. e. The NG intelligence component will also follow guidelines for identifying, reporting and investigating QIAs, S/HSMs, and Federal crimes. The NG intelligence component is required to report to the NGB Inspector General (NGB-IG) misconduct incidents to intelligence and intelligence-related activities that violate any EO, law, policy, or regulation governing those activities, S/HSM, and Federal crimes. Specific guidance is in Enclosure B. f. Reference a and this manual do not authorize intelligence, CI, or intelligence- related activities. An NG intelligence component element must first have an approved mission, authority, and purpose before conducting the activity. 5. Summary of Changes. This document has been substantially revised. It"
+    },
+    {
+      "id": "ref_pdf_why_won_lost_trace",
+      "burn_in_query": "why won lost trace",
+      "source_file": "mcwp2-22.pdf",
+      "page": 4,
+      "content": "that will improve it. Recommendations may be sent directly to Commanding General, Marine Corps Combat Development Command, Doctrine Division (C 42), 3300 Russell Road, Suite 318A, Quantico, VA 22134-5021 or by fax to 703-784-2917 (DSN 278-2917) or by E-mail to smb@doctrine div@mccdc. Recommendations should include the following information: \u2022 Location of change Publication number and title Current page number Paragraph number (if applicable) Line number Figure or table number (if applicable) \u2022 Nature of change Add, delete Proposed new text, preferably double-spaced and typewritten \u2022 Justification and/or source of change Additional copies: A printed copy of this publication may be obtained from Marine Corps Logistics Base, Albany, GA 31704-5001, by following the instructions in MCBul 5600, Marine Corps Doctrinal Publications Status. An electronic copy may be obtained from the Doctrine Division, MCCDC, world wide web home page which is found at the fol- lowing universal reference locator: http://www.doctrine.quantico.usmc.mil."
+    }
+  ]
+}

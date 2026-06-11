@@ -15,8 +15,8 @@ Primary objective: move from "benchmark-proven architecture" to "operationally e
 | 3. Improve reflect precision and reduce false reinforcement | Completed (precision guards + benchmark gate metric) | March 30, 2026 |
 | 4. Tenant-aware governance policy profiles | Completed (profile model + API wiring + validation + tests) | March 30, 2026 |
 | 5. Strengthen explainability output | Completed (per-result why won/lost traces + suppressed-candidate summary) | March 30, 2026 |
-| 6. Optimize candidate-envelope and cache economics | Completed (Phase 7 Matryoshka replay gates passed; Nomic MRL collection promoted) | June 11, 2026 |
-| 7. Promote SLO-driven operations and rollback discipline | Completed (budget-aware routing enabled; replay artifact validated p95 budget compliance) | June 11, 2026 |
+| 6. Optimize candidate-envelope and cache economics | Completed (Phase 7 Matryoshka migration 100% complete; Nomic MRL collection promoted; legacy BGE collection cleaned up after representative replay) | June 11, 2026 |
+| 7. Promote SLO-driven operations and rollback discipline | Completed (budget-aware routing enabled; warmup readiness path documented; representative replay validated cleanup eligibility) | June 11, 2026 |
 | 8. Consolidate benchmark + promotion documentation into an operator playbook | Completed (`docs/mnemos_operator_playbook.md` published; benchmark + whitepaper linked) | March 30, 2026 |
 
 ---

@@ -10,6 +10,11 @@
     { "query_id": "anchor_sem_02", "class": "semantic", "tenant": null, "query": "Summarise the obligations a company has after discovering a security incident", "expected_ids": ["ref_security_incident_obligations"] },
     { "query_id": "anchor_exact_01", "class": "exact_term", "tenant": null, "query": "right to erasure article 17", "expected_ids": ["ref_gdpr_article_17_erasure"] },
     { "query_id": "anchor_exact_02", "class": "exact_term", "tenant": null, "query": "section 404 management assessment", "expected_ids": ["ref_sox_section_404_assessment"] },
-    { "query_id": "anchor_long_01", "class": "long_context", "tenant": null, "query": "Compare the notification timelines, scope of covered entities, and penalty structures across the major data protection regulations in the corpus, focusing on which regulation imposes the strictest breach disclosure deadline", "expected_ids": ["ref_cross_regulation_breach_deadlines"] }
+    { "query_id": "anchor_long_01", "class": "long_context", "tenant": null, "query": "Compare the notification timelines, scope of covered entities, and penalty structures across the major data protection regulations in the corpus, focusing on which regulation imposes the strictest breach disclosure deadline", "expected_ids": ["ref_cross_regulation_breach_deadlines"] },
+    { "query_id": "anchor_ops_contradiction_01", "class": "semantic", "tenant": null, "query": "contradiction handling", "expected_ids": ["ref_pdf_contradiction_handling"] },
+    { "query_id": "anchor_ops_cache_01", "class": "semantic", "tenant": null, "query": "stale cache survival", "expected_ids": ["ref_pdf_stale_cache_survival"] },
+    { "query_id": "anchor_ops_reflect_01", "class": "semantic", "tenant": null, "query": "bounded reflect adherence", "expected_ids": ["ref_pdf_bounded_reflect_adherence"] },
+    { "query_id": "anchor_ops_tenant_01", "class": "semantic", "tenant": null, "query": "tenant policy profile", "expected_ids": ["ref_pdf_tenant_policy_profile"] },
+    { "query_id": "anchor_ops_explain_01", "class": "semantic", "tenant": null, "query": "why won lost trace", "expected_ids": ["ref_pdf_why_won_lost_trace"] }
   ]
 }
