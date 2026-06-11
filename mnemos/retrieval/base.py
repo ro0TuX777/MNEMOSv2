@@ -44,8 +44,13 @@ class BaseRetriever(ABC):
         ...
 
     @abstractmethod
-    def search(self, query: str, top_k: int = 10,
-               filters: Optional[Dict[str, Any]] = None) -> List[SearchResult]:
+    def search(
+        self,
+        query: str,
+        top_k: int = 10,
+        filters: Optional[Dict[str, Any]] = None,
+        query_vector: Optional[Any] = None,
+    ) -> List[SearchResult]:
         """
         Search for relevant engrams.
 
@@ -53,6 +58,8 @@ class BaseRetriever(ABC):
             query: Search query text.
             top_k: Maximum number of results.
             filters: Optional metadata filters.
+            query_vector: Optional precomputed query embedding in this tier's
+                embedding space. Tiers that cannot consume it may ignore it.
 
         Returns:
             Ranked list of SearchResult objects.

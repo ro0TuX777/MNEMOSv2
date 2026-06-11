@@ -23,6 +23,7 @@ class RecordingRetriever(BaseRetriever):
         self._doc_ids = doc_ids
         self.last_filters: Optional[Dict[str, Any]] = None
         self.last_top_k: Optional[int] = None
+        self.last_query_vector = None
 
     @property
     def tier_name(self) -> str:
@@ -31,9 +32,19 @@ class RecordingRetriever(BaseRetriever):
     def index(self, engrams):
         return len(engrams)
 
-    def search(self, query: str, top_k: int = 10, filters: Optional[Dict[str, Any]] = None):
+    def _embed_query(self, texts: List[str]):
+        return [[1.0, 0.0, 0.0] for _ in texts]
+
+    def search(
+        self,
+        query: str,
+        top_k: int = 10,
+        filters: Optional[Dict[str, Any]] = None,
+        query_vector=None,
+    ):
         self.last_filters = dict(filters or {})
         self.last_top_k = top_k
+        self.last_query_vector = query_vector
         return [
             SearchResult(
                 engram=Engram(id=d, content=f"{self._name}-{d}"),
@@ -59,8 +70,17 @@ def _router():
 class FakeComplexityClassifier:
     def __init__(self, label: str = "CLASS_B"):
         self._label = label
+        self.used_vector = False
 
     def classify(self, query: str) -> ComplexityResult:
+        self.used_vector = False
+        return self._result()
+
+    def classify_vector(self, query_vector) -> ComplexityResult:
+        self.used_vector = True
+        return self._result()
+
+    def _result(self) -> ComplexityResult:
         scores = {"CLASS_A": 0.02, "CLASS_B": 0.07, "CLASS_C": 0.02}
         scores[self._label] = 0.91
         return ComplexityResult(
@@ -245,11 +265,12 @@ def test_complexity_shadow_disabled_by_default():
 def test_active_complexity_class_a_uses_aggressive_semantic_plan():
     tier = RecordingRetriever("qdrant", ["a", "b", "c"])
     reranker = RecordingReranker()
+    classifier = FakeComplexityClassifier("CLASS_A")
     router = RetrievalRouter(
         semantic_fusion=TierFusion([tier]),
         lexical_tier=None,
         reranker=reranker,
-        complexity_classifier=FakeComplexityClassifier("CLASS_A"),
+        complexity_classifier=classifier,
         adaptive_routing_enabled=True,
     )
 
@@ -260,6 +281,9 @@ def test_active_complexity_class_a_uses_aggressive_semantic_plan():
     assert meta["retrieval_mode"] == "semantic"
     assert meta["budget_plan"]["rerank"] is False
     assert meta["rerank_telemetry"]["rerank_skip_reason"] == "latency_budget"
+    assert meta["complexity_classification"]["query_vector_reused"] is True
+    assert classifier.used_vector is True
+    assert tier.last_query_vector is not None
     assert reranker.calls == 0
 
 

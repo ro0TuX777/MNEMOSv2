@@ -14,6 +14,8 @@ import json
 import logging
 from typing import Any, Dict, List, Optional
 
+import numpy as np
+
 from mnemos.engram.model import Engram
 from mnemos.retrieval.base import BaseRetriever, SearchResult
 
@@ -193,8 +195,13 @@ class PgvectorTier(BaseRetriever):
             logger.error(f"pgvector indexing failed: {e}")
             return 0
 
-    def search(self, query: str, top_k: int = 10,
-               filters: Optional[Dict[str, Any]] = None) -> List[SearchResult]:
+    def search(
+        self,
+        query: str,
+        top_k: int = 10,
+        filters: Optional[Dict[str, Any]] = None,
+        query_vector: Optional[Any] = None,
+    ) -> List[SearchResult]:
         """
         Search pgvector for relevant engrams.
 
@@ -209,7 +216,12 @@ class PgvectorTier(BaseRetriever):
             return []
 
         try:
-            query_vec = self._embed([query])[0]
+            candidate_vec = np.asarray(query_vector, dtype=np.float32).reshape(-1) if query_vector is not None else None
+            query_vec = (
+                candidate_vec.tolist()
+                if candidate_vec is not None and candidate_vec.size == self._embedding_dim
+                else self._embed([query])[0]
+            )
             embedding_str = "[" + ",".join(str(v) for v in query_vec) + "]"
 
             # Build WHERE clauses from filters

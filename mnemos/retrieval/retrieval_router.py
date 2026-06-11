@@ -8,7 +8,7 @@ import logging
 import time
 import uuid
 import hashlib
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, cast
 from datetime import datetime, timezone, timedelta
 
 from mnemos.retrieval.base import BaseRetriever, SearchResult
@@ -311,12 +311,30 @@ class RetrievalRouter:
             logger.error(f"Complexity classifier unavailable: {exc}")
             return None
 
-    def _run_complexity_shadow(self, query: str, enabled: bool) -> Optional[Dict[str, Any]]:
+    def _get_query_vector(self, query: str, tiers: Optional[List[str]] = None) -> Optional[Any]:
+        try:
+            return self._semantic_fusion.embed_query(query, tiers=tiers)
+        except Exception as exc:
+            logger.debug("Reusable query vector unavailable: %s", exc)
+            return None
+
+    def _run_complexity_shadow(
+        self,
+        query: str,
+        enabled: bool,
+        query_vector: Optional[Any] = None,
+    ) -> Optional[Dict[str, Any]]:
         if not enabled:
             return None
-        return self._classify_complexity(query, mode="shadow")
+        return self._classify_complexity(query, mode="shadow", query_vector=query_vector)
 
-    def _classify_complexity(self, query: str, *, mode: str) -> Optional[Dict[str, Any]]:
+    def _classify_complexity(
+        self,
+        query: str,
+        *,
+        mode: str,
+        query_vector: Optional[Any] = None,
+    ) -> Optional[Dict[str, Any]]:
         classifier = self._get_complexity_classifier()
         if classifier is None:
             return {
@@ -325,9 +343,14 @@ class RetrievalRouter:
                 "error": "complexity_classifier_unavailable",
             }
         try:
-            result = classifier.classify(query)
-            if hasattr(result, "to_dict"):
-                payload: Dict[str, Any] = result.to_dict()
+            classify_vector = getattr(classifier, "classify_vector", None)
+            if query_vector is not None and callable(classify_vector):
+                result = classify_vector(query_vector)
+            else:
+                result = classifier.classify(query)
+            to_dict = getattr(result, "to_dict", None)
+            if callable(to_dict):
+                payload: Dict[str, Any] = cast(Dict[str, Any], to_dict())
             elif isinstance(result, dict):
                 payload = dict(result)
             else:
@@ -339,6 +362,7 @@ class RetrievalRouter:
             payload["enabled"] = True
             payload["status"] = "ok"
             payload["mode"] = mode
+            payload["query_vector_reused"] = bool(query_vector is not None and hasattr(classifier, "classify_vector"))
             return payload
         except Exception as exc:
             logger.error(f"Complexity classifier failed: {exc}")
@@ -1016,8 +1040,13 @@ class RetrievalRouter:
         desired_pool = max(top_k, envelope_cfg.candidate_pool_limit) if envelope_cfg.enabled else top_k
 
         user_filters = self._user_filters(filters)
+        query_vector = self._get_query_vector(query, tiers=tiers)
         adaptive_enabled = self._adaptive_routing_enabled if adaptive_routing is None else adaptive_routing
-        complexity_meta = self._classify_complexity(query, mode="active") if adaptive_enabled else self._run_complexity_shadow(query, complexity_shadow)
+        complexity_meta = (
+            self._classify_complexity(query, mode="active", query_vector=query_vector)
+            if adaptive_enabled
+            else self._run_complexity_shadow(query, complexity_shadow, query_vector=query_vector)
+        )
         routing_posture = None
         complexity_class = None
         if adaptive_enabled:
@@ -1082,6 +1111,7 @@ class RetrievalRouter:
                 top_k=desired_pool * self._derived_overfetch_factor(),
                 filters=effective_filters,
                 tiers=tiers,
+                query_vector=query_vector,
             )
             hits = []
             for h in raw_hits:
@@ -1190,7 +1220,13 @@ class RetrievalRouter:
         ):
             try:
                 # Compute embedding once for the RRF call
-                query_vec = self._qdrant_hybrid._tier._embed([query])[0]
+                query_vec = (
+                    query_vector.tolist()
+                    if query_vector is not None and hasattr(query_vector, "tolist")
+                    else query_vector
+                )
+                if query_vec is None:
+                    query_vec = self._qdrant_hybrid._tier._embed([query])[0]
                 fused, telemetry = self._qdrant_hybrid.fuse(
                     query=query,
                     query_vector=query_vec,
@@ -1254,6 +1290,7 @@ class RetrievalRouter:
             top_k=semantic_top_k * self._derived_overfetch_factor(),
             filters=_semantic_filters,
             tiers=tiers,
+            query_vector=query_vector,
         )
 
         _semantic_clean = []

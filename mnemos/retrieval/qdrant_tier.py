@@ -293,8 +293,13 @@ class QdrantTier(BaseRetriever):
             logger.error(f"Qdrant indexing failed: {e}")
             return 0
 
-    def search(self, query: str, top_k: int = 10,
-               filters: Optional[Dict[str, Any]] = None) -> List[SearchResult]:
+    def search(
+        self,
+        query: str,
+        top_k: int = 10,
+        filters: Optional[Dict[str, Any]] = None,
+        query_vector: Optional[Any] = None,
+    ) -> List[SearchResult]:
         """Search Qdrant for relevant engrams.
 
         Uses the ``query_points()`` API (Qdrant >= 1.17).  The legacy
@@ -310,7 +315,11 @@ class QdrantTier(BaseRetriever):
             hnsw_ef = filters.pop("__hnsw_ef__", None)
             prefetch_only = bool(filters.pop("__prefetch_only__", False))
 
-            query_vec = self._embed_query([query])[0]
+            query_vec = (
+                np.asarray(query_vector, dtype=np.float32).reshape(-1)
+                if query_vector is not None and np.asarray(query_vector).size == self._embedding_dim
+                else self._embed_query([query])[0]
+            )
 
             # Build Qdrant filter if provided
             query_filter = self._build_filter(filters)

@@ -350,7 +350,8 @@
       "query": "Summarize the overall privacy posture across the GDPR and SIGINT passages.",
       "source_refs": ["ref_gdpr_disclosure", "ref_gdpr_article_17_erasure", "ref_pdf_bounded_reflect_adherence", "ref_pdf_tenant_policy_profile"],
       "source_family": "mixed",
-      "rationale": "Requires global synthesis across privacy controls."
+      "rationale": "Requires global synthesis across privacy controls.",
+      "golden_summary": "The corpus frames privacy as an operational constraint that must be built into mission execution: disclose handling obligations, honor erasure or minimization duties, preserve tenant boundaries, and keep SIGINT reflection bounded by authorized purpose."
     },
     {
       "id": "qc_c_002",
@@ -358,7 +359,8 @@
       "query": "What is the corpus-wide stance on deletion, retention, and oversight?",
       "source_refs": ["ref_pdf_stale_cache_survival", "ref_pdf_bounded_reflect_adherence", "ref_gdpr_article_17_erasure"],
       "source_family": "mixed",
-      "rationale": "Global retention theme across multiple sources."
+      "rationale": "Global retention theme across multiple sources.",
+      "golden_summary": "The corpus distinguishes routine retention from accountable deletion: stale caches and operational records may persist only under controlled policy, while erasure duties and oversight requirements demand explicit justification, traceability, and timely removal when authority no longer applies."
     },
     {
       "id": "qc_c_003",
@@ -366,7 +368,8 @@
       "query": "Summarize how the corpus balances mission authority with privacy protections.",
       "source_refs": ["ref_pdf_tenant_policy_profile", "ref_pdf_bounded_reflect_adherence", "ref_gdpr_disclosure"],
       "source_family": "mixed",
-      "rationale": "Thematic synthesis."
+      "rationale": "Thematic synthesis.",
+      "golden_summary": "Mission authority is treated as necessary but bounded: SIGINT activity should follow tenant or command policy, expose its basis for action, and remain compatible with privacy protections such as disclosure, minimization, and controlled reflection."
     },
     {
       "id": "qc_c_004",
@@ -374,7 +377,8 @@
       "query": "Give a global summary of incident response obligations across the regulatory and SIGINT material.",
       "source_refs": ["ref_security_incident_obligations", "ref_unauthorised_access_response", "ref_pdf_bounded_reflect_adherence"],
       "source_family": "mixed",
-      "rationale": "Corpus-level incident-response synthesis."
+      "rationale": "Corpus-level incident-response synthesis.",
+      "golden_summary": "Incident response is presented as a governed escalation path: improper access or security events require rapid containment, documentation, review against authority, and corrective handling that preserves accountability without expanding access beyond the incident need."
     },
     {
       "id": "qc_c_005",
@@ -382,7 +386,8 @@
       "query": "Summarize the main governance themes in the SIGINT passages.",
       "source_refs": ["ref_pdf_tenant_policy_profile", "ref_pdf_bounded_reflect_adherence", "ref_pdf_contradiction_handling"],
       "source_family": "sigint",
-      "rationale": "Global SIGINT governance synthesis."
+      "rationale": "Global SIGINT governance synthesis.",
+      "golden_summary": "The SIGINT passages emphasize bounded authority, policy-scoped operation, contradiction handling, and traceable decisions. Operational effectiveness is supported, but only inside explicit constraints that protect friendly activity, prevent uncontrolled reflection, and preserve reviewability."
     },
     {
       "id": "qc_c_006",
@@ -390,7 +395,8 @@
       "query": "What does the corpus as a whole say about operational conflicts and compliance controls?",
       "source_refs": ["ref_pdf_contradiction_handling", "ref_pdf_tenant_policy_profile", "ref_pdf_bounded_reflect_adherence"],
       "source_family": "sigint",
-      "rationale": "Synthesis across operational and compliance passages."
+      "rationale": "Synthesis across operational and compliance passages.",
+      "golden_summary": "Operational conflicts are managed through explicit rules, prioritization, and audit trails; compliance controls supply the guardrails that keep those operational decisions explainable, bounded, and reversible when a policy or authority conflict is discovered."
     },
     {
       "id": "qc_c_007",
@@ -398,7 +404,8 @@
       "query": "Summarize all evidence about data minimization in the corpus.",
       "source_refs": ["ref_gdpr_article_17_erasure", "ref_pdf_bounded_reflect_adherence", "ref_pdf_stale_cache_survival"],
       "source_family": "mixed",
-      "rationale": "Global data-minimization theme."
+      "rationale": "Global data-minimization theme.",
+      "golden_summary": "Data minimization appears as a recurring principle: retain only what policy and mission require, avoid unnecessary reflective expansion, delete or suppress data when authority expires, and document why any residual record remains justified."
     },
     {
       "id": "qc_c_008",
@@ -406,7 +413,8 @@
       "query": "What are the broad differences between routine records retention and emergency deletion duties?",
       "source_refs": ["ref_pdf_stale_cache_survival", "ref_pdf_bounded_reflect_adherence", "ref_gdpr_article_17_erasure"],
       "source_family": "mixed",
-      "rationale": "Comparative global synthesis."
+      "rationale": "Comparative global synthesis.",
+      "golden_summary": "Routine retention is controlled preservation for accountability or continuity, while emergency deletion is a risk-control response to improper access, expired authority, or privacy obligations. Both require traceable policy grounds rather than ad hoc operator discretion."
     },
     {
       "id": "qc_c_009",
@@ -414,7 +422,8 @@
       "query": "Summarize the overall stance of SIGINT on data privacy across the selected passages.",
       "source_refs": ["ref_pdf_bounded_reflect_adherence", "ref_pdf_tenant_policy_profile", "ref_pdf_contradiction_handling"],
       "source_family": "sigint",
-      "rationale": "Domain-wide summary."
+      "rationale": "Domain-wide summary.",
+      "golden_summary": "Across the SIGINT passages, data privacy is not treated as external paperwork but as a mission constraint: collection, reflection, tenant policy, and contradiction handling must remain bounded, attributable, and aligned with authorized operational purpose."
     },
     {
       "id": "qc_c_010",
@@ -422,7 +431,8 @@
       "query": "Create a high-level summary of how the corpus handles authority, traceability, and accountability.",
       "source_refs": ["ref_pdf_tenant_policy_profile", "ref_pdf_why_won_lost_trace", "ref_gdpr_disclosure"],
       "source_family": "mixed",
-      "rationale": "Global governance synthesis."
+      "rationale": "Global governance synthesis.",
+      "golden_summary": "The corpus links authority, traceability, and accountability into one model: actions should have a lawful or policy basis, leave a why-won or why-lost record, and expose enough evidence for later review, correction, or suppression."
     },
     {
       "id": "qc_c_011",
@@ -430,7 +440,8 @@
       "query": "Summarize the privacy and oversight lifecycle implied by the corpus.",
       "source_refs": ["ref_gdpr_disclosure", "ref_security_incident_obligations", "ref_pdf_bounded_reflect_adherence", "ref_pdf_why_won_lost_trace"],
       "source_family": "mixed",
-      "rationale": "Lifecycle-level synthesis."
+      "rationale": "Lifecycle-level synthesis.",
+      "golden_summary": "The implied lifecycle begins with disclosure and authorized collection, continues through bounded operational use and monitoring, and ends with review, incident handling, retention justification, or erasure when authority or purpose no longer supports the data."
     },
     {
       "id": "qc_c_012",
@@ -438,7 +449,8 @@
       "query": "What recurring compliance patterns appear across GDPR and SIGINT references?",
       "source_refs": ["ref_gdpr_disclosure", "ref_gdpr_article_17_erasure", "ref_pdf_tenant_policy_profile", "ref_pdf_bounded_reflect_adherence"],
       "source_family": "mixed",
-      "rationale": "Corpus-wide pattern extraction."
+      "rationale": "Corpus-wide pattern extraction.",
+      "golden_summary": "Recurring compliance patterns include explicit authority checks, tenant or policy scoping, disclosure and erasure obligations, bounded use of derived reasoning, incident escalation, and audit trails that explain why information was retained or acted on."
     },
     {
       "id": "qc_c_013",
@@ -446,7 +458,8 @@
       "query": "Summarize how conflict management appears across electronic warfare and privacy governance.",
       "source_refs": ["ref_pdf_contradiction_handling", "ref_pdf_bounded_reflect_adherence", "ref_security_incident_obligations"],
       "source_family": "mixed",
-      "rationale": "Global synthesis of conflict themes."
+      "rationale": "Global synthesis of conflict themes.",
+      "golden_summary": "Conflict management appears as disciplined resolution rather than silent override: electronic warfare and privacy governance both require detecting conflicting objectives, selecting a justified path, preserving lineage, and preventing one control from erasing another without review."
     },
     {
       "id": "qc_c_014",
@@ -454,7 +467,8 @@
       "query": "Give an executive summary of the corpus stance on lawful authority before action.",
       "source_refs": ["ref_pdf_tenant_policy_profile", "ref_gdpr_disclosure", "ref_unauthorised_access_response"],
       "source_family": "mixed",
-      "rationale": "High-level authority theme."
+      "rationale": "High-level authority theme.",
+      "golden_summary": "The corpus stance is that lawful or policy authority must precede action. Operators should verify scope, purpose, tenant boundary, and disclosure or access obligations before collection, retention, reflection, or incident response changes the memory state."
     },
     {
       "id": "qc_c_015",
@@ -462,7 +476,8 @@
       "query": "Summarize all corpus evidence about auditability and why a decision was made.",
       "source_refs": ["ref_pdf_why_won_lost_trace", "ref_pdf_tenant_policy_profile", "ref_gdpr_disclosure"],
       "source_family": "mixed",
-      "rationale": "Global auditability and traceability synthesis."
+      "rationale": "Global auditability and traceability synthesis.",
+      "golden_summary": "Auditability is treated as a first-class control: decisions need visible evidence, authority basis, why-won or why-lost reasoning, and lifecycle metadata so later operators can understand, challenge, or correct the outcome."
     },
     {
       "id": "qc_c_016",
@@ -470,7 +485,8 @@
       "query": "What is the overall difference between operational coordination and legal compliance in the SIGINT passages?",
       "source_refs": ["ref_pdf_contradiction_handling", "ref_pdf_tenant_policy_profile", "ref_pdf_bounded_reflect_adherence"],
       "source_family": "sigint",
-      "rationale": "Broad intra-domain comparison."
+      "rationale": "Broad intra-domain comparison.",
+      "golden_summary": "Operational coordination focuses on mission execution and resolving conflicts among activities, while legal compliance constrains what may be collected, retained, reflected, or disclosed. The SIGINT material treats both as coupled controls rather than separate lanes."
     },
     {
       "id": "qc_c_017",
@@ -478,7 +494,8 @@
       "query": "Summarize the corpus-wide treatment of unauthorized, accidental, or improper access.",
       "source_refs": ["ref_unauthorised_access_response", "ref_security_incident_obligations", "ref_pdf_bounded_reflect_adherence"],
       "source_family": "mixed",
-      "rationale": "Global access-control theme."
+      "rationale": "Global access-control theme.",
+      "golden_summary": "Unauthorized, accidental, or improper access is handled as a governed event: detect it, contain scope, document the reason and affected data, apply deletion or suppression where required, and retain only the audit evidence justified by policy."
     },
     {
       "id": "qc_c_018",
@@ -486,7 +503,8 @@
       "query": "Compare the corpus themes of retention schedules, erasure rights, and immediate destruction.",
       "source_refs": ["ref_pdf_stale_cache_survival", "ref_gdpr_article_17_erasure", "ref_pdf_bounded_reflect_adherence"],
       "source_family": "mixed",
-      "rationale": "Global cross-policy comparison."
+      "rationale": "Global cross-policy comparison.",
+      "golden_summary": "Retention schedules are planned continuity controls, erasure rights are individual or legal deletion obligations, and immediate destruction is an urgent risk response. The corpus requires each path to be justified, logged, and bounded by authority."
     },
     {
       "id": "qc_c_019",
@@ -494,7 +512,8 @@
       "query": "Summarize the overall risk-control model implied by the Phase 7 PDF references.",
       "source_refs": ["ref_pdf_contradiction_handling", "ref_pdf_stale_cache_survival", "ref_pdf_bounded_reflect_adherence", "ref_pdf_tenant_policy_profile", "ref_pdf_why_won_lost_trace"],
       "source_family": "sigint",
-      "rationale": "All-PDF thematic synthesis."
+      "rationale": "All-PDF thematic synthesis.",
+      "golden_summary": "The Phase 7 PDF references imply a risk-control model built on tenant scoping, bounded reflection, contradiction handling, stale-cache discipline, and why-won or why-lost traceability. Together they favor controlled memory operation over unconstrained recall."
     },
     {
       "id": "qc_c_020",
@@ -502,7 +521,8 @@
       "query": "Provide a corpus-level summary of privacy, authority, retention, and explainability controls.",
       "source_refs": ["ref_gdpr_disclosure", "ref_gdpr_article_17_erasure", "ref_pdf_bounded_reflect_adherence", "ref_pdf_tenant_policy_profile", "ref_pdf_stale_cache_survival", "ref_pdf_why_won_lost_trace"],
       "source_family": "mixed",
-      "rationale": "Broadest global summary class."
+      "rationale": "Broadest global summary class.",
+      "golden_summary": "Across privacy, authority, retention, and explainability, the corpus presents MNEMOS as a governed memory system: know the authority, minimize and bound use, retain only with reason, expose decision traces, and support review or deletion when controls require it."
     }
   ]
 }

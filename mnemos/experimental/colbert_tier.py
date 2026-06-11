@@ -143,8 +143,13 @@ class ColBERTTier(BaseRetriever):
         logger.debug(f"Indexed {count} engrams into ColBERT tier")
         return count
 
-    def search(self, query: str, top_k: int = 10,
-               filters: Optional[Dict[str, Any]] = None) -> List[SearchResult]:
+    def search(
+        self,
+        query: str,
+        top_k: int = 10,
+        filters: Optional[Dict[str, Any]] = None,
+        query_vector: Optional[Any] = None,
+    ) -> List[SearchResult]:
         """Search using MaxSim late-interaction scoring."""
         if not self._doc_ids:
             return []

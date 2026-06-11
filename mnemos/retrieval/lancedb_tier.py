@@ -117,15 +117,25 @@ class LanceDBTier(BaseRetriever):
             logger.error(f"Failed to fetch engrams by ID from LanceDB: {e}")
             return []
 
-    def search(self, query: str, top_k: int = 10,
-               filters: Optional[Dict[str, Any]] = None) -> List[SearchResult]:
+    def search(
+        self,
+        query: str,
+        top_k: int = 10,
+        filters: Optional[Dict[str, Any]] = None,
+        query_vector: Optional[Any] = None,
+    ) -> List[SearchResult]:
         """Hybrid search in LanceDB."""
         if self._table is None:
             return []
 
         try:
             import json
-            query_vec = self._embed([query])[0]
+            candidate_vec = np.asarray(query_vector, dtype=np.float32).reshape(-1) if query_vector is not None else None
+            query_vec = (
+                candidate_vec
+                if candidate_vec is not None and candidate_vec.size == self._embedding_dim
+                else self._embed([query])[0]
+            )
 
             results = (
                 self._table

@@ -45,6 +45,11 @@ from mnemos.governance.hygiene.contradiction_sweep import (
     ContradictionSweepReport,
     ContradictionSweepRunner,
 )
+from mnemos.governance.hygiene.clustering_runner import (
+    HierarchicalClusterRecord,
+    HierarchicalClusteringRunner,
+    HierarchyReport,
+)
 from mnemos.engram.model import Engram
 from typing import List, Optional
 
@@ -134,6 +139,9 @@ __all__ = [
     "ContradictionSweepRecord",
     "ContradictionSweepReport",
     "ContradictionSweepRunner",
+    "HierarchicalClusterRecord",
+    "HierarchicalClusteringRunner",
+    "HierarchyReport",
     "HygienePipelineReport",
     "HygienePipeline",
 ]
