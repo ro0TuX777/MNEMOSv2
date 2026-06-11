@@ -1,0 +1,52 @@
+{
+  "metrics": {
+    "total_trial_queries": 250,
+    "graph_candidates_available": 613,
+    "graph_candidates_inserted": 250,
+    "graph_candidates_survived_envelope": 250,
+    "graph_candidates_used": 148,
+    "citation_integrity_rate": 1.0,
+    "governance_warning_preservation_rate": 1.0,
+    "governance_leakage": 0,
+    "lineage_leakage": 0,
+    "contradiction_delta": 0.0,
+    "unsupported_claim_delta": -0.18,
+    "evidence_gap_delta": -0.22,
+    "operator_usefulness_rating": 0.8783783783783784,
+    "latency_p50_ms": 1.4,
+    "latency_p95_ms": 4.1,
+    "latency_p99_ms": 8.5,
+    "fallback_events": 2,
+    "rollback_events": 0
+  },
+  "feedback_summary": {
+    "categories": {
+      "evidence_gap_investigation": 128,
+      "multi_hop_dependency_question": 122
+    },
+    "did_graph_result_help": {
+      "yes": 130,
+      "no": 120
+    },
+    "did_it_add_noise": {
+      "yes": 18,
+      "no": 232
+    },
+    "edge_quality": {
+      "highly_relevant": 130,
+      "distractor": 18
+    },
+    "did_it_surface_missing_evidence": {
+      "yes": 130,
+      "no": 120
+    },
+    "did_it_displace_important_baseline_evidence": {
+      "yes": 0,
+      "no": 250
+    },
+    "should_this_query_have_used_graph_hybrid_experimental": {
+      "yes": 250,
+      "no": 0
+    }
+  }
+}

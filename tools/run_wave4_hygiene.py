@@ -140,6 +140,7 @@ def main() -> int:
         "decay": asdict(report.decay),
         "prune": asdict(report.prune),
         "sweep": asdict(report.sweep),
+        "reconciliation": asdict(report.reconciliation),
         "total_mutations": report.total_mutations,
     }
 

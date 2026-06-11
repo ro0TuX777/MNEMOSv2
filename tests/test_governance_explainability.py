@@ -32,6 +32,12 @@ class _StubGovernor:
     def has_policy_profile(self, profile_id: str) -> bool:
         return profile_id == "default"
 
+    def effective_min_score(self, governance_profile=None) -> float:
+        return 0.0
+
+    def effective_freshness_half_life(self, governance_profile=None) -> float:
+        return 180.0
+
     def govern(self, **kwargs):
         return self._ordered_results, self._decisions, []
 

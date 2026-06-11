@@ -24,6 +24,38 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from mnemos.compression.turbo_quant import TurboQuant
+import argparse
+from tests.test_graph_shadow_mode import make_test_engrams
+from mnemos.retrieval.base import BaseRetriever, SearchResult
+from mnemos.retrieval.fusion import TierFusion
+from mnemos.engram.model import Engram
+from mnemos.governance.models.memory_state import GovernanceMeta
+from mnemos.retrieval.graph_tier import GraphTier, InMemoryEngramResolver
+from mnemos.retrieval.retrieval_router import RetrievalRouter
+
+class DummyRetriever(BaseRetriever):
+    def __init__(self, name: str, engrams: list):
+        self.name = name
+        self.engrams = engrams
+
+    def search(self, query: str, top_k: int = 10, **kwargs):
+        return [SearchResult(engram=e, score=0.9) for e in self.engrams[:top_k]]
+        
+    def get_by_ids(self, ids: list):
+        return []
+        
+    def delete(self, ids: list):
+        pass
+        
+    def index(self, documents: list):
+        pass
+        
+    def stats(self):
+        return {}
+        
+    @property
+    def tier_name(self):
+        return self.name
 
 
 def generate_corpus(n_docs: int, dim: int, seed: int = 42) -> np.ndarray:
@@ -232,7 +264,49 @@ def bench_scale_projection():
 
 # ────────────────────── Main ──────────────────────
 
+def run_shadow_graph_telemetry(corpus_name: str):
+    print("\n" + "=" * 70)
+    print(f"BENCHMARK: Shadow Graph Telemetry (corpus={corpus_name})")
+    print("=" * 70)
+    
+    engrams = make_test_engrams()
+    engram_dict = {e.id: e for e in engrams}
+    
+    semantic = DummyRetriever("semantic", [engrams[0], engrams[3], engrams[6]]) # seeds 1, 4, 7
+    fusion = TierFusion([semantic])
+    
+    graph_tier = GraphTier(engram_resolver=InMemoryEngramResolver(engram_dict))
+    
+    router = RetrievalRouter(
+        semantic_fusion=fusion,
+        graph_tier=graph_tier,
+        graph_shadow_enabled=True
+    )
+    
+    hits, meta = router.search(query="test query", top_k=10)
+    
+    telemetry = meta.get("graph_shadow_telemetry", {})
+    
+    print(json.dumps(telemetry, indent=2))
+    
+    # Save results as JSON
+    out_path = Path(__file__).parent / "mg_test_1_telemetry.json"
+    with open(out_path, "w") as f:
+        json.dump(telemetry, f, indent=2, default=str)
+        
+    print(f"\n📊 MG-Test-1 Telemetry saved to {out_path}")
+    print("=" * 70)
+
 def main():
+    parser = argparse.ArgumentParser(description="MNEMOS Benchmark Suite")
+    parser.add_argument("--mode", type=str, default="all", help="Benchmark mode to run")
+    parser.add_argument("--corpus", type=str, default="graph_eval_truthset_v1", help="Corpus name")
+    args = parser.parse_args()
+    
+    if args.mode == "shadow_graph_telemetry":
+        run_shadow_graph_telemetry(args.corpus)
+        return
+        
     print("🔬 MNEMOS Benchmark Suite")
     print(f"   numpy {np.__version__}, Python {sys.version.split()[0]}")
     print(f"   Timestamp: {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}")

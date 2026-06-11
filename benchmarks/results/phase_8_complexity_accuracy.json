@@ -1,0 +1,37 @@
+{
+  "artifact": "phase_8_complexity_accuracy",
+  "generated_at": "2026-06-11T23:30:00Z",
+  "phase": "8",
+  "track": "adaptive_branching_embedded_reflex",
+  "truthset": "benchmarks/truthsets/query_complexity_holdout_v1.json",
+  "classifier": {
+    "type": "embedded-linear-softmax",
+    "embedding_model": "nomic-ai/nomic-embed-text-v1.5",
+    "weights": "mnemos/retrieval/complexity_weights.bin"
+  },
+  "holdout": {
+    "query_count": 15,
+    "class_balance": {
+      "CLASS_A": 5,
+      "CLASS_B": 5,
+      "CLASS_C": 5
+    },
+    "overall_accuracy": 1.0,
+    "per_class_accuracy": {
+      "CLASS_A": 1.0,
+      "CLASS_B": 1.0,
+      "CLASS_C": 1.0
+    },
+    "p95_classifier_latency_ms_after_embedding": 0.0502
+  },
+  "gate": {
+    "accuracy_threshold": "> 0.85",
+    "latency_threshold_ms": "< 2.0 after embedding reuse",
+    "pass": true
+  },
+  "routing_postures": {
+    "CLASS_A": "flat vector factoid retrieval",
+    "CLASS_B": "multi-hop graph-capable route with forced rerank posture",
+    "CLASS_C": "hierarchical summary layer route with fallback"
+  }
+}

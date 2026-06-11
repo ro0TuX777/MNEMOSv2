@@ -1,0 +1,136 @@
+{
+  "version": "v1",
+  "created": "2026-06-11",
+  "description": "Phase 10 knowledge reconciliation truthset with deliberate factual collisions for Resolution Engram synthesis.",
+  "gate_criteria": {
+    "collision_detection": "5/5 contradiction clusters detected in dry-run mode",
+    "resolution_schema": "Each collision can synthesize a metadata.is_resolution_engram=true Engram with parent edges and derived://reconciliation provenance"
+  },
+  "collisions": [
+    {
+      "id": "kr_001",
+      "entity_key": "project:sigint_x",
+      "attribute_key": "status",
+      "query": "What is the status of Project X?",
+      "engrams": [
+        {
+          "id": "kr_001_a",
+          "content": "SIGINT Project X was cancelled in 2024 after its field trial ended.",
+          "normalized_value": "cancelled_2024",
+          "source": "fixture://phase10/project-x-cancelled",
+          "trust_score": 0.72,
+          "source_authority": 0.6
+        },
+        {
+          "id": "kr_001_b",
+          "content": "SIGINT Project X was extended to 2026 under the continuity directive.",
+          "normalized_value": "extended_2026",
+          "source": "fixture://phase10/project-x-extended",
+          "trust_score": 0.9,
+          "source_authority": 0.8
+        }
+      ],
+      "expected_resolution_behavior": "State the conflict and preserve both cancellation and extension provenance."
+    },
+    {
+      "id": "kr_002",
+      "entity_key": "policy:retention_alpha",
+      "attribute_key": "retention_period",
+      "query": "How long should Alpha records be retained?",
+      "engrams": [
+        {
+          "id": "kr_002_a",
+          "content": "Alpha operational records must be destroyed after 30 days unless a legal hold applies.",
+          "normalized_value": "30_days",
+          "source": "fixture://phase10/alpha-30-days",
+          "trust_score": 0.86,
+          "source_authority": 0.7
+        },
+        {
+          "id": "kr_002_b",
+          "content": "Alpha operational records are retained for 12 months for audit continuity.",
+          "normalized_value": "12_months",
+          "source": "fixture://phase10/alpha-12-months",
+          "trust_score": 0.76,
+          "source_authority": 0.6
+        }
+      ],
+      "expected_resolution_behavior": "Prefer the stronger 30-day rule while noting the audit-retention conflict."
+    },
+    {
+      "id": "kr_003",
+      "entity_key": "control:breach_notice",
+      "attribute_key": "deadline",
+      "query": "What is the breach notification deadline?",
+      "engrams": [
+        {
+          "id": "kr_003_a",
+          "content": "Breach notifications must be submitted within 72 hours of detection.",
+          "normalized_value": "72_hours",
+          "source": "fixture://phase10/breach-72-hours",
+          "trust_score": 0.91,
+          "source_authority": 0.9
+        },
+        {
+          "id": "kr_003_b",
+          "content": "Breach notifications may be submitted within five business days after triage.",
+          "normalized_value": "5_business_days",
+          "source": "fixture://phase10/breach-five-days",
+          "trust_score": 0.74,
+          "source_authority": 0.5
+        }
+      ],
+      "expected_resolution_behavior": "Resolve toward 72 hours and cite the five-day statement as conflicting."
+    },
+    {
+      "id": "kr_004",
+      "entity_key": "system:reflect_cache",
+      "attribute_key": "default_mode",
+      "query": "Is the reflect cache enabled by default?",
+      "engrams": [
+        {
+          "id": "kr_004_a",
+          "content": "The reflect cache is disabled by default until tenant policy approval is recorded.",
+          "normalized_value": "disabled_by_default",
+          "source": "fixture://phase10/reflect-disabled",
+          "trust_score": 0.82,
+          "source_authority": 0.7
+        },
+        {
+          "id": "kr_004_b",
+          "content": "The reflect cache is enabled by default for all tenants to improve recall speed.",
+          "normalized_value": "enabled_by_default",
+          "source": "fixture://phase10/reflect-enabled",
+          "trust_score": 0.69,
+          "source_authority": 0.4
+        }
+      ],
+      "expected_resolution_behavior": "Resolve toward disabled-by-default and preserve the conflicting speed rationale."
+    },
+    {
+      "id": "kr_005",
+      "entity_key": "tenant:aurora",
+      "attribute_key": "classification_boundary",
+      "query": "What classification boundary applies to tenant Aurora?",
+      "engrams": [
+        {
+          "id": "kr_005_a",
+          "content": "Tenant Aurora is restricted to unclassified operational support data.",
+          "normalized_value": "unclassified_only",
+          "source": "fixture://phase10/aurora-unclassified",
+          "trust_score": 0.78,
+          "source_authority": 0.6
+        },
+        {
+          "id": "kr_005_b",
+          "content": "Tenant Aurora may process secret mission telemetry inside the shared enclave.",
+          "normalized_value": "secret_allowed",
+          "source": "fixture://phase10/aurora-secret",
+          "trust_score": 0.88,
+          "source_authority": 0.8
+        }
+      ],
+      "expected_resolution_behavior": "Flag the unresolved boundary conflict because both statements are security-sensitive."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "evidence_gap_delta": -1,
+  "unsupported_claim_delta": -2,
+  "contradiction_delta": 0,
+  "citation_integrity_rate": 1.0,
+  "derived_fact_usage_rate": 1.0,
+  "authority_label_preservation_rate": 1.0,
+  "source_traceability_rate": 1.0,
+  "shadow_packet_token_delta": 20,
+  "production_prompt_leakage_count": 0,
+  "default_retrieval_leakage_count": 0
+}

@@ -65,6 +65,7 @@ class MnemosConfig:
     lexical_top_k: int = 25
     semantic_top_k: int = 25
     explain_default: bool = False
+    adaptive_routing: bool = True
 
     # Governance layer
     governance_mode: str = "off"            # off | advisory | enforced
@@ -77,6 +78,18 @@ class MnemosConfig:
     memory_over_maps_phase3: bool = False
     memory_over_maps_phase4: bool = False
     memory_over_maps_phase5: bool = False
+
+    # PIT-1 Governed Derived Fact Lane Scaffold
+    derived_enabled: bool = False
+    derived_whitelist: List[str] = field(default_factory=lambda: ["eval_dashboard", "governance_auditor"])
+
+    # PIT-3 Derived Fact Shadow Packet Limits
+    pit3_max_derived_facts_per_shadow_packet: int = 5
+    pit3_max_derived_fact_tokens: int = 500
+
+    # PIT-1 leakage guard behavior when a derived fact survives the
+    # server-side filters: "strip" removes it, "canary" returns it and logs.
+    pit_leakage_mode: str = "strip"
 
     @staticmethod
     def _parse_bool(name: str, default: str) -> bool:
@@ -158,6 +171,20 @@ class MnemosConfig:
         memory_over_maps_phase4 = cls._parse_bool("MNEMOS_MEMORY_OVER_MAPS_PHASE4", "false")
         memory_over_maps_phase5 = cls._parse_bool("MNEMOS_MEMORY_OVER_MAPS_PHASE5", "false")
 
+        derived_enabled = cls._parse_bool("MNEMOS_DERIVED_ENABLED", "false")
+        derived_whitelist_raw = os.getenv("MNEMOS_DERIVED_WHITELIST", "eval_dashboard,governance_auditor")
+        derived_whitelist = [w.strip() for w in derived_whitelist_raw.split(",") if w.strip()]
+
+        pit3_max_derived_facts_per_shadow_packet = cls._parse_int("MNEMOS_PIT3_MAX_DERIVED_FACTS_PER_SHADOW_PACKET", "5", min_value=1)
+        pit3_max_derived_fact_tokens = cls._parse_int("MNEMOS_PIT3_MAX_DERIVED_FACT_TOKENS", "500", min_value=1)
+
+        pit_leakage_mode = os.getenv("MNEMOS_PIT_LEAKAGE_MODE", "strip").strip().lower()
+        if pit_leakage_mode not in ("strip", "canary"):
+            logger.warning(
+                f"Invalid MNEMOS_PIT_LEAKAGE_MODE={pit_leakage_mode!r}; falling back to 'strip'"
+            )
+            pit_leakage_mode = "strip"
+
         config = cls(
             profile=os.getenv("MNEMOS_PROFILE", "core_memory_appliance"),
             tiers=tiers,
@@ -184,6 +211,7 @@ class MnemosConfig:
             lexical_top_k=lexical_top_k,
             semantic_top_k=semantic_top_k,
             explain_default=explain_default,
+            adaptive_routing=cls._parse_bool("MNEMOS_ADAPTIVE_ROUTING", "true"),
             governance_mode=governance_mode,
             governance_min_score=governance_min_score,
             governance_freshness_half_life=governance_freshness_half_life,
@@ -192,6 +220,11 @@ class MnemosConfig:
             memory_over_maps_phase3=memory_over_maps_phase3,
             memory_over_maps_phase4=memory_over_maps_phase4,
             memory_over_maps_phase5=memory_over_maps_phase5,
+            derived_enabled=derived_enabled,
+            derived_whitelist=derived_whitelist,
+            pit3_max_derived_facts_per_shadow_packet=pit3_max_derived_facts_per_shadow_packet,
+            pit3_max_derived_fact_tokens=pit3_max_derived_fact_tokens,
+            pit_leakage_mode=pit_leakage_mode,
         )
 
         logger.info(

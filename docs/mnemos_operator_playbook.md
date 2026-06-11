@@ -35,11 +35,15 @@ References:
 
 1. Confirm runtime health:
    - `python tools/mnemos_health_audit.py`
-2. Confirm contracts parse and pass:
+2. Warm the promoted retrieval path before admitting live traffic:
+   - `Invoke-RestMethod -Method Post http://localhost:8700/v1/mnemos/warmup -ContentType 'application/json' -Body '{"query":"mnemos preflight warmup"}'`
+   - SDK equivalent: `client.wait_until_ready(warmup=True)`
+   - Treat first-call model-load latency as preflight work; require a successful warmup response before production traffic.
+3. Confirm contracts parse and pass:
    - `python tools/mnemos_ci_gates.py --contract-dir service`
-3. Confirm required benchmark stack services are up when benchmarking:
+4. Confirm required benchmark stack services are up when benchmarking:
    - `docker compose -f benchmarks/docker-compose.bench.yml up -d`
-4. Confirm CI gate suite baseline:
+5. Confirm CI gate suite baseline:
    - `python tools/mnemos_ci_gates.py --run-memory-over-maps-gates --run-governance-evidence-gates --run-wave4-hygiene-gate --run-slo-reliability-gate`
 
 Exit condition: all checks pass.
@@ -117,6 +121,9 @@ Run targeted checks:
   - `python tools/run_slo_reliability_gate.py --stage canary_25 --fail-on-breach`
 - Wave 4 hygiene:
   - `python tools/run_wave4_hygiene.py --mode dry-run --input benchmarks/truthsets/wave4_hygiene_seed.json --fail-on-gate`
+- Phase 10 reconciliation:
+  - `python tools/run_phase10_reconciliation_dry_run.py --mode dry-run --fail-on-conflict`
+  - `python tools/validate_phase10_resolution_gate.py --base-url http://localhost:8700`
 - Memory Over Maps phase-gates:
   - `python -m pytest -q tests/test_memory_over_maps_benchmark_runner.py`
 - Governance evidence:

@@ -1,0 +1,29 @@
+{
+  "artifact": "phase_9_hierarchy_sim",
+  "generated_at": "2026-06-11T23:30:00Z",
+  "phase": "9b",
+  "track": "hierarchical_retrieval_raptor_lite",
+  "truthset": "benchmarks/truthsets/query_complexity_v1.json",
+  "summary_layer": {
+    "depth": 2,
+    "mean_semantic_similarity": 0.7342,
+    "similarity_threshold": "> 0.72",
+    "summary_hit_rate": 1.0,
+    "coherence_gate_pass": true
+  },
+  "isolation_sentinel": {
+    "reserved_filter": "__exclude_summaries__",
+    "live_validator": "tools/validate_phase9b_live_isolation.py",
+    "default_factoid_queries": 20,
+    "summary_leaks": 0,
+    "positive_control_summary_hits": 5,
+    "positive_control_total": 5,
+    "pass": true,
+    "raw_evidence": "benchmarks/outputs/raw/phase9b_live_isolation_20260611_225423_raw.json"
+  },
+  "gate": {
+    "mean_similarity_pass": true,
+    "isolation_pass": true,
+    "overall_pass": true
+  }
+}

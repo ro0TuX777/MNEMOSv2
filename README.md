@@ -1,28 +1,8 @@
 MNEMOS
 Adaptive, Governed Memory Appliance with Hierarchical Synthesis and Matryoshka Economics
 A containerised, contract-governed memory service that understands query complexity, resolves factual contradictions, and delivers 65% faster retrieval via Matryoshka embeddings.
-
 The Solution
 MNEMOSv2 is a production-hardened memory service that deploys as a GPU-accelerated Docker stack. It moves beyond simple vector search to provide a governed "Source of Truth" for AI-native applications.
-
-Capability: What you get
-- Adaptive Routing	Embedded-Reflex Classifier detects query complexity (Simple/Multi-hop/Global) in <0.1ms and orchestrates the optimal retrieval path.
-- Matryoshka Economics	64-dim prefetch / 768-dim rescore via Nomic v1.5. Delivers 65% reduction in p95 latency while maintaining 1.0 rank stability.
-- Hierarchical Synthesis	RAPTOR-lite thematic summaries (Depth-1 & 2) provide "Executive Overviews" for global queries, isolated from raw factoid search.
-- Knowledge Consensus	Reconciliation Engine synthesizes "Resolution Engrams" from conflicting memories, providing a structured "Single Source of Truth."
-- NLI-Grounded Precision	Bidirectional NLI Critic validates memory usage via semantic entailment. USED precision improved from 0.57 to 1.00.
-- Counterfactual Audit	Deterministic explainability traces: "Why won/lost" and Age Inversion (decay modifiers explained in human-readable days).
-- SLO-Driven Orchestration	Budget-Aware Router uses an EWMA cost model to shed load (skip rerank/rescore) to hit your latency_budget_ms.
-- TurboQuant Compression	4-bit near-lossless quantisation — 8× storage reduction, 0.995 cosine fidelity (arXiv:2504.19874).
-- Forensic Ledger	Every operation, classification, and reconciliation is logged to PostgreSQL for immutable auditability.
-
-What's New in v2.x (Phase 7-10)
-- Feature	Impact	Benchmark
-- Matryoshka MRL	64-dim prefetch + 768-dim rescore	45ms p95 (vs 129ms baseline)
-- Adaptive-RAG	Automatic routing between Flat, Graph, and Hierarchical paths	100% Hold-out Accuracy
-- Consensus Engine	Automated resolution of factual contradictions	5/5 Collisions Resolved
-- NLI Reflect	Entailment-based feedback loop (No false-positives)	1.0 Precision
-- Warmup Readiness	Zero user-perceived cold-starts for GPU models	25s load hit managed in preflight
 
 ---
 

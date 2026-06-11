@@ -14,6 +14,8 @@ import json
 import logging
 from typing import Any, Dict, List, Optional
 
+import numpy as np
+
 from mnemos.engram.model import Engram
 from mnemos.retrieval.base import BaseRetriever, SearchResult
 
@@ -193,8 +195,13 @@ class PgvectorTier(BaseRetriever):
             logger.error(f"pgvector indexing failed: {e}")
             return 0
 
-    def search(self, query: str, top_k: int = 10,
-               filters: Optional[Dict[str, Any]] = None) -> List[SearchResult]:
+    def search(
+        self,
+        query: str,
+        top_k: int = 10,
+        filters: Optional[Dict[str, Any]] = None,
+        query_vector: Optional[Any] = None,
+    ) -> List[SearchResult]:
         """
         Search pgvector for relevant engrams.
 
@@ -209,7 +216,12 @@ class PgvectorTier(BaseRetriever):
             return []
 
         try:
-            query_vec = self._embed([query])[0]
+            candidate_vec = np.asarray(query_vector, dtype=np.float32).reshape(-1) if query_vector is not None else None
+            query_vec = (
+                candidate_vec.tolist()
+                if candidate_vec is not None and candidate_vec.size == self._embedding_dim
+                else self._embed([query])[0]
+            )
             embedding_str = "[" + ",".join(str(v) for v in query_vec) + "]"
 
             # Build WHERE clauses from filters
@@ -218,7 +230,24 @@ class PgvectorTier(BaseRetriever):
 
             if filters:
                 for key, value in filters.items():
-                    if key == "confidence_min":
+                    if key in ("__mrl_oversample__", "__hnsw_ef__", "__prefetch_only__"):
+                        # Budget-plan sentinels are Qdrant-only knobs; never
+                        # let reserved keys reach the generic JSONB branch.
+                        continue
+                    elif key == "__exclude_derived__":
+                        # PIT-1 server-side derived-fact exclusion (router-injected
+                        # sentinel; see retrieval_router). JSONB bool renders 'true'.
+                        if value:
+                            conditions.append(
+                                "(metadata->>'is_derived_fact') IS DISTINCT FROM 'true'"
+                            )
+                    elif key == "__exclude_summaries__":
+                        # Phase 9b summary isolation: protected hierarchy tier.
+                        if value:
+                            conditions.append(
+                                "(metadata->>'is_summary_engram') IS DISTINCT FROM 'true'"
+                            )
+                    elif key == "confidence_min":
                         conditions.append("confidence >= %s")
                         params.append(float(value))
                     elif key == "neuro_tag":

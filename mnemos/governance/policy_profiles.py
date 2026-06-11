@@ -24,6 +24,10 @@ class GovernancePolicyProfile:
     overlap_threshold: float = 0.15
     min_memory_tokens_for_overlap: int = 3
     min_overlap_tokens: int = 2
+    # Reflect usage-detection engine: "lexical" (word overlap) or "nli"
+    # (entailment cross-encoder, Phase 6 gate PASS). NLI falls back to
+    # lexical at runtime if the model is unavailable.
+    reflect_precision_mode: str = "lexical"
     utility_used: float = 0.05
     utility_ignored: float = -0.01
     utility_contradiction_loser: float = -0.03
@@ -50,6 +54,9 @@ class GovernancePolicyProfile:
                 data.get("min_memory_tokens_for_overlap", seed.min_memory_tokens_for_overlap)
             ),
             min_overlap_tokens=int(data.get("min_overlap_tokens", seed.min_overlap_tokens)),
+            reflect_precision_mode=str(
+                data.get("reflect_precision_mode", seed.reflect_precision_mode)
+            ).strip().lower(),
             utility_used=float(data.get("utility_used", seed.utility_used)),
             utility_ignored=float(data.get("utility_ignored", seed.utility_ignored)),
             utility_contradiction_loser=float(
@@ -74,6 +81,8 @@ class GovernancePolicyProfile:
             raise ValueError("min_memory_tokens_for_overlap must be >= 1")
         if self.min_overlap_tokens < 1:
             raise ValueError("min_overlap_tokens must be >= 1")
+        if self.reflect_precision_mode not in ("lexical", "nli"):
+            raise ValueError("reflect_precision_mode must be 'lexical' or 'nli'")
         return self
 
     def reinforcement_config(self) -> ReinforcementConfig:

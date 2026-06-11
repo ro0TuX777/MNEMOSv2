@@ -1,0 +1,14 @@
+{
+  "total_overrides": 1,
+  "operator_override_rate_percentage": 2.38,
+  "breakdown": {
+    "UNSUPPORTED_BY_SOURCE": 0,
+    "WEAK_RENDERED_SUPPORT": 1,
+    "MISLEADING_CLAIM_STRENGTH": 0,
+    "WRONG_SOURCE": 0,
+    "LOW_USEFULNESS": 0,
+    "CONFUSING_PRESENTATION": 0,
+    "AUTHORITY_LABEL_UNCLEAR": 0,
+    "OTHER": 0
+  }
+}

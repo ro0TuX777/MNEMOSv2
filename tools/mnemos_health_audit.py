@@ -163,7 +163,7 @@ def main(argv: list[str] | None = None) -> int:
     if failures:
         print(f"Audit completed with {failures} failure(s).")
         return 1
-    print("Audit completed successfully. ✅")
+    print("Audit completed successfully. [OK]")
     return 0
 
 

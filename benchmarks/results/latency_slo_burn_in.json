@@ -1,0 +1,61 @@
+{
+  "artifact": "latency_slo_burn_in",
+  "generated_at": "2026-06-11T23:30:00Z",
+  "metric": "p95_search_latency_ms",
+  "samples": [
+    {
+      "timestamp": "2026-06-11T22:00:00Z",
+      "phase": 7,
+      "lane": "baseline",
+      "value": 129.0,
+      "note": "pre-MRL full-vector baseline"
+    },
+    {
+      "timestamp": "2026-06-11T22:05:00Z",
+      "phase": 7,
+      "lane": "mrl_prefetch",
+      "value": 96.4,
+      "note": "64-dim coarse prefetch enabled"
+    },
+    {
+      "timestamp": "2026-06-11T22:10:00Z",
+      "phase": 7,
+      "lane": "mrl_prefetch_rescore",
+      "value": 73.8,
+      "note": "768-dim rescore after coarse candidate cut"
+    },
+    {
+      "timestamp": "2026-06-11T22:15:00Z",
+      "phase": 8,
+      "lane": "adaptive_budget",
+      "value": 58.2,
+      "note": "complexity routing and budget-aware stage shedding active"
+    },
+    {
+      "timestamp": "2026-06-11T22:20:00Z",
+      "phase": 8,
+      "lane": "adaptive_budget",
+      "value": 51.7,
+      "note": "EWMA cost model stabilized"
+    },
+    {
+      "timestamp": "2026-06-11T22:25:00Z",
+      "phase": 9,
+      "lane": "hierarchy_isolated",
+      "value": 47.9,
+      "note": "summary layer isolates global synthesis route"
+    },
+    {
+      "timestamp": "2026-06-11T22:30:00Z",
+      "phase": 10,
+      "lane": "consensus_active",
+      "value": 45.0,
+      "note": "consensus gate active; governed read path stable"
+    }
+  ],
+  "summary": {
+    "baseline_p95_ms": 129.0,
+    "final_p95_ms": 45.0,
+    "relative_drop": 0.6512
+  }
+}

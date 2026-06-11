@@ -121,7 +121,9 @@ def test_router_hybrid_preserves_filters_and_avoids_leakage():
         explain=True,
     )
 
-    assert semantic.last_filters == {"source": "dept-legal"}
+    # Semantic leg receives the user filters plus the PIT-1 derived-fact
+    # exclusion sentinel (consumed server-side by qdrant/pgvector tiers).
+    assert semantic.last_filters == {"source": "dept-legal", "__exclude_derived__": True}
     assert lexical.last_filters == {"source": "dept-legal"}
     assert all(r.engram.source == "dept-legal" for r in results)
     assert all(r.metadata.get("filters_applied") == {"source": "dept-legal"} for r in results)

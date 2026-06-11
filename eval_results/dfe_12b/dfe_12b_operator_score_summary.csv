@@ -1,0 +1,7 @@
+Metric,Simulated_Score,Human_Score
+safety_issue_count,0,N/A
+authority_clarity_avg,4.9,N/A
+rendered_support_quality_avg,4.8,N/A
+selected_fact_usefulness_avg,3.8,N/A
+operator_confidence_delta_avg,1.5,N/A
+claim_strength_issue_rate,0%,N/A

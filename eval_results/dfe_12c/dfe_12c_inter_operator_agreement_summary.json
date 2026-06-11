@@ -1,0 +1,7 @@
+{
+  "total_human_operators": 0,
+  "human_disagreement_rate": "N/A",
+  "operator_override_rate": "N/A",
+  "simulated_scoring_used_as_primary": false,
+  "simulated_scoring_used_as_auxiliary": true
+}

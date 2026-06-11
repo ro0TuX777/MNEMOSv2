@@ -1,0 +1,9 @@
+Metric,Human_Score_Avg
+operator_confidence_delta_avg,1.8
+review_burden_delta_avg,-1.2
+operator_override_rate,2.39%
+claim_strength_issue_rate,0.1%
+rendered_support_quality_avg,4.5
+source_support_quality_avg,4.7
+selected_fact_usefulness_avg,3.1
+human_disagreement_rate,3.9%

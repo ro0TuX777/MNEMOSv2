@@ -1,0 +1,21 @@
+[
+  {
+    "query_id": "q_12345",
+    "query": "What caused the Q1 database outage?",
+    "baseline_answer_ref": "baseline_answer_examples.json",
+    "shadow_answer_ref": "shadow_answer_examples.json",
+    "reviewer_type": "human",
+    "review_timestamp_utc": "2026-06-07T21:54:35.837466Z",
+    "operator_preference": "shadow",
+    "clarity_delta": 2,
+    "confidence_delta": 2,
+    "citation_quality_score": 5,
+    "evidence_gap_handling_score": 5,
+    "decision_usefulness_score": 5,
+    "derived_fact_usefulness_score": 5,
+    "authority_label_clarity_score": 5,
+    "source_traceability_success": true,
+    "review_burden_delta": 0,
+    "manual_rejection_reason": ""
+  }
+]

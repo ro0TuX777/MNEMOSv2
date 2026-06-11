@@ -1,0 +1,982 @@
+{
+  "queries_run": 10,
+  "total_seed_candidates": 20,
+  "total_graph_candidates": 10,
+  "total_unique_graph_candidates": 10,
+  "total_useful_candidates": 10,
+  "total_useless_candidates": 0,
+  "total_gov_filtered": 10,
+  "total_lineage_filtered": 10,
+  "total_score_filtered": 15,
+  "total_hub_penalty_filtered": 5,
+  "avg_graph_scores": [
+    0.9,
+    0.9,
+    0.9,
+    0.9,
+    0.9,
+    0.9,
+    0.9,
+    0.9,
+    0.9,
+    0.9
+  ],
+  "latencies_ms": [
+    0.3952999832108617,
+    0.15409989282488823,
+    0.16719999257475138,
+    0.12450001668184996,
+    0.11579995043575764,
+    0.11030002497136593,
+    0.1148999435827136,
+    0.11350004933774471,
+    0.12590002734214067,
+    0.12340000830590725
+  ],
+  "hub_frequency": {
+    "useful_0": 1,
+    "useful_1": 1,
+    "useful_2": 1,
+    "useful_3": 1,
+    "useful_4": 1,
+    "useful_5": 1,
+    "useful_6": 1,
+    "useful_7": 1,
+    "useful_8": 1,
+    "useful_9": 1
+  },
+  "per_query_records": [
+    {
+      "query_id": "3b88ec0aa586",
+      "query_text": "Container image size optimization",
+      "latency_ms": 0.4,
+      "telemetry": {
+        "enabled": true,
+        "mode": "edge_traversal_v0",
+        "mutated_results": false,
+        "seed_candidate_count": 2,
+        "graph_candidate_count": 1,
+        "graph_unique_candidate_count": 1,
+        "graph_latency_ms": 0.03,
+        "graph_overlap_with_returned_final": 0,
+        "graph_shadow_envelope_survival_count": 1,
+        "graph_governance_filtered_count": 1,
+        "graph_lineage_filtered_count": 1,
+        "graph_score_filtered_count": 1,
+        "graph_hub_penalty_filtered_count": 0,
+        "graph_candidate_lineage_complete_count": 1,
+        "graph_candidate_lineage_complete_ratio": 1.0,
+        "graph_avg_edge_depth": 1.0,
+        "graph_avg_graph_score": 0.9,
+        "graph_min_graph_score": 0.9,
+        "graph_max_graph_score": 0.9,
+        "graph_hub_candidate_count": 0,
+        "graph_top_repeated_candidate_ids": [],
+        "graph_score_threshold": 0.5,
+        "hub_degree_threshold": 5,
+        "graph_candidate_token_estimate": 9,
+        "graph_source_distribution": {
+          "art_0": 1
+        },
+        "candidates": [
+          {
+            "candidate_id": "useful_0",
+            "seed_id": "seed_0_1",
+            "edge_path": [
+              "seed_0_1",
+              "useful_0"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.9,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": null
+          }
+        ],
+        "ineligible_candidates": [
+          {
+            "candidate_id": "useless_0",
+            "seed_id": "seed_0_2",
+            "edge_path": [
+              "seed_0_2",
+              "useless_0"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.2,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "lin_incomplete_0",
+            "seed_id": "seed_0_2",
+            "edge_path": [
+              "seed_0_2",
+              "lin_incomplete_0"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 1.0,
+            "lineage_complete": false,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "lineage_incomplete"
+          }
+        ]
+      },
+      "utility_useful": 1,
+      "utility_useless": 0
+    },
+    {
+      "query_id": "f15a9675e4e2",
+      "query_text": "Compliance training requirements",
+      "latency_ms": 0.15,
+      "telemetry": {
+        "enabled": true,
+        "mode": "edge_traversal_v0",
+        "mutated_results": false,
+        "seed_candidate_count": 2,
+        "graph_candidate_count": 1,
+        "graph_unique_candidate_count": 1,
+        "graph_latency_ms": 0.02,
+        "graph_overlap_with_returned_final": 0,
+        "graph_shadow_envelope_survival_count": 1,
+        "graph_governance_filtered_count": 1,
+        "graph_lineage_filtered_count": 1,
+        "graph_score_filtered_count": 2,
+        "graph_hub_penalty_filtered_count": 1,
+        "graph_candidate_lineage_complete_count": 1,
+        "graph_candidate_lineage_complete_ratio": 1.0,
+        "graph_avg_edge_depth": 1.0,
+        "graph_avg_graph_score": 0.9,
+        "graph_min_graph_score": 0.9,
+        "graph_max_graph_score": 0.9,
+        "graph_hub_candidate_count": 1,
+        "graph_top_repeated_candidate_ids": [],
+        "graph_score_threshold": 0.5,
+        "hub_degree_threshold": 5,
+        "graph_candidate_token_estimate": 7,
+        "graph_source_distribution": {
+          "art_1": 1
+        },
+        "candidates": [
+          {
+            "candidate_id": "useful_1",
+            "seed_id": "seed_1_1",
+            "edge_path": [
+              "seed_1_1",
+              "useful_1"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.9,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": null
+          }
+        ],
+        "ineligible_candidates": [
+          {
+            "candidate_id": "hub_node_01",
+            "seed_id": "seed_1_1",
+            "edge_path": [
+              "seed_1_1",
+              "hub_node_01"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.10354879539481851,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "useless_1",
+            "seed_id": "seed_1_2",
+            "edge_path": [
+              "seed_1_2",
+              "useless_1"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.2,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "lin_incomplete_1",
+            "seed_id": "seed_1_2",
+            "edge_path": [
+              "seed_1_2",
+              "lin_incomplete_1"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 1.0,
+            "lineage_complete": false,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "lineage_incomplete"
+          }
+        ]
+      },
+      "utility_useful": 1,
+      "utility_useless": 0
+    },
+    {
+      "query_id": "a40eec1785f8",
+      "query_text": "Intellectual property protection status",
+      "latency_ms": 0.17,
+      "telemetry": {
+        "enabled": true,
+        "mode": "edge_traversal_v0",
+        "mutated_results": false,
+        "seed_candidate_count": 2,
+        "graph_candidate_count": 1,
+        "graph_unique_candidate_count": 1,
+        "graph_latency_ms": 0.01,
+        "graph_overlap_with_returned_final": 0,
+        "graph_shadow_envelope_survival_count": 1,
+        "graph_governance_filtered_count": 1,
+        "graph_lineage_filtered_count": 1,
+        "graph_score_filtered_count": 1,
+        "graph_hub_penalty_filtered_count": 0,
+        "graph_candidate_lineage_complete_count": 1,
+        "graph_candidate_lineage_complete_ratio": 1.0,
+        "graph_avg_edge_depth": 1.0,
+        "graph_avg_graph_score": 0.9,
+        "graph_min_graph_score": 0.9,
+        "graph_max_graph_score": 0.9,
+        "graph_hub_candidate_count": 0,
+        "graph_top_repeated_candidate_ids": [],
+        "graph_score_threshold": 0.5,
+        "hub_degree_threshold": 5,
+        "graph_candidate_token_estimate": 9,
+        "graph_source_distribution": {
+          "art_2": 1
+        },
+        "candidates": [
+          {
+            "candidate_id": "useful_2",
+            "seed_id": "seed_2_1",
+            "edge_path": [
+              "seed_2_1",
+              "useful_2"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.9,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": null
+          }
+        ],
+        "ineligible_candidates": [
+          {
+            "candidate_id": "useless_2",
+            "seed_id": "seed_2_2",
+            "edge_path": [
+              "seed_2_2",
+              "useless_2"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.2,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "lin_incomplete_2",
+            "seed_id": "seed_2_2",
+            "edge_path": [
+              "seed_2_2",
+              "lin_incomplete_2"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 1.0,
+            "lineage_complete": false,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "lineage_incomplete"
+          }
+        ]
+      },
+      "utility_useful": 1,
+      "utility_useless": 0
+    },
+    {
+      "query_id": "fdb6f9599585",
+      "query_text": "Litigation reserve estimates",
+      "latency_ms": 0.12,
+      "telemetry": {
+        "enabled": true,
+        "mode": "edge_traversal_v0",
+        "mutated_results": false,
+        "seed_candidate_count": 2,
+        "graph_candidate_count": 1,
+        "graph_unique_candidate_count": 1,
+        "graph_latency_ms": 0.01,
+        "graph_overlap_with_returned_final": 0,
+        "graph_shadow_envelope_survival_count": 1,
+        "graph_governance_filtered_count": 1,
+        "graph_lineage_filtered_count": 1,
+        "graph_score_filtered_count": 2,
+        "graph_hub_penalty_filtered_count": 1,
+        "graph_candidate_lineage_complete_count": 1,
+        "graph_candidate_lineage_complete_ratio": 1.0,
+        "graph_avg_edge_depth": 1.0,
+        "graph_avg_graph_score": 0.9,
+        "graph_min_graph_score": 0.9,
+        "graph_max_graph_score": 0.9,
+        "graph_hub_candidate_count": 1,
+        "graph_top_repeated_candidate_ids": [],
+        "graph_score_threshold": 0.5,
+        "hub_degree_threshold": 5,
+        "graph_candidate_token_estimate": 7,
+        "graph_source_distribution": {
+          "art_3": 1
+        },
+        "candidates": [
+          {
+            "candidate_id": "useful_3",
+            "seed_id": "seed_3_1",
+            "edge_path": [
+              "seed_3_1",
+              "useful_3"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.9,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": null
+          }
+        ],
+        "ineligible_candidates": [
+          {
+            "candidate_id": "hub_node_01",
+            "seed_id": "seed_3_1",
+            "edge_path": [
+              "seed_3_1",
+              "hub_node_01"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.10354879539481851,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "useless_3",
+            "seed_id": "seed_3_2",
+            "edge_path": [
+              "seed_3_2",
+              "useless_3"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.2,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "lin_incomplete_3",
+            "seed_id": "seed_3_2",
+            "edge_path": [
+              "seed_3_2",
+              "lin_incomplete_3"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 1.0,
+            "lineage_complete": false,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "lineage_incomplete"
+          }
+        ]
+      },
+      "utility_useful": 1,
+      "utility_useless": 0
+    },
+    {
+      "query_id": "a31b048e7425",
+      "query_text": "Budget forecast growth projections",
+      "latency_ms": 0.12,
+      "telemetry": {
+        "enabled": true,
+        "mode": "edge_traversal_v0",
+        "mutated_results": false,
+        "seed_candidate_count": 2,
+        "graph_candidate_count": 1,
+        "graph_unique_candidate_count": 1,
+        "graph_latency_ms": 0.01,
+        "graph_overlap_with_returned_final": 0,
+        "graph_shadow_envelope_survival_count": 1,
+        "graph_governance_filtered_count": 1,
+        "graph_lineage_filtered_count": 1,
+        "graph_score_filtered_count": 1,
+        "graph_hub_penalty_filtered_count": 0,
+        "graph_candidate_lineage_complete_count": 1,
+        "graph_candidate_lineage_complete_ratio": 1.0,
+        "graph_avg_edge_depth": 1.0,
+        "graph_avg_graph_score": 0.9,
+        "graph_min_graph_score": 0.9,
+        "graph_max_graph_score": 0.9,
+        "graph_hub_candidate_count": 0,
+        "graph_top_repeated_candidate_ids": [],
+        "graph_score_threshold": 0.5,
+        "hub_degree_threshold": 5,
+        "graph_candidate_token_estimate": 9,
+        "graph_source_distribution": {
+          "art_4": 1
+        },
+        "candidates": [
+          {
+            "candidate_id": "useful_4",
+            "seed_id": "seed_4_1",
+            "edge_path": [
+              "seed_4_1",
+              "useful_4"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.9,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": null
+          }
+        ],
+        "ineligible_candidates": [
+          {
+            "candidate_id": "useless_4",
+            "seed_id": "seed_4_2",
+            "edge_path": [
+              "seed_4_2",
+              "useless_4"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.2,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "lin_incomplete_4",
+            "seed_id": "seed_4_2",
+            "edge_path": [
+              "seed_4_2",
+              "lin_incomplete_4"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 1.0,
+            "lineage_complete": false,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "lineage_incomplete"
+          }
+        ]
+      },
+      "utility_useful": 1,
+      "utility_useless": 0
+    },
+    {
+      "query_id": "90c542313616",
+      "query_text": "Security vulnerability scan findings",
+      "latency_ms": 0.11,
+      "telemetry": {
+        "enabled": true,
+        "mode": "edge_traversal_v0",
+        "mutated_results": false,
+        "seed_candidate_count": 2,
+        "graph_candidate_count": 1,
+        "graph_unique_candidate_count": 1,
+        "graph_latency_ms": 0.01,
+        "graph_overlap_with_returned_final": 0,
+        "graph_shadow_envelope_survival_count": 1,
+        "graph_governance_filtered_count": 1,
+        "graph_lineage_filtered_count": 1,
+        "graph_score_filtered_count": 2,
+        "graph_hub_penalty_filtered_count": 1,
+        "graph_candidate_lineage_complete_count": 1,
+        "graph_candidate_lineage_complete_ratio": 1.0,
+        "graph_avg_edge_depth": 1.0,
+        "graph_avg_graph_score": 0.9,
+        "graph_min_graph_score": 0.9,
+        "graph_max_graph_score": 0.9,
+        "graph_hub_candidate_count": 1,
+        "graph_top_repeated_candidate_ids": [],
+        "graph_score_threshold": 0.5,
+        "hub_degree_threshold": 5,
+        "graph_candidate_token_estimate": 9,
+        "graph_source_distribution": {
+          "art_5": 1
+        },
+        "candidates": [
+          {
+            "candidate_id": "useful_5",
+            "seed_id": "seed_5_1",
+            "edge_path": [
+              "seed_5_1",
+              "useful_5"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.9,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": null
+          }
+        ],
+        "ineligible_candidates": [
+          {
+            "candidate_id": "hub_node_01",
+            "seed_id": "seed_5_1",
+            "edge_path": [
+              "seed_5_1",
+              "hub_node_01"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.10354879539481851,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "useless_5",
+            "seed_id": "seed_5_2",
+            "edge_path": [
+              "seed_5_2",
+              "useless_5"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.2,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "lin_incomplete_5",
+            "seed_id": "seed_5_2",
+            "edge_path": [
+              "seed_5_2",
+              "lin_incomplete_5"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 1.0,
+            "lineage_complete": false,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "lineage_incomplete"
+          }
+        ]
+      },
+      "utility_useful": 1,
+      "utility_useless": 0
+    },
+    {
+      "query_id": "cba5681bab70",
+      "query_text": "Compliance review material findings",
+      "latency_ms": 0.11,
+      "telemetry": {
+        "enabled": true,
+        "mode": "edge_traversal_v0",
+        "mutated_results": false,
+        "seed_candidate_count": 2,
+        "graph_candidate_count": 1,
+        "graph_unique_candidate_count": 1,
+        "graph_latency_ms": 0.01,
+        "graph_overlap_with_returned_final": 0,
+        "graph_shadow_envelope_survival_count": 1,
+        "graph_governance_filtered_count": 1,
+        "graph_lineage_filtered_count": 1,
+        "graph_score_filtered_count": 1,
+        "graph_hub_penalty_filtered_count": 0,
+        "graph_candidate_lineage_complete_count": 1,
+        "graph_candidate_lineage_complete_ratio": 1.0,
+        "graph_avg_edge_depth": 1.0,
+        "graph_avg_graph_score": 0.9,
+        "graph_min_graph_score": 0.9,
+        "graph_max_graph_score": 0.9,
+        "graph_hub_candidate_count": 0,
+        "graph_top_repeated_candidate_ids": [],
+        "graph_score_threshold": 0.5,
+        "hub_degree_threshold": 5,
+        "graph_candidate_token_estimate": 9,
+        "graph_source_distribution": {
+          "art_6": 1
+        },
+        "candidates": [
+          {
+            "candidate_id": "useful_6",
+            "seed_id": "seed_6_1",
+            "edge_path": [
+              "seed_6_1",
+              "useful_6"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.9,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": null
+          }
+        ],
+        "ineligible_candidates": [
+          {
+            "candidate_id": "useless_6",
+            "seed_id": "seed_6_2",
+            "edge_path": [
+              "seed_6_2",
+              "useless_6"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.2,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "lin_incomplete_6",
+            "seed_id": "seed_6_2",
+            "edge_path": [
+              "seed_6_2",
+              "lin_incomplete_6"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 1.0,
+            "lineage_complete": false,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "lineage_incomplete"
+          }
+        ]
+      },
+      "utility_useful": 1,
+      "utility_useless": 0
+    },
+    {
+      "query_id": "0eedd8d619e5",
+      "query_text": "API endpoint latency measurements",
+      "latency_ms": 0.11,
+      "telemetry": {
+        "enabled": true,
+        "mode": "edge_traversal_v0",
+        "mutated_results": false,
+        "seed_candidate_count": 2,
+        "graph_candidate_count": 1,
+        "graph_unique_candidate_count": 1,
+        "graph_latency_ms": 0.01,
+        "graph_overlap_with_returned_final": 0,
+        "graph_shadow_envelope_survival_count": 1,
+        "graph_governance_filtered_count": 1,
+        "graph_lineage_filtered_count": 1,
+        "graph_score_filtered_count": 2,
+        "graph_hub_penalty_filtered_count": 1,
+        "graph_candidate_lineage_complete_count": 1,
+        "graph_candidate_lineage_complete_ratio": 1.0,
+        "graph_avg_edge_depth": 1.0,
+        "graph_avg_graph_score": 0.9,
+        "graph_min_graph_score": 0.9,
+        "graph_max_graph_score": 0.9,
+        "graph_hub_candidate_count": 1,
+        "graph_top_repeated_candidate_ids": [],
+        "graph_score_threshold": 0.5,
+        "hub_degree_threshold": 5,
+        "graph_candidate_token_estimate": 9,
+        "graph_source_distribution": {
+          "art_7": 1
+        },
+        "candidates": [
+          {
+            "candidate_id": "useful_7",
+            "seed_id": "seed_7_1",
+            "edge_path": [
+              "seed_7_1",
+              "useful_7"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.9,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": null
+          }
+        ],
+        "ineligible_candidates": [
+          {
+            "candidate_id": "hub_node_01",
+            "seed_id": "seed_7_1",
+            "edge_path": [
+              "seed_7_1",
+              "hub_node_01"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.10354879539481851,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "useless_7",
+            "seed_id": "seed_7_2",
+            "edge_path": [
+              "seed_7_2",
+              "useless_7"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.2,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "lin_incomplete_7",
+            "seed_id": "seed_7_2",
+            "edge_path": [
+              "seed_7_2",
+              "lin_incomplete_7"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 1.0,
+            "lineage_complete": false,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "lineage_incomplete"
+          }
+        ]
+      },
+      "utility_useful": 1,
+      "utility_useless": 0
+    },
+    {
+      "query_id": "94c63e4216fc",
+      "query_text": "Monitoring stack retention config",
+      "latency_ms": 0.13,
+      "telemetry": {
+        "enabled": true,
+        "mode": "edge_traversal_v0",
+        "mutated_results": false,
+        "seed_candidate_count": 2,
+        "graph_candidate_count": 1,
+        "graph_unique_candidate_count": 1,
+        "graph_latency_ms": 0.01,
+        "graph_overlap_with_returned_final": 0,
+        "graph_shadow_envelope_survival_count": 1,
+        "graph_governance_filtered_count": 1,
+        "graph_lineage_filtered_count": 1,
+        "graph_score_filtered_count": 1,
+        "graph_hub_penalty_filtered_count": 0,
+        "graph_candidate_lineage_complete_count": 1,
+        "graph_candidate_lineage_complete_ratio": 1.0,
+        "graph_avg_edge_depth": 1.0,
+        "graph_avg_graph_score": 0.9,
+        "graph_min_graph_score": 0.9,
+        "graph_max_graph_score": 0.9,
+        "graph_hub_candidate_count": 0,
+        "graph_top_repeated_candidate_ids": [],
+        "graph_score_threshold": 0.5,
+        "hub_degree_threshold": 5,
+        "graph_candidate_token_estimate": 9,
+        "graph_source_distribution": {
+          "art_8": 1
+        },
+        "candidates": [
+          {
+            "candidate_id": "useful_8",
+            "seed_id": "seed_8_1",
+            "edge_path": [
+              "seed_8_1",
+              "useful_8"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.9,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": null
+          }
+        ],
+        "ineligible_candidates": [
+          {
+            "candidate_id": "useless_8",
+            "seed_id": "seed_8_2",
+            "edge_path": [
+              "seed_8_2",
+              "useless_8"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.2,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "lin_incomplete_8",
+            "seed_id": "seed_8_2",
+            "edge_path": [
+              "seed_8_2",
+              "lin_incomplete_8"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 1.0,
+            "lineage_complete": false,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "lineage_incomplete"
+          }
+        ]
+      },
+      "utility_useful": 1,
+      "utility_useless": 0
+    },
+    {
+      "query_id": "106d4a62fb80",
+      "query_text": "Merger due diligence document review",
+      "latency_ms": 0.12,
+      "telemetry": {
+        "enabled": true,
+        "mode": "edge_traversal_v0",
+        "mutated_results": false,
+        "seed_candidate_count": 2,
+        "graph_candidate_count": 1,
+        "graph_unique_candidate_count": 1,
+        "graph_latency_ms": 0.01,
+        "graph_overlap_with_returned_final": 0,
+        "graph_shadow_envelope_survival_count": 1,
+        "graph_governance_filtered_count": 1,
+        "graph_lineage_filtered_count": 1,
+        "graph_score_filtered_count": 2,
+        "graph_hub_penalty_filtered_count": 1,
+        "graph_candidate_lineage_complete_count": 1,
+        "graph_candidate_lineage_complete_ratio": 1.0,
+        "graph_avg_edge_depth": 1.0,
+        "graph_avg_graph_score": 0.9,
+        "graph_min_graph_score": 0.9,
+        "graph_max_graph_score": 0.9,
+        "graph_hub_candidate_count": 1,
+        "graph_top_repeated_candidate_ids": [],
+        "graph_score_threshold": 0.5,
+        "hub_degree_threshold": 5,
+        "graph_candidate_token_estimate": 10,
+        "graph_source_distribution": {
+          "art_9": 1
+        },
+        "candidates": [
+          {
+            "candidate_id": "useful_9",
+            "seed_id": "seed_9_1",
+            "edge_path": [
+              "seed_9_1",
+              "useful_9"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.9,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": null
+          }
+        ],
+        "ineligible_candidates": [
+          {
+            "candidate_id": "hub_node_01",
+            "seed_id": "seed_9_1",
+            "edge_path": [
+              "seed_9_1",
+              "hub_node_01"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.10354879539481851,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "useless_9",
+            "seed_id": "seed_9_2",
+            "edge_path": [
+              "seed_9_2",
+              "useless_9"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 0.2,
+            "lineage_complete": true,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "score_below_threshold"
+          },
+          {
+            "candidate_id": "lin_incomplete_9",
+            "seed_id": "seed_9_2",
+            "edge_path": [
+              "seed_9_2",
+              "lin_incomplete_9"
+            ],
+            "edge_depth": 1,
+            "edge_type": "related_to",
+            "graph_score": 1.0,
+            "lineage_complete": false,
+            "governance_state": "active",
+            "retrieval_reason": "linked_neighbor_from_seed",
+            "filtered_reason": "lineage_incomplete"
+          }
+        ]
+      },
+      "utility_useful": 1,
+      "utility_useless": 0
+    }
+  ],
+  "latency_p50": 0.12,
+  "latency_p95": 0.29,
+  "latency_p99": 0.37,
+  "hub_nodes_detected": 0,
+  "hub_occurrences": {},
+  "overall_avg_graph_score": 0.9,
+  "useful_candidate_rate": 1.0
+}

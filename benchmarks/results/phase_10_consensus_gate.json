@@ -1,0 +1,33 @@
+{
+  "artifact": "phase_10_consensus_gate",
+  "generated_at": "2026-06-11T23:30:00Z",
+  "phase": "10",
+  "track": "knowledge_reconciliation_consensus",
+  "truthset": "benchmarks/truthsets/knowledge_reconciliation_v1.json",
+  "action_mode": {
+    "command": "python tools/run_phase10_reconciliation_dry_run.py --apply",
+    "resolution_writes": 5,
+    "qdrant_count_before": 2132,
+    "qdrant_count_after": 2137,
+    "qdrant_count_delta": 5,
+    "raw_evidence": "benchmarks/outputs/raw/phase10_reconciliation_apply_20260611_231226_raw.json"
+  },
+  "live_resolution_gate": {
+    "command": "python tools/validate_phase10_resolution_gate.py --base-url http://localhost:8700",
+    "collisions": 5,
+    "top_hit_successes": 5,
+    "parent_suppression_successes": 5,
+    "modifier_audit_successes": 5,
+    "resolution_modifier": 1.25,
+    "missing_parents": 0,
+    "overall_pass": true,
+    "raw_evidence": "benchmarks/outputs/raw/phase10_resolution_gate_20260611_231548_raw.json"
+  },
+  "project_x_resolution": {
+    "resolution_engram_id": "resolution_conflict_project_sigint_x_status",
+    "source": "derived://reconciliation/project_sigint_x",
+    "metadata_is_resolution_engram": true,
+    "edges": ["kr_001_b", "kr_001_a"],
+    "behavior": "structures unresolved conflict with provenance rather than deleting or hiding parent claims"
+  }
+}

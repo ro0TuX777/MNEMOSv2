@@ -132,6 +132,7 @@ class LexicalTier(BaseRetriever):
         query: str,
         top_k: int = 10,
         filters: Optional[Dict[str, Any]] = None,
+        query_vector: Optional[Any] = None,
     ) -> List[SearchResult]:
         if not self._pool:
             return []

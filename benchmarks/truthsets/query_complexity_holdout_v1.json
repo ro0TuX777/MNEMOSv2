@@ -1,0 +1,148 @@
+{
+  "version": "v1",
+  "created": "2026-06-11",
+  "description": "Phase 8 hold-out validation set for embedded query-complexity classification. These queries are semantically similar to query_complexity_v1.json but use different phrasing and anchors. The embedded classifier must pass this set without retraining.",
+  "gate_criteria": {
+    "accuracy": "> 0.85",
+    "p95_inference_overhead_ms_after_embedding": "< 2"
+  },
+  "labels": {
+    "CLASS_A": {
+      "name": "Simple",
+      "description": "Direct lookup, factoid, acronym, section, or single-policy retrieval.",
+      "expected_route": "flat_vector"
+    },
+    "CLASS_B": {
+      "name": "Multi-hop",
+      "description": "Relationship, conflict, overlap, lineage, or cross-document linkage retrieval.",
+      "expected_route": "memgraph_traversal"
+    },
+    "CLASS_C": {
+      "name": "Global",
+      "description": "Corpus-level synthesis, thematic summarization, comparison, or policy posture retrieval.",
+      "expected_route": "hierarchical_raptor_future"
+    }
+  },
+  "queries": [
+    {
+      "id": "qch_a_001",
+      "label": "CLASS_A",
+      "query": "Which GDPR anchor describes disclosure obligations for personal data?",
+      "source_refs": ["ref_gdpr_disclosure"],
+      "source_family": "gdpr",
+      "rationale": "Single-anchor lookup with one expected regulation fact."
+    },
+    {
+      "id": "qch_a_002",
+      "label": "CLASS_A",
+      "query": "Where is the right to erasure described in the GDPR references?",
+      "source_refs": ["ref_gdpr_article_17_erasure"],
+      "source_family": "gdpr",
+      "rationale": "Direct article retrieval without relationship reasoning."
+    },
+    {
+      "id": "qch_a_003",
+      "label": "CLASS_A",
+      "query": "Name the reference passage for bounded reflect adherence.",
+      "source_refs": ["ref_pdf_bounded_reflect_adherence"],
+      "source_family": "sigint",
+      "rationale": "Named reference lookup."
+    },
+    {
+      "id": "qch_a_004",
+      "label": "CLASS_A",
+      "query": "What reference covers stale cache survival?",
+      "source_refs": ["ref_pdf_stale_cache_survival"],
+      "source_family": "sigint",
+      "rationale": "One operational anchor is sufficient."
+    },
+    {
+      "id": "qch_a_005",
+      "label": "CLASS_A",
+      "query": "Find the tenant policy profile reference.",
+      "source_refs": ["ref_pdf_tenant_policy_profile"],
+      "source_family": "sigint",
+      "rationale": "Direct retrieval of a single seeded passage."
+    },
+    {
+      "id": "qch_b_001",
+      "label": "CLASS_B",
+      "query": "How does GDPR disclosure interact with tenant policy profile handling?",
+      "source_refs": ["ref_gdpr_disclosure", "ref_pdf_tenant_policy_profile"],
+      "source_family": "mixed",
+      "rationale": "Requires connecting regulation disclosure with tenant policy enforcement."
+    },
+    {
+      "id": "qch_b_002",
+      "label": "CLASS_B",
+      "query": "Which contradiction-handling rule would affect a stale cache survival decision?",
+      "source_refs": ["ref_pdf_contradiction_handling", "ref_pdf_stale_cache_survival"],
+      "source_family": "sigint",
+      "rationale": "Relationship query across two operational behaviors."
+    },
+    {
+      "id": "qch_b_003",
+      "label": "CLASS_B",
+      "query": "Trace why-won-lost evidence from bounded reflect adherence to contradiction handling.",
+      "source_refs": ["ref_pdf_why_won_lost_trace", "ref_pdf_bounded_reflect_adherence", "ref_pdf_contradiction_handling"],
+      "source_family": "sigint",
+      "rationale": "Asks for lineage between multiple reasoning artifacts."
+    },
+    {
+      "id": "qch_b_004",
+      "label": "CLASS_B",
+      "query": "Where do erasure obligations conflict with retained operational audit traces?",
+      "source_refs": ["ref_gdpr_article_17_erasure", "ref_pdf_why_won_lost_trace"],
+      "source_family": "mixed",
+      "rationale": "Cross-policy conflict and linkage query."
+    },
+    {
+      "id": "qch_b_005",
+      "label": "CLASS_B",
+      "query": "Which SIGINT passage links tenant policy boundaries to bounded reflection behavior?",
+      "source_refs": ["ref_pdf_tenant_policy_profile", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "sigint",
+      "rationale": "Requires relation between two seeded SIGINT references."
+    },
+    {
+      "id": "qch_c_001",
+      "label": "CLASS_C",
+      "query": "Summarize the overall governance posture across GDPR and SIGINT references.",
+      "source_refs": ["ref_gdpr_disclosure", "ref_pdf_tenant_policy_profile", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "mixed",
+      "rationale": "Corpus-level synthesis across domains."
+    },
+    {
+      "id": "qch_c_002",
+      "label": "CLASS_C",
+      "query": "Compare the broad themes of privacy, retention, and operational traceability.",
+      "source_refs": ["ref_gdpr_article_17_erasure", "ref_pdf_stale_cache_survival", "ref_pdf_why_won_lost_trace"],
+      "source_family": "mixed",
+      "rationale": "Thematic comparison rather than a single fact."
+    },
+    {
+      "id": "qch_c_003",
+      "label": "CLASS_C",
+      "query": "What is the general policy stance implied by the full seeded reference set?",
+      "source_refs": ["ref_gdpr_disclosure", "ref_pdf_contradiction_handling", "ref_pdf_tenant_policy_profile"],
+      "source_family": "mixed",
+      "rationale": "Global posture question over the corpus."
+    },
+    {
+      "id": "qch_c_004",
+      "label": "CLASS_C",
+      "query": "Give a high-level synthesis of how MNEMOS should balance disclosure, contradiction, and bounded reflection.",
+      "source_refs": ["ref_gdpr_disclosure", "ref_pdf_contradiction_handling", "ref_pdf_bounded_reflect_adherence"],
+      "source_family": "mixed",
+      "rationale": "Synthesis request spanning multiple policy areas."
+    },
+    {
+      "id": "qch_c_005",
+      "label": "CLASS_C",
+      "query": "Across all anchors, what recurring governance risks should operators monitor?",
+      "source_refs": ["ref_gdpr_disclosure", "ref_pdf_stale_cache_survival", "ref_pdf_why_won_lost_trace"],
+      "source_family": "mixed",
+      "rationale": "Global risk-summary query."
+    }
+  ]
+}

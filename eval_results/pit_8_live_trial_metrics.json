@@ -1,0 +1,27 @@
+{
+  "latency_ms": {
+    "api_v1_query_eval_mode": 1.6876999288797379,
+    "api_v1_query_default": 7716.753699933179,
+    "v1_mnemos_search_default": 20.358300069347024,
+    "evaluate_derived_shadow_missing_flags": 12.156900018453598,
+    "evaluate_derived_shadow_unauthorized": 15.70059999357909,
+    "evaluate_derived_shadow_success": 15.63969999551773
+  },
+  "kill_switch_live_mode": "manual_restart_verified",
+  "boundary_tests": {
+    "api_v1_query_rejects_eval_mode": "PASS",
+    "api_v1_query_zero_derived": "PASS",
+    "v1_mnemos_search_zero_derived": "PASS",
+    "evaluate_derived_shadow_success_path": "SKIPPED_DUE_TO_KILL_SWITCH"
+  },
+  "telemetry_deltas": {
+    "derived_lane.denied_count": 1,
+    "derived_lane.execution_count": 0,
+    "derived_lane.kill_switch_count": 3,
+    "echoframe.production_prompt.derived_count": 0,
+    "evaluate_derived_shadow.denied_count": 0,
+    "evaluate_derived_shadow.rendered_derived_fact_count": 0,
+    "evaluate_derived_shadow.request_count": 3,
+    "query.default_retrieval.derived_fact_count": 0
+  }
+}

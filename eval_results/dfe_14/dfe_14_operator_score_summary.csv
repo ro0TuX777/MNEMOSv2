@@ -1,0 +1,11 @@
+Metric,Human_Score_Avg
+authority_clarity_avg,UNAVAILABLE
+rendered_support_quality_avg,UNAVAILABLE
+source_support_quality_avg,UNAVAILABLE
+question_alignment_quality_avg,UNAVAILABLE
+selected_fact_usefulness_avg,UNAVAILABLE
+review_burden_delta_avg,UNAVAILABLE
+operator_confidence_delta_avg,UNAVAILABLE
+claim_strength_issue_rate,UNAVAILABLE
+human_disagreement_rate,UNAVAILABLE
+operator_override_rate,UNAVAILABLE

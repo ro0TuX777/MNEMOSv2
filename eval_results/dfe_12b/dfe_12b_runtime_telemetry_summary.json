@@ -1,0 +1,10 @@
+{
+  "shadow_latency_p50": 1100,
+  "shadow_latency_p90": 2600,
+  "shadow_latency_p95": 3800,
+  "shadow_latency_p99": 4900,
+  "rendering_latency_ms": 180,
+  "derived_candidate_count_per_query": 6.8,
+  "selected_fact_count_per_query": 0.15,
+  "rescued_fact_count_per_query": 0.05
+}

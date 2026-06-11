@@ -2,16 +2,29 @@
 
 **A containerised, contract-governed memory and retrieval service for AI-native applications.**
 
-*Version 3.0 · March 2026*
+*Version 3.1 · June 2026*
 
 > [!NOTE]
-> **As of March 30, 2026:** Benchmark conclusions in this whitepaper are date-scoped to the current measured runs.
-> For full methodology, raw artifacts, and latest updates, see `docs/benchmark.md`.
+> **As of June 11, 2026:** Benchmark conclusions in dated sections remain scoped to their cited artifact timestamps. For full methodology, raw artifacts, and latest measured runs, see `docs/benchmark.md`.
 > For release, promotion, rollback, and incident execution runbooks, see `docs/mnemos_operator_playbook.md`.
-> **Governance layer (MemArchitect Waves 1–3) is implemented** — per-candidate policy pipeline, entity-slot contradiction detection, and reflect-path reinforcement are in place; Wave 4 hygiene remains the next expansion lane.
-> **Memory Over Maps Phases 1–5 are implemented and benchmark-gated** — source-grounded lineage, bounded candidate envelope, on-demand derived views, cache + invalidation, and bounded semantic reflect evolution all passed phase gates on March 30, 2026.
+> **Governance layer (MemArchitect Waves 1–4) is implemented and CI-gated** — per-candidate policy pipeline, entity-slot contradiction detection, reflect-path reinforcement, and background hygiene control loops (dry-run + enforceable `apply` mode) are in place.
+> **Memory Over Maps Phases 1–5 are implemented and benchmark-gated** — source-grounded lineage, bounded candidate envelope, on-demand derived views, cache + invalidation, and bounded semantic reflect evolution passed phase gates on March 30, 2026; gates remain enforced in CI.
+> **Derived Facts lane (PIT-0→PIT-10) is production-adjacent and pilot-ready** — isolated shadow evaluation via `/api/v1/evaluate_derived_shadow`; default retrieval remains derived-fact-free. See §4.8.
+> **Adaptive Routing, Hierarchical Retrieval, and Consensus Governance (Phases 8-10) are operationally enforced** — embedded query-complexity classification reached 1.0 hold-out accuracy, the Phase 9b summary-isolation sentinel is live in the service container, and Phase 10 Resolution Engrams passed the live consensus gate. See `benchmarks/results/phase_8_complexity_accuracy.json`, `benchmarks/results/phase_9_hierarchy_sim.json`, and `benchmarks/results/phase_10_consensus_gate.json`.
+> **Graph Tier (`graph_hybrid_experimental`) is experimental and read-only** — offline/live resolver validation complete (MG-Test-1→10); not exposed on the public HTTP retrieval-mode surface. See §4.2 and `docs/graph_tier/operator_guide.md`.
 > **Deployment model:** MNEMOS runtime services are deployed as a Docker Compose stack; all serving components run in containers.
 > **Developer model:** tooling, benchmarks, and tests are typically run from host Python unless explicitly containerized.
+
+### Changes since v3.0 (March 2026)
+
+| Date | Change |
+|---|---|
+| 2026-03-30 | Enhancement roadmap closed: CI phase gates, Wave 4 hygiene gate, reflect precision guards, tenant policy profiles, explainability traces, economics counters, SLO reliability gate, operator playbook |
+| 2026-04–05 | Qdrant v1.17 server-side RRF (`qdrant_rrf`), relevance feedback adapter, Cross-Encoder rerank hardening |
+| 2026-05–06 | Graph Tier evaluation track (MG-Test-1→10); read-only `QdrantEngramResolver` with batched prefetch |
+| 2026-06 | Derived Facts production-adjacent lane (PIT-0→PIT-10) approved for limited controlled operator pilot; DFE human-value trials (dfe_12→dfe_21); ops certification closeout (ops_0→ops_4) |
+| 2026-06-10 | Test suite: 564 tests collected; all CI gates passing (MoM phases, governance evidence, hygiene, SLO canary_25) |
+| 2026-06-11 | Phase 8 embedded-reflex adaptive routing, Phase 9b live hierarchy isolation, and Phase 10 consensus Resolution Engrams activated; live consensus gate passed 5/5 collisions |
 
 ---
 
@@ -47,13 +60,20 @@ MNEMOS is **application-agnostic** — it knows nothing about the domain of the 
 - **Guided installer** — Q/A + host probes → profile recommendation → compose + env + manifest generation
 - **Profile benchmarks** — per-profile retrieval latency, recall, and throughput data
 - **Deployment manifest** — `mnemos_profile.yaml` as durable deployment artifact
-- **Governance layer (MemArchitect Waves 1-3)** — per-candidate policy pipeline (veto, freshness decay, trust/utility modifiers), cross-candidate entity-slot contradiction detection, and reflect-path reinforcement; advisory and enforced read path modes; default is `off` pending advisory benchmarking
+- **Governance layer (MemArchitect Waves 1–4)** — per-candidate policy pipeline, contradiction detection, reflect-path reinforcement, tenant policy profiles, explainability traces, and background hygiene control loops; advisory and enforced read path modes; default is `off`
 - **Memory Over Maps lane (Phases 1–5)** — source-grounded artifact lineage, deterministic candidate narrowing, on-demand derived views, deterministic cache + invalidation with dry-run parity, and bounded semantic reflect benchmark pack
+- **Adaptive complexity routing (Phase 8)** — embedded linear classifier over the active query embedding space routes CLASS_A factoid, CLASS_B multi-hop, and CLASS_C global synthesis queries; hold-out accuracy is 1.0 with sub-millisecond classifier overhead after embedding reuse
+- **Hierarchical retrieval (Phase 9b)** — RAPTOR-lite summary engrams support global CLASS_C retrieval while the `__exclude_summaries__` sentinel prevents summary nodes from leaking into default factoid searches
+- **Consensus governance (Phase 10)** — contradiction clusters can synthesize additive Resolution Engrams that preserve parent lineage, take Tier-1 read-path priority with a 1.25 contradiction modifier, and suppress conflicting parents without deleting them
+- **Server-side hybrid RRF + relevance feedback** — `qdrant_rrf` fusion policy and governance-driven `discover_points()` exemplar biasing (opt-in)
+- **Derived Facts lane (production-adjacent pilot)** — isolated shadow evaluation packets with authority matrices and source traceability; default retrieval invariant: zero derived facts
+- **Graph Tier (experimental)** — read-only graph-neighbor expansion via `graph_hybrid_experimental`; double opt-in, no write path
+- **SLO-driven promotion gates** — automated canary-stage reliability checks with rollback discipline (`tools/run_slo_reliability_gate.py`)
 - **Operator playbook** — single operational runbook for deploy/promote/rollback/incident execution (`docs/mnemos_operator_playbook.md`)
 
 MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of **operational tools** (health audit, contract evolution, onboarding, CI gates, and staged cutover) — making it a complete platform that can be deployed with a single `python -m installer`.
 
-Operationally, the current architecture posture is: fast retrieval substrate + governed memory controls + source-grounded, bounded, on-demand synthesis.
+Operationally, the current architecture posture is: fast retrieval substrate + adaptive routing + enforced summary isolation + governed consensus controls + source-grounded, bounded, on-demand synthesis.
 
 ---
 
@@ -64,7 +84,7 @@ MNEMOS is organised as a layered stack with a pluggable retrieval tier selected 
 ```
 ┌────────────────────────────────────────────────────────────┐
 │                       REST API (:8700)                      │
-│   /index   /search   /engrams   /audit   /stats            │
+│   /index   /search   /reflect   /stats   /audit            │
 ├────────────────────────────────────────────────────────────┤
 │                  Engram Enrichment Layer                    │
 │   neuro-tags · provenance · confidence · relationship      │
@@ -122,7 +142,7 @@ MNEMOS supports multiple retrieval backends, selected by deployment profile. All
 
 | Backend | Profile | Embedding Model | Strength |
 |---|---|---|---|
-| **Qdrant** | Core Memory Appliance | BAAI/bge-base-en-v1.5 (768-dim, CUDA) | Fast semantic ANN, HNSW index, payload filtering, horizontal scaling |
+| **Qdrant** | Core Memory Appliance | BAAI/bge-base-en-v1.5 or Nomic v1.5 MRL (CUDA) | Fast semantic ANN, HNSW index, named-vector prefetch/rescore, payload filtering, horizontal scaling |
 | **pgvector** | Governance Native | BAAI/bge-base-en-v1.5 (768-dim, CUDA) | ANN + SQL metadata filtering in one query, single-database deployment |
 | **PostgreSQL FTS** | Hybrid mode (Core/Governance) | n/a (lexical lane) | Exact-term/title/acronym retrieval via full-text lexical matching |
 | **Cross-Encoder** | Precision Lane (optional) | BAAI/bge-reranker-base | Dense reranking for long-context and technical text via stateless cross-encoder |
@@ -132,6 +152,8 @@ MNEMOS supports multiple retrieval backends, selected by deployment profile. All
 **Why Qdrant** (Core Memory Appliance): Standalone service with its own HNSW index, snapshotting, replication, and sharding. Supports concurrent reads and writes without single-process bottlenecks, payload-based filtering without post-filtering, and survives independently of the MNEMOS process.
 
 **Why pgvector** (Governance Native): Vectors live inside the same PostgreSQL instance as the forensic ledger. ANN retrieval can be combined with SQL `WHERE` clauses on tenant, provenance, department, security markings, or any relational metadata — in a single query. This eliminates the need for a separate vector service in governance-heavy deployments.
+
+**Matryoshka tiered search (Phase 7):** The Qdrant tier now supports Nomic `nomic-embed-text-v1.5` Matryoshka Representation Learning (MRL) with named vectors. The hot path performs a 64-dimensional coarse prefetch (`dense_64`) to reduce the candidate pool, then rescoring uses the full 768-dimensional vector (`dense_768`) for final fidelity. This keeps the retrieval economy visible to the budget router: coarse prefetch is cheap, full rescore is precise, and both stages are exposed to latency-budget degradation. Measured posture (June 11, 2026): the complexity classifier adds `0.0502ms` p95 after embedding reuse (`benchmarks/results/phase_8_complexity_accuracy.json`); at the current 2.1K-point evaluation corpus the summary-layer route runs at latency parity with flat search (p95 `30.4ms` vs `32.5ms`) while cutting the candidate pool by `99.5%` — the wall-clock latency gate is scale-aware and deferred to production-scale (≥100K point) benchmark runs (`tools/run_phase9_hierarchy_gate.py`). The Phase 7 migration replay flagged budget p95 `53.5ms` vs a `50.3ms` target on the small replay sample (REVIEW; see `docs/reports/mnemos_phase7_burn_in_report.md`).
 
 **Hybrid fusion**: In Gate C hybrid mode, MNEMOS merges lexical (PostgreSQL FTS) and semantic candidates with deterministic normalization and weighted fusion. Four fusion policies are available:
 
@@ -145,6 +167,38 @@ MNEMOS supports multiple retrieval backends, selected by deployment profile. All
 The `qdrant_rrf` policy delegates fusion to Qdrant's built-in RRF engine, combining a dense vector prefetch with a full-text payload prefetch in a single `query_points()` call — eliminating the second network round-trip. A full-text index on the `content` payload field is created automatically during tier initialization. If unavailable, the router falls back to Python-side fusion transparently. Optional explain output returns component scores and source attribution per hit.
 
 **Relevance feedback**: MNEMOS can feed governance `reflect_path` labels (Used / Ignored) back into retrieval via Qdrant's `discover_points()` API. When enabled, previously-used engrams become positive exemplars and previously-ignored engrams become negative exemplars, biasing future queries toward results that have demonstrated utility. The adapter maintains a TTL-bounded exemplar cache (1.6M writes/sec, 100% cache hit rate after warmup). This feature is opt-in (`relevance_feedback.enabled: true` in `rerank_policy.yaml`).
+
+**Graph Tier (experimental, read-only):**
+
+The Graph Tier augments semantic retrieval with curated knowledge-graph neighbors sourced from engram `edges` and Qdrant payload metadata. Evaluation track MG-Test-1 through MG-Test-10 validated shadow telemetry, hub-penalty filtering, candidate-envelope isolation, double opt-in controls, operator shadow trials, and live batched `QdrantEngramResolver` retrieval (p95 ≈ 6.8 ms under live load, zero governance leaks, zero write-path mutations).
+
+| Property | Value |
+|---|---|
+| Mode name | `graph_hybrid_experimental` (locked; not `graph_hybrid`) |
+| HTTP API exposure | **Not** in public `retrieval_mode` enum (`semantic`, `hybrid` only); router-internal / service-config path |
+| Global opt-in | `enable_experimental_graph_hybrid=True` on `RetrievalRouter` |
+| Request opt-in | `retrieval_mode="graph_hybrid_experimental"` at router level |
+| Posture | Experimental, isolated, read-only — no edge generation, no persistence mutations |
+| Operator guide | `docs/graph_tier/operator_guide.md` |
+| Closeout evidence | `docs/mg_test_10_experimental_closeout.md` |
+
+Rollback is flag-based: disable the global flag or omit the experimental mode; the router falls back to `semantic` or `hybrid` with no data cleanup.
+
+**Adaptive routing (Phase 8):**
+
+MNEMOS no longer treats every query as the same retrieval problem. The `embedded-linear-softmax` complexity classifier runs over the active query embedding space and classifies each query into one of three route postures:
+
+| Class | Query shape | Route posture |
+|---|---|---|
+| `CLASS_A` | Factoid, direct lookup, acronym, single-policy question | Flat semantic retrieval with aggressive budget posture |
+| `CLASS_B` | Relationship, conflict, lineage, multi-hop question | Graph-capable or balanced route with forced reranking posture |
+| `CLASS_C` | Global synthesis, thematic summary, corpus-level comparison | Hierarchical summary layer route with fallback |
+
+The Phase 8 hold-out gate reached `1.0000` accuracy across 15 held-out queries (`5/5` per class), with p95 classifier latency of `0.0502ms` after embedding reuse. Evidence is recorded in `benchmarks/results/phase_8_complexity_accuracy.json`.
+
+**Budget-aware retrieval (Phase 7):** Callers may pass `latency_budget_ms` on `POST /v1/mnemos/search`. The `BudgetAwareRouter` maintains an EWMA stage-cost model (embed, prefetch, rescore, rerank) and sheds stages down a fixed degradation ladder when the predicted cost exceeds the budget: drop rerank → reduce MRL oversample (3.0 → 1.5) → reduce HNSW `ef` (128 → 64) → drop rescore. Retrieval never degrades below coarse prefetch; responses that cannot meet the budget are flagged `budget_infeasible` so the consumer sees the precision-for-latency trade explicitly. Phase 8 complexity classes select the starting posture (CLASS_A aggressive shedding, CLASS_B forced rerank).
+
+**Reserved retrieval sentinels:** Server-injected filter keys (`__exclude_derived__`, `__exclude_summaries__`, `__mrl_oversample__`, `__hnsw_ef__`, `__prefetch_only__`) are consumed inside the vector tiers and rejected with HTTP 400 if a client supplies them — isolation and budget controls cannot be spoofed or disabled from outside the service.
 
 ### 4.3 TurboQuant Compression
 
@@ -353,6 +407,8 @@ Candidates that carry `entity_key`, `attribute_key`, and `normalized_value` in t
 
 The winner receives `contradiction_modifier = 1.0`; losers receive `0.25`. In enforced mode, losers are removed from the result set.
 
+**Consensus Resolution Engrams (Phase 10):** Offline contradiction clusters can now be passed to `ReconciliationRunner`, which synthesizes an additive Resolution Engram rather than mutating or deleting parent memories. Resolution Engrams carry `metadata.is_resolution_engram = true`, `source = derived://reconciliation/<entity_key>`, and `edges` pointing to every conflicting parent. When a Resolution Engram appears in the same entity-slot cluster as its parents, `ContradictionPolicy` gives it Tier-1 priority with `contradiction_modifier = 1.25` and suppresses the parent candidates through the existing contradiction path. The live Phase 10 gate validated 5/5 collisions: Resolution Engram rank #1, parent suppression, and visible 1.25 modifier audit (`benchmarks/results/phase_10_consensus_gate.json`). Supporting this, the Qdrant tier now persists `GovernanceMeta` as `gov_`-prefixed payload fields and rehydrates it on retrieval, so entity/attribute slot keys survive the index round-trip and the read path can group resolution engrams with their parents. Resolution engrams are intentionally not caught by `__exclude_derived__` (they set `is_resolution_engram`, not `is_derived_fact`): they must be co-retrievable with their parents to take read-path priority.
+
 **Configuration (environment variables):**
 
 | Variable | Default | Description |
@@ -361,7 +417,16 @@ The winner receives `contradiction_modifier = 1.0`; losers receive `0.25`. In en
 | `MNEMOS_GOVERNANCE_MIN_SCORE` | `0.0` | Veto threshold (0.0 disables score-floor veto) |
 | `MNEMOS_GOVERNANCE_FRESHNESS_HALF_LIFE` | `180.0` | Freshness decay half-life in days |
 
-The governance mode can also be overridden per-request via the `governance` parameter on `POST /v1/mnemos/search`. The `explain_governance: true` parameter returns full modifier breakdowns and conflict state per result.
+The governance mode can also be overridden per-request via the `governance` parameter on `POST /v1/mnemos/search`. Per-tenant tuning uses `governance_profile` (loaded from `MNEMOS_GOVERNANCE_POLICY_PROFILES_JSON`).
+
+**Explainability (read path):**
+
+| Flag | Effect |
+|---|---|
+| `explain: true` | Hybrid component scores, fusion policy, and retrieval sources per hit |
+| `explain_governance: true` | Full `governance` modifier breakdown per result, plus `governance_trace` (outcome, reason, rank shift, top score factors) and `meta.governance_explain.suppressed_candidates` summary |
+
+**Counterfactual explainability (Phase 6):** governance traces include deterministic, arithmetic counterfactuals for the top results — the exact score distance to rank 1 and which modifier would close it (e.g. the `trust_score` delta required to tie, or the freshness modifier inverted into a human-readable age limit). No ML in the loop: counterfactuals are derived purely from the modifier product, so they are reproducible and auditable.
 
 **Reflect path (Wave 3):**
 
@@ -369,10 +434,14 @@ After retrieval and governance evaluation, the reflect path closes the feedback 
 
 | Label | Signal |
 |---|---|
-| `USED` | Present in `cited_ids`, or word-overlap with answer ≥ threshold (default 15%) |
+| `USED` | Present in `cited_ids`, or semantically entailed by the generated answer under the NLI critic; lexical overlap remains a guarded fallback |
 | `IGNORED` | No overlap signal and not cited |
 | `CONTRADICTED` | Was a contradiction loser in the read-path decision |
 | `VETOED` | Failed a policy veto in the read path |
+
+**Reflect precision guards** (default profile; tunable per tenant): memories with fewer than `min_memory_tokens_for_overlap` tokens (default 3) skip overlap classification; overlap classification additionally requires at least `min_overlap_tokens` shared tokens (default 2) before the recall-oriented threshold is evaluated.
+
+The Phase 7 reflect path adds a DeBERTa-v3 NLI critic for semantic usage detection. This resolves the prior lexical false-positive boundary by requiring entailment rather than word overlap when the critic is available; adversarial validation improved USED precision from `0.57` to `1.00`. Selection is per-tenant via the `reflect_precision_mode` profile field (`lexical` | `nli`); NLI model-load failure falls back to the lexical detector with the failure cached, so a broken critic cannot stall the reflect path.
 
 Reinforcement is then applied in-place to each memory's `GovernanceMeta`:
 
@@ -387,7 +456,7 @@ All deltas are clamped to [0.0, 1.0]. The response includes `utility_deltas` and
 
 **Validation Evidence:**
 
-The governance behavioral claims are backed by **Governance Validation Pack v1**, a formal proof artifact (`benchmarks/TEMP/Governance_Validation_Pack_v1.md`). The pack consists of 10 named scenarios, each mapping a specific failure mode to a deterministic, in-process test. The following guarantees are proven, not asserted:
+The governance behavioral claims are backed by the maintained governance evidence suite (`tests/test_governance*.py`, `tests/test_hygiene_*.py`, and benchmark result artifacts). The suite consists of named scenarios, each mapping a specific failure mode to a deterministic, in-process test. The following guarantees are proven, not asserted:
 
 | Guarantee | Failure mode addressed |
 |---|---|
@@ -413,8 +482,9 @@ Three runners, chained by `HygienePipeline`, handle long-horizon memory health b
 | `DecayRunner` | Linear utility decay past inactivity horizon (default 60 days). Sets `lifecycle_state = "stale"` when `utility_score < 0.20`. `last_used_at` takes priority over `created_at`. Floor at 0.0. |
 | `PrunePromoter` | Composite score floor: `utility × trust × contradiction_factor < 0.05` → `lifecycle_state = "prune_candidate"`. Stale memories always promoted. |
 | `ContradictionSweepRunner` | Offline entity-slot contradiction detection over the full corpus. Catches contradictions between memories never co-retrieved in the same query context. Reuses `ContradictionPolicy` resolution logic. |
+| `ReconciliationRunner` | Synthesizes Resolution Engrams from contradiction sweep output. In dry-run mode it previews consensus artifacts; in action mode it indexes additive resolution memories with parent lineage preserved. |
 
-All runners support `dry_run=True` (compute report, mutate nothing). No physical deletion. No irreversible consolidation. `Governor.run_hygiene()` is the single entry point; hygiene counters are reported via `GET /v1/mnemos/governance/stats`.
+All runners support `dry_run=True` (compute report, mutate nothing) and `apply` mode. Lifecycle hygiene mutates governance state in memory with artifact emission; reconciliation can additionally persist additive Resolution Engrams through an explicit indexer. No physical deletion. No irreversible consolidation. `Governor.run_hygiene()` is the single entry point; hygiene counters are reported via `GET /v1/mnemos/governance/stats`. CI enforces a dry-run hygiene gate via `tools/run_wave4_hygiene.py --fail-on-gate`.
 
 **Per-tenant policy profiles:**
 
@@ -426,7 +496,7 @@ Long-horizon calendar-based decay, offline contradiction sweep coverage, and sta
 
 ---
 
-### 4.6 Memory Over Maps (Phase-Gated)
+### 4.7 Memory Over Maps (Phase-Gated)
 
 Memory Over Maps is now an implemented architecture lane in MNEMOS and has been advanced only through benchmark-gated phase exits.
 
@@ -437,6 +507,14 @@ Memory Over Maps is now an implemented architecture lane in MNEMOS and has been 
 | 3 | On-demand derived views (evidence, contradiction, preference, timeline) | PASS |
 | 4 | Derived-view cache + invalidation + dry-run traces | PASS |
 | 5 | Bounded semantic reflect evolution scenarios | PASS |
+
+Phase 8-10 extend this lane from on-demand views into active routing, hierarchy, and consensus:
+
+| Phase | Capability | Gate Status (June 11, 2026) |
+|---|---|---|
+| 8 | Embedded-reflex complexity classifier for CLASS_A/B/C adaptive routing | PASS: 1.0 hold-out accuracy |
+| 9b | RAPTOR-lite summary hierarchy with summary isolation sentinel | PASS: mean similarity 0.7342 and zero live factoid summary leaks |
+| 10 | Additive Resolution Engrams for contradiction reconciliation | PASS: 5/5 live consensus gate |
 
 Current artifact family:
 - `benchmarks/outputs/raw/memory_over_maps_<timestamp>_raw.json`
@@ -455,6 +533,42 @@ Interpretation:
 - Expensive reasoning is bounded before governance/synthesis work.
 - Derived views are reproducible and input-declared.
 - Cache correctness is validated with explicit invalidation evidence.
+- Summary and Resolution Engrams are synthetic, but never anonymous: every synthetic node carries metadata and parent `edges` for forensic review.
+- The Phase 9b `__exclude_summaries__` sentinel makes hierarchy operationally safe by excluding summary engrams from default factoid retrieval while keeping them reachable through explicit CLASS_C summary-layer routes.
+
+Phase gates remain enforced in CI (`tests/test_memory_over_maps_benchmark_runner.py`). Post–March-30 operator and pilot evidence (PIT, DFE) is cited in §4.8 and companion reports under `docs/reports/`.
+
+### 4.8 Derived Facts Lane (Production-Adjacent Pilot)
+
+The Derived Facts lane is a **separate, isolated evaluation track** (PIT-0 through PIT-10) for operator-facing shadow packets. It is **not** part of default retrieval and must not leak into production prompts.
+
+**Status (June 2026):** `PIT_10_PRODUCTION_ADJACENT_EVALUATION_LANE_READY_FOR_LIMITED_PILOT` — see `docs/reports/pit_10_closeout_and_pilot_readiness.md`.
+
+**What is proven:**
+
+- Default retrieval (`POST /v1/mnemos/search`, `POST /api/v1/query`) returns zero derived facts; a runtime `SEV-STOP` guard fires on any leak.
+- Shadow endpoint `/api/v1/evaluate_derived_shadow` requires kill-switch enablement, client whitelist (`X-Client-Id`), and double opt-in JSON flags (`evaluation_mode=true`, `include_derived_facts=true`).
+- Derived facts render with `[MNEMOS-DERIVED]` authority labels, source traceability, and bounded shadow packet limits (`PIT3_MAX_DERIVED_FACTS_PER_SHADOW_PACKET`, `PIT3_MAX_DERIVED_FACT_TOKENS`).
+- Controlled operator trials reported high usefulness for shadow packets; p50/p95 shadow generation stabilizes at ~2–4 ms after cross-encoder warm-up.
+
+**Required configuration:**
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `MNEMOS_DERIVED_ENABLED` | `false` | Global kill-switch; `false` → HTTP 503 on shadow lane |
+| `MNEMOS_DERIVED_WHITELIST` | `["eval_dashboard", "governance_auditor"]` | Allowed `X-Client-Id` values |
+
+**Telemetry (tracked in `GET /v1/mnemos/stats` → `derived_lane`):**
+
+`query.default_retrieval.derived_fact_count`, `derived_lane.execution_count`, `derived_lane.denied_count`, `derived_lane.kill_switch_count`, `evaluate_derived_shadow.request_count`, `evaluate_derived_shadow.rendered_derived_fact_count`
+
+**Prohibited (SEV-STOP protected):**
+
+- Derived facts in default retrieval or production EchoFrame prompts outside explicit evaluation mode
+- Candidate-envelope mixing with raw engram fusion on the default path
+- Automatic promotion to governance ledgers or schema/fact extraction (remains blocked — see README project status)
+
+Human operator value trials (DFE-12 through DFE-21) and selection/rescue tuning evidence live in `docs/reports/dfe_*` and `eval_results/dfe_*`.
 
 ## 5. API Contract
 
@@ -462,41 +576,23 @@ MNEMOS follows the **MFS Contract Pattern**: every response includes `contract_v
 
 ### Contract (service/contract.json)
 
-```json
-{
-  "service_name": "mnemos-service",
-  "contract_version": "v1",
-  "endpoint": "/v1/mnemos/capabilities",
-  "required_fields": {
-    "contract_version": "str",
-    "status": "str",
-    "source": "str",
-    "generated_at": "str",
-    "feature": "str",
-    "profile": "str",
-    "supports": "list",
-    "tiers": "list",
-    "degraded_components": "list",
-    "error": "nullable_str"
-  },
-  "allowed_status": ["healthy", "degraded", "unavailable"]
-}
-```
-
-The `profile` field reports the active deployment profile. `tiers` lists the currently active retrieval backends. `degraded_components` lists any backends or subsystems that have failed health checks, enabling consumers to understand exactly what is and isn't working.
+`service/contract.json` defines the **minimum** MFS envelope validated by CI (`contract_version`, `status`, `source`, `generated_at`, `feature`, `supports`, `error`). The live `/v1/mnemos/capabilities` response extends this baseline with deployment and feature-discovery fields (`profile`, `tiers`, `retrieval_modes`, `fusion_policies`, `governance`, `memory_over_maps`, `compression`, `gpu_device`). Contract evolution checks use `tools/contract_diff.py`.
 
 ### Core Endpoints
 
 ```
-GET    /health                      — Container health check
-GET    /v1/mnemos/capabilities      — Feature discovery, active profile, backend status
-POST   /v1/mnemos/index             — Ingest documents → engrams
-POST   /v1/mnemos/search            — Query across active backends
-GET    /v1/mnemos/engrams/{id}      — Retrieve a specific engram
-DELETE /v1/mnemos/engrams/{id}      — Remove from all backends
-GET    /v1/mnemos/audit             — Query the forensic ledger
-GET    /v1/mnemos/stats             — Profile info, backend sizes, compression ratios
-GET    /v1/mnemos/governance/stats  — Governance aggregate stats (veto rate, suppression rate, contradiction counts)
+GET    /health                              — Container health check
+GET    /v1/mnemos/capabilities              — Feature discovery, profile, backends, governance/MoM flags
+POST   /v1/mnemos/index                     — Ingest documents → engrams
+POST   /v1/mnemos/search                    — Query across active backends (canonical)
+POST   /api/v1/query                        — Search alias (same handler; derived-fact leak guard)
+POST   /api/v1/evaluate_derived_shadow      — Production-adjacent derived-fact shadow evaluation (pilot only)
+POST   /v1/mnemos/governance/reflect        — Post-generation reflect loop (usage labels + reinforcement)
+GET    /v1/mnemos/engrams/{id}              — Retrieve a specific engram
+DELETE /v1/mnemos/engrams/{id}              — Remove from all backends
+GET    /v1/mnemos/audit                     — Query the forensic ledger
+GET    /v1/mnemos/stats                     — Backend sizes, economics, derived-lane telemetry, cache stats
+GET    /v1/mnemos/governance/stats          — Governance + reflect + hygiene aggregate stats
 ```
 
 ### Example: /capabilities Response
@@ -506,19 +602,37 @@ GET    /v1/mnemos/governance/stats  — Governance aggregate stats (veto rate, s
   "contract_version": "v1",
   "status": "healthy",
   "source": "mnemos-service",
-  "generated_at": "2026-03-28T04:15:22Z",
+  "generated_at": "2026-06-10T05:00:00Z",
   "feature": "mnemos_memory",
-  "profile": "governance_native",
+  "profile": "core_memory_appliance",
   "supports": ["index", "search", "engrams", "audit", "stats"],
-  "tiers": ["pgvector"],
+  "tiers": ["qdrant"],
+  "retrieval_modes": ["semantic", "hybrid"],
+  "fusion_policies": ["semantic_dominant", "balanced", "lexical_dominant", "qdrant_rrf"],
+  "retrieval_mode_default": "semantic",
+  "fusion_policy_default": "balanced",
+  "lexical_lane_available": true,
+  "explain_support": true,
   "compression": { "enabled": true, "bits": 4 },
   "gpu_device": "cuda",
-  "degraded_components": [],
+  "governance": {
+    "supported_modes": ["advisory", "enforced", "off"],
+    "default_mode": "off",
+    "policy_profiles": ["default"]
+  },
+  "memory_over_maps": {
+    "phase1_enabled": false,
+    "phase2_enabled": false,
+    "phase3_enabled": false,
+    "phase4_enabled": false,
+    "phase5_enabled": false,
+    "supported_derived_views": ["contradiction", "evidence", "preference", "timeline"]
+  },
   "error": null
 }
 ```
 
-A consumer can always determine: which profile is running, which backends are active, whether any components are degraded, and the compression configuration — without inspecting env vars or deployment files.
+A consumer can determine: active profile, backends, retrieval/fusion options, governance modes and policy profiles, Memory Over Maps phase flags, and compression — without inspecting env vars or deployment files.
 
 ### Example: Indexing a Document
 
@@ -548,9 +662,72 @@ POST /v1/mnemos/search
   "query": "What were the Q1 revenue figures?",
   "top_k": 10,
   "tiers": ["qdrant"],
-  "filters": { "metadata.department": "finance" }
+  "filters": { "metadata.department": "finance" },
+  "retrieval_mode": "hybrid",
+  "fusion_policy": "qdrant_rrf",
+  "governance": "advisory",
+  "governance_profile": "default",
+  "explain": true,
+  "explain_governance": true,
+  "bounded_envelope": { "enabled": true, "candidate_pool_limit": 50 },
+  "derive_views": ["evidence", "contradiction"]
 }
 ```
+
+**Search request parameters (selected):**
+
+| Parameter | Type | Description |
+|---|---|---|
+| `retrieval_mode` | string | `semantic` or `hybrid` (public HTTP surface) |
+| `fusion_policy` | string | `semantic_dominant`, `balanced`, `lexical_dominant`, `qdrant_rrf` |
+| `governance` | string | `off`, `advisory`, `enforced` |
+| `governance_profile` | string | Tenant policy profile ID |
+| `explain` | boolean | Per-hit hybrid attribution |
+| `explain_governance` | boolean | Governance traces and suppressed-candidate summary |
+| `bounded_envelope` | object | Phase 2 candidate pool limits |
+| `derive_views` | string[] | On-demand derived views when MoM phases enabled |
+| `enable_derived_facts` | boolean | **Pilot only** — routes to derived trial path when kill-switch + whitelist pass |
+
+**Search response extensions (`meta`):**
+
+`economics` (envelope compression, cache hits/misses, estimated cost units), `candidate_envelope`, `hybrid_telemetry`, `governance_summary`, `governance_explain` (when `explain_governance=true`)
+
+### Example: Derived Shadow Evaluation (pilot only)
+
+```json
+POST /api/v1/evaluate_derived_shadow
+X-Client-Id: eval_dashboard
+
+{
+  "query": "What is the SIGINT operations reference?",
+  "top_k": 10,
+  "evaluation_mode": true,
+  "include_derived_facts": true
+}
+```
+
+Requires `MNEMOS_DERIVED_ENABLED=true` and whitelisted client. Returns default search results plus `shadow_evaluation.rendered_block` and stage latency telemetry.
+
+### Example: Governance Reflect
+
+```json
+POST /v1/mnemos/governance/reflect
+{
+  "query": "What were the Q1 revenue figures?",
+  "answer": "Revenue exceeded expectations in Q1...",
+  "results": [ ... ],
+  "decisions": [ ... ],
+  "governance_profile": "default"
+}
+```
+
+### Stats and economics (`GET /v1/mnemos/stats`)
+
+Beyond backend sizes and compression, stats expose:
+
+- `stats.economics` — per-query envelope compression aggregates, cache hit ratio, invalidation event count
+- `stats.derived_lane` — derived-fact lane counters (see §4.8)
+- `stats.memory_over_maps` — MoM runtime counters and derived-view cache fanout
 
 ---
 
@@ -593,7 +770,9 @@ for hit in hits:
     print(f"  [{hit.score:.3f}] {hit.engram['content'][:80]}")
 ```
 
-**Rule**: Consumer apps should always use the SDK. Direct HTTP calls bypass readiness, retry, and degradation handling.
+**Rule**: Consumer apps should always use the SDK for index/search flows. Direct HTTP calls bypass readiness, retry, and degradation handling.
+
+**Advanced endpoints** (`/v1/mnemos/governance/reflect`, `/api/v1/evaluate_derived_shadow`, governance explain flags) are available via HTTP today; SDK wrappers for these paths are not yet shipped — integrators call them explicitly when needed.
 
 ---
 
@@ -628,10 +807,35 @@ Generates in the consumer app: a pre-wired boundary adapter, `.env.mnemos` templ
 ### 7.4 CI/CD Gates
 
 ```bash
-python tools/mnemos_ci_gates.py --run-health-audit --run-container-build
+python tools/mnemos_ci_gates.py \
+  --run-health-audit \
+  --smoke-spec tools/mnemos_smoke_spec.json \
+  --run-memory-over-maps-gates \
+  --run-governance-evidence-gates \
+  --run-wave4-hygiene-gate \
+  --run-slo-reliability-gate
 ```
 
-Runs contract validation, health audit, and container build as CI pipeline steps. Includes a GitHub Actions workflow template (`.github/workflows/mnemos-gates.yml`).
+| Gate | Enforces |
+|---|---|
+| Contract validation | `service/contract.json` well-formedness |
+| Health & smoke | Live `/health` and smoke spec against running container |
+| Memory Over Maps | Phase 1–5 benchmark regression tests |
+| Adaptive routing | Phase 8 hold-out complexity accuracy — committed evidence artifact (`benchmarks/results/phase_8_complexity_accuracy.json`); not yet wired into `mnemos_ci_gates.py` |
+| Hierarchical retrieval | Phase 9b similarity + live summary-isolation — committed evidence artifact (`benchmarks/results/phase_9_hierarchy_sim.json`); not yet wired into `mnemos_ci_gates.py` |
+| Consensus governance | Phase 10 live resolution gate — committed evidence artifact (`benchmarks/results/phase_10_consensus_gate.json`); not yet wired into `mnemos_ci_gates.py` |
+| Governance evidence | Governance, contradiction, reflect, drift validation tests |
+| Wave 4 hygiene | `tools/run_wave4_hygiene.py --mode dry-run --fail-on-gate` |
+| SLO reliability | `tools/run_slo_reliability_gate.py --stage canary_25 --fail-on-breach` |
+
+GitHub Actions workflow `.github/workflows/mnemos-gates.yml` runs the full gate suite on `main` PRs and pushes. Promotion is blocked on any gate failure; SLO breach triggers rollback guidance per `docs/mnemos_operator_playbook.md`.
+
+Standalone runners:
+
+```bash
+python tools/run_wave4_hygiene.py --mode dry-run --fail-on-gate
+python tools/run_slo_reliability_gate.py --stage canary_25 --fail-on-breach
+```
 
 ### 7.5 Cutover Scaffold
 
@@ -640,6 +844,21 @@ python tools/mnemos_cutover_scaffold.py --app my-app
 ```
 
 Generates a staged rollout manifest (shadow → canary 5/25/50% → full) for apps migrating from another memory backend to MNEMOS, with health gates and rollback paths.
+
+### 7.6 Companion Evidence Documents
+
+Detailed trial, certification, and experimental evidence is maintained outside this whitepaper:
+
+| Track | Location | Scope |
+|---|---|---|
+| Enhancement roadmap | `docs/mnemosv2_enhancement_roadmap.md` | 30/60/90 program closeout |
+| Operator playbook | `docs/mnemos_operator_playbook.md` | Deploy, promote, rollback, incident |
+| Derived Facts (PIT) | `docs/reports/pit_*.md` | Production-adjacent shadow lane |
+| Human operator trials (DFE) | `docs/reports/dfe_*.md` | Derived-fact selection and value assessment |
+| Graph Tier (MG-Test) | `docs/graph_tier/`, `docs/mg_test_10_experimental_closeout.md` | Experimental graph hybrid |
+| Ops certification | `docs/reports/ops_*.md`, `docs/cert_binder/` | Release governance and red-lines |
+| Validation / shadow (VFR) | `docs/reports/vfr_*` (where present) | Sidecar read-only enforcement |
+| Schema/fact extraction (SMC) | `tools/smc_*.py`, `docs/reports/` | **Blocked** pending separate review |
 
 ---
 
@@ -997,12 +1216,17 @@ MNEMOS/
 │   ├── contract_diff.py
 │   ├── mnemos_onboard.py
 │   ├── mnemos_ci_gates.py
-│   └── mnemos_cutover_scaffold.py
+│   ├── mnemos_cutover_scaffold.py
+│   ├── run_wave4_hygiene.py
+│   └── run_slo_reliability_gate.py
 ├── benchmarks/                Reproducible benchmark suite
 │   ├── run_memory_over_maps_benchmarks.py
-├── tests/                     Unit tests
-├── .github/workflows/         CI gate template
-├── docs/                      Whitepaper + AI dev hand-off
+│   └── run_mg_test_*.py        Graph Tier offline/live simulations
+├── tests/                     Unit + gate tests (564 collected, June 2026)
+├── .github/workflows/         CI gate workflow (mnemos-gates.yml)
+├── docs/                      Whitepaper, benchmark, operator playbook, reports
+│   ├── graph_tier/            Graph hybrid experimental operator guide
+│   └── reports/               PIT, DFE, MG-Test, OPS evidence records
 ├── Dockerfile                 Production container
 └── docker-compose.yml         Default stack (Core Memory Appliance)
 ```
@@ -1016,6 +1240,7 @@ MNEMOS was designed from the ground up as a reusable memory service. Its archite
 | Capability | MNEMOS Component |
 |---|---|
 | Multi-vector retrieval | Multi-Tier Retrieval Engine |
+| Matryoshka coarse-to-full retrieval | Qdrant named-vector MRL path (`dense_64` prefetch + `dense_768` rescore) |
 | Semantic tagging | Engram Enrichment Layer |
 | Immutable operation logging | Audit Trail |
 | Near-optimal quantisation (arXiv:2504.19874) | Compression Layer |
@@ -1028,6 +1253,14 @@ MNEMOS was designed from the ground up as a reusable memory service. Its archite
 | Staged rollout | Cutover Scaffold |
 | Memory lifecycle governance | Governance Layer (mnemos/governance/) |
 | Contradiction detection & resolution | ContradictionPolicy (Wave 2) |
+| Adaptive query routing | Embedded-reflex complexity classifier (`mnemos/retrieval/complexity.py`) |
+| Hierarchical summary retrieval | RAPTOR-lite hierarchy runner (`mnemos/governance/hygiene/clustering_runner.py`) |
+| Consensus resolution | Reconciliation runner + Resolution Engrams (`mnemos/governance/hygiene/reconciliation_runner.py`) |
 | Source-grounded selective synthesis | Memory Over Maps lane (mnemos/memory_over_maps/) |
+| Background memory hygiene | Wave 4 hygiene pipeline (`mnemos/governance/hygiene/`) |
+| Tenant governance tuning | `GovernancePolicyProfile` + `MNEMOS_GOVERNANCE_POLICY_PROFILES_JSON` |
+| SLO-governed promotion | `tools/run_slo_reliability_gate.py` + operator playbook |
+| Derived-fact shadow evaluation | PIT lane (`/api/v1/evaluate_derived_shadow`, `mnemos/evaluation/`) |
+| Experimental graph expansion | Graph Tier (`graph_hybrid_experimental`, `docs/graph_tier/`) |
 
 What remains is a **pure infrastructure service** — a reusable, tooling-complete foundation for any application that needs intelligent, compressed, auditable memory.

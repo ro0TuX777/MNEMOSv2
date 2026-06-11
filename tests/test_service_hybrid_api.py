@@ -22,12 +22,13 @@ def test_search_hybrid_valid_request_forwards_params(client, monkeypatch):
 
     def fake_search_documents(query, top_k, tiers, filters, retrieval_mode, fusion_policy, explain,
                               _governance=None, _explain_governance=None, _governance_profile=None, _bounded_envelope=None,
-                              _derive_views=None):
+                              _derive_views=None, _latency_budget_ms=None, _complexity_shadow=False):
         captured["query"] = query
         captured["top_k"] = top_k
         captured["retrieval_mode"] = retrieval_mode
         captured["fusion_policy"] = fusion_policy
         captured["explain"] = explain
+        captured["complexity_shadow"] = _complexity_shadow
         return {
             "status": "healthy",
             "results": [
@@ -62,6 +63,7 @@ def test_search_hybrid_valid_request_forwards_params(client, monkeypatch):
             "retrieval_mode": "hybrid",
             "fusion_policy": "balanced",
             "explain": True,
+            "complexity_shadow": True,
         },
     )
 
@@ -73,6 +75,7 @@ def test_search_hybrid_valid_request_forwards_params(client, monkeypatch):
     assert captured["retrieval_mode"] == "hybrid"
     assert captured["fusion_policy"] == "balanced"
     assert captured["explain"] is True
+    assert captured["complexity_shadow"] is True
 
 
 def test_search_hybrid_filter_payload_forwarding(client, monkeypatch):
@@ -80,7 +83,7 @@ def test_search_hybrid_filter_payload_forwarding(client, monkeypatch):
 
     def fake_search_documents(query, top_k, tiers, filters, retrieval_mode, fusion_policy, explain,
                               _governance=None, _explain_governance=None, _governance_profile=None, _bounded_envelope=None,
-                              _derive_views=None):
+                              _derive_views=None, _latency_budget_ms=None, _complexity_shadow=False):
         captured["filters"] = filters
         return {
             "status": "healthy",
@@ -160,6 +163,19 @@ def test_search_invalid_explain_type_rejected(client):
     assert body["error"] == "explain must be a boolean"
 
 
+def test_search_invalid_complexity_shadow_type_rejected(client):
+    resp = client.post(
+        "/v1/mnemos/search",
+        json={
+            "query": "test",
+            "complexity_shadow": "yes",
+        },
+    )
+    assert resp.status_code == 400
+    body = resp.get_json()
+    assert body["error"] == "complexity_shadow must be a boolean"
+
+
 def test_search_invalid_bounded_envelope_type_rejected(client):
     resp = client.post(
         "/v1/mnemos/search",
@@ -171,6 +187,20 @@ def test_search_invalid_bounded_envelope_type_rejected(client):
     assert resp.status_code == 400
     body = resp.get_json()
     assert body["error"] == "bounded_envelope must be an object"
+
+
+def test_search_reserved_budget_filter_rejected(client):
+    resp = client.post(
+        "/v1/mnemos/search",
+        json={
+            "query": "test",
+            "filters": {"__prefetch_only__": True},
+        },
+    )
+    assert resp.status_code == 400
+    body = resp.get_json()
+    assert body["error"] == "Reserved filter key"
+    assert body["reserved_filter_keys"] == ["__prefetch_only__"]
 
 
 def test_search_invalid_derive_views_type_rejected(client):

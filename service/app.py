@@ -11,6 +11,7 @@ import datetime as dt
 import logging
 import os
 import sys
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -33,6 +34,7 @@ from mnemos.memory_over_maps.view_cache import (
     query_fingerprint,
 )
 from mnemos.retrieval.policies.fusion_policies import FUSION_POLICIES
+from mnemos.governance.counterfactuals import compute_counterfactuals
 from mnemos.governance.governor import Governor
 from mnemos.governance.policy_profiles import load_policy_profiles
 from mnemos.governance.read_path import GOVERNANCE_MODES
@@ -41,6 +43,7 @@ logger = logging.getLogger("mnemos.service")
 
 CONTRACT_VERSION = "v1"
 SUPPORTED_RETRIEVAL_MODES = {"semantic", "hybrid"}
+RESERVED_FILTER_KEYS = {"__mrl_oversample__", "__hnsw_ef__", "__prefetch_only__"}
 
 app = Flask(__name__)
 
@@ -88,6 +91,15 @@ class MnemosRuntime:
             "economics_cost_units_total": 0,
             "economics_envelope_initial_total": 0,
             "economics_envelope_final_total": 0,
+            # PIT-7 Telemetry
+            "query.default_retrieval.derived_fact_count": 0,
+            "echoframe.production_prompt.derived_count": 0,
+            "derived_lane.execution_count": 0,
+            "derived_lane.denied_count": 0,
+            "derived_lane.kill_switch_count": 0,
+            "evaluate_derived_shadow.request_count": 0,
+            "evaluate_derived_shadow.denied_count": 0,
+            "evaluate_derived_shadow.rendered_derived_fact_count": 0,
         }
 
     def initialize(self):
@@ -126,7 +138,7 @@ class MnemosRuntime:
 
             if self._config.has_lancedb:
                 from mnemos.retrieval.lancedb_tier import LanceDBTier
-                tiers.append(LanceDBTier(db_dir=self._config.lance_dir))
+                tiers.append(LanceDBTier(db_dir=f"{self._config.data_dir}/lance"))
 
             if not tiers:
                 raise RuntimeError("No retrieval tiers configured. Set MNEMOS_TIERS.")
@@ -156,6 +168,7 @@ class MnemosRuntime:
                 semantic_fusion=self._semantic_fusion,
                 lexical_tier=self._lexical_tier,
                 reranker=reranker,
+                adaptive_routing_enabled=bool(getattr(self._config, "adaptive_routing", True)),
             )
 
             # Set up audit ledger
@@ -309,7 +322,7 @@ class MnemosRuntime:
         payload.update({
             "feature": "mnemos_memory",
             "profile": self._config.profile if self._config else "unknown",
-            "supports": ["index", "search", "engrams", "audit", "stats"],
+            "supports": ["index", "search", "warmup", "engrams", "audit", "stats"],
             "tiers": self._semantic_fusion.tier_names if self._semantic_fusion else [],
             "retrieval_modes": retrieval_stats.get("supported_retrieval_modes", ["semantic"]),
             "fusion_policies": retrieval_stats.get("supported_fusion_policies", []),
@@ -384,6 +397,32 @@ class MnemosRuntime:
         }
         return payload
 
+    def warmup(self, query: str = "mnemos warmup readiness probe") -> Dict[str, Any]:
+        """Load the promoted retrieval path before admitting live traffic."""
+        import time
+
+        t0 = time.time()
+        results, mode_meta = self._router.search(
+            query=query,
+            top_k=1,
+            filters=None,
+            tiers=None,
+            retrieval_mode="semantic",
+            fusion_policy=self._config.fusion_policy,
+            explain=False,
+            lexical_top_k=self._config.lexical_top_k,
+            semantic_top_k=1,
+            bounded_envelope=None,
+        )
+        payload = self._base_payload()
+        payload["warmup"] = {
+            "query": query,
+            "result_count": len(results),
+            "retrieval_mode": mode_meta.get("retrieval_mode", "semantic"),
+            "latency_s": round(time.time() - t0, 3),
+        }
+        return payload
+
     def search_documents(
         self,
         query: str,
@@ -398,6 +437,8 @@ class MnemosRuntime:
         governance_profile: Optional[str] = None,
         bounded_envelope: Optional[Dict[str, Any]] = None,
         derive_views: Optional[List[str]] = None,
+        latency_budget_ms: Optional[float] = None,
+        complexity_shadow: bool = False,
     ) -> Dict[str, Any]:
         """Search across tiers and return fused results."""
         import time
@@ -425,6 +466,9 @@ class MnemosRuntime:
             lexical_top_k=self._config.lexical_top_k,
             semantic_top_k=self._config.semantic_top_k,
             bounded_envelope=bounded_envelope if getattr(self._config, "memory_over_maps_phase2", False) else None,
+            latency_budget_ms=latency_budget_ms,
+            complexity_shadow=complexity_shadow,
+            adaptive_routing=bool(getattr(self._config, "adaptive_routing", True)),
         )
         raw_rank_by_id = {r.engram.id: idx + 1 for idx, r in enumerate(results)}
 
@@ -461,6 +505,7 @@ class MnemosRuntime:
                     chunk_ids=li.get("chunk_ids", []),
                     governance_state_hash_value=ghash,
                     synthesis_policy_version="default",
+                    embedding_model_name=self._config.embedding_model,
                 )
                 if phase4_cache_enabled:
                     cached = self._view_cache.get(cache_key)
@@ -602,6 +647,12 @@ class MnemosRuntime:
             payload["meta"]["hybrid_telemetry"] = mode_meta["telemetry"]
         if mode_meta.get("candidate_envelope"):
             payload["meta"]["candidate_envelope"] = mode_meta["candidate_envelope"]
+        if mode_meta.get("complexity_classification"):
+            payload["meta"]["complexity_classification"] = mode_meta["complexity_classification"]
+        if mode_meta.get("routing_posture"):
+            payload["meta"]["routing_posture"] = mode_meta["routing_posture"]
+        if mode_meta.get("complexity_shadow"):
+            payload["meta"]["complexity_shadow"] = mode_meta["complexity_shadow"]
         if selected_governance != "off":
             payload["meta"]["governance_mode"] = selected_governance
             payload["meta"]["governance_profile"] = selected_profile or "default"
@@ -627,11 +678,31 @@ class MnemosRuntime:
                         }
                         for d in decisions
                         if d.would_be_suppressed_in_enforced_mode
-                    ]
+                    ],
+                    "counterfactuals": compute_counterfactuals(
+                        decisions,
+                        top_n=3,
+                        min_score_threshold=self._governor.effective_min_score(
+                            selected_profile or None
+                        ) if self._governor else 0.0,
+                        created_at_by_id={
+                            r.engram.id: r.engram.created_at for r in results
+                        },
+                        freshness_half_life_days=self._governor.effective_freshness_half_life(
+                            selected_profile or None
+                        ) if self._governor else 180.0,
+                    ),
                 }
         if derived_views_payload:
             payload["derived_views"] = derived_views_payload
         return payload
+
+    def search_derived_trial(self, query: str, top_k: int, client_id: str) -> Dict[str, Any]:
+        """Expose feature-flagged derived facts safely via api.py."""
+        from mnemos.retrieval.api import search_derived_trial as execute_search_derived_trial
+        from mnemos.retrieval.auditor import EvaluationAuditor
+        auditor = EvaluationAuditor()
+        return execute_search_derived_trial(self._router, query, top_k, client_id, auditor)
 
     def get_engram(self, engram_id: str) -> Dict[str, Any]:
         """Retrieve a specific engram by ID."""
@@ -776,6 +847,16 @@ class MnemosRuntime:
             },
             "audit": self._ledger.get_stats() if self._ledger else {"enabled": False},
             "memory_over_maps": dict(self._mom_stats),
+            "derived_lane": {
+                "query.default_retrieval.derived_fact_count": self._mom_stats.get("query.default_retrieval.derived_fact_count", 0),
+                "echoframe.production_prompt.derived_count": self._mom_stats.get("echoframe.production_prompt.derived_count", 0),
+                "derived_lane.execution_count": self._mom_stats.get("derived_lane.execution_count", 0),
+                "derived_lane.denied_count": self._mom_stats.get("derived_lane.denied_count", 0),
+                "derived_lane.kill_switch_count": self._mom_stats.get("derived_lane.kill_switch_count", 0),
+                "evaluate_derived_shadow.request_count": self._mom_stats.get("evaluate_derived_shadow.request_count", 0),
+                "evaluate_derived_shadow.denied_count": self._mom_stats.get("evaluate_derived_shadow.denied_count", 0),
+                "evaluate_derived_shadow.rendered_derived_fact_count": self._mom_stats.get("evaluate_derived_shadow.rendered_derived_fact_count", 0),
+            }
         }
         if self._view_cache is not None:
             payload["stats"]["memory_over_maps"]["derived_view_cache"] = self._view_cache.stats()
@@ -873,10 +954,11 @@ def root():
         "service": "mnemos-service",
         "status": "ok",
         "contract_version": CONTRACT_VERSION,
-        "routes": {
-            "health": "/health",
-            "capabilities": "/v1/mnemos/capabilities",
-            "index": "/v1/mnemos/index",
+            "routes": {
+                "health": "/health",
+                "capabilities": "/v1/mnemos/capabilities",
+                "warmup": "/v1/mnemos/warmup",
+                "index": "/v1/mnemos/index",
             "search": "/v1/mnemos/search",
             "engrams": "/v1/mnemos/engrams/{id}",
             "audit": "/v1/mnemos/audit",
@@ -897,6 +979,21 @@ def capabilities():
     return jsonify(_runtime.capabilities()), 200
 
 
+@app.post("/v1/mnemos/warmup")
+def warmup():
+    if not _authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    err = _ensure_runtime()
+    if err:
+        return jsonify(err), 200
+
+    body = request.get_json(silent=True) or {}
+    query = body.get("query", "mnemos warmup readiness probe")
+    if not isinstance(query, str) or not query.strip():
+        return jsonify({"error": "query must be a non-empty string"}), 400
+    return jsonify(_runtime.warmup(query=query.strip())), 200
+
+
 @app.post("/v1/mnemos/index")
 def index():
     if not _authorized():
@@ -915,6 +1012,7 @@ def index():
     return jsonify(_runtime.index_documents(documents, options)), 200
 
 
+@app.post("/api/v1/query")
 @app.post("/v1/mnemos/search")
 def search():
     if not _authorized():
@@ -924,6 +1022,11 @@ def search():
         return jsonify(err), 200
 
     body = request.get_json(silent=True) or {}
+    
+    if body.get("evaluation_mode") is True:
+        _runtime._mom_stats["derived_lane.denied_count"] += 1
+        return jsonify({"error": "evaluation_mode=true not supported on production routes"}), 400
+
     query = body.get("query", "")
     top_k = body.get("top_k", 10)
     tiers = body.get("tiers")
@@ -936,6 +1039,8 @@ def search():
     governance_profile = body.get("governance_profile")
     bounded_envelope = body.get("bounded_envelope")
     derive_views = body.get("derive_views")
+    latency_budget_ms = body.get("latency_budget_ms")
+    complexity_shadow = body.get("complexity_shadow", False)
 
     if not query:
         return jsonify({"error": "No query provided"}), 400
@@ -954,6 +1059,9 @@ def search():
 
     if explain is not None and not isinstance(explain, bool):
         return jsonify({"error": "explain must be a boolean"}), 400
+
+    if not isinstance(complexity_shadow, bool):
+        return jsonify({"error": "complexity_shadow must be a boolean"}), 400
 
     if governance is not None and governance not in GOVERNANCE_MODES:
         return jsonify({
@@ -976,6 +1084,21 @@ def search():
     if bounded_envelope is not None and not isinstance(bounded_envelope, dict):
         return jsonify({"error": "bounded_envelope must be an object"}), 400
 
+    if filters is not None:
+        if not isinstance(filters, dict):
+            return jsonify({"error": "filters must be an object"}), 400
+        reserved = sorted(k for k in filters if k in RESERVED_FILTER_KEYS)
+        if reserved:
+            return jsonify({
+                "error": "Reserved filter key",
+                "reserved_filter_keys": reserved,
+            }), 400
+
+    if latency_budget_ms is not None:
+        if isinstance(latency_budget_ms, bool) or not isinstance(latency_budget_ms, (int, float)) or latency_budget_ms <= 0:
+            return jsonify({"error": "latency_budget_ms must be a positive number"}), 400
+        latency_budget_ms = float(latency_budget_ms)
+
     if derive_views is not None:
         if not isinstance(derive_views, list) or any(not isinstance(v, str) for v in derive_views):
             return jsonify({"error": "derive_views must be a list of strings"}), 400
@@ -989,8 +1112,22 @@ def search():
                 }
             ), 400
 
-    return jsonify(
-        _runtime.search_documents(
+    if body.get("enable_derived_facts") is True:
+        config = get_config()
+        if not config.derived_enabled:
+            _runtime._mom_stats["derived_lane.kill_switch_count"] += 1
+            return jsonify({"error": "derived_lane_disabled"}), 503
+            
+        client_id = request.headers.get("X-Client-Id", "unknown")
+        if client_id not in config.derived_whitelist:
+            _runtime._mom_stats["derived_lane.denied_count"] += 1
+            return jsonify({"error": "client_not_authorized"}), 403
+            
+        _runtime._mom_stats["derived_lane.execution_count"] += 1
+        res = _runtime.search_derived_trial(query=query, top_k=top_k, client_id=client_id)
+        return jsonify(res), 200
+
+    res = _runtime.search_documents(
             query,
             top_k,
             tiers,
@@ -1003,9 +1140,121 @@ def search():
             governance_profile,
             bounded_envelope,
             derive_views,
+            latency_budget_ms,
+            complexity_shadow,
         )
-    ), 200
 
+    derived_cnt = len(res.get("derived_results", []))
+    if derived_cnt > 0:
+        _runtime._mom_stats["query.default_retrieval.derived_fact_count"] += derived_cnt
+        raise RuntimeError("SEV-STOP: query.default_retrieval.derived_fact_count > 0")
+    else:
+        # Implicitly 0, as per standing invariant
+        pass
+
+    return jsonify(res), 200
+
+
+@app.post("/api/v1/evaluate_derived_shadow")
+def evaluate_derived_shadow():
+    if not _authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    err = _ensure_runtime()
+    if err:
+        return jsonify(err), 200
+    t_start = time.perf_counter()
+
+    _runtime._mom_stats["evaluate_derived_shadow.request_count"] += 1
+
+    config = get_config()
+
+    # 1. Kill-Switch
+    if not config.derived_enabled:
+        _runtime._mom_stats["derived_lane.kill_switch_count"] += 1
+        return jsonify({"error": "derived_lane_disabled"}), 503
+
+    # 2. Client Whitelist Check
+    t_auth_start = time.perf_counter()
+    client_id = request.headers.get("X-Client-Id", "unknown")
+    if client_id not in config.derived_whitelist:
+        _runtime._mom_stats["derived_lane.denied_count"] += 1
+        _runtime._mom_stats["evaluate_derived_shadow.denied_count"] += 1
+        return jsonify({"error": "derived_fact_client_not_authorized"}), 403
+    t_auth = (time.perf_counter() - t_auth_start) * 1000
+
+    body = request.get_json(silent=True) or {}
+
+    # 3. Double Opt-In Flags
+    if not body.get("evaluation_mode") or not body.get("include_derived_facts"):
+        _runtime._mom_stats["derived_lane.denied_count"] += 1
+        _runtime._mom_stats["evaluate_derived_shadow.denied_count"] += 1
+        return jsonify({"error": "missing_required_eval_flags"}), 400
+
+    # Passed gates!
+    _runtime._mom_stats["derived_lane.execution_count"] += 1
+
+    query = body.get("query", "")
+    top_k = body.get("top_k", 10)
+
+    # Call default search, assert 0 derived
+    t_default_search_start = time.perf_counter()
+    res = _runtime.search_documents(query, top_k, None, None, None, None, None, None, None, None, None, None)
+    if "derived_results" in res and len(res["derived_results"]) > 0:
+        raise RuntimeError("SEV-STOP: Default search leaked derived facts!")
+    t_default_search = (time.perf_counter() - t_default_search_start) * 1000
+
+    # Perform Shadow Fetch
+    t_search_derived_start = time.perf_counter()
+    pit2_response = _runtime._router.search_derived(
+        query=query, 
+        top_k=top_k,
+        client_id=client_id,
+        include_derived_facts=body.get("include_derived_facts", True)
+    )
+    t_search_derived = (time.perf_counter() - t_search_derived_start) * 1000
+    
+    # Governance Ledger Check (currently bundled in search, but we log 0 for now or small overhead)
+    t_gov = 0.0
+
+    t_serializer_start = time.perf_counter()
+    from mnemos.evaluation.derived_shadow_packet import DerivedShadowPacketSerializer
+    serializer = DerivedShadowPacketSerializer()
+    shadow_packet = serializer.serialize(pit2_response)
+    t_serializer = (time.perf_counter() - t_serializer_start) * 1000
+
+    # Render it
+    t_renderer_start = time.perf_counter()
+    from mnemos.evaluation.derived_evaluation_renderer import render_derived_evaluation_context
+    rendered_block = render_derived_evaluation_context(shadow_packet)
+    t_renderer = (time.perf_counter() - t_renderer_start) * 1000
+
+    t_telemetry_start = time.perf_counter()
+    rendered_cnt = shadow_packet.get("derived_fact_count", 0)
+    _runtime._mom_stats["evaluate_derived_shadow.rendered_derived_fact_count"] += rendered_cnt
+    t_telemetry = (time.perf_counter() - t_telemetry_start) * 1000
+
+    t_total = (time.perf_counter() - t_start) * 1000
+
+    stage_latencies_ms = {
+        "auth_whitelist_check_ms": round(t_auth, 2),
+        "default_search_ms": round(t_default_search, 2),
+        "search_derived_ms": round(t_search_derived, 2),
+        "governance_ledger_check_ms": round(t_gov, 2),
+        "shadow_serializer_ms": round(t_serializer, 2),
+        "evaluation_renderer_ms": round(t_renderer, 2),
+        "telemetry_stats_update_ms": round(t_telemetry, 2),
+        "response_serialization_ms": 0.0, # Will be set implicitly or ignored as Flask handles jsonification
+        "total_request_ms": round(t_total, 2)
+    }
+
+    res["shadow_evaluation"] = {
+        "rendered_block": rendered_block,
+        "shadow_packet": shadow_packet,
+        "stage_latencies_ms": stage_latencies_ms,
+        "candidate_telemetry": pit2_response.get("derived_lane_meta", {}).get("candidate_telemetry", [])
+    }
+
+    return jsonify(res), 200
 
 @app.get("/v1/mnemos/engrams/<engram_id>")
 def get_engram(engram_id):
