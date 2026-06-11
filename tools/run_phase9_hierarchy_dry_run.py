@@ -54,13 +54,18 @@ def _load_qdrant_collection(
             vector = _extract_vector(point)
             if vector is None:
                 continue
-            engram_id = str(payload.get("id") or payload.get("engram_id") or getattr(point, "id"))
+            app_meta = {
+                key.removeprefix("app_"): value
+                for key, value in payload.items()
+                if key.startswith("app_")
+            }
+            engram_id = str(payload.get("_mnemos_id") or payload.get("id") or payload.get("engram_id") or getattr(point, "id"))
             engrams.append(
                 Engram(
                     id=engram_id,
                     content=str(payload.get("content") or ""),
                     source=str(payload.get("source") or ""),
-                    metadata=payload if isinstance(payload, dict) else {},
+                    metadata=app_meta,
                 )
             )
             vectors.append(vector)
@@ -78,6 +83,9 @@ def main() -> int:
     parser.add_argument("--collection", default="mnemos_engrams_nomic_mrl")
     parser.add_argument("--limit", type=int, default=2121)
     parser.add_argument("--clusters", type=int, default=None)
+    parser.add_argument("--apply", action="store_true", help="Index generated summary engrams into Qdrant")
+    parser.add_argument("--embedding-model", default="nomic-ai/nomic-embed-text-v1.5")
+    parser.add_argument("--gpu-device", default="cuda")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
 
@@ -86,14 +94,32 @@ def main() -> int:
         collection=args.collection,
         limit=args.limit,
     )
-    report = HierarchicalClusteringRunner(n_clusters=args.clusters).run(
+    indexer = None
+    if args.apply:
+        from mnemos.retrieval.qdrant_tier import QdrantTier
+
+        indexer = QdrantTier(
+            url=args.qdrant_url,
+            collection_name=args.collection,
+            embedding_model=args.embedding_model,
+            embedding_dim=vectors.shape[1] if vectors.size else 768,
+            gpu_device=args.gpu_device,
+        )
+
+    report = HierarchicalClusteringRunner(
+        n_clusters=args.clusters,
+        model_name=args.embedding_model,
+    ).run(
         engrams,
         vectors=vectors if len(engrams) else None,
+        dry_run=not args.apply,
+        indexer=indexer,
         output_path=args.output,
     )
     print(f"collection: {args.collection}")
     print(f"engrams scanned: {report.engrams_scanned}")
     print(f"clusters: {report.cluster_count}")
+    print(f"summary writes: {report.summary_engram_writes}")
     print(f"output: {args.output}")
     return 0
 

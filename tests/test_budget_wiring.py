@@ -130,6 +130,43 @@ class RecordingReranker:
         return list(reversed(results))
 
 
+class SummaryAwareRetriever(RecordingRetriever):
+    def __init__(self, name: str, docs: List[tuple[str, bool]]):
+        super().__init__(name, [doc_id for doc_id, _ in docs])
+        self._summary_by_id = {doc_id: is_summary for doc_id, is_summary in docs}
+
+    def search(
+        self,
+        query: str,
+        top_k: int = 10,
+        filters: Optional[Dict[str, Any]] = None,
+        query_vector=None,
+    ):
+        self.last_filters = dict(filters or {})
+        self.last_top_k = top_k
+        self.last_query_vector = query_vector
+        want_summary = self.last_filters.get("metadata.is_summary_engram")
+        rows = []
+        for doc_id in self._doc_ids:
+            is_summary = self._summary_by_id.get(doc_id, False)
+            if want_summary is not None and is_summary != bool(want_summary):
+                continue
+            rows.append(
+                SearchResult(
+                    engram=Engram(
+                        id=doc_id,
+                        content=f"{self._name}-{doc_id}",
+                        metadata={"is_summary_engram": is_summary},
+                    ),
+                    score=float(len(self._doc_ids) - len(rows)),
+                    tier=self._name,
+                )
+            )
+            if len(rows) == top_k:
+                break
+        return rows
+
+
 def test_no_budget_is_byte_identical_to_pre_budget_path():
     router, tier = _router()
     results, meta = router.search(query="q", top_k=3)
@@ -308,8 +345,8 @@ def test_active_complexity_class_b_forces_rerank():
 
 
 def test_active_complexity_class_c_uses_lexical_dominant_hybrid():
-    semantic = RecordingRetriever("qdrant", ["a", "b", "c"])
-    lexical = RecordingRetriever("lexical", ["b", "d", "e"])
+    semantic = SummaryAwareRetriever("qdrant", [("summary_a", True), ("leaf_b", False)])
+    lexical = SummaryAwareRetriever("lexical", [("summary_a", True), ("leaf_c", False)])
     router = RetrievalRouter(
         semantic_fusion=TierFusion([semantic]),
         lexical_tier=lexical,
@@ -317,13 +354,39 @@ def test_active_complexity_class_c_uses_lexical_dominant_hybrid():
         adaptive_routing_enabled=True,
     )
 
-    _, meta = router.search(query="summarize all policy themes", top_k=3)
+    results, meta = router.search(query="summarize all policy themes", top_k=10)
 
     assert meta["complexity_classification"]["label"] == "CLASS_C"
     assert meta["routing_posture"]["budget_strategy"] == "balanced"
     assert meta["routing_posture"]["graph"] == "skip"
+    assert meta["routing_posture"]["summary_layer"] == "required_with_fallback"
     assert meta["retrieval_mode"] == "hybrid"
     assert meta["fusion_policy"] == "lexical_dominant"
+    assert semantic.last_filters is not None
+    assert semantic.last_filters["metadata.is_summary_engram"] is True
+    assert lexical.last_filters is not None
+    assert lexical.last_filters["metadata.is_summary_engram"] is True
+    assert len(results) <= 5
+    assert all(r.engram.metadata.get("is_summary_engram") is True for r in results)
+
+
+def test_active_complexity_class_c_falls_back_when_summary_layer_empty():
+    semantic = SummaryAwareRetriever("qdrant", [("leaf_a", False), ("leaf_b", False)])
+    lexical = SummaryAwareRetriever("lexical", [("leaf_c", False), ("leaf_d", False)])
+    router = RetrievalRouter(
+        semantic_fusion=TierFusion([semantic]),
+        lexical_tier=lexical,
+        complexity_classifier=FakeComplexityClassifier("CLASS_C"),
+        adaptive_routing_enabled=True,
+    )
+
+    results, meta = router.search(query="summarize all policy themes", top_k=10)
+
+    assert results
+    assert meta["hierarchy_fallback"]["triggered"] is True
+    assert meta["complexity_classification"]["label"] == "CLASS_C"
+    assert meta["routing_posture"]["summary_layer"] == "required_with_fallback"
+    assert all(r.engram.metadata.get("is_summary_engram") is False for r in results)
 
 
 if __name__ == "__main__":

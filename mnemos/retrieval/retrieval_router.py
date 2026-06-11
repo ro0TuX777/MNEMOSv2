@@ -411,6 +411,8 @@ class RetrievalRouter:
                 "budget_strategy": "balanced",
                 "graph": "skip",
                 "rerank": "conditional",
+                "summary_layer": "required_with_fallback",
+                "summary_top_k": 5,
                 "reason": "global_or_synthesis_query",
             }
         return {
@@ -420,6 +422,7 @@ class RetrievalRouter:
             "budget_strategy": "default",
             "graph": "unchanged",
             "rerank": "conditional",
+            "summary_layer": "skip",
             "reason": "classifier_unavailable_or_unknown",
         }
 
@@ -436,6 +439,48 @@ class RetrievalRouter:
                 meta["complexity_shadow"] = complexity_meta
         if routing_posture:
             meta["routing_posture"] = routing_posture
+
+    def _fallback_flat_global_search(
+        self,
+        *,
+        query: str,
+        top_k: int,
+        filters: Optional[Dict[str, Any]],
+        tiers: Optional[List[str]],
+        explain: bool,
+        lexical_top_k: int,
+        semantic_top_k: int,
+        bounded_envelope: Optional[Dict[str, Any]],
+        graph_experiment_params: Optional[Dict[str, Any]],
+        latency_budget_ms: Optional[float],
+        complexity_meta: Optional[Dict[str, Any]],
+        routing_posture: Optional[Dict[str, Any]],
+    ) -> Tuple[List[SearchResult], Dict[str, Any]]:
+        fallback_mode = "hybrid" if self.lexical_available else "semantic"
+        results, meta = self.search(
+            query=query,
+            top_k=top_k,
+            filters=filters,
+            tiers=tiers,
+            retrieval_mode=fallback_mode,
+            fusion_policy="lexical_dominant",
+            explain=explain,
+            lexical_top_k=lexical_top_k,
+            semantic_top_k=semantic_top_k,
+            bounded_envelope=bounded_envelope,
+            graph_experiment_params=graph_experiment_params,
+            latency_budget_ms=latency_budget_ms,
+            complexity_shadow=False,
+            adaptive_routing=False,
+        )
+        meta["hierarchy_fallback"] = {
+            "triggered": True,
+            "reason": "summary_layer_empty",
+            "fallback_mode": fallback_mode,
+            "fallback_policy": "lexical_dominant",
+        }
+        self._attach_complexity_metadata(meta, complexity_meta, routing_posture)
+        return results, meta
 
     @staticmethod
     def _is_derived(result: SearchResult) -> bool:
@@ -1067,6 +1112,19 @@ class RetrievalRouter:
                 else None
             )
 
+        summary_layer_active = bool(
+            routing_posture and routing_posture.get("summary_layer") == "required_with_fallback"
+        )
+        effective_top_k = min(top_k, int(routing_posture.get("summary_top_k", 5))) if summary_layer_active and routing_posture else top_k
+        effective_desired_pool = (
+            max(effective_top_k, envelope_cfg.candidate_pool_limit)
+            if envelope_cfg.enabled
+            else effective_top_k
+        )
+        retrieval_filters = dict(user_filters)
+        if summary_layer_active:
+            retrieval_filters["metadata.is_summary_engram"] = True
+
         # W6/W7 + Phase 8: resolve a stage plan when the caller supplies a
         # budget or adaptive routing has a complexity class to translate.
         budget_plan = (
@@ -1102,13 +1160,13 @@ class RetrievalRouter:
                 self._stats["retrieval_mode_counters"]["semantic"] += 1
             # Server-side derived-fact exclusion (Qdrant must_not payload filter);
             # over-fetch only when a tier without payload filtering is active.
-            effective_filters = dict(user_filters)
+            effective_filters = dict(retrieval_filters)
             effective_filters["__exclude_derived__"] = True
             if budget_plan is not None:
                 effective_filters.update(self._budget_filter_overrides(budget_plan))
             raw_hits = self._semantic_fusion.search(
                 query,
-                top_k=desired_pool * self._derived_overfetch_factor(),
+                top_k=effective_desired_pool * self._derived_overfetch_factor(),
                 filters=effective_filters,
                 tiers=tiers,
                 query_vector=query_vector,
@@ -1118,7 +1176,7 @@ class RetrievalRouter:
                 if self._is_derived(h):
                     continue
                 hits.append(h)
-                if len(hits) == desired_pool:
+                if len(hits) == effective_desired_pool:
                     break
 
             t_e = (time.perf_counter() - t_s) * 1000
@@ -1177,7 +1235,7 @@ class RetrievalRouter:
 
             narrowed, envelope_meta = apply_candidate_envelope(hits, envelope_cfg)
             self._record_candidate_envelope_stats(envelope_meta)
-            final_results = narrowed[:top_k]
+            final_results = narrowed[:effective_top_k]
             
             if graph_experiment_telemetry:
                 survived = sum(1 for c in final_results if c.tier == "graph")
@@ -1207,6 +1265,21 @@ class RetrievalRouter:
             # PIT-1 Leakage Guard
             final_results = self._apply_leakage_guard(final_results, meta)
             self._record_budget_outcome(budget_plan, meta, t_e)
+            if summary_layer_active and not final_results:
+                return self._fallback_flat_global_search(
+                    query=query,
+                    top_k=top_k,
+                    filters=filters,
+                    tiers=tiers,
+                    explain=explain,
+                    lexical_top_k=lexical_top_k,
+                    semantic_top_k=semantic_top_k,
+                    bounded_envelope=bounded_envelope,
+                    graph_experiment_params=graph_experiment_params,
+                    latency_budget_ms=latency_budget_ms,
+                    complexity_meta=complexity_meta,
+                    routing_posture=routing_posture,
+                )
             return final_results, meta
 
         start = time.perf_counter()
@@ -1230,10 +1303,10 @@ class RetrievalRouter:
                 fused, telemetry = self._qdrant_hybrid.fuse(
                     query=query,
                     query_vector=query_vec,
-                    top_k=desired_pool,
-                    filters=user_filters,
-                    semantic_limit=semantic_top_k,
-                    lexical_limit=lexical_top_k,
+                    top_k=effective_desired_pool,
+                    filters=retrieval_filters,
+                    semantic_limit=min(semantic_top_k, effective_desired_pool) if summary_layer_active else semantic_top_k,
+                    lexical_limit=min(lexical_top_k, effective_desired_pool) if summary_layer_active else lexical_top_k,
                 )
             except Exception as e:
                 logger.warning(f"QdrantHybridFusion failed, falling back to Python hybrid: {e}")
@@ -1251,7 +1324,7 @@ class RetrievalRouter:
 
                 narrowed, envelope_meta = apply_candidate_envelope(fused, envelope_cfg)
                 self._record_candidate_envelope_stats(envelope_meta)
-                final_results = narrowed[:top_k]
+                final_results = narrowed[:effective_top_k]
 
                 elapsed_ms = (time.perf_counter() - start) * 1000.0
                 self._record_hybrid_stats(telemetry, elapsed_ms, policy)
@@ -1277,17 +1350,38 @@ class RetrievalRouter:
                 self._record_budget_outcome(
                     budget_plan, meta, (time.perf_counter() - start) * 1000
                 )
+                if summary_layer_active and not final_results:
+                    return self._fallback_flat_global_search(
+                        query=query,
+                        top_k=top_k,
+                        filters=filters,
+                        tiers=tiers,
+                        explain=explain,
+                        lexical_top_k=lexical_top_k,
+                        semantic_top_k=semantic_top_k,
+                        bounded_envelope=bounded_envelope,
+                        graph_experiment_params=graph_experiment_params,
+                        latency_budget_ms=latency_budget_ms,
+                        complexity_meta=complexity_meta,
+                        routing_posture=routing_posture,
+                    )
                 return final_results, meta
 
         # ── Python-side hybrid fusion (original path) ──────────
-        lexical_results = self._lexical_tier.search(query, top_k=lexical_top_k, filters=user_filters)
-        _semantic_filters = dict(user_filters)
+        summary_semantic_top_k = min(semantic_top_k, effective_desired_pool) if summary_layer_active else semantic_top_k
+        summary_lexical_top_k = min(lexical_top_k, effective_desired_pool) if summary_layer_active else lexical_top_k
+        lexical_results = self._lexical_tier.search(
+            query,
+            top_k=summary_lexical_top_k,
+            filters=retrieval_filters,
+        )
+        _semantic_filters = dict(retrieval_filters)
         _semantic_filters["__exclude_derived__"] = True
         if budget_plan is not None:
             _semantic_filters.update(self._budget_filter_overrides(budget_plan))
         semantic_results = self._semantic_fusion.search(
             query,
-            top_k=semantic_top_k * self._derived_overfetch_factor(),
+            top_k=summary_semantic_top_k * self._derived_overfetch_factor(),
             filters=_semantic_filters,
             tiers=tiers,
             query_vector=query_vector,
@@ -1298,16 +1392,16 @@ class RetrievalRouter:
             if self._is_derived(h):
                 continue
             _semantic_clean.append(h)
-            if len(_semantic_clean) == semantic_top_k:
+            if len(_semantic_clean) == summary_semantic_top_k:
                 break
         semantic_results = _semantic_clean
 
         fused, telemetry = self._hybrid_fusion.fuse(
             lexical_results=lexical_results,
             semantic_results=semantic_results,
-            top_k=desired_pool,
+            top_k=effective_desired_pool,
             fusion_policy=policy,
-            filters=user_filters,
+            filters=retrieval_filters,
             explain=explain,
         )
 
@@ -1315,7 +1409,7 @@ class RetrievalRouter:
 
         narrowed, envelope_meta = apply_candidate_envelope(fused, envelope_cfg)
         self._record_candidate_envelope_stats(envelope_meta)
-        final_results = narrowed[:top_k]
+        final_results = narrowed[:effective_top_k]
 
         elapsed_ms = (time.perf_counter() - start) * 1000.0
         self._record_hybrid_stats(telemetry, elapsed_ms, policy)
@@ -1338,6 +1432,21 @@ class RetrievalRouter:
         # PIT-1 Leakage Guard
         final_results = self._apply_leakage_guard(final_results, meta)
         self._record_budget_outcome(budget_plan, meta, elapsed_ms)
+        if summary_layer_active and not final_results:
+            return self._fallback_flat_global_search(
+                query=query,
+                top_k=top_k,
+                filters=filters,
+                tiers=tiers,
+                explain=explain,
+                lexical_top_k=lexical_top_k,
+                semantic_top_k=semantic_top_k,
+                bounded_envelope=bounded_envelope,
+                graph_experiment_params=graph_experiment_params,
+                latency_budget_ms=latency_budget_ms,
+                complexity_meta=complexity_meta,
+                routing_posture=routing_posture,
+            )
         return final_results, meta
 
     def stats(self) -> Dict[str, Any]:

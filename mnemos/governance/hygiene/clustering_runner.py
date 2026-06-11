@@ -10,10 +10,12 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import time
 from dataclasses import dataclass, field
+from hashlib import sha256
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Protocol
 
 import numpy as np
 
@@ -32,6 +34,8 @@ class HierarchicalClusterRecord:
     centroid_norm: float
     representative_ids: List[str]
     summary_prompt_preview: str
+    summary_engram_id: Optional[str] = None
+    summary_content: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -41,6 +45,8 @@ class HierarchicalClusterRecord:
             "centroid_norm": round(self.centroid_norm, 6),
             "representative_ids": list(self.representative_ids),
             "summary_prompt_preview": self.summary_prompt_preview,
+            "summary_engram_id": self.summary_engram_id,
+            "summary_content": self.summary_content,
         }
 
 
@@ -51,6 +57,7 @@ class HierarchyReport:
     engrams_scanned: int
     cluster_count: int
     elapsed_ms: float
+    summary_engram_writes: int = 0
     clusters: List[HierarchicalClusterRecord] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -60,9 +67,92 @@ class HierarchyReport:
             "engrams_scanned": self.engrams_scanned,
             "cluster_count": self.cluster_count,
             "elapsed_ms": round(self.elapsed_ms, 4),
-            "summary_engram_writes": 0,
+            "summary_engram_writes": self.summary_engram_writes,
             "clusters": [cluster.to_dict() for cluster in self.clusters],
         }
+
+
+class EngramIndexer(Protocol):
+    def index(self, engrams: List[Engram]) -> Any:
+        ...
+
+
+class ClusterSynthesizer:
+    """SMC-compatible cluster summarizer with deterministic fallback."""
+
+    def __init__(self, *, max_chars: int = 1200) -> None:
+        self.max_chars = max_chars
+
+    def synthesize(self, *, cluster_id: str, engrams: List[Engram]) -> str:
+        prompt = self._prompt(cluster_id, engrams)
+        llm = self._call_smc_llm(prompt)
+        if llm:
+            return llm.strip()
+        return self._join_and_truncate(cluster_id, engrams)
+
+    def _call_smc_llm(self, prompt: str) -> Optional[str]:
+        base_url = os.getenv("SMC_LLM_BASE_URL", "").strip()
+        model = os.getenv("SMC_LLM_MODEL", "").strip()
+        if not base_url or not model:
+            return None
+        try:
+            import requests
+
+            payload = {
+                "model": model,
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": (
+                            "Summarize only the provided MNEMOS engrams. "
+                            "Do not invent facts. Preserve governance-relevant themes."
+                        ),
+                    },
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": float(os.getenv("SMC_LLM_TEMPERATURE", "0")),
+                "max_tokens": int(os.getenv("SMC_LLM_MAX_TOKENS", "512")),
+            }
+            headers = {"Content-Type": "application/json"}
+            api_key = os.getenv("SMC_LLM_API_KEY", "")
+            if api_key:
+                headers["Authorization"] = f"Bearer {api_key}"
+            resp = requests.post(
+                f"{base_url.rstrip('/')}/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=int(os.getenv("SMC_LLM_TIMEOUT_SECONDS", "60")),
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            content = data["choices"][0]["message"]["content"]
+            return str(content)
+        except Exception:
+            return None
+
+    def _join_and_truncate(self, cluster_id: str, engrams: List[Engram]) -> str:
+        snippets = []
+        for engram in engrams[:8]:
+            text = " ".join(engram.content.split())
+            snippets.append(f"{engram.id}: {text[:260]}")
+        joined = " ".join(snippets)
+        return (
+            f"Thematic summary for {cluster_id}: "
+            f"{joined[: self.max_chars]} "
+            f"(Derived from {len(engrams)} source engrams; no new facts added.)"
+        ).strip()
+
+    @staticmethod
+    def _prompt(cluster_id: str, engrams: List[Engram]) -> str:
+        lines = [
+            f"CLUSTER: {cluster_id}",
+            "TASK: Write one concise thematic summary. Include only facts supported by the listed engrams.",
+            "SOURCE ENGRAMS:",
+        ]
+        for engram in engrams[:20]:
+            text = " ".join(engram.content.split())
+            lines.append(f"- {engram.id}: {text[:600]}")
+        return "\n".join(lines)
 
 
 class HierarchicalClusteringRunner:
@@ -81,11 +171,15 @@ class HierarchicalClusteringRunner:
         n_clusters: Optional[int] = None,
         max_iterations: int = 30,
         random_seed: int = 7,
+        target_cluster_size: int = 35,
+        synthesizer: Optional[ClusterSynthesizer] = None,
     ) -> None:
         self.model_name = model_name
         self.n_clusters = n_clusters
         self.max_iterations = max(1, max_iterations)
         self.random_seed = random_seed
+        self.target_cluster_size = max(1, target_cluster_size)
+        self.synthesizer = synthesizer or ClusterSynthesizer()
         self._embedder = None
 
     def run(
@@ -94,14 +188,18 @@ class HierarchicalClusteringRunner:
         *,
         vectors: Optional[np.ndarray] = None,
         dry_run: bool = True,
+        indexer: Optional[EngramIndexer] = None,
         output_path: Optional[Path | str] = None,
     ) -> HierarchyReport:
         started = time.perf_counter()
-        if not dry_run:
-            raise NotImplementedError("Summary-engram writes are not enabled in the Phase 9 scaffold")
-        if not engrams:
+        source_engrams = [
+            engram
+            for engram in engrams
+            if not (getattr(engram, "metadata", {}) or {}).get("is_summary_engram", False)
+        ]
+        if not source_engrams:
             report = HierarchyReport(
-                dry_run=True,
+                dry_run=dry_run,
                 model_name=self.model_name,
                 engrams_scanned=0,
                 cluster_count=0,
@@ -111,16 +209,25 @@ class HierarchicalClusteringRunner:
             self._write_report(report, output_path)
             return report
 
-        matrix = self._resolve_vectors(engrams, vectors)
-        k = self._choose_cluster_count(len(engrams))
+        if vectors is not None and len(source_engrams) != len(engrams):
+            raise ValueError("Explicit vectors must match non-summary source engrams")
+        matrix = self._resolve_vectors(source_engrams, vectors)
+        k = self._choose_cluster_count(len(source_engrams))
         assignments, centroids = self._kmeans(matrix, k)
-        clusters = self._build_cluster_records(engrams, matrix, assignments, centroids)
+        clusters = self._build_cluster_records(source_engrams, matrix, assignments, centroids)
+        summary_writes = 0
+        if not dry_run:
+            if indexer is None:
+                raise ValueError("indexer is required when dry_run=False")
+            summary_engrams = self._build_summary_engrams(clusters, source_engrams)
+            summary_writes = int(indexer.index(summary_engrams))
         report = HierarchyReport(
-            dry_run=True,
+            dry_run=dry_run,
             model_name=self.model_name,
-            engrams_scanned=len(engrams),
+            engrams_scanned=len(source_engrams),
             cluster_count=len(clusters),
             elapsed_ms=(time.perf_counter() - started) * 1000.0,
+            summary_engram_writes=summary_writes,
             clusters=clusters,
         )
         self._write_report(report, output_path)
@@ -163,7 +270,7 @@ class HierarchicalClusteringRunner:
     def _choose_cluster_count(self, n: int) -> int:
         if self.n_clusters is not None:
             return max(1, min(self.n_clusters, n))
-        return max(1, min(n, int(round(math.sqrt(n)))))
+        return max(1, min(n, int(math.ceil(n / self.target_cluster_size))))
 
     def _kmeans(self, matrix: np.ndarray, k: int) -> tuple[np.ndarray, np.ndarray]:
         rng = np.random.default_rng(self.random_seed)
@@ -209,9 +316,10 @@ class HierarchicalClusteringRunner:
             representative_ids = [engrams[i].id for i in scored[:3]]
             member_ids = [engrams[i].id for i in member_indices]
             preview = self._summary_prompt_preview([engrams[i] for i in scored[:5]])
+            cluster_id = f"cluster_{cluster_idx:03d}"
             records.append(
                 HierarchicalClusterRecord(
-                    cluster_id=f"cluster_{cluster_idx:03d}",
+                    cluster_id=cluster_id,
                     member_ids=member_ids,
                     centroid_norm=float(np.linalg.norm(centroids[cluster_idx])),
                     representative_ids=representative_ids,
@@ -220,6 +328,39 @@ class HierarchicalClusteringRunner:
             )
         records.sort(key=lambda record: (-len(record.member_ids), record.cluster_id))
         return records
+
+    def _build_summary_engrams(
+        self,
+        clusters: List[HierarchicalClusterRecord],
+        engrams: List[Engram],
+    ) -> List[Engram]:
+        by_id = {engram.id: engram for engram in engrams}
+        summaries: List[Engram] = []
+        for cluster in clusters:
+            members = [by_id[eid] for eid in cluster.member_ids if eid in by_id]
+            summary = self.synthesizer.synthesize(cluster_id=cluster.cluster_id, engrams=members)
+            digest = sha256(("|".join(cluster.member_ids) + summary).encode("utf-8")).hexdigest()[:16]
+            summary_id = f"summary_{cluster.cluster_id}_{digest}"
+            cluster.summary_engram_id = summary_id
+            cluster.summary_content = summary
+            summaries.append(
+                Engram(
+                    id=summary_id,
+                    content=summary,
+                    source=f"derived://hierarchy/{cluster.cluster_id}",
+                    confidence=1.0,
+                    edges=list(cluster.member_ids),
+                    metadata={
+                        "is_summary_engram": True,
+                        "cluster_id": cluster.cluster_id,
+                        "depth": 1,
+                        "source_member_count": len(cluster.member_ids),
+                        "representative_ids": list(cluster.representative_ids),
+                        "synthesis_policy": "smc_or_join_truncate_v1",
+                    },
+                )
+            )
+        return summaries
 
     @staticmethod
     def _summary_prompt_preview(engrams: List[Engram]) -> str:
