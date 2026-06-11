@@ -207,7 +207,9 @@ class Governor:
             GovernanceMeta on the supplied results is mutated in place.
         """
         profile = self._resolve_profile(governance_profile)
-        reflect_path = self._reflect_path if profile.profile_id == "default" else self._build_reflect_path_for_profile(profile)
+        # Always build from the profile so reflect_precision_mode is honored
+        # for the default profile too (the cached default path is lexical).
+        reflect_path = self._build_reflect_path_for_profile(profile)
         reflect_result = reflect_path.reflect(
             query=query,
             answer=answer,
@@ -324,10 +326,51 @@ class Governor:
         return ReadPath(registry, contradiction_policy=self._contradiction_policy)
 
     def _build_reflect_path_for_profile(self, profile: GovernancePolicyProfile) -> ReflectPath:
-        detector = UsageDetector(
+        detector = self._resolve_usage_detector(profile)
+        reinforcement = Reinforcement(config=profile.reinforcement_config())
+        return ReflectPath(usage_detector=detector, reinforcement=reinforcement)
+
+    def _resolve_usage_detector(self, profile: GovernancePolicyProfile):
+        """
+        Pick the reflect usage detector for a profile.
+
+        ``reflect_precision_mode="nli"`` returns the shared entailment
+        detector (Phase 6 gate PASS); if the model is unavailable the
+        profile degrades to the lexical detector with a warning
+        (design principle #7 - graceful, honestly-reported degradation).
+        """
+        if getattr(profile, "reflect_precision_mode", "lexical") == "nli":
+            detector = self._get_nli_detector()
+            if detector is not None:
+                return detector
+            logger.warning(
+                "reflect_precision_mode=nli requested for profile %r but the NLI "
+                "detector is unavailable; falling back to lexical overlap",
+                profile.profile_id,
+            )
+        return UsageDetector(
             overlap_threshold=profile.overlap_threshold,
             min_memory_tokens_for_overlap=profile.min_memory_tokens_for_overlap,
             min_overlap_tokens=profile.min_overlap_tokens,
         )
-        reinforcement = Reinforcement(config=profile.reinforcement_config())
-        return ReflectPath(usage_detector=detector, reinforcement=reinforcement)
+
+    def _get_nli_detector(self):
+        """Lazy, shared NLI detector. One model load; failure is cached."""
+        if getattr(self, "_nli_detector_failed", False):
+            return None
+        detector = getattr(self, "_nli_detector", None)
+        if detector is not None:
+            return detector
+        try:
+            from mnemos.governance.nli_usage_detector import NLIUsageDetector
+
+            detector = NLIUsageDetector()
+            if not detector.health():
+                raise RuntimeError("NLI detector failed health probe")
+            self._nli_detector = detector
+            logger.info("NLI usage detector active for reflect path (%s)", detector.model_name)
+            return detector
+        except Exception as exc:
+            self._nli_detector_failed = True
+            logger.error(f"NLI usage detector unavailable: {exc}")
+            return None

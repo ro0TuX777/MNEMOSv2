@@ -125,9 +125,11 @@ class ReflectPath:
 
     def __init__(
         self,
-        usage_detector: UsageDetector | None = None,
+        usage_detector: Optional[Any] = None,
         reinforcement: Reinforcement | None = None,
     ) -> None:
+        # Any object with a UsageDetector-compatible detect() signature is
+        # accepted (lexical UsageDetector, NLIUsageDetector, test doubles).
         self._detector = usage_detector or UsageDetector()
         self._reinforcement = reinforcement or Reinforcement()
 
