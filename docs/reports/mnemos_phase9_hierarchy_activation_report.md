@@ -8,6 +8,25 @@ PHASE_9_SCAFFOLD_READY
 
 The RAPTOR-lite hierarchy lane is implemented in action-capable form, but the hierarchy gate is not yet passing in the current local environment because the active Qdrant collection contains only the 21-point smoke corpus and no summary engrams have been indexed.
 
+## Phase 9b Operational Enforcement Update
+
+Status: PHASE_9B_ISOLATION_ENFORCED
+
+On June 11, 2026, the service stack was rebuilt and restarted with Phase 9b hierarchy isolation logic active in the container runtime. The warmup endpoint returned healthy status, and the live public search API was validated with `tools/validate_phase9b_live_isolation.py`.
+
+Evidence:
+
+- Service: `mnemos-service` healthy after rebuild.
+- Warmup: `POST /v1/mnemos/warmup` returned `status=healthy`.
+- Live isolation validator: `python tools\validate_phase9b_live_isolation.py --base-url http://localhost:8700`
+- CLASS_A default-path searches: `20/20` queries returned zero summary engram leaks.
+- Positive control: explicit `metadata.is_summary_engram = true` filter returned `5/5` summary hits.
+- Raw evidence: `benchmarks/outputs/raw/phase9b_live_isolation_20260611_225423_raw.json`
+
+Interpretation:
+
+The Phase 9b isolation sentinel is active in the deployed service path, not only in host-side retrieval logic. Summary engrams remain reachable by explicit summary-layer filters, but are excluded from default factoid retrieval.
+
 ## Implemented
 
 - `HierarchicalClusteringRunner` supports dry-run and action mode.
