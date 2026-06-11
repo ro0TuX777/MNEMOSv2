@@ -320,7 +320,7 @@ class MnemosRuntime:
         payload.update({
             "feature": "mnemos_memory",
             "profile": self._config.profile if self._config else "unknown",
-            "supports": ["index", "search", "engrams", "audit", "stats"],
+            "supports": ["index", "search", "warmup", "engrams", "audit", "stats"],
             "tiers": self._semantic_fusion.tier_names if self._semantic_fusion else [],
             "retrieval_modes": retrieval_stats.get("supported_retrieval_modes", ["semantic"]),
             "fusion_policies": retrieval_stats.get("supported_fusion_policies", []),
@@ -392,6 +392,32 @@ class MnemosRuntime:
             "tiers": counts,
             "engram_ids": [e.id for e in engrams],
             "latency_s": round(elapsed, 3),
+        }
+        return payload
+
+    def warmup(self, query: str = "mnemos warmup readiness probe") -> Dict[str, Any]:
+        """Load the promoted retrieval path before admitting live traffic."""
+        import time
+
+        t0 = time.time()
+        results, mode_meta = self._router.search(
+            query=query,
+            top_k=1,
+            filters=None,
+            tiers=None,
+            retrieval_mode="semantic",
+            fusion_policy=self._config.fusion_policy,
+            explain=False,
+            lexical_top_k=self._config.lexical_top_k,
+            semantic_top_k=1,
+            bounded_envelope=None,
+        )
+        payload = self._base_payload()
+        payload["warmup"] = {
+            "query": query,
+            "result_count": len(results),
+            "retrieval_mode": mode_meta.get("retrieval_mode", "semantic"),
+            "latency_s": round(time.time() - t0, 3),
         }
         return payload
 
@@ -915,10 +941,11 @@ def root():
         "service": "mnemos-service",
         "status": "ok",
         "contract_version": CONTRACT_VERSION,
-        "routes": {
-            "health": "/health",
-            "capabilities": "/v1/mnemos/capabilities",
-            "index": "/v1/mnemos/index",
+            "routes": {
+                "health": "/health",
+                "capabilities": "/v1/mnemos/capabilities",
+                "warmup": "/v1/mnemos/warmup",
+                "index": "/v1/mnemos/index",
             "search": "/v1/mnemos/search",
             "engrams": "/v1/mnemos/engrams/{id}",
             "audit": "/v1/mnemos/audit",
@@ -937,6 +964,21 @@ def capabilities():
     if err:
         return jsonify(err), 200
     return jsonify(_runtime.capabilities()), 200
+
+
+@app.post("/v1/mnemos/warmup")
+def warmup():
+    if not _authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    err = _ensure_runtime()
+    if err:
+        return jsonify(err), 200
+
+    body = request.get_json(silent=True) or {}
+    query = body.get("query", "mnemos warmup readiness probe")
+    if not isinstance(query, str) or not query.strip():
+        return jsonify({"error": "query must be a non-empty string"}), 400
+    return jsonify(_runtime.warmup(query=query.strip())), 200
 
 
 @app.post("/v1/mnemos/index")

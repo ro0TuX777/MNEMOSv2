@@ -192,12 +192,11 @@ class MnemosClient:
 
     # ──────── Readiness ────────
 
-    def wait_until_ready(self) -> bool:
+    def wait_until_ready(self, *, warmup: bool = False) -> bool:
         """Poll ``/health`` until the service is healthy or timeout expires.
 
-        Returns True only if the service responds HTTP 200 with
-        ``status == "healthy"`` in the response body. A 200 with
-        ``status == "degraded"`` returns False.
+        When ``warmup=True``, call ``/v1/mnemos/warmup`` after health is
+        ready so the first live query does not pay model-load latency.
         """
         if self._cfg.autostart_on_demand and self._cfg.autostart_cmd.strip():
             self._maybe_autostart()
@@ -212,7 +211,10 @@ class MnemosClient:
                 resp = requests.get(health_url, timeout=2.0)
                 if resp.status_code == 200:
                     body = resp.json()
-                    if isinstance(body, dict) and body.get("status") == "healthy":
+                    if isinstance(body, dict) and body.get("status") in {"healthy", "ok"}:
+                        if warmup and not self.warmup().ok:
+                            time.sleep(0.4)
+                            continue
                         logger.info("MNEMOS service is ready at %s", self._cfg.base_url)
                         return True
             except Exception:
@@ -251,6 +253,10 @@ class MnemosClient:
     def capabilities(self) -> MnemosResponse:
         """Retrieve service capabilities and tier info."""
         return self._request("GET", "/v1/mnemos/capabilities")
+
+    def warmup(self, query: str = "mnemos warmup readiness probe") -> MnemosResponse:
+        """Warm the retrieval path before first live traffic."""
+        return self._request("POST", "/v1/mnemos/warmup", payload={"query": query})
 
     def index(
         self,
