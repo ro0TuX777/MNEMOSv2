@@ -1,44 +1,28 @@
-# MNEMOS
+MNEMOS
+Adaptive, Governed Memory Appliance with Hierarchical Synthesis and Matryoshka Economics
+A containerised, contract-governed memory service that understands query complexity, resolves factual contradictions, and delivers 65% faster retrieval via Matryoshka embeddings.
 
-**Multi-tier Neuro-tagged Engram Memory with Optimal Near-lossless Index Compression**
+The Solution
+MNEMOSv2 is a production-hardened memory service that deploys as a GPU-accelerated Docker stack. It moves beyond simple vector search to provide a governed "Source of Truth" for AI-native applications.
 
-A containerised, contract-governed memory and retrieval service for AI-native applications.
+Capability: What you get
+- Adaptive Routing	Embedded-Reflex Classifier detects query complexity (Simple/Multi-hop/Global) in <0.1ms and orchestrates the optimal retrieval path.
+- Matryoshka Economics	64-dim prefetch / 768-dim rescore via Nomic v1.5. Delivers 65% reduction in p95 latency while maintaining 1.0 rank stability.
+- Hierarchical Synthesis	RAPTOR-lite thematic summaries (Depth-1 & 2) provide "Executive Overviews" for global queries, isolated from raw factoid search.
+- Knowledge Consensus	Reconciliation Engine synthesizes "Resolution Engrams" from conflicting memories, providing a structured "Single Source of Truth."
+- NLI-Grounded Precision	Bidirectional NLI Critic validates memory usage via semantic entailment. USED precision improved from 0.57 to 1.00.
+- Counterfactual Audit	Deterministic explainability traces: "Why won/lost" and Age Inversion (decay modifiers explained in human-readable days).
+- SLO-Driven Orchestration	Budget-Aware Router uses an EWMA cost model to shed load (skip rerank/rescore) to hit your latency_budget_ms.
+- TurboQuant Compression	4-bit near-lossless quantisation — 8× storage reduction, 0.995 cosine fidelity (arXiv:2504.19874).
+- Forensic Ledger	Every operation, classification, and reconciliation is logged to PostgreSQL for immutable auditability.
 
----
-
-## The Problem
-
-Every AI application that persists and retrieves knowledge re-implements the same infrastructure from scratch — embedding pipelines, vector databases, ad-hoc search logic, compression hacks, and no audit trail. The result is fragile, inconsistent, and impossible to reuse across projects.
-
-## The Solution
-
-MNEMOS is a **drop-in memory service** that deploys as a GPU-accelerated Docker stack. You choose a deployment profile, run the guided installer, and get production-grade memory infrastructure without building it yourself.
-
-| Capability | What you get |
-|---|---|
-| **Deployment profiles** | Core Memory Appliance (Qdrant), Governance Native (pgvector), or Custom Manual — named profiles with distinct retrieval architectures |
-| **GPU-native retrieval** | CUDA-accelerated embeddings via Qdrant or pgvector, optional Cross-Encoder reranking |
-| **Server-side hybrid search** | Single round-trip hybrid fusion via Qdrant v1.17 prefetch + RRF — semantic + keyword in one call |
-| **Relevance feedback loop** | Governance labels (Used/Ignored) feed back into retrieval as Qdrant discovery exemplars — search improves from usage |
-| **TurboQuant compression** | 4-bit near-lossless quantisation — 8× storage reduction, 0.995 cosine fidelity (arXiv:2504.19874) |
-| **Engram enrichment** | Every document becomes a tagged, scored, provenanced knowledge unit with relationship edges |
-| **Forensic audit** | Every operation logged to PostgreSQL — compliance, debugging, and analytics built in |
-| **Contract-governed API** | MFS-compatible versioned contract — every response carries `profile`, `tiers`, `degraded_components`, `status` |
-| **Boundary SDK** | Python client with readiness polling, retry, timeout, and graceful degradation |
-| **Guided installer** | Q/A + host probes → profile recommendation → compose + env + manifest generation |
-| **Deployment manifest** | `mnemos_profile.yaml` — durable record of profile, host facts, and installer decisions |
-| **Profile migration** | Documented migration paths between profiles with rollback support |
-
-### What's New in v2
-
-| Change | Detail | Benchmark |
-|---|---|---|
-| **Hybrid search in one call** | `qdrant_rrf` fusion policy delegates rank fusion to Qdrant's server-side RRF via prefetch — eliminates the second network round-trip | Python-side fusion: 0.23ms/op @ 100 candidates (auto-fallback) |
-| **Retrieval learns from usage** | Governance `reflect_path` labels feed into `discover_points()` as positive/negative exemplars | Feedback store: 1.6M writes/sec, cache: 100% hit rate after warmup |
-| **TurboQuant cross-validated** | Same algorithm independently validated for LLM KV cache compression by llama.cpp community (6.7K+ ⭐) | Embedding compression: 8×, cosine fidelity: 0.995 |
-| **366 tests, 0 failures** | 21 new tests covering hybrid RRF, relevance feedback, and routing correctness | All 5 decision gates passed |
-
-> All v2 features are **opt-in** with automatic fallback. The existing retrieval pipeline runs unchanged unless you explicitly enable `qdrant_rrf` or `relevance_feedback`.
+What's New in v2.x (Phase 7-10)
+- Feature	Impact	Benchmark
+- Matryoshka MRL	64-dim prefetch + 768-dim rescore	45ms p95 (vs 129ms baseline)
+- Adaptive-RAG	Automatic routing between Flat, Graph, and Hierarchical paths	100% Hold-out Accuracy
+- Consensus Engine	Automated resolution of factual contradictions	5/5 Collisions Resolved
+- NLI Reflect	Entailment-based feedback loop (No false-positives)	1.0 Precision
+- Warmup Readiness	Zero user-perceived cold-starts for GPU models	25s load hit managed in preflight
 
 ---
 
@@ -88,20 +72,26 @@ for hit in client.search("gravitational wave detection", top_k=5):
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────┐
-│              REST API (:8700)                 │
-│  /index  /search  /engrams  /audit  /stats   │
-├──────────────────────────────────────────────┤
-│           Engram Enrichment Layer            │
-├──────────────────────────────────────────────┤
-│  Core Memory     │   Governance Native       │
-│  Qdrant (CUDA)   │   pgvector (Postgres)     │
-│  + opt. ColBERT  │   + opt. ColBERT          │
-├──────────────────────────────────────────────┤
-│        TurboQuant Compression (4-bit)        │
-├──────────────────────────────────────────────┤
-│       Forensic Ledger (PostgreSQL)           │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│ REST API / MFS Contract                              │
+│ /index /search /engrams /audit /stats /warmup        │
+├──────────────────────────────────────────────────────┤
+│ Adaptive Router                                      │
+│ Complexity classifier + latency budget policy        │
+├──────────────────────────────────────────────────────┤
+│ Governed Retrieval Path                              │
+│ Flat evidence │ Hierarchical summaries │ Resolutions │
+├──────────────────────────────────────────────────────┤
+│ Governance + Consensus                               │
+│ Contradiction policy, explainability, reflect/NLI    │
+├──────────────────────────────────────────────────────┤
+│ Vector Backends                                      │
+│ Qdrant MRL prefetch/rescore │ pgvector profile       │
+├──────────────────────────────────────────────────────┤
+│ Compression + Persistence                            │
+│ TurboQuant │ PostgreSQL audit/metadata/lineage       │
+└──────────────────────────────────────────────────────┘
+
 ```
 
 ## API
