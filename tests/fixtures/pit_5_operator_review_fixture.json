@@ -1,0 +1,15 @@
+[
+  {
+    "operator_preference": "shadow",
+    "clarity_delta": 2,
+    "confidence_delta": 2,
+    "citation_quality_score": 5,
+    "evidence_gap_handling_score": 4,
+    "decision_usefulness_score": 5,
+    "derived_fact_usefulness_score": 5,
+    "authority_label_clarity_score": 4,
+    "source_traceability_success": true,
+    "review_burden_delta": 1,
+    "manual_rejection_reason": ""
+  }
+]
