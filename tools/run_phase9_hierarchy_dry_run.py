@@ -89,6 +89,37 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
 
+    if args.apply:
+        # Replace, don't accumulate: drop prior summary engrams before the
+        # leaf scan so re-runs never orphan stale summaries or skew the scan
+        # window, then ensure the summary filter has a payload index.
+        from qdrant_client import QdrantClient
+        from qdrant_client.models import (
+            FieldCondition,
+            Filter,
+            FilterSelector,
+            MatchValue,
+            PayloadSchemaType,
+        )
+
+        cleanup_client = QdrantClient(url=args.qdrant_url, timeout=30)
+        cleanup_client.delete(
+            collection_name=args.collection,
+            points_selector=FilterSelector(
+                filter=Filter(
+                    must=[FieldCondition(key="app_is_summary_engram", match=MatchValue(value=True))]
+                )
+            ),
+        )
+        try:
+            cleanup_client.create_payload_index(
+                collection_name=args.collection,
+                field_name="app_is_summary_engram",
+                field_schema=PayloadSchemaType.BOOL,
+            )
+        except Exception:
+            pass  # index already exists
+
     engrams, vectors = _load_qdrant_collection(
         url=args.qdrant_url,
         collection=args.collection,
