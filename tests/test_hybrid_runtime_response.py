@@ -13,8 +13,9 @@ from service.app import MnemosRuntime
 
 
 class StubRouter:
-    def __init__(self, hits):
+    def __init__(self, hits, extra_meta=None):
         self._hits = hits
+        self._extra_meta = extra_meta or {}
         self.last_kwargs = None
 
     def search(self, **kwargs):
@@ -37,6 +38,7 @@ class StubRouter:
                 "final_candidate_count": 5,
                 "suppression_summary": {},
             }
+        meta.update(self._extra_meta)
         return self._hits, meta
 
     def stats(self):
@@ -57,6 +59,7 @@ def _mk_runtime_with_router(router):
         memory_over_maps_phase3=False,
         memory_over_maps_phase4=False,
         embedding_model="BAAI/bge-base-en-v1.5",
+        adaptive_routing=True,
     )
     rt._router = router
     rt._semantic_fusion = None
@@ -129,6 +132,46 @@ def test_runtime_hybrid_explain_false_omits_explain_fields():
     assert "component_scores" not in row
     assert "retrieval_sources" not in row
     assert "fusion_policy" not in row
+
+
+def test_runtime_exposes_complexity_and_routing_metadata():
+    hit = SearchResult(
+        engram=Engram(id="doc-adaptive", content="Adaptive routing"),
+        score=0.9,
+        tier="qdrant",
+        metadata={},
+    )
+    router = StubRouter(
+        [hit],
+        extra_meta={
+            "complexity_classification": {
+                "label": "CLASS_A",
+                "confidence": 0.92,
+                "status": "ok",
+                "mode": "active",
+            },
+            "routing_posture": {
+                "retrieval_mode": "semantic",
+                "fusion_policy": "semantic_dominant",
+                "budget_strategy": "aggressive",
+                "graph": "skip",
+            },
+        },
+    )
+    rt = _mk_runtime_with_router(router)
+
+    out = rt.search_documents(
+        query="direct policy lookup",
+        top_k=5,
+        tiers=None,
+        filters=None,
+        retrieval_mode="semantic",
+        fusion_policy="balanced",
+        explain=False,
+    )
+
+    assert out["meta"]["complexity_classification"]["label"] == "CLASS_A"
+    assert out["meta"]["routing_posture"]["budget_strategy"] == "aggressive"
 
 
 def test_runtime_phase2_candidate_envelope_meta_exposed_when_enabled():

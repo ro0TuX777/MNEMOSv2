@@ -57,20 +57,57 @@ def _router():
 
 
 class FakeComplexityClassifier:
+    def __init__(self, label: str = "CLASS_B"):
+        self._label = label
+
     def classify(self, query: str) -> ComplexityResult:
+        scores = {"CLASS_A": 0.02, "CLASS_B": 0.07, "CLASS_C": 0.02}
+        scores[self._label] = 0.91
         return ComplexityResult(
-            label="CLASS_B",
+            label=self._label,
             confidence=0.91,
-            scores={"CLASS_A": 0.02, "CLASS_B": 0.91, "CLASS_C": 0.07},
-            route_posture={
-                "retrieval_posture": "balanced",
-                "fusion_policy": "balanced",
-                "graph": "trigger_memgraph_rag",
-                "hierarchical": "skip",
-            },
+            scores=scores,
+            route_posture=_route_posture(self._label),
             latency_ms=1.5,
             model_name="fake",
         )
+
+
+def _route_posture(label: str) -> Dict[str, Any]:
+    if label == "CLASS_A":
+        return {
+            "retrieval_posture": "semantic_dominant",
+            "fusion_policy": "semantic_dominant",
+            "graph": "skip",
+            "hierarchical": "skip",
+        }
+    if label == "CLASS_C":
+        return {
+            "retrieval_posture": "global_hierarchical",
+            "fusion_policy": "lexical_dominant",
+            "graph": "optional",
+            "hierarchical": "trigger_future_raptor",
+        }
+    return {
+        "retrieval_posture": "balanced",
+        "fusion_policy": "balanced",
+        "graph": "trigger_memgraph_rag",
+        "hierarchical": "skip",
+    }
+
+
+class RecordingReranker:
+    model_name = "fake-reranker"
+
+    def __init__(self):
+        self.calls = 0
+
+    def health(self):
+        return {"healthy": True}
+
+    def rerank(self, query: str, results: List[SearchResult]):
+        self.calls += 1
+        return list(reversed(results))
 
 
 def test_no_budget_is_byte_identical_to_pre_budget_path():
@@ -203,6 +240,66 @@ def test_complexity_shadow_disabled_by_default():
     _, meta = router.search(query="q", top_k=3)
 
     assert "complexity_shadow" not in meta
+
+
+def test_active_complexity_class_a_uses_aggressive_semantic_plan():
+    tier = RecordingRetriever("qdrant", ["a", "b", "c"])
+    reranker = RecordingReranker()
+    router = RetrievalRouter(
+        semantic_fusion=TierFusion([tier]),
+        lexical_tier=None,
+        reranker=reranker,
+        complexity_classifier=FakeComplexityClassifier("CLASS_A"),
+        adaptive_routing_enabled=True,
+    )
+
+    _, meta = router.search(query="direct lookup", top_k=3)
+
+    assert meta["complexity_classification"]["label"] == "CLASS_A"
+    assert meta["routing_posture"]["budget_strategy"] == "aggressive"
+    assert meta["retrieval_mode"] == "semantic"
+    assert meta["budget_plan"]["rerank"] is False
+    assert meta["rerank_telemetry"]["rerank_skip_reason"] == "latency_budget"
+    assert reranker.calls == 0
+
+
+def test_active_complexity_class_b_forces_rerank():
+    tier = RecordingRetriever("qdrant", ["a", "b", "c"])
+    reranker = RecordingReranker()
+    router = RetrievalRouter(
+        semantic_fusion=TierFusion([tier]),
+        lexical_tier=None,
+        reranker=reranker,
+        complexity_classifier=FakeComplexityClassifier("CLASS_B"),
+        adaptive_routing_enabled=True,
+    )
+
+    _, meta = router.search(query="which policy overlaps", top_k=3)
+
+    assert meta["complexity_classification"]["label"] == "CLASS_B"
+    assert meta["routing_posture"]["budget_strategy"] == "conservative"
+    assert meta["budget_plan"]["force_rerank"] is True
+    assert meta["rerank_telemetry"]["rerank_applied"] is True
+    assert reranker.calls == 1
+
+
+def test_active_complexity_class_c_uses_lexical_dominant_hybrid():
+    semantic = RecordingRetriever("qdrant", ["a", "b", "c"])
+    lexical = RecordingRetriever("lexical", ["b", "d", "e"])
+    router = RetrievalRouter(
+        semantic_fusion=TierFusion([semantic]),
+        lexical_tier=lexical,
+        complexity_classifier=FakeComplexityClassifier("CLASS_C"),
+        adaptive_routing_enabled=True,
+    )
+
+    _, meta = router.search(query="summarize all policy themes", top_k=3)
+
+    assert meta["complexity_classification"]["label"] == "CLASS_C"
+    assert meta["routing_posture"]["budget_strategy"] == "balanced"
+    assert meta["routing_posture"]["graph"] == "skip"
+    assert meta["retrieval_mode"] == "hybrid"
+    assert meta["fusion_policy"] == "lexical_dominant"
 
 
 if __name__ == "__main__":

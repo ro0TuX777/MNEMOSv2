@@ -48,6 +48,7 @@ class RetrievalRouter:
         graph_shadow_enabled: bool = False,
         enable_experimental_graph_hybrid: bool = False,
         complexity_classifier: Optional[Any] = None,
+        adaptive_routing_enabled: bool = False,
     ):
         self._semantic_fusion = semantic_fusion
         self._lexical_tier = lexical_tier
@@ -57,6 +58,7 @@ class RetrievalRouter:
         self._enable_experimental_graph_hybrid = enable_experimental_graph_hybrid
         self._complexity_classifier = complexity_classifier
         self._complexity_classifier_failed = False
+        self._adaptive_routing_enabled = adaptive_routing_enabled
         self._rerank_policy = RerankPolicy()
         self._classifier = get_classifier(self._rerank_policy.config.get("query_family_classifier", {}))
         self._telemetry_sink = get_telemetry_sink(self._rerank_policy.config.get("telemetry", {}))
@@ -201,10 +203,89 @@ class RetrievalRouter:
                 "rerank_skip_reason": "latency_budget",
                 "rerank_latency_ms": 0.0,
             }
+        if plan is not None and getattr(plan, "force_rerank", False):
+            results, telemetry = self._force_rerank(query, candidates, dense_latency_ms)
+            if telemetry.get("rerank_applied"):
+                self._budget_router.observe("rerank", float(telemetry.get("rerank_latency_ms", 0.0) or 0.0))
+            return results, telemetry
         results, telemetry = self._apply_conditional_rerank(query, candidates, dense_latency_ms)
         if telemetry.get("rerank_applied"):
             self._budget_router.observe("rerank", float(telemetry.get("rerank_latency_ms", 0.0) or 0.0))
         return results, telemetry
+
+    def _force_rerank(
+        self,
+        query: str,
+        candidates: List[SearchResult],
+        dense_latency_ms: float,
+    ) -> Tuple[List[SearchResult], Dict[str, Any]]:
+        rerank_model = getattr(self._reranker, "model_name", None) or "none"
+        telemetry = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "request_id": str(uuid.uuid4()),
+            "query_hash": str(hash(query)),
+            "query_family": "adaptive_complexity",
+            "query_family_confidence": 1.0,
+            "rerank_eligible": True,
+            "rerank_applied": False,
+            "shadow_evaluated": False,
+            "rerank_model": rerank_model,
+            "rerank_depth": min(len(candidates), max(1, self._rerank_policy.get_depth("code_behavior"))),
+            "rerank_skip_reason": None,
+            "dense_latency_ms": dense_latency_ms,
+            "rerank_latency_ms": 0.0,
+            "total_latency_ms": dense_latency_ms,
+            "circuit_breaker_state": self._rerank_policy.circuit_breaker.state,
+            "dense_top_k": len(candidates),
+            "dense_top1_doc_id": candidates[0].engram.id if candidates else None,
+            "final_top1_doc_id": candidates[0].engram.id if candidates else None,
+            "timeout_occurred": False,
+            "error_occurred": False,
+            "service_healthy": False,
+            "force_reason": "adaptive_class_b",
+        }
+        if self._reranker is None:
+            telemetry["rerank_eligible"] = False
+            telemetry["rerank_skip_reason"] = "no_reranker_configured"
+            return candidates, telemetry
+
+        health = self._reranker.health() if hasattr(self._reranker, "health") else {"healthy": True}
+        service_healthy = bool(health.get("healthy"))
+        telemetry["service_healthy"] = service_healthy
+        telemetry["rerank_service_health"] = health
+        if not service_healthy:
+            telemetry["rerank_eligible"] = False
+            telemetry["rerank_skip_reason"] = "reranker_unhealthy"
+            return candidates, telemetry
+
+        depth = int(telemetry["rerank_depth"])
+        candidates_to_rerank = candidates[:depth]
+        t0 = time.perf_counter()
+        try:
+            if getattr(self._reranker, "_initialize", None):
+                self._reranker._initialize()
+                if self._reranker._model is None:
+                    raise RuntimeError("Model unavailable")
+            reranked = self._reranker.rerank(query, candidates_to_rerank)
+            rerank_lat = (time.perf_counter() - t0) * 1000
+            final_results = reranked + candidates[depth:]
+            telemetry["rerank_applied"] = True
+            telemetry["rerank_latency_ms"] = rerank_lat
+            telemetry["total_latency_ms"] = dense_latency_ms + rerank_lat
+            telemetry["final_top1_doc_id"] = final_results[0].engram.id if final_results else None
+            self._rerank_policy.record_latency("adaptive_complexity", rerank_lat)
+            self._rerank_policy.circuit_breaker.record_success()
+            return final_results, telemetry
+        except Exception as exc:
+            if "timeout" in str(exc).lower():
+                telemetry["timeout_occurred"] = True
+                telemetry["rerank_skip_reason"] = "timeout"
+                self._rerank_policy.circuit_breaker.record_timeout()
+            else:
+                telemetry["error_occurred"] = True
+                telemetry["rerank_skip_reason"] = "error"
+                self._rerank_policy.circuit_breaker.record_error()
+            return candidates, telemetry
 
     def _record_budget_outcome(
         self, plan: Optional[StagePlan], meta: Dict[str, Any], dense_latency_ms: float
@@ -233,6 +314,9 @@ class RetrievalRouter:
     def _run_complexity_shadow(self, query: str, enabled: bool) -> Optional[Dict[str, Any]]:
         if not enabled:
             return None
+        return self._classify_complexity(query, mode="shadow")
+
+    def _classify_complexity(self, query: str, *, mode: str) -> Optional[Dict[str, Any]]:
         classifier = self._get_complexity_classifier()
         if classifier is None:
             return {
@@ -254,7 +338,7 @@ class RetrievalRouter:
                 }
             payload["enabled"] = True
             payload["status"] = "ok"
-            payload["mode"] = "shadow"
+            payload["mode"] = mode
             return payload
         except Exception as exc:
             logger.error(f"Complexity classifier failed: {exc}")
@@ -262,8 +346,72 @@ class RetrievalRouter:
                 "enabled": True,
                 "status": "error",
                 "error": str(exc),
-                "mode": "shadow",
+                "mode": mode,
             }
+
+    @staticmethod
+    def _adaptive_route_for_complexity(
+        complexity_meta: Optional[Dict[str, Any]],
+        *,
+        requested_mode: str,
+        requested_policy: str,
+        lexical_available: bool,
+        graph_available: bool,
+    ) -> Dict[str, Any]:
+        label = (complexity_meta or {}).get("label")
+        if label == "CLASS_A":
+            return {
+                "complexity_class": label,
+                "retrieval_mode": "semantic",
+                "fusion_policy": "semantic_dominant",
+                "budget_strategy": "aggressive",
+                "graph": "skip",
+                "rerank": "skip",
+                "reason": "simple_direct_lookup",
+            }
+        if label == "CLASS_B":
+            return {
+                "complexity_class": label,
+                "retrieval_mode": "graph_hybrid_experimental" if graph_available else requested_mode,
+                "fusion_policy": "balanced",
+                "budget_strategy": "conservative",
+                "graph": "trigger_memgraph_rag" if graph_available else "unavailable",
+                "rerank": "force",
+                "reason": "multi_hop_relationship_query",
+            }
+        if label == "CLASS_C":
+            return {
+                "complexity_class": label,
+                "retrieval_mode": "hybrid" if lexical_available else "semantic",
+                "fusion_policy": "lexical_dominant",
+                "budget_strategy": "balanced",
+                "graph": "skip",
+                "rerank": "conditional",
+                "reason": "global_or_synthesis_query",
+            }
+        return {
+            "complexity_class": label or "UNKNOWN",
+            "retrieval_mode": requested_mode,
+            "fusion_policy": requested_policy,
+            "budget_strategy": "default",
+            "graph": "unchanged",
+            "rerank": "conditional",
+            "reason": "classifier_unavailable_or_unknown",
+        }
+
+    @staticmethod
+    def _attach_complexity_metadata(
+        meta: Dict[str, Any],
+        complexity_meta: Optional[Dict[str, Any]],
+        routing_posture: Optional[Dict[str, Any]],
+    ) -> None:
+        if complexity_meta:
+            if complexity_meta.get("mode") == "active":
+                meta["complexity_classification"] = complexity_meta
+            else:
+                meta["complexity_shadow"] = complexity_meta
+        if routing_posture:
+            meta["routing_posture"] = routing_posture
 
     @staticmethod
     def _is_derived(result: SearchResult) -> bool:
@@ -860,17 +1008,43 @@ class RetrievalRouter:
         graph_experiment_params: Optional[Dict[str, Any]] = None,
         latency_budget_ms: Optional[float] = None,
         complexity_shadow: bool = False,
+        adaptive_routing: Optional[bool] = None,
     ) -> Tuple[List[SearchResult], Dict[str, Any]]:
         mode = retrieval_mode if retrieval_mode in {"semantic", "hybrid", "graph_hybrid_experimental"} else "semantic"
         policy = fusion_policy if fusion_policy in FUSION_POLICIES else DEFAULT_FUSION_POLICY
         envelope_cfg = CandidateEnvelopeConfig.from_request(bounded_envelope)
         desired_pool = max(top_k, envelope_cfg.candidate_pool_limit) if envelope_cfg.enabled else top_k
 
-        # W6/W7: resolve a stage plan only when the caller supplies a budget;
-        # the no-budget path is byte-identical to pre-budget behavior.
-        budget_plan = self._budget_router.plan(latency_budget_ms) if latency_budget_ms is not None else None
         user_filters = self._user_filters(filters)
-        complexity_meta = self._run_complexity_shadow(query, complexity_shadow)
+        adaptive_enabled = self._adaptive_routing_enabled if adaptive_routing is None else adaptive_routing
+        complexity_meta = self._classify_complexity(query, mode="active") if adaptive_enabled else self._run_complexity_shadow(query, complexity_shadow)
+        routing_posture = None
+        complexity_class = None
+        if adaptive_enabled:
+            routing_posture = self._adaptive_route_for_complexity(
+                complexity_meta,
+                requested_mode=mode,
+                requested_policy=policy,
+                lexical_available=self.lexical_available,
+                graph_available=bool(self._graph_tier),
+            )
+            mode = str(routing_posture.get("retrieval_mode") or mode)
+            policy = str(routing_posture.get("fusion_policy") or policy)
+            if policy not in FUSION_POLICIES:
+                policy = DEFAULT_FUSION_POLICY
+            complexity_class = (
+                str(complexity_meta.get("label"))
+                if complexity_meta and complexity_meta.get("status") == "ok" and complexity_meta.get("label")
+                else None
+            )
+
+        # W6/W7 + Phase 8: resolve a stage plan when the caller supplies a
+        # budget or adaptive routing has a complexity class to translate.
+        budget_plan = (
+            self._budget_router.plan(latency_budget_ms, complexity_class=complexity_class)
+            if latency_budget_ms is not None or complexity_class is not None
+            else None
+        )
 
         experimental_telemetry = None
         if mode == "graph_hybrid_experimental":
@@ -998,8 +1172,7 @@ class RetrievalRouter:
                 meta["graph_experiment_telemetry"] = graph_experiment_telemetry
             if graph_telemetry:
                 meta["graph_shadow_telemetry"] = graph_telemetry
-            if complexity_meta:
-                meta["complexity_shadow"] = complexity_meta
+            self._attach_complexity_metadata(meta, complexity_meta, routing_posture)
                 
             # PIT-1 Leakage Guard
             final_results = self._apply_leakage_guard(final_results, meta)
@@ -1061,8 +1234,7 @@ class RetrievalRouter:
                 }
                 if graph_telemetry:
                     meta["graph_shadow_telemetry"] = graph_telemetry
-                if complexity_meta:
-                    meta["complexity_shadow"] = complexity_meta
+                self._attach_complexity_metadata(meta, complexity_meta, routing_posture)
                     
                 # PIT-1 Leakage Guard
                 final_results = self._apply_leakage_guard(final_results, meta)
@@ -1124,8 +1296,7 @@ class RetrievalRouter:
         }
         if graph_telemetry:
             meta["graph_shadow_telemetry"] = graph_telemetry
-        if complexity_meta:
-            meta["complexity_shadow"] = complexity_meta
+        self._attach_complexity_metadata(meta, complexity_meta, routing_posture)
             
         # PIT-1 Leakage Guard
         final_results = self._apply_leakage_guard(final_results, meta)

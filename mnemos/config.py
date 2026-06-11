@@ -65,6 +65,7 @@ class MnemosConfig:
     lexical_top_k: int = 25
     semantic_top_k: int = 25
     explain_default: bool = False
+    adaptive_routing: bool = True
 
     # Governance layer
     governance_mode: str = "off"            # off | advisory | enforced
@@ -210,6 +211,7 @@ class MnemosConfig:
             lexical_top_k=lexical_top_k,
             semantic_top_k=semantic_top_k,
             explain_default=explain_default,
+            adaptive_routing=cls._parse_bool("MNEMOS_ADAPTIVE_ROUTING", "true"),
             governance_mode=governance_mode,
             governance_min_score=governance_min_score,
             governance_freshness_half_life=governance_freshness_half_life,

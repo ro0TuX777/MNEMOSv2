@@ -50,6 +50,7 @@ class StagePlan:
     prefetch: bool = True
     rescore: bool = True
     rerank: bool = True
+    force_rerank: bool = False
     oversample_factor: float = OVERSAMPLE_FULL
     hnsw_ef: int = HNSW_EF_DEFAULT
 
@@ -64,6 +65,7 @@ class StagePlan:
             "prefetch": self.prefetch,
             "rescore": self.rescore,
             "rerank": self.rerank,
+            "force_rerank": self.force_rerank,
             "oversample_factor": self.oversample_factor,
             "hnsw_ef": self.hnsw_ef,
             "latency_budget_ms": self.latency_budget_ms,
@@ -149,10 +151,44 @@ class BudgetAwareRouter:
 
     # ── Planning ──────────────────────────────────────────────────────────
 
-    def plan(self, latency_budget_ms: Optional[float] = None) -> StagePlan:
+    def plan(
+        self,
+        latency_budget_ms: Optional[float] = None,
+        *,
+        complexity_class: Optional[str] = None,
+    ) -> StagePlan:
         """
         Resolve a stage plan. ``None`` budget → full plan, never degraded.
         """
+        if complexity_class == "CLASS_A":
+            plan = StagePlan(
+                rerank=False,
+                oversample_factor=OVERSAMPLE_REDUCED,
+                hnsw_ef=HNSW_EF_FAST,
+                latency_budget_ms=latency_budget_ms,
+                degraded=True,
+                degradation_steps=["adaptive_skip_rerank", "adaptive_reduce_search"],
+            )
+            plan.estimated_total_ms = self._estimate(plan)
+            if latency_budget_ms is not None and plan.estimated_total_ms > latency_budget_ms:
+                self._drop_rescore(plan)
+                plan.degradation_steps.append("drop_rescore")
+                plan.estimated_total_ms = self._estimate(plan)
+                plan.budget_infeasible = plan.estimated_total_ms > latency_budget_ms
+            return plan
+
+        if complexity_class == "CLASS_B":
+            plan = StagePlan(
+                rerank=True,
+                force_rerank=True,
+                latency_budget_ms=latency_budget_ms,
+            )
+            plan.estimated_total_ms = self._estimate(plan)
+            plan.budget_infeasible = (
+                latency_budget_ms is not None and plan.estimated_total_ms > latency_budget_ms
+            )
+            return plan
+
         full = StagePlan(latency_budget_ms=latency_budget_ms)
         full.estimated_total_ms = self._estimate(full)
         if latency_budget_ms is None or full.estimated_total_ms <= latency_budget_ms:

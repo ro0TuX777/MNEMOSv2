@@ -86,11 +86,29 @@ def test_plan_serialization_contract():
     plan = _router().plan(40.0)
     payload = plan.to_dict()
     for key in (
-        "prefetch", "rescore", "rerank", "oversample_factor", "hnsw_ef",
+        "prefetch", "rescore", "rerank", "force_rerank", "oversample_factor", "hnsw_ef",
         "latency_budget_ms", "estimated_total_ms", "degraded",
         "degradation_steps", "budget_infeasible",
     ):
         assert key in payload
+
+
+def test_complexity_class_a_uses_aggressive_plan():
+    plan = _router().plan(complexity_class="CLASS_A")
+
+    assert plan.rerank is False
+    assert plan.force_rerank is False
+    assert plan.hnsw_ef == HNSW_EF_FAST
+    assert plan.oversample_factor == OVERSAMPLE_REDUCED
+    assert plan.degradation_steps == ["adaptive_skip_rerank", "adaptive_reduce_search"]
+
+
+def test_complexity_class_b_forces_rerank():
+    plan = _router().plan(complexity_class="CLASS_B")
+
+    assert plan.rerank is True
+    assert plan.force_rerank is True
+    assert plan.degraded is False
 
 
 if __name__ == "__main__":

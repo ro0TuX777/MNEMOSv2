@@ -51,6 +51,8 @@ def evaluate(
     device: str | None,
     weights_path: Path,
 ) -> Dict[str, Any]:
+    truthset_path = truthset_path.resolve()
+    weights_path = weights_path.resolve()
     truthset = json.loads(truthset_path.read_text(encoding="utf-8"))
     if classifier_kind == "auto":
         classifier_kind = "embedded" if weights_path.exists() else "zero-shot"

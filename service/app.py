@@ -168,6 +168,7 @@ class MnemosRuntime:
                 semantic_fusion=self._semantic_fusion,
                 lexical_tier=self._lexical_tier,
                 reranker=reranker,
+                adaptive_routing_enabled=bool(getattr(self._config, "adaptive_routing", True)),
             )
 
             # Set up audit ledger
@@ -467,6 +468,7 @@ class MnemosRuntime:
             bounded_envelope=bounded_envelope if getattr(self._config, "memory_over_maps_phase2", False) else None,
             latency_budget_ms=latency_budget_ms,
             complexity_shadow=complexity_shadow,
+            adaptive_routing=bool(getattr(self._config, "adaptive_routing", True)),
         )
         raw_rank_by_id = {r.engram.id: idx + 1 for idx, r in enumerate(results)}
 
@@ -645,6 +647,12 @@ class MnemosRuntime:
             payload["meta"]["hybrid_telemetry"] = mode_meta["telemetry"]
         if mode_meta.get("candidate_envelope"):
             payload["meta"]["candidate_envelope"] = mode_meta["candidate_envelope"]
+        if mode_meta.get("complexity_classification"):
+            payload["meta"]["complexity_classification"] = mode_meta["complexity_classification"]
+        if mode_meta.get("routing_posture"):
+            payload["meta"]["routing_posture"] = mode_meta["routing_posture"]
+        if mode_meta.get("complexity_shadow"):
+            payload["meta"]["complexity_shadow"] = mode_meta["complexity_shadow"]
         if selected_governance != "off":
             payload["meta"]["governance_mode"] = selected_governance
             payload["meta"]["governance_profile"] = selected_profile or "default"
