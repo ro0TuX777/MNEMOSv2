@@ -8,7 +8,7 @@ MNEMOS is a containerized, contract-governed memory service for AI-native applic
 
 Every AI application that persists and retrieves knowledge ends up rebuilding the same infrastructure: embedding pipelines, vector databases, rerankers, metadata filters, compression, audit trails, and governance logic. MNEMOS packages those concerns as an application-agnostic memory appliance with a versioned REST contract and a Python boundary SDK.
 
-The current MNEMOSv2 workstream moves the system beyond static retrieval. It now supports adaptive routing, hierarchy-aware synthesis, and additive consensus behavior so memory can be routed, governed, reconciled, and audited.
+The current MNEMOSv2 workstream moves the system beyond static retrieval. It now supports adaptive routing, hierarchy-aware synthesis, additive consensus behavior, and a TimesFM-backed predictive layer so memory can be routed, governed, reconciled, audited, and pre-warmed before demand arrives.
 
 ## What You Get
 
@@ -21,6 +21,9 @@ The current MNEMOSv2 workstream moves the system beyond static retrieval. It now
 | **Budget-aware retrieval** | EWMA cost model and degradation ladder for latency-budgeted responses, with degraded components surfaced in the API contract |
 | **Hierarchical summaries** | RAPTOR-lite summary engrams for global/theme queries, isolated from default factoid search by reserved server-side sentinels |
 | **Consensus governance** | Resolution Engrams structure factual collisions, preserve parent lineage, and receive governed read-path priority |
+| **Predictive pulse** | TimesFM-backed operational forecasts for query volume, p95 latency, cache pressure, and degradation risk |
+| **Predictive hygiene** | Semantic volatility signals accelerate decay and reconciliation for high-change engram families |
+| **Pre-cognitive retrieval** | Intent trajectories can populate pre-cognitive cache entries through low-priority shadow search |
 | **Reflect precision** | Lexical or NLI-backed usage detection for safer post-answer reinforcement |
 | **Forensic auditability** | PostgreSQL-backed audit trail, immutable lineage edges, and explainable governance modifiers |
 | **Boundary SDK** | Python client with readiness polling, retry, timeout, and graceful degradation helpers |
@@ -35,6 +38,10 @@ MNEMOSv2 Phase 7-10 advances are documented in [docs/whitepaperupdates.md](docs/
 | **Phase 8: Adaptive routing** | Embedded complexity classifier reached `1.0` hold-out accuracy |
 | **Phase 9: Hierarchical retrieval** | Summary isolation validated with `0.7342` mean hierarchy similarity |
 | **Phase 10: Knowledge reconciliation** | Consensus gate passed `5/5`; Resolution Engrams ranked first while preserving conflicting parents for audit |
+| **Phase 11: Pulse** | Observed and forecasted operational telemetry exposed for self-awareness |
+| **Phase 12: Autonomous pre-warm** | High-confidence forecast spikes can trigger governed warmup with cooldown and audit logs |
+| **Phase 13: Predictive hygiene** | Volatility forecasts bias freshness decay and proactive reconciliation |
+| **Phase 14: Shadow search** | Forecasted intent trajectories populate pre-cognitive cache entries |
 
 Benchmark evidence lives in:
 
@@ -97,6 +104,7 @@ Every response includes contract metadata such as `contract_version`, `status`, 
 | `/v1/mnemos/audit` | GET | Query the forensic ledger |
 | `/v1/mnemos/stats` | GET | Backend sizes, profile info, and compression stats |
 | `/v1/mnemos/warmup` | POST | Preload models and reduce first-query latency |
+| `/v1/mnemos/pulse` | GET | Return observed pulse telemetry and predictive trend signals when enabled |
 
 ## Operational Tooling
 
@@ -135,6 +143,7 @@ docs/                Whitepaper, operator playbook, and phase reports
 - `graph_hybrid_experimental` remains experimental and read-only; it is not exposed on the public retrieval-mode surface by default.
 - Summary and Resolution Engrams are synthetic governed artifacts with lineage back to raw parents.
 - Reserved sentinels such as `__exclude_derived__` and `__exclude_summaries__` are server-managed and rejected when supplied directly by clients.
+- Predictive features are controlled by `MNEMOS_TIMESFM_ENABLED` and `MNEMOS_PULSE_ACTIONS`; advisory mode is the default production posture.
 
 ## License
 

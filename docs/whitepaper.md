@@ -11,6 +11,7 @@
 > **Memory Over Maps Phases 1–5 are implemented and benchmark-gated** — source-grounded lineage, bounded candidate envelope, on-demand derived views, cache + invalidation, and bounded semantic reflect evolution passed phase gates on March 30, 2026; gates remain enforced in CI.
 > **Derived Facts lane (PIT-0→PIT-10) is production-adjacent and pilot-ready** — isolated shadow evaluation via `/api/v1/evaluate_derived_shadow`; default retrieval remains derived-fact-free. See §4.8.
 > **Adaptive Routing, Hierarchical Retrieval, and Consensus Governance (Phases 8-10) are operationally enforced** — embedded query-complexity classification reached 1.0 hold-out accuracy, the Phase 9b summary-isolation sentinel is live in the service container, and Phase 10 Resolution Engrams passed the live consensus gate. See `benchmarks/results/phase_8_complexity_accuracy.json`, `benchmarks/results/phase_9_hierarchy_sim.json`, and `benchmarks/results/phase_10_consensus_gate.json`.
+> **MNEMOS-Thinking predictive stack (Phases 11-14) is implemented** — TimesFM-backed pulse forecasting, autonomous pre-warm, semantic volatility hygiene, and pre-cognitive shadow search have passed synthetic phase gates. See §2.1 and §4.9.
 > **Graph Tier (`graph_hybrid_experimental`) is experimental and read-only** — offline/live resolver validation complete (MG-Test-1→10); not exposed on the public HTTP retrieval-mode surface. See §4.2 and `docs/graph_tier/operator_guide.md`.
 > **Deployment model:** MNEMOS runtime services are deployed as a Docker Compose stack; all serving components run in containers.
 > **Developer model:** tooling, benchmarks, and tests are typically run from host Python unless explicitly containerized.
@@ -25,6 +26,7 @@
 | 2026-06 | Derived Facts production-adjacent lane (PIT-0→PIT-10) approved for limited controlled operator pilot; DFE human-value trials (dfe_12→dfe_21); ops certification closeout (ops_0→ops_4) |
 | 2026-06-10 | Test suite: 564 tests collected; all CI gates passing (MoM phases, governance evidence, hygiene, SLO canary_25) |
 | 2026-06-11 | Phase 8 embedded-reflex adaptive routing, Phase 9b live hierarchy isolation, and Phase 10 consensus Resolution Engrams activated; live consensus gate passed 5/5 collisions |
+| 2026-06-12 | MNEMOS-Thinking activation — TimesFM sidecar integration, Pulse telemetry normalization, predictive pre-warming, volatility-driven hygiene, and intent-trajectory shadow search are live in the standalone framework |
 
 ---
 
@@ -65,6 +67,7 @@ MNEMOS is **application-agnostic** — it knows nothing about the domain of the 
 - **Adaptive complexity routing (Phase 8)** — embedded linear classifier over the active query embedding space routes CLASS_A factoid, CLASS_B multi-hop, and CLASS_C global synthesis queries; hold-out accuracy is 1.0 with sub-millisecond classifier overhead after embedding reuse
 - **Hierarchical retrieval (Phase 9b)** — RAPTOR-lite summary engrams support global CLASS_C retrieval while the `__exclude_summaries__` sentinel prevents summary nodes from leaking into default factoid searches
 - **Consensus governance (Phase 10)** — contradiction clusters can synthesize additive Resolution Engrams that preserve parent lineage, take Tier-1 read-path priority with a 1.25 contradiction modifier, and suppress conflicting parents without deleting them
+- **Anticipatory cognition (Phases 11-14)** — integration with Google TimesFM enables MNEMOS to forecast its operational pulse, predict factual obsolescence, and execute shadow searches from user intent trajectories
 - **Server-side hybrid RRF + relevance feedback** — `qdrant_rrf` fusion policy and governance-driven `discover_points()` exemplar biasing (opt-in)
 - **Derived Facts lane (production-adjacent pilot)** — isolated shadow evaluation packets with authority matrices and source traceability; default retrieval invariant: zero derived facts
 - **Graph Tier (experimental)** — read-only graph-neighbor expansion via `graph_hybrid_experimental`; double opt-in, no write path
@@ -73,13 +76,49 @@ MNEMOS is **application-agnostic** — it knows nothing about the domain of the 
 
 MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of **operational tools** (health audit, contract evolution, onboarding, CI gates, and staged cutover) — making it a complete platform that can be deployed with a single `python -m installer`.
 
-Operationally, the current architecture posture is: fast retrieval substrate + adaptive routing + enforced summary isolation + governed consensus controls + source-grounded, bounded, on-demand synthesis.
+Operationally, the current architecture posture is: fast retrieval substrate + adaptive routing + enforced summary isolation + governed consensus controls + source-grounded, bounded, on-demand synthesis + predictive self-optimization.
+
+### 2.1 MNEMOS-Thinking Milestone
+
+MNEMOS-Thinking is the TimesFM-backed predictive layer that moves MNEMOS from
+reactive retrieval toward anticipatory memory. It treats operational load,
+semantic volatility, and user intent as time-series signals.
+
+| Phase | Capability | Function | Status |
+|---|---|---|---|
+| 11 | Self-awareness | Pulse forecasts query volume, p95 latency, cache pressure, and degradation risk. | Implemented |
+| 12 | Anticipatory warmup | High-confidence forecasts pre-warm retrieval and summary layers before predicted demand. | Implemented |
+| 13 | Predictive hygiene | Volatility forecasts shorten semantic half-life and trigger proactive reconciliation. | Implemented |
+| 14 | Pre-cognitive retrieval | Intent trajectories run shadow searches and populate pre-cognitive cache entries. | Implemented |
+
+Operational bounds:
+- `MNEMOS_TIMESFM_ENABLED=false` returns MNEMOS to the reactive baseline.
+- `MNEMOS_PULSE_ACTIONS=advisory` is the default production posture.
+- Autonomous pre-warm is reserved for high-confidence triggers (`confidence_score > 0.85`) with cooldown enforcement.
+- Forecast-driven actions are auditable through the forensic ledger.
+- TimesFM runs in an isolated `mnemos-timesfm` sidecar, not the main request process.
+
+Synthetic phase traces validated pulse spike detection, autonomous pre-warm,
+staleness anticipation, and a pre-cognitive cache hit for a predicted future
+query.
 
 ---
 
 ## 3. Architecture
 
 MNEMOS is organised as a layered stack with a pluggable retrieval tier selected by **deployment profile**:
+
+```text
++------------------------------------------------------------+
+|                     REST API (:8700)                       |
+| /index /search /reflect /pulse /warmup /stats /audit       |
++------------------------------------------------------------+
+|            Anticipatory Brain (TimesFM Pulse)              |
+| intent trajectory | volatility forecast | SLO prediction   |
++------------------------------------------------------------+
+|         Retrieval, Governance, Cache, and Ledger Stack      |
++------------------------------------------------------------+
+```
 
 ```
 ┌────────────────────────────────────────────────────────────┐
@@ -570,6 +609,36 @@ The Derived Facts lane is a **separate, isolated evaluation track** (PIT-0 throu
 
 Human operator value trials (DFE-12 through DFE-21) and selection/rescue tuning evidence live in `docs/reports/dfe_*` and `eval_results/dfe_*`.
 
+### 4.9 Predictive Cognition (MNEMOS-Thinking)
+
+MNEMOS leverages Google TimesFM as a time-series foundation model to move from reactive retrieval toward a self-aware cognitive engine. The integration uses a sidecar provider model: the main MNEMOS service records telemetry and makes governed decisions, while the `mnemos-timesfm` sidecar performs forecast work so predictive overhead does not compromise retrieval SLOs.
+
+**Pulse layer (`GET /v1/mnemos/pulse`)**
+
+The service maintains an in-memory circular buffer of 1,440 one-minute `PulsePatch` records. Each patch normalizes operational telemetry into forecastable sequences: query volume, p95 latency, cache hit rate, degradation count, and candidate-envelope pressure. Production deployments pin local TimesFM artifacts and can disable forecasting with `MNEMOS_TIMESFM_ENABLED=false`.
+
+**Track 1: Predictive pre-warming**
+
+The Pulse Engine watches query-class and latency trends. If a high-confidence forecast predicts a material volume spike or p95 rise inside the 15-minute horizon, MNEMOS can trigger autonomous pre-warm under `MNEMOS_PULSE_ACTIONS=autonomous`. Advisory mode remains the default. Autonomous warmup is cooldown-protected and records `forecast_reason` plus `confidence_score` in the forensic ledger.
+
+**Track 2: Predictive hygiene and semantic volatility**
+
+The Volatility Harvester tracks memory event density by engram family: index updates, contradiction events, and usage frequency. When volatility bias is enabled, the relevance policy can shorten the effective semantic half-life for high-velocity families. Forecasted contradiction spikes can also trigger proactive reconciliation so Resolution Engrams are produced before users encounter stale conflicts.
+
+**Track 4: Intent trajectory and shadow search**
+
+The Intent Engine maps per-session query sequences to semantic cluster IDs. When the trajectory becomes predictable, the ShadowSearchRunner performs a low-priority search for the forecasted cluster centroid and stores the result in the derived-view cache with `pre_cognitive: true`. If the user later asks the predicted query, `fuzzy_pre_cognitive_get()` can return the cached result immediately.
+
+**Operational safety**
+
+| Control | Behavior |
+|---|---|
+| `MNEMOS_TIMESFM_ENABLED=false` | Reverts forecast providers to the reactive baseline/fallback path |
+| `MNEMOS_PULSE_ACTIONS=advisory` | Logs suggested actions without mutating routing or triggering warmup |
+| `MNEMOS_PULSE_ACTIONS=off` | Disables pulse-driven action paths |
+| Confidence threshold | Autonomous warmup requires high-confidence forecasts and cooldown enforcement |
+| Forensic ledger | Forecast-driven actions include reason, confidence, target, and result metadata |
+
 ## 5. API Contract
 
 MNEMOS follows the **MFS Contract Pattern**: every response includes `contract_version`, `status`, `source`, and `error` fields, ensuring the consuming application can always determine the health and trustworthiness of the data it receives.
@@ -595,6 +664,14 @@ GET    /v1/mnemos/stats                     — Backend sizes, economics, derive
 GET    /v1/mnemos/governance/stats          — Governance + reflect + hygiene aggregate stats
 ```
 
+### Predictive Endpoints
+
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/v1/mnemos/pulse` | GET | Returns the observed service heartbeat and TimesFM 15-minute forecast |
+| `/v1/mnemos/warmup` | POST | Explicitly forces model-load and retrieval-path pre-warming |
+| `/v1/mnemos/governance/reflect` | POST | Post-generation reflect loop; NLI-backed usage detection remains available through governance profiles |
+
 ### Example: /capabilities Response
 
 ```json
@@ -605,7 +682,7 @@ GET    /v1/mnemos/governance/stats          — Governance + reflect + hygiene a
   "generated_at": "2026-06-10T05:00:00Z",
   "feature": "mnemos_memory",
   "profile": "core_memory_appliance",
-  "supports": ["index", "search", "engrams", "audit", "stats"],
+  "supports": ["index", "search", "engrams", "audit", "stats", "pulse", "warmup"],
   "tiers": ["qdrant"],
   "retrieval_modes": ["semantic", "hybrid"],
   "fusion_policies": ["semantic_dominant", "balanced", "lexical_dominant", "qdrant_rrf"],
@@ -627,6 +704,13 @@ GET    /v1/mnemos/governance/stats          — Governance + reflect + hygiene a
     "phase4_enabled": false,
     "phase5_enabled": false,
     "supported_derived_views": ["contradiction", "evidence", "preference", "timeline"]
+  },
+  "pulse": {
+    "enabled": true,
+    "timesfm_enabled": true,
+    "actions_mode": "advisory",
+    "horizon_minutes": 15,
+    "provider": "timesfm_sidecar_with_linear_fallback"
   },
   "error": null
 }
@@ -742,6 +826,7 @@ MNEMOS ships with a Python client library (`mnemos_sdk/`) that provides the stan
 | **Timeout management** | Per-request timeout with graceful fallback |
 | **Auto-start** | Optional: start MNEMOS container on first call (for local dev) |
 | **Typed responses** | `MnemosResponse`, `SearchHit`, `IndexResult` data classes |
+| **Pulse access** | `client.pulse()` returns observed heartbeat and forecast/advisory metadata |
 | **Graceful degradation** | Returns structured `degraded`/`unavailable` envelopes instead of exceptions |
 | **Env-var config** | `MnemosConfig.from_env()` wires everything from `MNEMOS_*` env vars |
 
@@ -824,6 +909,9 @@ python tools/mnemos_ci_gates.py \
 | Adaptive routing | Phase 8 hold-out complexity accuracy — committed evidence artifact (`benchmarks/results/phase_8_complexity_accuracy.json`); not yet wired into `mnemos_ci_gates.py` |
 | Hierarchical retrieval | Phase 9b similarity + live summary-isolation — committed evidence artifact (`benchmarks/results/phase_9_hierarchy_sim.json`); not yet wired into `mnemos_ci_gates.py` |
 | Consensus governance | Phase 10 live resolution gate — committed evidence artifact (`benchmarks/results/phase_10_consensus_gate.json`); not yet wired into `mnemos_ci_gates.py` |
+| Pulse integrity | One-minute telemetry normalization, circular-buffer hydration, and `/v1/mnemos/pulse` response shape |
+| Prediction fidelity | TimesFM 15-minute forecast accuracy within target error and sidecar round-trip under 100ms |
+| Mind-reading gate | Intent trajectory shadow search must prove a pre-cognitive cache hit for the predicted query |
 | Governance evidence | Governance, contradiction, reflect, drift validation tests |
 | Wave 4 hygiene | `tools/run_wave4_hygiene.py --mode dry-run --fail-on-gate` |
 | SLO reliability | `tools/run_slo_reliability_gate.py --stage canary_25 --fail-on-breach` |
@@ -1082,7 +1170,10 @@ Any application that stores, enriches, retrieves, and audits knowledge — and n
 11. **Governance by design** — The governance layer is built into the read path, not bolted on. Reinforcement convergence, contradiction adjudication, freshness decay, suppression policies, and background hygiene are evaluated with deterministic, tunable parameters. Per-tenant policy profiles allow threshold and delta tuning without service restarts. Behavioral guarantees are backed by formal validation evidence (Governance Validation Pack v1), not asserted by architecture language alone. Advisory mode before enforced mode; promotion requires benchmark evidence.
 12. **Non-destructive hygiene** — Memory health management uses state transitions, not deletions. The hygiene path promotes memories to `stale` or `prune_candidate`; deletion and consolidation are explicit, operator-gated actions. This keeps the governance story auditable and reversible at every stage.
 
+13. **Self-awareness before magic** — Predictive behavior must be grounded in observed operational telemetry before it is applied to cognitive intent. MNEMOS learns its own pulse before it forecasts user trajectories.
+14. **Anticipatory instinct** — The service uses idle time to prepare for forecasted load, pre-warm expensive paths, and reconcile predicted conflicts so peak performance is available before it is requested.
 ---
+
 
 ## 12. Deployment Manifest (mnemos_profile.yaml)
 
@@ -1262,5 +1353,11 @@ MNEMOS was designed from the ground up as a reusable memory service. Its archite
 | SLO-governed promotion | `tools/run_slo_reliability_gate.py` + operator playbook |
 | Derived-fact shadow evaluation | PIT lane (`/api/v1/evaluate_derived_shadow`, `mnemos/evaluation/`) |
 | Experimental graph expansion | Graph Tier (`graph_hybrid_experimental`, `docs/graph_tier/`) |
+
+| Operational telemetry normalization | Pulse Engine (`mnemos/retrieval/pulse.py`) |
+| Anticipatory model pre-warming | `PulseEngine.evaluate_and_trigger()` + `/v1/mnemos/warmup` |
+| Semantic volatility forecasting | `VolatilityHarvester` + `VolatilityEngine` |
+| Intent-trajectory shadow search | `IntentEngine` + `ShadowSearchRunner` |
+| Predictive SLO orchestration | `BudgetAwareRouter` + router `forecast_advisory` metadata |
 
 What remains is a **pure infrastructure service** — a reusable, tooling-complete foundation for any application that needs intelligent, compressed, auditable memory.

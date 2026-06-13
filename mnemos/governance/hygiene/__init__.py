@@ -29,6 +29,7 @@ Usage
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 from mnemos.governance.hygiene.decay_runner import (
     DecayConfig,
@@ -56,7 +57,6 @@ from mnemos.governance.hygiene.clustering_runner import (
     HierarchyReport,
 )
 from mnemos.engram.model import Engram
-from typing import List, Optional
 
 
 @dataclass
@@ -67,16 +67,21 @@ class HygienePipelineReport:
     prune: PruneReport
     sweep: ContradictionSweepReport
     reconciliation: ReconciliationReport
+    proactive_reconciliation: Dict[str, Any] = None
 
     @property
     def total_mutations(self) -> int:
         """Total number of Engrams mutated (decayed + promoted + sweep conflicts)."""
+        proactive = 0
+        if isinstance(self.proactive_reconciliation, dict):
+            proactive = int(self.proactive_reconciliation.get("mutations", 0) or 0)
         return (
             self.decay.decayed
             + self.prune.promoted
             + self.sweep.winners_set
             + self.sweep.losers_set
             + self.reconciliation.resolution_engram_writes
+            + proactive
         )
 
 
@@ -103,11 +108,13 @@ class HygienePipeline:
         self,
         decay_config: Optional[DecayConfig] = None,
         prune_config: Optional[PruneConfig] = None,
+        volatility_engine: Optional[Any] = None,
     ) -> None:
         self._decay = DecayRunner(decay_config)
         self._prune = PrunePromoter(prune_config)
         self._sweep = ContradictionSweepRunner()
         self._reconciliation = ReconciliationRunner()
+        self._volatility_engine = volatility_engine
 
     def run(
         self,
@@ -137,11 +144,18 @@ class HygienePipeline:
             dry_run=dry_run or reconciliation_indexer is None,
             indexer=reconciliation_indexer,
         )
+        proactive = {"triggered": False, "reason": "volatility_engine_not_configured"}
+        if self._volatility_engine is not None:
+            proactive = self._volatility_engine.evaluate_and_reconcile()
+            if proactive.get("triggered") and not dry_run:
+                proactive_sweep = self._sweep.run(engrams, dry_run=False)
+                proactive["mutations"] = proactive_sweep.winners_set + proactive_sweep.losers_set
         return HygienePipelineReport(
             decay=decay_report,
             prune=prune_report,
             sweep=sweep_report,
             reconciliation=reconciliation_report,
+            proactive_reconciliation=proactive,
         )
 
 

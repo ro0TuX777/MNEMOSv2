@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 import time
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Sequence
@@ -122,6 +123,67 @@ class DerivedViewCache:
             dependency_refs=dict(dependency_refs),
         )
 
+    def set_pre_cognitive(
+        self,
+        *,
+        key: str,
+        query: str,
+        cluster_id: int,
+        view: Dict[str, Any],
+        dependency_refs: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        payload = dict(view)
+        payload["pre_cognitive"] = True
+        payload["_pre_cognitive"] = {
+            "query": query,
+            "cluster_id": int(cluster_id),
+            "cached_at": time.time(),
+        }
+        deps = dict(dependency_refs or {})
+        deps["pre_cognitive"] = True
+        deps["query"] = query
+        deps["cluster_id"] = int(cluster_id)
+        self.set(key=key, view=payload, dependency_refs=deps)
+
+    def fuzzy_pre_cognitive_get(
+        self,
+        *,
+        query: str,
+        cluster_id: Optional[int] = None,
+        min_similarity: float = 0.72,
+    ) -> Optional[Dict[str, Any]]:
+        best: Optional[Dict[str, Any]] = None
+        best_score = 0.0
+        now = time.time()
+        for entry in self._entries.values():
+            if entry.invalidated:
+                continue
+            if (now - entry.created_at) > self._ttl_seconds:
+                entry.invalidated = True
+                entry.invalidated_reason = "ttl_expired"
+                continue
+            deps = entry.dependency_refs or {}
+            if not deps.get("pre_cognitive"):
+                continue
+            if cluster_id is not None and int(deps.get("cluster_id", -1)) == int(cluster_id):
+                score = 1.0
+            else:
+                score = _token_similarity(query, str(deps.get("query", "")))
+            if score > best_score:
+                best_score = score
+                best = dict(entry.view)
+                best["_cache"] = {
+                    "hit": True,
+                    "pre_cognitive": True,
+                    "fuzzy_score": round(score, 4),
+                    "key": entry.key,
+                }
+        if best is not None and best_score >= min_similarity:
+            self._hit_count += 1
+            return best
+        self._miss_count += 1
+        return None
+
     def invalidate(
         self,
         *,
@@ -208,3 +270,11 @@ class DerivedViewCache:
             "invalidated_key_total": self._invalidated_key_total,
             "avg_invalidation_fanout": round(avg_fanout, 4),
         }
+
+
+def _token_similarity(a: str, b: str) -> float:
+    a_tokens = set(re.findall(r"[a-z0-9]+", a.lower()))
+    b_tokens = set(re.findall(r"[a-z0-9]+", b.lower()))
+    if not a_tokens or not b_tokens:
+        return 0.0
+    return len(a_tokens & b_tokens) / len(a_tokens | b_tokens)

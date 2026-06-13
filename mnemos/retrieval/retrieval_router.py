@@ -49,6 +49,8 @@ class RetrievalRouter:
         enable_experimental_graph_hybrid: bool = False,
         complexity_classifier: Optional[Any] = None,
         adaptive_routing_enabled: bool = False,
+        pulse_engine: Optional[Any] = None,
+        pulse_p95_budget_ms: float = 250.0,
     ):
         self._semantic_fusion = semantic_fusion
         self._lexical_tier = lexical_tier
@@ -59,6 +61,8 @@ class RetrievalRouter:
         self._complexity_classifier = complexity_classifier
         self._complexity_classifier_failed = False
         self._adaptive_routing_enabled = adaptive_routing_enabled
+        self._pulse_engine = pulse_engine
+        self._pulse_p95_budget_ms = float(pulse_p95_budget_ms)
         self._rerank_policy = RerankPolicy()
         self._classifier = get_classifier(self._rerank_policy.config.get("query_family_classifier", {}))
         self._telemetry_sink = get_telemetry_sink(self._rerank_policy.config.get("telemetry", {}))
@@ -123,6 +127,24 @@ class RetrievalRouter:
         self._stats["candidate_source_cap_applied_count"] += int(
             summary.get("source_cap_exceeded", 0)
         )
+
+    def _forecast_advisory(self) -> Dict[str, Any]:
+        if self._pulse_engine is None:
+            return {}
+        try:
+            advice = self._pulse_engine.advisory(p95_budget_ms=self._pulse_p95_budget_ms)
+        except Exception as exc:
+            return {
+                "forecast_pressure": 0.0,
+                "suggested_plan": "standard",
+                "forecast_reason": f"forecast_advisory_unavailable: {exc}",
+                "actions_mode": "off",
+                "confidence_score": 0.0,
+            }
+        if advice.get("actions_mode") == "off":
+            advice["suggested_plan"] = "standard"
+            advice["forecast_reason"] = "MNEMOS_PULSE_ACTIONS=off; standard EWMA routing retained."
+        return advice
 
     @property
     def semantic_tiers(self) -> List[str]:
@@ -1081,6 +1103,7 @@ class RetrievalRouter:
     ) -> Tuple[List[SearchResult], Dict[str, Any]]:
         mode = retrieval_mode if retrieval_mode in {"semantic", "hybrid", "graph_hybrid_experimental"} else "semantic"
         policy = fusion_policy if fusion_policy in FUSION_POLICIES else DEFAULT_FUSION_POLICY
+        forecast_advisory = self._forecast_advisory()
         envelope_cfg = CandidateEnvelopeConfig.from_request(bounded_envelope)
         desired_pool = max(top_k, envelope_cfg.candidate_pool_limit) if envelope_cfg.enabled else top_k
 
@@ -1257,6 +1280,7 @@ class RetrievalRouter:
                 "candidate_envelope": envelope_meta,
                 "reranker_used": self._reranker is not None,
                 "rerank_telemetry": rr_telemetry,
+                "forecast_advisory": forecast_advisory,
             }
             if experimental_telemetry:
                 meta["experimental_graph_telemetry"] = experimental_telemetry
@@ -1354,6 +1378,7 @@ class RetrievalRouter:
                     "candidate_envelope": envelope_meta,
                     "reranker_used": self._reranker is not None,
                     "rerank_telemetry": rr_telemetry,
+                    "forecast_advisory": forecast_advisory,
                 }
                 if graph_telemetry:
                     meta["graph_shadow_telemetry"] = graph_telemetry
@@ -1441,6 +1466,7 @@ class RetrievalRouter:
             "candidate_envelope": envelope_meta,
             "reranker_used": self._reranker is not None,
             "rerank_telemetry": rr_telemetry,
+            "forecast_advisory": forecast_advisory,
         }
         if graph_telemetry:
             meta["graph_shadow_telemetry"] = graph_telemetry

@@ -34,8 +34,17 @@ from mnemos.memory_over_maps.view_cache import (
     query_fingerprint,
 )
 from mnemos.retrieval.policies.fusion_policies import FUSION_POLICIES
+from mnemos.retrieval.intent import IntentEngine
+from mnemos.retrieval.pulse import (
+    PulseEngine,
+    PulseHarvester,
+    TimesFMProvider,
+    build_pulse_payload,
+)
+from mnemos.retrieval.shadow_search import ShadowSearchRunner
 from mnemos.governance.counterfactuals import compute_counterfactuals
 from mnemos.governance.governor import Governor
+from mnemos.governance.hygiene.volatility import VolatilityEngine, family_key_from_engram
 from mnemos.governance.policy_profiles import load_policy_profiles
 from mnemos.governance.read_path import GOVERNANCE_MODES
 
@@ -74,7 +83,11 @@ class MnemosRuntime:
         self._lexical_tier = None
         self._ledger = None
         self._governor: Optional[Governor] = None
+        self._volatility_engine = VolatilityEngine()
         self._view_cache: Optional[DerivedViewCache] = None
+        self._pulse_engine = PulseEngine(harvester=PulseHarvester())
+        self._intent_engine = IntentEngine()
+        self._shadow_runner: Optional[ShadowSearchRunner] = None
         self._status = "healthy"
         self._error: Optional[str] = None
         self._mom_stats: Dict[str, int] = {
@@ -108,6 +121,23 @@ class MnemosRuntime:
 
         try:
             self._config = get_config()
+            self._pulse_engine = PulseEngine(
+                harvester=PulseHarvester(),
+                provider=TimesFMProvider(
+                    base_url=self._config.timesfm_sidecar_url,
+                    timeout_s=self._config.timesfm_timeout_s,
+                    enabled=self._config.timesfm_enabled,
+                ),
+                horizon_minutes=self._config.pulse_horizon_minutes,
+                actions_mode=self._config.pulse_actions,
+                warmup_callback=self.predictive_warmup,
+                audit_callback=self._audit_autonomous_warmup,
+                cooldown_seconds=self._config.pulse_warmup_cooldown_s,
+            )
+            self._volatility_engine = VolatilityEngine(
+                reconciliation_callback=self._proactive_reconciliation,
+                audit_callback=self._audit_proactive_reconciliation,
+            )
 
             # Set up logging
             logging.basicConfig(
@@ -169,6 +199,8 @@ class MnemosRuntime:
                 lexical_tier=self._lexical_tier,
                 reranker=reranker,
                 adaptive_routing_enabled=bool(getattr(self._config, "adaptive_routing", True)),
+                pulse_engine=self._pulse_engine,
+                pulse_p95_budget_ms=self._config.pulse_p95_budget_ms,
             )
 
             # Set up audit ledger
@@ -191,8 +223,19 @@ class MnemosRuntime:
                 min_score_threshold=self._config.governance_min_score,
                 freshness_half_life_days=self._config.governance_freshness_half_life,
                 policy_profiles=policy_profiles,
+                volatility_engine=self._volatility_engine,
+                volatility_bias_enabled=self._config.governance_volatility_bias,
             )
             self._view_cache = DerivedViewCache(ttl_seconds=3600)
+            self._shadow_runner = ShadowSearchRunner(
+                search_callable=self._shadow_search_payload,
+                cache=self._view_cache,
+            )
+            self._intent_engine = IntentEngine(
+                harvester=None,
+                horizon_steps=3,
+                shadow_callback=self._shadow_runner.run,
+            )
 
             self._initialized = True
             logger.info(
@@ -294,6 +337,71 @@ class MnemosRuntime:
                 metadata=metadata,
             )
 
+    def _audit_autonomous_warmup(self, action: Dict[str, Any]) -> None:
+        reason = str(action.get("reason", "predicted need"))
+        confidence = float(action.get("confidence_score", 0.0) or 0.0)
+        self._audit(
+            "autonomous_prewarm",
+            f"[ACTION] Autonomous Pre-warm triggered - Reason: {reason} (Confidence: {confidence:.2f})",
+            metadata={
+                "forecast_reason": reason,
+                "confidence_score": confidence,
+                "query_spike_pct": action.get("query_spike_pct"),
+                "p95_rise_ms": action.get("p95_rise_ms"),
+                "target": action.get("target", {}),
+                "warmup_result": action.get("warmup_result", {}),
+            },
+            latency=0.0,
+        )
+
+    def _audit_proactive_reconciliation(self, action: Dict[str, Any]) -> None:
+        reason = str(action.get("reason", "predicted contradiction spike"))
+        confidence = float(action.get("confidence_score", 0.0) or 0.0)
+        self._audit(
+            "proactive_reconciliation",
+            f"[ACTION] Proactive Reconciliation triggered - Reason: {reason} (Confidence: {confidence:.2f})",
+            metadata={
+                "family_key": action.get("family_key"),
+                "entity_key": action.get("entity_key"),
+                "forecast_reason": reason,
+                "confidence_score": confidence,
+                "predicted_obsolescence": action.get("predicted_obsolescence"),
+                "reconciliation_result": action.get("reconciliation_result", {}),
+            },
+            latency=0.0,
+        )
+
+    def _proactive_reconciliation(self, action: Dict[str, Any]) -> Dict[str, Any]:
+        return {
+            "status": "scheduled",
+            "family_key": action.get("family_key"),
+            "entity_key": action.get("entity_key"),
+        }
+
+    def _shadow_search_payload(self, query: str) -> List[Dict[str, Any]]:
+        if self._router is None:
+            return []
+        hits, _ = self._router.search(
+            query=query,
+            top_k=5,
+            filters=None,
+            tiers=None,
+            retrieval_mode=self._config.retrieval_mode if self._config else "semantic",
+            fusion_policy=self._config.fusion_policy if self._config else "balanced",
+            explain=False,
+            lexical_top_k=self._config.lexical_top_k if self._config else 25,
+            semantic_top_k=self._config.semantic_top_k if self._config else 25,
+        )
+        return [
+            {
+                "engram": hit.engram.to_dict(),
+                "score": round(hit.score, 4),
+                "tier": hit.tier,
+                "tiers": hit.metadata.get("tiers", [hit.tier]),
+            }
+            for hit in hits
+        ]
+
     def _audit_derived_view_generation(
         self,
         *,
@@ -322,7 +430,15 @@ class MnemosRuntime:
         payload.update({
             "feature": "mnemos_memory",
             "profile": self._config.profile if self._config else "unknown",
-            "supports": ["index", "search", "warmup", "engrams", "audit", "stats"],
+            "supports": ["index", "search", "warmup", "engrams", "audit", "stats", "pulse"],
+            "pulse": {
+                "enabled": True,
+                "timesfm_enabled": bool(getattr(self._config, "timesfm_enabled", True)),
+                "actions_mode": getattr(self._config, "pulse_actions", "advisory"),
+                "horizon_minutes": int(getattr(self._config, "pulse_horizon_minutes", 15)),
+                "warmup_cooldown_s": int(getattr(self._config, "pulse_warmup_cooldown_s", 900)),
+                "provider": "timesfm_sidecar_with_linear_fallback",
+            },
             "tiers": self._semantic_fusion.tier_names if self._semantic_fusion else [],
             "retrieval_modes": retrieval_stats.get("supported_retrieval_modes", ["semantic"]),
             "fusion_policies": retrieval_stats.get("supported_fusion_policies", []),
@@ -376,6 +492,8 @@ class MnemosRuntime:
                 metadata=doc.get("metadata", {}),
             )
             engrams.append(engram)
+            if self._volatility_engine is not None:
+                self._volatility_engine.harvester.record_index_update(engram)
 
         tiers = options.get("tiers")
         counts = self._semantic_fusion.index(engrams, tiers=tiers)
@@ -423,6 +541,47 @@ class MnemosRuntime:
         }
         return payload
 
+    def predictive_warmup(self, action: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Warm runtime components before a predicted spike arrives."""
+        action = action or {}
+        target = action.get("target", {}) if isinstance(action.get("target"), dict) else {}
+        warmed: List[str] = []
+        errors: List[str] = []
+
+        if self._router is not None:
+            warmed.append("retrieval_router")
+
+        if self._semantic_fusion is not None:
+            try:
+                _ = self._semantic_fusion.stats()
+                warmed.append("semantic_fusion")
+            except Exception as exc:
+                errors.append(f"semantic_fusion: {exc}")
+
+        reranker = getattr(self._router, "_reranker", None) if self._router is not None else None
+        if reranker is not None:
+            try:
+                if getattr(reranker, "_initialize", None):
+                    reranker._initialize()
+                if hasattr(reranker, "health"):
+                    _ = reranker.health()
+                warmed.append("reranker")
+            except Exception as exc:
+                errors.append(f"reranker: {exc}")
+
+        if target.get("layer") == "hierarchical_summary":
+            if self._view_cache is None:
+                self._view_cache = DerivedViewCache(ttl_seconds=3600)
+            warmed.append("hierarchical_summary")
+            warmed.append("derived_view_cache")
+
+        return {
+            "status": "success" if not errors else "degraded",
+            "warmed_components": warmed,
+            "errors": errors,
+            "target": target,
+        }
+
     def search_documents(
         self,
         query: str,
@@ -443,6 +602,49 @@ class MnemosRuntime:
         """Search across tiers and return fused results."""
         import time
         t0 = time.time()
+        session_id = "default"
+        if isinstance(filters, dict):
+            session_id = str(filters.get("session_id") or filters.get("tenant_id") or "default")
+
+        if self._view_cache is not None and self._intent_engine is not None:
+            try:
+                cluster_id = self._intent_engine.harvester.map_query(query)
+                cached = self._view_cache.fuzzy_pre_cognitive_get(
+                    query=query,
+                    cluster_id=cluster_id,
+                )
+                if cached is not None:
+                    self._audit(
+                        "shadow_hit",
+                        f"Pre-cognitive cache hit for query: '{query[:80]}'",
+                        metadata={
+                            "forecast_reason": "intent trajectory matched pre-cognitive cache",
+                            "pre_cognitive": True,
+                            "cache": cached.get("_cache", {}),
+                            "cluster_id": cluster_id,
+                            "session_id": session_id,
+                        },
+                        latency=0.0,
+                    )
+                    payload = self._base_payload()
+                    payload["results"] = cached.get("results", [])
+                    payload["meta"] = {
+                        "query": query,
+                        "top_k": top_k,
+                        "result_count": len(payload["results"]),
+                        "latency_s": 0.002,
+                        "retrieval_mode": "pre_cognitive_cache",
+                        "fusion_policy": None,
+                        "pre_cognitive": True,
+                        "cache": cached.get("_cache", {}),
+                    }
+                    self._intent_engine.harvester.record_query(
+                        session_id=session_id,
+                        query=query,
+                    )
+                    return payload
+            except Exception:
+                pass
 
         selected_mode = retrieval_mode or self._config.retrieval_mode
         selected_policy = fusion_policy or self._config.fusion_policy
@@ -483,6 +685,20 @@ class MnemosRuntime:
                 top_k=top_k,
                 governance_profile=selected_profile or None,
             )
+            for decision in decisions:
+                trace = getattr(decision, "policy_trace", {}) or {}
+                if "volatility_bias" in trace:
+                    self._audit(
+                        "volatility_decay",
+                        f"Volatility-driven freshness decay applied to engram {decision.engram_id}",
+                        metadata={
+                            "forecast_reason": "predicted semantic volatility shortened freshness half-life",
+                            "engram_id": decision.engram_id,
+                            "volatility_bias": trace["volatility_bias"],
+                            "freshness_modifier": decision.freshness_modifier,
+                        },
+                        latency=0.0,
+                    )
 
         derived_views_payload: List[Dict[str, Any]] = []
         query_cache_hits = 0
@@ -568,6 +784,23 @@ class MnemosRuntime:
                 )
 
         elapsed = time.time() - t0
+        if self._volatility_engine is not None:
+            for r in results:
+                self._volatility_engine.harvester.record_usage(r.engram)
+            by_id = {r.engram.id: r.engram for r in results}
+            for record in contradiction_records:
+                family_key = "family:unknown"
+                for eid in getattr(record, "candidate_memory_ids", []) or []:
+                    if eid in by_id:
+                        family_key = family_key_from_engram(by_id[eid])
+                        break
+                self._volatility_engine.harvester.record_contradiction(
+                    family_key,
+                    entity_key=getattr(record, "entity_key", ""),
+                )
+        envelope_meta = mode_meta.get("candidate_envelope") or {}
+        env_initial = int(envelope_meta.get("initial_candidate_count", 0) or 0)
+        env_final = int(envelope_meta.get("final_candidate_count", 0) or 0)
         self._audit("search", f"Search: '{query[:80]}' → {len(results)} results",
                      metadata={
                          "query": query,
@@ -578,6 +811,32 @@ class MnemosRuntime:
                          "governance_mode": selected_governance,
                      },
                      latency=elapsed)
+        forecast_advisory = mode_meta.get("forecast_advisory") or {}
+        if (
+            getattr(self._config, "pulse_actions", "advisory") == "advisory"
+            and forecast_advisory
+            and forecast_advisory.get("suggested_plan") == "conservative"
+        ):
+            self._audit(
+                "forecast_advisory",
+                "Forecast predicts p95 breach; suggested shift to Conservative plan.",
+                metadata={
+                    "suggested_routing_plan": "conservative",
+                    "forecast_reason": forecast_advisory.get("forecast_reason"),
+                    "confidence_score": forecast_advisory.get("confidence_score"),
+                    "forecast_pressure": forecast_advisory.get("forecast_pressure"),
+                    "max_forecast_p95_latency_ms": forecast_advisory.get("max_forecast_p95_latency_ms"),
+                    "max_forecast_degrade_count": forecast_advisory.get("max_forecast_degrade_count"),
+                },
+                latency=0.0,
+            )
+        self._pulse_engine.record_query(
+            latency_ms=elapsed * 1000.0,
+            cache_hits=query_cache_hits,
+            cache_misses=query_cache_misses,
+            degraded=self._status != "healthy",
+            candidate_envelope=env_initial or env_final or len(results),
+        )
 
         # ── Build per-result payload ───────────────────────────────────────
         decision_map = {d.engram_id: d for d in decisions}
@@ -621,9 +880,6 @@ class MnemosRuntime:
             "lexical_lane_available": mode_meta.get("lexical_available", False),
             "explain": selected_explain,
         }
-        envelope_meta = mode_meta.get("candidate_envelope") or {}
-        env_initial = int(envelope_meta.get("initial_candidate_count", 0))
-        env_final = int(envelope_meta.get("final_candidate_count", 0))
         envelope_ratio = round((env_final / env_initial), 4) if env_initial else 0.0
         cost_units = (
             env_initial
@@ -647,6 +903,8 @@ class MnemosRuntime:
             payload["meta"]["hybrid_telemetry"] = mode_meta["telemetry"]
         if mode_meta.get("candidate_envelope"):
             payload["meta"]["candidate_envelope"] = mode_meta["candidate_envelope"]
+        if mode_meta.get("forecast_advisory"):
+            payload["meta"]["forecast_advisory"] = mode_meta["forecast_advisory"]
         if mode_meta.get("complexity_classification"):
             payload["meta"]["complexity_classification"] = mode_meta["complexity_classification"]
         if mode_meta.get("routing_posture"):
@@ -695,6 +953,37 @@ class MnemosRuntime:
                 }
         if derived_views_payload:
             payload["derived_views"] = derived_views_payload
+        if self._intent_engine is not None:
+            forecast = self._intent_engine.record_and_forecast(
+                session_id=session_id,
+                query=query,
+            )
+            if forecast:
+                payload["meta"]["intent_forecast"] = forecast
+            if self._intent_engine.last_shadow_result:
+                payload["meta"]["shadow_search"] = self._intent_engine.last_shadow_result
+        return payload
+
+    def get_pulse(self, observed_limit: int = 60) -> Dict[str, Any]:
+        """Return observed MNEMOS pulse and advisory forecast if enabled."""
+        horizon = int(getattr(self._config, "pulse_horizon_minutes", 15)) if self._config else 15
+        actions_mode = getattr(self._config, "pulse_actions", "advisory") if self._config else "advisory"
+        forecast = self._pulse_engine.refresh_forecast() if self._pulse_engine.provider is not None else None
+        autonomous_action = self._pulse_engine.evaluate_and_trigger(forecast)
+        payload = build_pulse_payload(
+            contract_version=CONTRACT_VERSION,
+            status=self._status,
+            source="mnemos-service",
+            generated_at=_utc_now(),
+            harvester=self._pulse_engine.harvester,
+            provider=None,
+            observed_limit=observed_limit,
+            horizon_minutes=horizon,
+            actions_mode=actions_mode,
+            error=self._error,
+        )
+        payload["forecast"] = forecast
+        payload["autonomous_action"] = autonomous_action
         return payload
 
     def search_derived_trial(self, query: str, top_k: int, client_id: str) -> Dict[str, Any]:
@@ -958,6 +1247,7 @@ def root():
                 "health": "/health",
                 "capabilities": "/v1/mnemos/capabilities",
                 "warmup": "/v1/mnemos/warmup",
+                "pulse": "/v1/mnemos/pulse",
                 "index": "/v1/mnemos/index",
             "search": "/v1/mnemos/search",
             "engrams": "/v1/mnemos/engrams/{id}",
@@ -1287,6 +1577,23 @@ def audit():
     limit = int(request.args.get("limit", "50"))
     query = request.args.get("q")
     return jsonify(_runtime.get_audit(limit, query)), 200
+
+
+@app.get("/v1/mnemos/pulse")
+def pulse():
+    if not _authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    err = _ensure_runtime()
+    if err:
+        return jsonify(err), 200
+
+    try:
+        limit = int(request.args.get("limit", "60"))
+    except ValueError:
+        return jsonify({"error": "limit must be an integer"}), 400
+    if limit < 1 or limit > 1440:
+        return jsonify({"error": "limit must be between 1 and 1440"}), 400
+    return jsonify(_runtime.get_pulse(observed_limit=limit)), 200
 
 
 @app.get("/v1/mnemos/stats")
