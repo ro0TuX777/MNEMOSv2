@@ -48,3 +48,9 @@ logs/retrieval_telemetry.jsonl
 # Rotated runtime telemetry + local eval corpora (3rd-party PDFs)
 logs/retrieval_telemetry.jsonl*
 eval_corpora/
+
+# Local dev scratch / temp artifacts (not source)
+.temp/
+
+# SAM application assets (belong to SAM project, not MNEMOS)
+sam/

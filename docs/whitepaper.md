@@ -2,7 +2,7 @@
 
 **A containerised, contract-governed memory and retrieval service for AI-native applications.**
 
-*Version 3.1 · June 2026*
+*Version 3.2 · June 2026*
 
 > [!NOTE]
 > **As of June 11, 2026:** Benchmark conclusions in dated sections remain scoped to their cited artifact timestamps. For full methodology, raw artifacts, and latest measured runs, see `docs/benchmark.md`.
@@ -12,6 +12,7 @@
 > **Derived Facts lane (PIT-0→PIT-10) is production-adjacent and pilot-ready** — isolated shadow evaluation via `/api/v1/evaluate_derived_shadow`; default retrieval remains derived-fact-free. See §4.8.
 > **Adaptive Routing, Hierarchical Retrieval, and Consensus Governance (Phases 8-10) are operationally enforced** — embedded query-complexity classification reached 1.0 hold-out accuracy, the Phase 9b summary-isolation sentinel is live in the service container, and Phase 10 Resolution Engrams passed the live consensus gate. See `benchmarks/results/phase_8_complexity_accuracy.json`, `benchmarks/results/phase_9_hierarchy_sim.json`, and `benchmarks/results/phase_10_consensus_gate.json`.
 > **MNEMOS-Thinking predictive stack (Phases 11-14) is implemented** — TimesFM-backed pulse forecasting, autonomous pre-warm, semantic volatility hygiene, and pre-cognitive shadow search have passed synthetic phase gates. See §2.1 and §4.9.
+> **CoALA Cognitive Cycle (v3.2) is implemented** — MNEMOS cognitive behaviours are now explicit, auditable, and interoperable via `mnemos/cognitive/`. Add `cognitive_cycle: true` to any `/search` request to receive a `CognitiveCycleRecord` in the response. See §4.10.
 > **Graph Tier (`graph_hybrid_experimental`) is experimental and read-only** — offline/live resolver validation complete (MG-Test-1→10); not exposed on the public HTTP retrieval-mode surface. See §4.2 and `docs/graph_tier/operator_guide.md`.
 > **Deployment model:** MNEMOS runtime services are deployed as a Docker Compose stack; all serving components run in containers.
 > **Developer model:** tooling, benchmarks, and tests are typically run from host Python unless explicitly containerized.
@@ -27,6 +28,7 @@
 | 2026-06-10 | Test suite: 564 tests collected; all CI gates passing (MoM phases, governance evidence, hygiene, SLO canary_25) |
 | 2026-06-11 | Phase 8 embedded-reflex adaptive routing, Phase 9b live hierarchy isolation, and Phase 10 consensus Resolution Engrams activated; live consensus gate passed 5/5 collisions |
 | 2026-06-12 | MNEMOS-Thinking activation — TimesFM sidecar integration, Pulse telemetry normalization, predictive pre-warming, volatility-driven hygiene, and intent-trajectory shadow search are live in the standalone framework |
+| 2026-06-14 | **CoALA Cognitive Cycle (v3.2)** — New `mnemos/cognitive/` overlay module. `CognitiveCycleRecord`, `WorkingMemorySnapshot`, `AttentionContract`, `ForecastOutcomeRecord`, and `CycleAssembler` ship as a zero-cost opt-in. New endpoint: `GET /v1/mnemos/cognitive/cycles`. 77 new tests; 0 regressions. |
 
 ---
 
@@ -638,6 +640,89 @@ The Intent Engine maps per-session query sequences to semantic cluster IDs. When
 | `MNEMOS_PULSE_ACTIONS=off` | Disables pulse-driven action paths |
 | Confidence threshold | Autonomous warmup requires high-confidence forecasts and cooldown enforcement |
 | Forensic ledger | Forecast-driven actions include reason, confidence, target, and result metadata |
+
+### 4.10 CoALA Cognitive Cycle (v3.2)
+
+MNEMOS v3.2 introduces a **CoALA-aligned cognitive cycle layer** (`mnemos/cognitive/`) that makes MNEMOS' existing cognitive behaviours explicit, auditable, and interoperable. Prior to v3.2, routing decisions, attention gates, forecast advisory states, and governance outcomes were distributed across internal call sites with no unified schema for consuming systems to read. The cognitive cycle overlay captures all of this in a single per-request record without changing any retrieval or governance behaviour.
+
+**Conceptual mapping (CoALA → MNEMOS)**
+
+| CoALA concept | MNEMOS implementation |
+|---|---|
+| Working memory | `WorkingMemorySnapshot` — transient per-cycle state (query, candidate counts, active modes, gate flags) |
+| Attention | `List[AttentionDecision]` — 11 named dimensions: retrieval mode, candidate envelope, summary inclusion, graph expansion, derived facts, governance gate, forecast advisory, shadow search, intent trajectory, query classification, cross-encoder rerank |
+| Retrieval actions | `List[ActionRecord]` — semantic_search, python_hybrid_rrf, qdrant_rrf, candidate_envelope, cross_encoder_rerank, pre_cognitive_cache |
+| Reasoning actions | `List[ActionRecord]` — contradiction_detection, derived views, shadow_search_intent |
+| Learning writes | `List[LearningWrite]` — reflect_path reinforcement, volatility hygiene, episodic writes |
+| Governance | `List[GovernanceEvalSummary]` — aggregate veto/suppression/contradiction counts |
+| Forecasting | `List[ActionRecord]` + `ForecastOutcomeRecord` — pulse advisory, intent trajectory, volatility forecast |
+| Audit | `List[str] forensic_ledger_refs` — cycle record cross-referenced to forensic ledger transactions |
+
+**OperationType taxonomy**
+
+Every action in a `CognitiveCycleRecord` carries one or more `OperationType` labels from the CoALA action space: `RETRIEVAL`, `REASONING`, `LEARNING`, `GROUNDING`, `GOVERNANCE`, `FORECASTING`, `AUDIT`. Multi-typed actions (e.g. `contradiction_detection` is both `REASONING` and `GOVERNANCE`) are expressed as lists.
+
+**How to use**
+
+Add `"cognitive_cycle": true` to any `/search` request body. The response will include a top-level `"cognitive_cycle"` key containing the full `CognitiveCycleRecord` dict. Recent cycle records are also available at `GET /v1/mnemos/cognitive/cycles?limit=N`.
+
+```json
+POST /v1/mnemos/search
+{
+  "query": "...",
+  "cognitive_cycle": true
+}
+```
+
+Response includes:
+```json
+{
+  "results": [...],
+  "meta": {...},
+  "cognitive_cycle": {
+    "cycle_id": "uuid",
+    "trigger_type": "search",
+    "working_memory_snapshot": { ... },
+    "attention_decisions": [ { "dimension": "retrieval_mode", "decision": "hybrid:balanced", "reason": "..." }, ... ],
+    "retrieval_actions": [ { "name": "python_hybrid_rrf", "operation_types": ["retrieval"], ... } ],
+    "governance_evaluations": [ { "mode": "advisory", "vetoed": 2, "net_candidates_returned": 8, ... } ],
+    "forecast_actions": [...],
+    "forensic_ledger_refs": ["txn-..."],
+    "selected_route": "return",
+    "final_status": "completed",
+    "cycle_latency_ms": 14.2
+  }
+}
+```
+
+**ForecastOutcomeRecord**
+
+The `ForecastOutcomeRecord` class (`mnemos/cognitive/forecast_outcome.py`) adds the missing second half of MNEMOS forecasting: recording whether forecasts were accurate, useful, or harmful. It is created at prediction time via factory methods (`from_pulse_advisory`, `from_autonomous_warmup`, `from_proactive_reconciliation`, `from_intent_trajectory`) and resolved when the predicted condition is confirmed, refuted, or expires. The `future_policy_candidate` field is advisory only — procedural memory is never mutated automatically.
+
+**Safety invariants**
+
+All existing safety boundaries are preserved:
+- Default retrieval lane remains derived-fact-free (unchanged)
+- Graph hybrid remains blocked on the HTTP surface (explicitly surfaced in attention contract as `graph_expansion: blocked`)
+- Governance decisions are never mutated by the `CycleAssembler`
+- Procedural memory is never written automatically (future_policy_candidate is advisory dict only)
+- All governed actions remain traceable through the forensic ledger
+- The `CycleAssembler` is zero-cost when `cognitive_cycle` is not set in the request
+
+**Module structure**
+
+```
+mnemos/cognitive/
+  __init__.py          — public exports
+  cycle.py             — CognitiveCycleRecord, WorkingMemorySnapshot, AttentionDecision,
+                         ActionRecord, GovernanceEvalSummary, LearningWrite, OperationType,
+                         OPERATION_TYPE_MAP
+  attention.py         — build_attention_decisions() — pure function, 11 dimensions
+  assembler.py         — CycleAssembler — incremental builder, zero cost when not used
+  forecast_outcome.py  — ForecastOutcomeRecord — full forecast lifecycle
+```
+
+Test coverage: 77 new tests across `test_cognitive_cycle.py` (29), `test_attention_contract.py` (31), and `test_forecast_outcome.py` (17). 0 regressions.
 
 ## 5. API Contract
 
@@ -1359,5 +1444,9 @@ MNEMOS was designed from the ground up as a reusable memory service. Its archite
 | Semantic volatility forecasting | `VolatilityHarvester` + `VolatilityEngine` |
 | Intent-trajectory shadow search | `IntentEngine` + `ShadowSearchRunner` |
 | Predictive SLO orchestration | `BudgetAwareRouter` + router `forecast_advisory` metadata |
+| CoALA cognitive cycle transparency | `CognitiveCycleRecord` + `CycleAssembler` (`mnemos/cognitive/`) — opt-in via `cognitive_cycle: true` |
+| Auditable forecast lifecycle | `ForecastOutcomeRecord` (`mnemos/cognitive/forecast_outcome.py`) |
+| Structured attention contract | `build_attention_decisions()` (`mnemos/cognitive/attention.py`) — 11 named dimensions |
+| Cognitive cycle history | `GET /v1/mnemos/cognitive/cycles` |
 
 What remains is a **pure infrastructure service** — a reusable, tooling-complete foundation for any application that needs intelligent, compressed, auditable memory.
