@@ -22,7 +22,7 @@ def test_search_hybrid_valid_request_forwards_params(client, monkeypatch):
 
     def fake_search_documents(query, top_k, tiers, filters, retrieval_mode, fusion_policy, explain,
                               _governance=None, _explain_governance=None, _governance_profile=None, _bounded_envelope=None,
-                              _derive_views=None, _latency_budget_ms=None, _complexity_shadow=False):
+                              _derive_views=None, _latency_budget_ms=None, _complexity_shadow=False, _cognitive_cycle=None):
         captured["query"] = query
         captured["top_k"] = top_k
         captured["retrieval_mode"] = retrieval_mode
@@ -83,7 +83,7 @@ def test_search_hybrid_filter_payload_forwarding(client, monkeypatch):
 
     def fake_search_documents(query, top_k, tiers, filters, retrieval_mode, fusion_policy, explain,
                               _governance=None, _explain_governance=None, _governance_profile=None, _bounded_envelope=None,
-                              _derive_views=None, _latency_budget_ms=None, _complexity_shadow=False):
+                              _derive_views=None, _latency_budget_ms=None, _complexity_shadow=False, _cognitive_cycle=None):
         captured["filters"] = filters
         return {
             "status": "healthy",

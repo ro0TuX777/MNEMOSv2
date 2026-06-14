@@ -34,16 +34,47 @@ from mnemos.memory_over_maps.view_cache import (
     query_fingerprint,
 )
 from mnemos.retrieval.policies.fusion_policies import FUSION_POLICIES
+from mnemos.retrieval.intent import IntentEngine
+from mnemos.retrieval.pulse import (
+    PulseEngine,
+    PulseHarvester,
+    TimesFMProvider,
+    build_pulse_payload,
+)
+from mnemos.retrieval.shadow_search import ShadowSearchRunner
 from mnemos.governance.counterfactuals import compute_counterfactuals
 from mnemos.governance.governor import Governor
+from mnemos.governance.hygiene.volatility import VolatilityEngine, family_key_from_engram
 from mnemos.governance.policy_profiles import load_policy_profiles
 from mnemos.governance.read_path import GOVERNANCE_MODES
+from mnemos.cognitive.assembler import CycleAssembler
+from mnemos.cognitive.attention import build_attention_decisions
+from mnemos.cognitive.forecast_outcome import ForecastOutcomeRecord
 
 logger = logging.getLogger("mnemos.service")
 
 CONTRACT_VERSION = "v1"
 SUPPORTED_RETRIEVAL_MODES = {"semantic", "hybrid"}
 RESERVED_FILTER_KEYS = {"__mrl_oversample__", "__hnsw_ef__", "__prefetch_only__"}
+
+
+def _retrieval_action_name(mode_meta: Dict[str, Any]) -> str:
+    mode = mode_meta.get("retrieval_mode", "semantic")
+    if mode == "hybrid":
+        engine = mode_meta.get("fusion_engine", "")
+        if engine == "qdrant_rrf":
+            return "qdrant_rrf"
+        return "python_hybrid_rrf"
+    return "semantic_search"
+
+
+def _determine_route(governance_mode: str, decisions: list, forecast_advisory: dict, pre_cognitive_hit: bool) -> str:
+    if pre_cognitive_hit:
+        return "pre_warm"
+    if forecast_advisory and forecast_advisory.get("suggested_plan") == "conservative":
+        return "advise"
+    return "return"
+
 
 app = Flask(__name__)
 
@@ -74,7 +105,11 @@ class MnemosRuntime:
         self._lexical_tier = None
         self._ledger = None
         self._governor: Optional[Governor] = None
+        self._volatility_engine = VolatilityEngine()
         self._view_cache: Optional[DerivedViewCache] = None
+        self._pulse_engine = PulseEngine(harvester=PulseHarvester())
+        self._intent_engine = IntentEngine()
+        self._shadow_runner: Optional[ShadowSearchRunner] = None
         self._status = "healthy"
         self._error: Optional[str] = None
         self._mom_stats: Dict[str, int] = {
@@ -108,6 +143,23 @@ class MnemosRuntime:
 
         try:
             self._config = get_config()
+            self._pulse_engine = PulseEngine(
+                harvester=PulseHarvester(),
+                provider=TimesFMProvider(
+                    base_url=self._config.timesfm_sidecar_url,
+                    timeout_s=self._config.timesfm_timeout_s,
+                    enabled=self._config.timesfm_enabled,
+                ),
+                horizon_minutes=self._config.pulse_horizon_minutes,
+                actions_mode=self._config.pulse_actions,
+                warmup_callback=self.predictive_warmup,
+                audit_callback=self._audit_autonomous_warmup,
+                cooldown_seconds=self._config.pulse_warmup_cooldown_s,
+            )
+            self._volatility_engine = VolatilityEngine(
+                reconciliation_callback=self._proactive_reconciliation,
+                audit_callback=self._audit_proactive_reconciliation,
+            )
 
             # Set up logging
             logging.basicConfig(
@@ -169,6 +221,8 @@ class MnemosRuntime:
                 lexical_tier=self._lexical_tier,
                 reranker=reranker,
                 adaptive_routing_enabled=bool(getattr(self._config, "adaptive_routing", True)),
+                pulse_engine=self._pulse_engine,
+                pulse_p95_budget_ms=self._config.pulse_p95_budget_ms,
             )
 
             # Set up audit ledger
@@ -191,8 +245,19 @@ class MnemosRuntime:
                 min_score_threshold=self._config.governance_min_score,
                 freshness_half_life_days=self._config.governance_freshness_half_life,
                 policy_profiles=policy_profiles,
+                volatility_engine=self._volatility_engine,
+                volatility_bias_enabled=self._config.governance_volatility_bias,
             )
             self._view_cache = DerivedViewCache(ttl_seconds=3600)
+            self._shadow_runner = ShadowSearchRunner(
+                search_callable=self._shadow_search_payload,
+                cache=self._view_cache,
+            )
+            self._intent_engine = IntentEngine(
+                harvester=None,
+                horizon_steps=3,
+                shadow_callback=self._shadow_runner.run,
+            )
 
             self._initialized = True
             logger.info(
@@ -294,6 +359,71 @@ class MnemosRuntime:
                 metadata=metadata,
             )
 
+    def _audit_autonomous_warmup(self, action: Dict[str, Any]) -> None:
+        reason = str(action.get("reason", "predicted need"))
+        confidence = float(action.get("confidence_score", 0.0) or 0.0)
+        self._audit(
+            "autonomous_prewarm",
+            f"[ACTION] Autonomous Pre-warm triggered - Reason: {reason} (Confidence: {confidence:.2f})",
+            metadata={
+                "forecast_reason": reason,
+                "confidence_score": confidence,
+                "query_spike_pct": action.get("query_spike_pct"),
+                "p95_rise_ms": action.get("p95_rise_ms"),
+                "target": action.get("target", {}),
+                "warmup_result": action.get("warmup_result", {}),
+            },
+            latency=0.0,
+        )
+
+    def _audit_proactive_reconciliation(self, action: Dict[str, Any]) -> None:
+        reason = str(action.get("reason", "predicted contradiction spike"))
+        confidence = float(action.get("confidence_score", 0.0) or 0.0)
+        self._audit(
+            "proactive_reconciliation",
+            f"[ACTION] Proactive Reconciliation triggered - Reason: {reason} (Confidence: {confidence:.2f})",
+            metadata={
+                "family_key": action.get("family_key"),
+                "entity_key": action.get("entity_key"),
+                "forecast_reason": reason,
+                "confidence_score": confidence,
+                "predicted_obsolescence": action.get("predicted_obsolescence"),
+                "reconciliation_result": action.get("reconciliation_result", {}),
+            },
+            latency=0.0,
+        )
+
+    def _proactive_reconciliation(self, action: Dict[str, Any]) -> Dict[str, Any]:
+        return {
+            "status": "scheduled",
+            "family_key": action.get("family_key"),
+            "entity_key": action.get("entity_key"),
+        }
+
+    def _shadow_search_payload(self, query: str) -> List[Dict[str, Any]]:
+        if self._router is None:
+            return []
+        hits, _ = self._router.search(
+            query=query,
+            top_k=5,
+            filters=None,
+            tiers=None,
+            retrieval_mode=self._config.retrieval_mode if self._config else "semantic",
+            fusion_policy=self._config.fusion_policy if self._config else "balanced",
+            explain=False,
+            lexical_top_k=self._config.lexical_top_k if self._config else 25,
+            semantic_top_k=self._config.semantic_top_k if self._config else 25,
+        )
+        return [
+            {
+                "engram": hit.engram.to_dict(),
+                "score": round(hit.score, 4),
+                "tier": hit.tier,
+                "tiers": hit.metadata.get("tiers", [hit.tier]),
+            }
+            for hit in hits
+        ]
+
     def _audit_derived_view_generation(
         self,
         *,
@@ -322,7 +452,15 @@ class MnemosRuntime:
         payload.update({
             "feature": "mnemos_memory",
             "profile": self._config.profile if self._config else "unknown",
-            "supports": ["index", "search", "warmup", "engrams", "audit", "stats"],
+            "supports": ["index", "search", "warmup", "engrams", "audit", "stats", "pulse"],
+            "pulse": {
+                "enabled": True,
+                "timesfm_enabled": bool(getattr(self._config, "timesfm_enabled", True)),
+                "actions_mode": getattr(self._config, "pulse_actions", "advisory"),
+                "horizon_minutes": int(getattr(self._config, "pulse_horizon_minutes", 15)),
+                "warmup_cooldown_s": int(getattr(self._config, "pulse_warmup_cooldown_s", 900)),
+                "provider": "timesfm_sidecar_with_linear_fallback",
+            },
             "tiers": self._semantic_fusion.tier_names if self._semantic_fusion else [],
             "retrieval_modes": retrieval_stats.get("supported_retrieval_modes", ["semantic"]),
             "fusion_policies": retrieval_stats.get("supported_fusion_policies", []),
@@ -376,6 +514,8 @@ class MnemosRuntime:
                 metadata=doc.get("metadata", {}),
             )
             engrams.append(engram)
+            if self._volatility_engine is not None:
+                self._volatility_engine.harvester.record_index_update(engram)
 
         tiers = options.get("tiers")
         counts = self._semantic_fusion.index(engrams, tiers=tiers)
@@ -423,6 +563,47 @@ class MnemosRuntime:
         }
         return payload
 
+    def predictive_warmup(self, action: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Warm runtime components before a predicted spike arrives."""
+        action = action or {}
+        target = action.get("target", {}) if isinstance(action.get("target"), dict) else {}
+        warmed: List[str] = []
+        errors: List[str] = []
+
+        if self._router is not None:
+            warmed.append("retrieval_router")
+
+        if self._semantic_fusion is not None:
+            try:
+                _ = self._semantic_fusion.stats()
+                warmed.append("semantic_fusion")
+            except Exception as exc:
+                errors.append(f"semantic_fusion: {exc}")
+
+        reranker = getattr(self._router, "_reranker", None) if self._router is not None else None
+        if reranker is not None:
+            try:
+                if getattr(reranker, "_initialize", None):
+                    reranker._initialize()
+                if hasattr(reranker, "health"):
+                    _ = reranker.health()
+                warmed.append("reranker")
+            except Exception as exc:
+                errors.append(f"reranker: {exc}")
+
+        if target.get("layer") == "hierarchical_summary":
+            if self._view_cache is None:
+                self._view_cache = DerivedViewCache(ttl_seconds=3600)
+            warmed.append("hierarchical_summary")
+            warmed.append("derived_view_cache")
+
+        return {
+            "status": "success" if not errors else "degraded",
+            "warmed_components": warmed,
+            "errors": errors,
+            "target": target,
+        }
+
     def search_documents(
         self,
         query: str,
@@ -439,10 +620,54 @@ class MnemosRuntime:
         derive_views: Optional[List[str]] = None,
         latency_budget_ms: Optional[float] = None,
         complexity_shadow: bool = False,
+        cognitive_cycle: Optional[bool] = None,
     ) -> Dict[str, Any]:
         """Search across tiers and return fused results."""
         import time
         t0 = time.time()
+        session_id = "default"
+        if isinstance(filters, dict):
+            session_id = str(filters.get("session_id") or filters.get("tenant_id") or "default")
+
+        if self._view_cache is not None and self._intent_engine is not None:
+            try:
+                cluster_id = self._intent_engine.harvester.map_query(query)
+                cached = self._view_cache.fuzzy_pre_cognitive_get(
+                    query=query,
+                    cluster_id=cluster_id,
+                )
+                if cached is not None:
+                    self._audit(
+                        "shadow_hit",
+                        f"Pre-cognitive cache hit for query: '{query[:80]}'",
+                        metadata={
+                            "forecast_reason": "intent trajectory matched pre-cognitive cache",
+                            "pre_cognitive": True,
+                            "cache": cached.get("_cache", {}),
+                            "cluster_id": cluster_id,
+                            "session_id": session_id,
+                        },
+                        latency=0.0,
+                    )
+                    payload = self._base_payload()
+                    payload["results"] = cached.get("results", [])
+                    payload["meta"] = {
+                        "query": query,
+                        "top_k": top_k,
+                        "result_count": len(payload["results"]),
+                        "latency_s": 0.002,
+                        "retrieval_mode": "pre_cognitive_cache",
+                        "fusion_policy": None,
+                        "pre_cognitive": True,
+                        "cache": cached.get("_cache", {}),
+                    }
+                    self._intent_engine.harvester.record_query(
+                        session_id=session_id,
+                        query=query,
+                    )
+                    return payload
+            except Exception:
+                pass
 
         selected_mode = retrieval_mode or self._config.retrieval_mode
         selected_policy = fusion_policy or self._config.fusion_policy
@@ -454,6 +679,25 @@ class MnemosRuntime:
             selected_profile = str(filters.get("tenant_policy") or filters.get("tenant_id") or "").strip()
         if selected_profile and self._governor and not self._governor.has_policy_profile(selected_profile):
             selected_profile = ""
+
+        _assembler: Optional[CycleAssembler] = None
+        if cognitive_cycle:
+            _assembler = CycleAssembler(
+                trigger_type="search",
+                trigger_source="api",
+                query_or_event=query,
+                active_profile=getattr(self._config, "profile", "default"),
+                governance_profile=selected_profile or "default",
+            )
+            _assembler.set_working_memory(
+                query=query,
+                session_id=session_id,
+                active_governance_mode=selected_governance,
+                active_policy_profile=selected_profile or "default",
+                summary_eligible=bool(getattr(self._config, "memory_over_maps_phase1", False)),
+                derived_fact_eligible=bool(getattr(self._config, "memory_over_maps_phase3", False)),
+                pre_cognitive_cache_hit=False,
+            )
 
         results, mode_meta = self._router.search(
             query=query,
@@ -472,6 +716,30 @@ class MnemosRuntime:
         )
         raw_rank_by_id = {r.engram.id: idx + 1 for idx, r in enumerate(results)}
 
+        if _assembler is not None:
+            _assembler.set_working_memory(
+                active_retrieval_mode=mode_meta.get("retrieval_mode", selected_mode),
+                active_fusion_policy=mode_meta.get("fusion_policy"),
+                candidate_count_pre_governance=len(results),
+                forecast_advisory_present=bool(mode_meta.get("forecast_advisory")),
+            )
+            _retrieval_name = _retrieval_action_name(mode_meta)
+            _assembler.add_retrieval_action(
+                _retrieval_name,
+                inputs={"query": query[:120], "top_k": top_k, "mode": selected_mode, "policy": selected_policy},
+                outputs={"result_count": len(results)},
+            )
+            _attention_decisions = build_attention_decisions(
+                mode_meta=mode_meta,
+                governance_mode=selected_governance,
+                governance_profile=selected_profile or "default",
+                phase1_enabled=bool(getattr(self._config, "memory_over_maps_phase1", False)),
+                phase2_enabled=bool(getattr(self._config, "memory_over_maps_phase2", False)),
+                phase3_enabled=bool(getattr(self._config, "memory_over_maps_phase3", False)),
+                derive_views_requested=derive_views,
+            )
+            _assembler.add_attention_decisions(_attention_decisions)
+
         # ── Governance ────────────────────────────────────────────────────
         decisions = []
         contradiction_records = []
@@ -482,6 +750,41 @@ class MnemosRuntime:
                 governance_mode=selected_governance,
                 top_k=top_k,
                 governance_profile=selected_profile or None,
+            )
+            for decision in decisions:
+                trace = getattr(decision, "policy_trace", {}) or {}
+                if "volatility_bias" in trace:
+                    self._audit(
+                        "volatility_decay",
+                        f"Volatility-driven freshness decay applied to engram {decision.engram_id}",
+                        metadata={
+                            "forecast_reason": "predicted semantic volatility shortened freshness half-life",
+                            "engram_id": decision.engram_id,
+                            "volatility_bias": trace["volatility_bias"],
+                            "freshness_modifier": decision.freshness_modifier,
+                        },
+                        latency=0.0,
+                    )
+
+        if _assembler is not None and selected_governance != "off":
+            _assembler.set_working_memory(
+                candidate_count_post_governance=len(results),
+                suppression_count=sum(1 for d in decisions if d.suppressed),
+                contradiction_count=len(contradiction_records),
+            )
+            _assembler.add_governance_eval(
+                mode=selected_governance,
+                profile=selected_profile or "default",
+                candidates_evaluated=len(decisions),
+                vetoed=sum(1 for d in decisions if not d.veto_pass),
+                suppressed=sum(1 for d in decisions if d.suppressed),
+                contradictions_detected=len(contradiction_records),
+                contradiction_suppressed=sum(1 for d in decisions if d.suppressed_by_contradiction),
+                net_candidates_returned=len(results),
+            )
+        elif _assembler is not None:
+            _assembler.set_working_memory(
+                candidate_count_post_governance=len(results),
             )
 
         derived_views_payload: List[Dict[str, Any]] = []
@@ -568,6 +871,23 @@ class MnemosRuntime:
                 )
 
         elapsed = time.time() - t0
+        if self._volatility_engine is not None:
+            for r in results:
+                self._volatility_engine.harvester.record_usage(r.engram)
+            by_id = {r.engram.id: r.engram for r in results}
+            for record in contradiction_records:
+                family_key = "family:unknown"
+                for eid in getattr(record, "candidate_memory_ids", []) or []:
+                    if eid in by_id:
+                        family_key = family_key_from_engram(by_id[eid])
+                        break
+                self._volatility_engine.harvester.record_contradiction(
+                    family_key,
+                    entity_key=getattr(record, "entity_key", ""),
+                )
+        envelope_meta = mode_meta.get("candidate_envelope") or {}
+        env_initial = int(envelope_meta.get("initial_candidate_count", 0) or 0)
+        env_final = int(envelope_meta.get("final_candidate_count", 0) or 0)
         self._audit("search", f"Search: '{query[:80]}' → {len(results)} results",
                      metadata={
                          "query": query,
@@ -578,6 +898,32 @@ class MnemosRuntime:
                          "governance_mode": selected_governance,
                      },
                      latency=elapsed)
+        forecast_advisory = mode_meta.get("forecast_advisory") or {}
+        if (
+            getattr(self._config, "pulse_actions", "advisory") == "advisory"
+            and forecast_advisory
+            and forecast_advisory.get("suggested_plan") == "conservative"
+        ):
+            self._audit(
+                "forecast_advisory",
+                "Forecast predicts p95 breach; suggested shift to Conservative plan.",
+                metadata={
+                    "suggested_routing_plan": "conservative",
+                    "forecast_reason": forecast_advisory.get("forecast_reason"),
+                    "confidence_score": forecast_advisory.get("confidence_score"),
+                    "forecast_pressure": forecast_advisory.get("forecast_pressure"),
+                    "max_forecast_p95_latency_ms": forecast_advisory.get("max_forecast_p95_latency_ms"),
+                    "max_forecast_degrade_count": forecast_advisory.get("max_forecast_degrade_count"),
+                },
+                latency=0.0,
+            )
+        self._pulse_engine.record_query(
+            latency_ms=elapsed * 1000.0,
+            cache_hits=query_cache_hits,
+            cache_misses=query_cache_misses,
+            degraded=self._status != "healthy",
+            candidate_envelope=env_initial or env_final or len(results),
+        )
 
         # ── Build per-result payload ───────────────────────────────────────
         decision_map = {d.engram_id: d for d in decisions}
@@ -621,9 +967,6 @@ class MnemosRuntime:
             "lexical_lane_available": mode_meta.get("lexical_available", False),
             "explain": selected_explain,
         }
-        envelope_meta = mode_meta.get("candidate_envelope") or {}
-        env_initial = int(envelope_meta.get("initial_candidate_count", 0))
-        env_final = int(envelope_meta.get("final_candidate_count", 0))
         envelope_ratio = round((env_final / env_initial), 4) if env_initial else 0.0
         cost_units = (
             env_initial
@@ -647,6 +990,8 @@ class MnemosRuntime:
             payload["meta"]["hybrid_telemetry"] = mode_meta["telemetry"]
         if mode_meta.get("candidate_envelope"):
             payload["meta"]["candidate_envelope"] = mode_meta["candidate_envelope"]
+        if mode_meta.get("forecast_advisory"):
+            payload["meta"]["forecast_advisory"] = mode_meta["forecast_advisory"]
         if mode_meta.get("complexity_classification"):
             payload["meta"]["complexity_classification"] = mode_meta["complexity_classification"]
         if mode_meta.get("routing_posture"):
@@ -695,6 +1040,74 @@ class MnemosRuntime:
                 }
         if derived_views_payload:
             payload["derived_views"] = derived_views_payload
+        _shadow_present = False
+        _intent_forecast_present = False
+        if self._intent_engine is not None:
+            forecast = self._intent_engine.record_and_forecast(
+                session_id=session_id,
+                query=query,
+            )
+            if forecast:
+                payload["meta"]["intent_forecast"] = forecast
+                _intent_forecast_present = True
+            if self._intent_engine.last_shadow_result:
+                payload["meta"]["shadow_search"] = self._intent_engine.last_shadow_result
+                _shadow_present = True
+
+        if _assembler is not None:
+            _forecast_advisory = mode_meta.get("forecast_advisory") or {}
+            _selected_route = _determine_route(selected_governance, decisions, _forecast_advisory, False)
+            if _forecast_advisory:
+                _fo = ForecastOutcomeRecord.from_pulse_advisory(_forecast_advisory)
+                _assembler.add_forecast_action(
+                    "pulse_forecast",
+                    inputs={"suggested_plan": _forecast_advisory.get("suggested_plan")},
+                    outputs={"forecast_id": _fo.forecast_id, "selected_action": _fo.selected_action},
+                )
+            if _intent_forecast_present:
+                _assembler.add_forecast_action(
+                    "intent_trajectory",
+                    inputs={"session_id": session_id},
+                    outputs={"forecast_emitted": True},
+                )
+            _cycle = _assembler.build(
+                selected_route=_selected_route,
+                final_status="completed",
+            )
+            if self._ledger:
+                try:
+                    _ref = self._ledger.record(
+                        operation="cognitive_cycle_emit",
+                        metadata={"cycle_id": _cycle.cycle_id, "route": _selected_route},
+                        latency=_cycle.cycle_latency_ms or 0.0,
+                    )
+                    _assembler.add_ledger_ref(str(_ref) if _ref else "")
+                except Exception:
+                    pass
+            payload["cognitive_cycle"] = _cycle.to_dict()
+
+        return payload
+
+    def get_pulse(self, observed_limit: int = 60) -> Dict[str, Any]:
+        """Return observed MNEMOS pulse and advisory forecast if enabled."""
+        horizon = int(getattr(self._config, "pulse_horizon_minutes", 15)) if self._config else 15
+        actions_mode = getattr(self._config, "pulse_actions", "advisory") if self._config else "advisory"
+        forecast = self._pulse_engine.refresh_forecast() if self._pulse_engine.provider is not None else None
+        autonomous_action = self._pulse_engine.evaluate_and_trigger(forecast)
+        payload = build_pulse_payload(
+            contract_version=CONTRACT_VERSION,
+            status=self._status,
+            source="mnemos-service",
+            generated_at=_utc_now(),
+            harvester=self._pulse_engine.harvester,
+            provider=None,
+            observed_limit=observed_limit,
+            horizon_minutes=horizon,
+            actions_mode=actions_mode,
+            error=self._error,
+        )
+        payload["forecast"] = forecast
+        payload["autonomous_action"] = autonomous_action
         return payload
 
     def search_derived_trial(self, query: str, top_k: int, client_id: str) -> Dict[str, Any]:
@@ -744,6 +1157,24 @@ class MnemosRuntime:
         else:
             payload["transactions"] = self._ledger.get_recent_transactions(limit=limit)
         payload["performance"] = self._ledger.get_performance_summary()
+        return payload
+
+    def get_cognitive_cycles(self, limit: int = 20) -> Dict[str, Any]:
+        """Return recent cognitive cycle records from the forensic ledger."""
+        payload = self._base_payload()
+        if not self._ledger:
+            payload["error"] = "Audit ledger is disabled"
+            return payload
+        try:
+            transactions = self._ledger.get_recent_transactions(limit=limit)
+            cycles = [
+                t for t in transactions
+                if isinstance(t, dict) and t.get("operation") == "cognitive_cycle_emit"
+            ]
+            payload["cognitive_cycles"] = cycles
+            payload["count"] = len(cycles)
+        except Exception as exc:
+            payload["error"] = f"Failed to retrieve cognitive cycles: {exc}"
         return payload
 
     def get_governance_stats(self) -> Dict[str, Any]:
@@ -958,6 +1389,7 @@ def root():
                 "health": "/health",
                 "capabilities": "/v1/mnemos/capabilities",
                 "warmup": "/v1/mnemos/warmup",
+                "pulse": "/v1/mnemos/pulse",
                 "index": "/v1/mnemos/index",
             "search": "/v1/mnemos/search",
             "engrams": "/v1/mnemos/engrams/{id}",
@@ -965,6 +1397,7 @@ def root():
             "stats": "/v1/mnemos/stats",
             "governance_stats": "/v1/mnemos/governance/stats",
             "governance_reflect": "/v1/mnemos/governance/reflect",
+            "cognitive_cycles": "/v1/mnemos/cognitive/cycles",
         },
     }), 200
 
@@ -1041,6 +1474,7 @@ def search():
     derive_views = body.get("derive_views")
     latency_budget_ms = body.get("latency_budget_ms")
     complexity_shadow = body.get("complexity_shadow", False)
+    cognitive_cycle = body.get("cognitive_cycle")
 
     if not query:
         return jsonify({"error": "No query provided"}), 400
@@ -1112,6 +1546,9 @@ def search():
                 }
             ), 400
 
+    if cognitive_cycle is not None and not isinstance(cognitive_cycle, bool):
+        return jsonify({"error": "cognitive_cycle must be a boolean"}), 400
+
     if body.get("enable_derived_facts") is True:
         config = get_config()
         if not config.derived_enabled:
@@ -1142,6 +1579,7 @@ def search():
             derive_views,
             latency_budget_ms,
             complexity_shadow,
+            cognitive_cycle,
         )
 
     derived_cnt = len(res.get("derived_results", []))
@@ -1287,6 +1725,39 @@ def audit():
     limit = int(request.args.get("limit", "50"))
     query = request.args.get("q")
     return jsonify(_runtime.get_audit(limit, query)), 200
+
+
+@app.get("/v1/mnemos/cognitive/cycles")
+def cognitive_cycles():
+    if not _authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    err = _ensure_runtime()
+    if err:
+        return jsonify(err), 200
+    try:
+        limit = int(request.args.get("limit", "20"))
+    except ValueError:
+        return jsonify({"error": "limit must be an integer"}), 400
+    if limit < 1 or limit > 200:
+        return jsonify({"error": "limit must be between 1 and 200"}), 400
+    return jsonify(_runtime.get_cognitive_cycles(limit=limit)), 200
+
+
+@app.get("/v1/mnemos/pulse")
+def pulse():
+    if not _authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    err = _ensure_runtime()
+    if err:
+        return jsonify(err), 200
+
+    try:
+        limit = int(request.args.get("limit", "60"))
+    except ValueError:
+        return jsonify({"error": "limit must be an integer"}), 400
+    if limit < 1 or limit > 1440:
+        return jsonify({"error": "limit must be between 1 and 1440"}), 400
+    return jsonify(_runtime.get_pulse(observed_limit=limit)), 200
 
 
 @app.get("/v1/mnemos/stats")

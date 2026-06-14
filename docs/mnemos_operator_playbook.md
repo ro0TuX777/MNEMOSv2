@@ -39,11 +39,15 @@ References:
    - `Invoke-RestMethod -Method Post http://localhost:8700/v1/mnemos/warmup -ContentType 'application/json' -Body '{"query":"mnemos preflight warmup"}'`
    - SDK equivalent: `client.wait_until_ready(warmup=True)`
    - Treat first-call model-load latency as preflight work; require a successful warmup response before production traffic.
-3. Confirm contracts parse and pass:
+3. If TimesFM predictive features are enabled, confirm the sidecar and pulse endpoint:
+   - `Invoke-RestMethod http://localhost:8700/v1/mnemos/pulse`
+   - Verify `MNEMOS_PULSE_ACTIONS=advisory` unless an autonomous pre-warm rollout has been explicitly approved.
+   - Verify `MNEMOS_TIMESFM_ENABLED=false` cleanly returns the service to the reactive baseline during rollback tests.
+4. Confirm contracts parse and pass:
    - `python tools/mnemos_ci_gates.py --contract-dir service`
-4. Confirm required benchmark stack services are up when benchmarking:
+5. Confirm required benchmark stack services are up when benchmarking:
    - `docker compose -f benchmarks/docker-compose.bench.yml up -d`
-5. Confirm CI gate suite baseline:
+6. Confirm CI gate suite baseline:
    - `python tools/mnemos_ci_gates.py --run-memory-over-maps-gates --run-governance-evidence-gates --run-wave4-hygiene-gate --run-slo-reliability-gate`
 
 Exit condition: all checks pass.
@@ -87,11 +91,14 @@ Rollback trigger conditions:
 Immediate rollback actions:
 1. Stop promotion at current stage.
 2. Re-route reads to the previous stable canary stage.
-3. Keep dual-write if needed to avoid data-loss windows.
-4. Re-run health audit and smoke checks:
+3. Disable predictive actions before deeper diagnosis:
+   - Set `MNEMOS_PULSE_ACTIONS=off`.
+   - Set `MNEMOS_TIMESFM_ENABLED=false` if the TimesFM sidecar or forecast path is suspect.
+4. Keep dual-write if needed to avoid data-loss windows.
+5. Re-run health audit and smoke checks:
    - `python tools/mnemos_health_audit.py`
    - `python tools/mnemos_ci_gates.py --smoke-spec tools/mnemos_smoke_spec.json`
-5. Open incident record with failing metric and stage details.
+6. Open incident record with failing metric and stage details.
 
 Evidence to capture:
 - latest `slo_reliability_*_raw.json`
@@ -107,6 +114,11 @@ Evidence to capture:
 1. Confirm if breach is functional, quality, or latency/SLO.
 2. Identify first failing gate and timestamp.
 3. Identify whether failure is reproducible locally via gate runner.
+4. Check whether the event involved predictive automation:
+   - Pulse forecast or TimesFM sidecar failure.
+   - Autonomous pre-warm trigger.
+   - Volatility-driven decay or reconciliation.
+   - Pre-cognitive shadow-search cache hit or miss.
 
 ### 6.2 Stabilize
 
@@ -117,6 +129,9 @@ Evidence to capture:
 ### 6.3 Diagnose
 
 Run targeted checks:
+- Predictive pulse:
+  - `Invoke-RestMethod http://localhost:8700/v1/mnemos/pulse`
+  - Confirm forensic ledger entries include `forecast_reason` and `confidence_score` for forecast-driven actions.
 - SLO gate:
   - `python tools/run_slo_reliability_gate.py --stage canary_25 --fail-on-breach`
 - Wave 4 hygiene:

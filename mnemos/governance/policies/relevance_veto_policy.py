@@ -12,11 +12,12 @@ from __future__ import annotations
 
 import math
 from datetime import datetime, timezone
-from typing import Any, Dict
+from typing import Any, Callable, Dict, Optional
 
 from mnemos.retrieval.base import SearchResult
 from mnemos.governance.models.governance_decision import GovernanceDecision
 from mnemos.governance.policies import BasePolicy
+from mnemos.governance.hygiene.volatility import family_key_from_engram
 
 
 class RelevanceVetoPolicy(BasePolicy):
@@ -25,9 +26,13 @@ class RelevanceVetoPolicy(BasePolicy):
         self,
         min_score_threshold: float = 0.0,
         freshness_half_life_days: float = 180.0,
+        volatility_bias_enabled: bool = False,
+        volatility_bias_provider: Optional[Callable[[str], float]] = None,
     ):
         self._min_score = min_score_threshold
         self._half_life = max(freshness_half_life_days, 1.0)
+        self._volatility_bias_enabled = bool(volatility_bias_enabled)
+        self._volatility_bias_provider = volatility_bias_provider
 
     @property
     def policy_name(self) -> str:
@@ -58,9 +63,23 @@ class RelevanceVetoPolicy(BasePolicy):
             return self._veto(decision, "policy_flag=toxic")
 
         # ── Freshness modifier ────────────────────────────────────────────
-        decision.freshness_modifier = _compute_freshness(
-            engram.created_at, self._half_life
-        )
+        half_life = self._half_life
+        if self._volatility_bias_enabled and self._volatility_bias_provider is not None:
+            family_key = family_key_from_engram(engram)
+            try:
+                bias = max(1.0, float(self._volatility_bias_provider(family_key)))
+            except Exception:
+                bias = 1.0
+            half_life = max(1.0, self._half_life / bias)
+            if bias > 1.0:
+                decision.policy_trace = getattr(decision, "policy_trace", {}) or {}
+                decision.policy_trace["volatility_bias"] = {
+                    "family_key": family_key,
+                    "bias": round(bias, 4),
+                    "effective_half_life_days": round(half_life, 4),
+                }
+
+        decision.freshness_modifier = _compute_freshness(engram.created_at, half_life)
 
         return decision
 

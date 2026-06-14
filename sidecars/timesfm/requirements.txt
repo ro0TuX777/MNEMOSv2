@@ -1,0 +1,4 @@
+flask>=3.0
+numpy>=1.26.4
+torch>=2.0.0
+timesfm[torch]==2.0.1

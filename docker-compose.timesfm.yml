@@ -1,0 +1,29 @@
+services:
+  mnemos-timesfm:
+    build:
+      context: .
+      dockerfile: sidecars/timesfm/Dockerfile
+    container_name: mnemos-timesfm
+    ports:
+      - "8711:8711"
+    volumes:
+      - ./models/timesfm-2.5-200m-pytorch:/models/timesfm-2.5-200m-pytorch:ro
+    environment:
+      - TIMESFM_MODEL_PATH=/models/timesfm-2.5-200m-pytorch
+      - TIMESFM_ALLOW_HF_DOWNLOAD=false
+      - TIMESFM_MAX_CONTEXT=1024
+      - TIMESFM_MAX_HORIZON=256
+      - TIMESFM_BATCH_SIZE=4
+    restart: unless-stopped
+
+  mnemos:
+    environment:
+      - MNEMOS_TIMESFM_ENABLED=true
+      - MNEMOS_TIMESFM_SIDECAR_URL=http://mnemos-timesfm:8711
+      - MNEMOS_TIMESFM_TIMEOUT_S=0.08
+      - MNEMOS_PULSE_ACTIONS=advisory
+      - MNEMOS_PULSE_HORIZON_MINUTES=15
+      - MNEMOS_PULSE_WARMUP_COOLDOWN_S=900
+    depends_on:
+      mnemos-timesfm:
+        condition: service_started

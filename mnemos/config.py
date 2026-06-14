@@ -71,6 +71,7 @@ class MnemosConfig:
     governance_mode: str = "off"            # off | advisory | enforced
     governance_min_score: float = 0.0       # veto threshold (0.0 = disabled)
     governance_freshness_half_life: float = 180.0   # days
+    governance_volatility_bias: bool = True
 
     # Memory Over Maps (phase-gated rollout)
     memory_over_maps_phase1: bool = False
@@ -90,6 +91,15 @@ class MnemosConfig:
     # PIT-1 leakage guard behavior when a derived fact survives the
     # server-side filters: "strip" removes it, "canary" returns it and logs.
     pit_leakage_mode: str = "strip"
+
+    # MNEMOS-Thinking Pulse forecasting
+    timesfm_enabled: bool = True
+    pulse_actions: str = "advisory"          # off | advisory | autonomous
+    pulse_horizon_minutes: int = 15
+    timesfm_sidecar_url: str = "http://mnemos-timesfm:8711"
+    timesfm_timeout_s: float = 0.08
+    pulse_p95_budget_ms: float = 250.0
+    pulse_warmup_cooldown_s: int = 900
 
     @staticmethod
     def _parse_bool(name: str, default: str) -> bool:
@@ -144,6 +154,13 @@ class MnemosConfig:
             raise ValueError(f"{name} must be one of: {allowed} (got '{raw}')")
         return raw
 
+    @staticmethod
+    def _parse_pulse_actions(name: str = "MNEMOS_PULSE_ACTIONS", default: str = "advisory") -> str:
+        raw = os.getenv(name, default).strip().lower()
+        if raw not in {"off", "advisory", "autonomous"}:
+            raise ValueError(f"{name} must be one of: off,advisory,autonomous (got '{raw}')")
+        return raw
+
     @classmethod
     def from_env(cls) -> "MnemosConfig":
         """Build configuration from environment variables."""
@@ -165,11 +182,18 @@ class MnemosConfig:
         governance_freshness_half_life = cls._parse_float(
             "MNEMOS_GOVERNANCE_FRESHNESS_HALF_LIFE", "180.0", min_value=1.0
         )
+        governance_volatility_bias = cls._parse_bool("MNEMOS_GOVERNANCE_VOLATILITY_BIAS", "true")
         memory_over_maps_phase1 = cls._parse_bool("MNEMOS_MEMORY_OVER_MAPS_PHASE1", "false")
         memory_over_maps_phase2 = cls._parse_bool("MNEMOS_MEMORY_OVER_MAPS_PHASE2", "false")
         memory_over_maps_phase3 = cls._parse_bool("MNEMOS_MEMORY_OVER_MAPS_PHASE3", "false")
         memory_over_maps_phase4 = cls._parse_bool("MNEMOS_MEMORY_OVER_MAPS_PHASE4", "false")
         memory_over_maps_phase5 = cls._parse_bool("MNEMOS_MEMORY_OVER_MAPS_PHASE5", "false")
+        timesfm_enabled = cls._parse_bool("MNEMOS_TIMESFM_ENABLED", "true")
+        pulse_actions = cls._parse_pulse_actions()
+        pulse_horizon_minutes = cls._parse_int("MNEMOS_PULSE_HORIZON_MINUTES", "15", min_value=1)
+        timesfm_timeout_s = cls._parse_float("MNEMOS_TIMESFM_TIMEOUT_S", "0.08", min_value=0.01)
+        pulse_p95_budget_ms = cls._parse_float("MNEMOS_PULSE_P95_BUDGET_MS", "250.0", min_value=1.0)
+        pulse_warmup_cooldown_s = cls._parse_int("MNEMOS_PULSE_WARMUP_COOLDOWN_S", "900", min_value=1)
 
         derived_enabled = cls._parse_bool("MNEMOS_DERIVED_ENABLED", "false")
         derived_whitelist_raw = os.getenv("MNEMOS_DERIVED_WHITELIST", "eval_dashboard,governance_auditor")
@@ -215,6 +239,7 @@ class MnemosConfig:
             governance_mode=governance_mode,
             governance_min_score=governance_min_score,
             governance_freshness_half_life=governance_freshness_half_life,
+            governance_volatility_bias=governance_volatility_bias,
             memory_over_maps_phase1=memory_over_maps_phase1,
             memory_over_maps_phase2=memory_over_maps_phase2,
             memory_over_maps_phase3=memory_over_maps_phase3,
@@ -225,6 +250,13 @@ class MnemosConfig:
             pit3_max_derived_facts_per_shadow_packet=pit3_max_derived_facts_per_shadow_packet,
             pit3_max_derived_fact_tokens=pit3_max_derived_fact_tokens,
             pit_leakage_mode=pit_leakage_mode,
+            timesfm_enabled=timesfm_enabled,
+            pulse_actions=pulse_actions,
+            pulse_horizon_minutes=pulse_horizon_minutes,
+            timesfm_sidecar_url=os.getenv("MNEMOS_TIMESFM_SIDECAR_URL", "http://mnemos-timesfm:8711"),
+            timesfm_timeout_s=timesfm_timeout_s,
+            pulse_p95_budget_ms=pulse_p95_budget_ms,
+            pulse_warmup_cooldown_s=pulse_warmup_cooldown_s,
         )
 
         logger.info(

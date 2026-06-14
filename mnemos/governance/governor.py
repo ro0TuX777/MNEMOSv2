@@ -73,14 +73,24 @@ class Governor:
         freshness_half_life_days: float = 180.0,
         policy_profiles: Optional[Dict[str, GovernancePolicyProfile]] = None,
         disabled_policies: Optional[List[str]] = None,
+        volatility_engine: Optional[Any] = None,
+        volatility_bias_enabled: bool = False,
     ):
         self._base_min_score_threshold = float(min_score_threshold)
         self._base_freshness_half_life_days = float(freshness_half_life_days)
+        self._volatility_engine = volatility_engine
+        self._volatility_bias_enabled = bool(volatility_bias_enabled)
         registry = PolicyRegistry(disabled_policies=disabled_policies)
         registry.register(
             RelevanceVetoPolicy(
                 min_score_threshold=self._base_min_score_threshold,
                 freshness_half_life_days=self._base_freshness_half_life_days,
+                volatility_bias_enabled=self._volatility_bias_enabled,
+                volatility_bias_provider=(
+                    self._volatility_engine.volatility_bias_for_family
+                    if self._volatility_engine is not None
+                    else None
+                ),
             )
         )
         registry.register(UtilityPolicy())
@@ -89,7 +99,7 @@ class Governor:
         self._contradiction_policy = ContradictionPolicy()
         self._read_path = ReadPath(registry, contradiction_policy=self._contradiction_policy)
         self._reflect_path = ReflectPath()
-        self._hygiene_pipeline = HygienePipeline()
+        self._hygiene_pipeline = HygienePipeline(volatility_engine=self._volatility_engine)
         self._hygiene_metrics = HygieneMetrics()
         self._policy_profiles: Dict[str, GovernancePolicyProfile] = policy_profiles or {
             "default": GovernancePolicyProfile(
@@ -255,6 +265,7 @@ class Governor:
             pipeline = HygienePipeline(
                 decay_config=decay_config,
                 prune_config=prune_config,
+                volatility_engine=self._volatility_engine,
             )
         else:
             pipeline = self._hygiene_pipeline
@@ -320,6 +331,12 @@ class Governor:
             RelevanceVetoPolicy(
                 min_score_threshold=profile.min_score_threshold,
                 freshness_half_life_days=profile.freshness_half_life_days,
+                volatility_bias_enabled=self._volatility_bias_enabled,
+                volatility_bias_provider=(
+                    self._volatility_engine.volatility_bias_for_family
+                    if self._volatility_engine is not None
+                    else None
+                ),
             )
         )
         registry.register(UtilityPolicy())

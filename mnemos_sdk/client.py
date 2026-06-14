@@ -254,6 +254,10 @@ class MnemosClient:
         """Retrieve service capabilities and tier info."""
         return self._request("GET", "/v1/mnemos/capabilities")
 
+    def pulse(self, *, limit: int = 60) -> MnemosResponse:
+        """Retrieve observed and forecasted MNEMOS pulse trends."""
+        return self._request("GET", f"/v1/mnemos/pulse?limit={limit}")
+
     def warmup(self, query: str = "mnemos warmup readiness probe") -> MnemosResponse:
         """Warm the retrieval path before first live traffic."""
         return self._request("POST", "/v1/mnemos/warmup", payload={"query": query})
