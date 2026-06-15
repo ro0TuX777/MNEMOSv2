@@ -1,0 +1,139 @@
+{
+  "gate_count": 5,
+  "gates": [
+    {
+      "failure": null,
+      "gate": "evaluator_determinism",
+      "labels": [
+        "good",
+        "good",
+        "good"
+      ],
+      "passed": true,
+      "scores": [
+        17,
+        17,
+        17
+      ]
+    },
+    {
+      "failure": null,
+      "failures": [],
+      "gate": "safety_invariant",
+      "passed": true
+    },
+    {
+      "failure": null,
+      "failures": [],
+      "gate": "promotion_boundary",
+      "passed": true
+    },
+    {
+      "failure": null,
+      "gate": "blocked_types_never_promoted",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "failure": null,
+      "gate": "ledger_traceability",
+      "passed": true,
+      "promoted_count": 2,
+      "violations": []
+    }
+  ],
+  "gates_passed": 5,
+  "scenario_count": 8,
+  "scenarios": [
+    {
+      "aggregate_score": 17,
+      "failure": null,
+      "passed": true,
+      "quality_label": "good",
+      "rubric_scores": {
+        "attention_coverage": 3,
+        "candidate_efficiency": 3,
+        "forecast_utilisation": 2,
+        "governance_appropriate": 3,
+        "routing_precision": 3,
+        "write_integrity": 3
+      },
+      "scenario": "eval_good_class_a"
+    },
+    {
+      "aggregate_score": 6,
+      "failure": null,
+      "passed": true,
+      "quality_label": "bad",
+      "rubric_scores": {
+        "attention_coverage": 0,
+        "candidate_efficiency": 0,
+        "forecast_utilisation": 2,
+        "governance_appropriate": 0,
+        "routing_precision": 1,
+        "write_integrity": 3
+      },
+      "scenario": "eval_bad_class_b"
+    },
+    {
+      "authoritative_for_retrieval": false,
+      "failure": null,
+      "passed": true,
+      "pattern_summary": "IF a class_a search cycle with off governance where high-confidence query classification and efficient candidate pool si",
+      "pattern_type": "descriptive",
+      "proposed_learning_class": "semantic_candidate_write",
+      "scenario": "learner_descriptive"
+    },
+    {
+      "failure": null,
+      "passed": true,
+      "pattern_summary": "IF a class_b search cycle with off governance under high candidate pressure where high-confidence query classification a",
+      "pattern_type": "operational_recommendation",
+      "proposed_learning_class": "procedural_change_candidate",
+      "scenario": "learner_operational",
+      "weak_dimensions": [
+        "routing_precision",
+        "candidate_efficiency",
+        "governance_appropriate",
+        "attention_coverage"
+      ]
+    },
+    {
+      "consolidation_action": "merged",
+      "failure": null,
+      "passed": true,
+      "scenario": "consolidator_merge",
+      "supporting_cycle_ids_count": 2
+    },
+    {
+      "consolidation_action": "contradicted",
+      "contradicting_engram_ids": [
+        "4c4dd3c9-2ffe-40d8-82a9-f6b8bbfd95eb"
+      ],
+      "contradiction_score": 0.85,
+      "failure": null,
+      "passed": true,
+      "scenario": "consolidator_contradict"
+    },
+    {
+      "all_advisory_only": true,
+      "candidates_returned": 3,
+      "failure": null,
+      "passed": true,
+      "scenario": "recall_advisory",
+      "store_total": 5
+    },
+    {
+      "authoritative_for_retrieval": false,
+      "failure": null,
+      "governance_review_id": "gov-review-phase21-001",
+      "passed": true,
+      "pattern_id": "00a2b39f-6b65-4d13-b2d3-cb82a95ff8d9",
+      "promoted_count": 1,
+      "scenario": "promotion_gate",
+      "write_class": "semantic_write"
+    }
+  ],
+  "scenarios_passed": 8,
+  "status": "PASS"
+}

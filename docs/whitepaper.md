@@ -2,7 +2,7 @@
 
 **A containerised, contract-governed memory and retrieval service for AI-native applications.**
 
-*Version 3.2 · June 2026*
+*Version 3.3 · June 2026*
 
 > [!NOTE]
 > **As of June 11, 2026:** Benchmark conclusions in dated sections remain scoped to their cited artifact timestamps. For full methodology, raw artifacts, and latest measured runs, see `docs/benchmark.md`.
@@ -13,6 +13,7 @@
 > **Adaptive Routing, Hierarchical Retrieval, and Consensus Governance (Phases 8-10) are operationally enforced** — embedded query-complexity classification reached 1.0 hold-out accuracy, the Phase 9b summary-isolation sentinel is live in the service container, and Phase 10 Resolution Engrams passed the live consensus gate. See `benchmarks/results/phase_8_complexity_accuracy.json`, `benchmarks/results/phase_9_hierarchy_sim.json`, and `benchmarks/results/phase_10_consensus_gate.json`.
 > **MNEMOS-Thinking predictive stack (Phases 11-14) is implemented** — TimesFM-backed pulse forecasting, autonomous pre-warm, semantic volatility hygiene, and pre-cognitive shadow search have passed synthetic phase gates. See §2.1 and §4.9.
 > **CoALA Cognitive Cycle (v3.2) is implemented** — MNEMOS cognitive behaviours are now explicit, auditable, and interoperable via `mnemos/cognitive/`. Add `cognitive_cycle: true` to any `/search` request to receive a `CognitiveCycleRecord` in the response. See §4.10.
+> **PatternEngramCandidate Extraction Harness (v3.3) is implemented** — Phases 16–21 complete. `CycleEvaluator`, `PatternLearner`, `PatternConsolidator`, `PatternCandidateStore`, and `PatternEngram` ship as advisory-only, governance-gated pattern abstraction. 182 new tests; Phase 21 gate harness (`tools/run_pattern_phase_gate.py`) passes 8/8 scenarios and 5/5 cross-cutting gates. See §4.11.
 > **Graph Tier (`graph_hybrid_experimental`) is experimental and read-only** — offline/live resolver validation complete (MG-Test-1→10); not exposed on the public HTTP retrieval-mode surface. See §4.2 and `docs/graph_tier/operator_guide.md`.
 > **Deployment model:** MNEMOS runtime services are deployed as a Docker Compose stack; all serving components run in containers.
 > **Developer model:** tooling, benchmarks, and tests are typically run from host Python unless explicitly containerized.
@@ -28,7 +29,8 @@
 | 2026-06-10 | Test suite: 564 tests collected; all CI gates passing (MoM phases, governance evidence, hygiene, SLO canary_25) |
 | 2026-06-11 | Phase 8 embedded-reflex adaptive routing, Phase 9b live hierarchy isolation, and Phase 10 consensus Resolution Engrams activated; live consensus gate passed 5/5 collisions |
 | 2026-06-12 | MNEMOS-Thinking activation — TimesFM sidecar integration, Pulse telemetry normalization, predictive pre-warming, volatility-driven hygiene, and intent-trajectory shadow search are live in the standalone framework |
-| 2026-06-14 | **CoALA Cognitive Cycle (v3.2)** — New `mnemos/cognitive/` overlay module. `CognitiveCycleRecord`, `WorkingMemorySnapshot`, `AttentionContract`, `ForecastOutcomeRecord`, and `CycleAssembler` ship as a zero-cost opt-in. New endpoint: `GET /v1/mnemos/cognitive/cycles`. 77 new tests; 0 regressions. |
+| 2026-06-14 | **CoALA Cognitive Cycle (v3.2)** — New `mnemos/cognitive/` overlay module. `CognitiveCycleRecord`, `WorkingMemorySnapshot`, `AttentionContract`, `ForecastOutcomeRecord`, and `CycleAssembler` ship as a zero-cost opt-in. New endpoint: `GET /v1/mnemos/cognitive/cycles`. 77 new cycle tests; Phase 15 operational validation adds 8 representative cases and 40 passing focused tests. |
+| 2026-06-15 | **PatternEngramCandidate Extraction Harness (v3.3)** — Phases 16–21 complete. `CycleEvaluator` (R²-Mem rubric scorer), `PatternLearner` (ExpeL-style IF-THEN extractor), `PatternConsolidator` (A-MEM deduplication), `PatternCandidateStore` (advisory accumulation + governed promotion), and `PatternEngram` (authoritative promoted pattern). Advisory recall integrated into cognitive cycle (`advisory_patterns` field). 182 new tests; Phase 21 phase gate (`tools/run_pattern_phase_gate.py`) passes 8 scenarios + 5 cross-cutting gates. Gate evidence: `benchmarks/results/pattern_phase_gate.json`. |
 
 ---
 
@@ -699,6 +701,20 @@ Response includes:
 
 The `ForecastOutcomeRecord` class (`mnemos/cognitive/forecast_outcome.py`) adds the missing second half of MNEMOS forecasting: recording whether forecasts were accurate, useful, or harmful. It is created at prediction time via factory methods (`from_pulse_advisory`, `from_autonomous_warmup`, `from_proactive_reconciliation`, `from_intent_trajectory`) and resolved when the predicted condition is confirmed, refuted, or expires. The `future_policy_candidate` field is advisory only — procedural memory is never mutated automatically.
 
+**Phase 15 operational validation**
+
+The CoALA operational validation report (`docs/reports/coala_cycle_operational_validation.md`) seals the v3.2 transparency baseline. The deterministic harness (`tools/run_coala_cycle_validation.py`) validates 8 representative cognitive paths: CLASS_A direct lookup, CLASS_B multi-hop, CLASS_C global synthesis, contradiction/reconciliation, high-volatility governance, forecast-triggered pulse, pre-cognitive shadow search, and derived-view evidence bundle.
+
+Validation gates passed:
+- `attention_faithfulness`: attention decisions are evidence-derived from runtime, router, forecast, governance, policy, or config metadata.
+- `bounded_record`: cycle telemetry remains bounded and caps `query_or_event` at 240 characters.
+- `redaction`: cycle and forecast records reject secret, token, raw prompt, private reasoning, and raw engram content leakage.
+- `sam_compatibility`: records expose stable consumer-facing keys and operation-type labels.
+- `forecast_resolution`: forecast-triggered cycles link to resolved `ForecastOutcomeRecord` lifecycle state.
+- `learning_boundary`: learning writes declare explicit write classes, and PatternEngram candidates remain advisory.
+
+Release evidence: `python -m pytest tests/test_coala_cycle_validation.py tests/test_learning_boundary.py tests/test_cognitive_cycle.py` passed 40 tests. The archived synthetic trace baseline is `benchmarks/results/coala_baseline_v3.2.json`.
+
 **Safety invariants**
 
 All existing safety boundaries are preserved:
@@ -706,7 +722,10 @@ All existing safety boundaries are preserved:
 - Graph hybrid remains blocked on the HTTP surface (explicitly surfaced in attention contract as `graph_expansion: blocked`)
 - Governance decisions are never mutated by the `CycleAssembler`
 - Procedural memory is never written automatically (future_policy_candidate is advisory dict only)
+- PatternEngram candidates can be `promotion_recommended`, but automatic promotion to authoritative `PatternEngram` is blocked until explicit governance approval (Phase 20 promotion gate — see §4.11)
+- Learning writes distinguish `semantic_candidate_write`, `procedural_change_candidate`, `blocked_procedural_mutation`, and append-only `audit_write`
 - All governed actions remain traceable through the forensic ledger
+- Attention decisions must be evidence-derived, not explanation-generated
 - The `CycleAssembler` is zero-cost when `cognitive_cycle` is not set in the request
 
 **Module structure**
@@ -717,12 +736,123 @@ mnemos/cognitive/
   cycle.py             — CognitiveCycleRecord, WorkingMemorySnapshot, AttentionDecision,
                          ActionRecord, GovernanceEvalSummary, LearningWrite, OperationType,
                          OPERATION_TYPE_MAP
-  attention.py         — build_attention_decisions() — pure function, 11 dimensions
+  attention.py         — build_attention_decisions() — pure function, 12 dimensions
+                         (dimension 12: pattern_advisory — Phase 19)
   assembler.py         — CycleAssembler — incremental builder, zero cost when not used
   forecast_outcome.py  — ForecastOutcomeRecord — full forecast lifecycle
+  learning_boundary.py — semantic/procedural write-class boundary
+  pattern_engram.py    — advisory PatternEngramCandidate schema (Phase 17)
+  cycle_evaluator.py   — CycleEvaluator, CycleEvaluationRecord (Phase 16)
+  pattern_learner.py   — PatternLearner, PatternConsolidator, SituationAbstractor (Phase 17)
+  pattern_store.py     — PatternCandidateStore — advisory accumulation + promotion (Phase 18/20)
+  promoted_pattern.py  — PatternEngram — authoritative promoted pattern (Phase 20)
 ```
 
-Test coverage: 77 new tests across `test_cognitive_cycle.py` (29), `test_attention_contract.py` (31), and `test_forecast_outcome.py` (17). 0 regressions.
+Test coverage: 77 cycle-layer tests across `test_cognitive_cycle.py` (29), `test_attention_contract.py` (31), and `test_forecast_outcome.py` (17), plus 40 focused Phase 15 validation tests covering CoALA gates, learning boundaries, and regression behavior. An additional 182 tests cover Phase 16–21 (pattern extraction harness) in `test_cycle_evaluator.py`, `test_pattern_learner.py`, `test_pattern_store.py`, `test_pattern_recall.py`, `test_promoted_pattern.py`, and `test_pattern_endpoints.py`.
+
+### 4.11 PatternEngramCandidate Extraction Harness (v3.3)
+
+MNEMOS v3.3 extends the CoALA cognitive cycle overlay with **experience abstraction** — the third stage in the "From Storage to Experience" taxonomy. Phases 16–21 implement an ExpeL + R²-Mem-inspired pipeline that harvests `CognitiveCycleRecord` history into governed, advisory `PatternEngramCandidate` objects and, after explicit governance approval, into authoritative `PatternEngram` objects.
+
+**Paper basis**
+
+| Priority | Paper | Role in MNEMOS |
+|---|---|---|
+| 1 | **ExpeL** — LLM Agents Are Experiential Learners | Cross-cycle IF-THEN insight extraction via `PatternLearner` |
+| 2 | **R²-Mem** — Reflective Experience for Memory Search | Six-dimension rubric scorer (`CycleEvaluator`); quality thresholds KLOW=7, KHIGH=13 |
+| 3 | **A-MEM** — Agentic Memory for LLM Agents | Jaccard-based situation deduplication and contradiction linking (`PatternConsolidator`) |
+| 4 | **Governing Evolving Memory** | Safety counterweight: advisory-only boundary, blocked *_mutation types, no autonomous promotion |
+
+**Pipeline**
+
+```
+CognitiveCycleRecords (per-request history)
+        ↓
+CycleEvaluator (Phase 16)
+  R²-Mem rubric: 6 dimensions × 0–3 → aggregate 0–18
+  quality_label: good (≥13) | neutral (8–12) | bad (≤7)
+        ↓  (good/bad only — neutral filtered out)
+SituationAbstractor (Phase 17)
+  entity-free SituationSummary from structured cycle fields — no LLM calls
+        ↓
+PatternLearner (Phase 17)
+  IF-THEN pattern_summary  →  PatternEngramCandidate
+  types: descriptive | operational_recommendation (never *_mutation)
+        ↓
+PatternConsolidator (Phase 17)
+  Jaccard similarity ≥ 0.85 → merge (same quality) or contradict (opposite quality)
+        ↓
+PatternCandidateStore (Phase 18)
+  advisory-only accumulation; offline runner: tools/run_pattern_accumulation.py
+        ↓
+Advisory recall (Phase 19)
+  cognitive_cycle=true → advisory_patterns field in CognitiveCycleRecord
+  12th AttentionContract dimension: pattern_advisory
+        ↓  (never automatic)
+Promotion governance gate (Phase 20)
+  POST /v1/mnemos/pattern-candidates/{id}/recommend  (requires gate_id)
+  POST /v1/mnemos/pattern-candidates/{id}/approve    (requires governance_review_id)
+        ↓
+PatternEngram (Phase 20)
+  authoritative advisory fact — SEMANTIC_WRITE only, never inserted into retrieval index
+```
+
+**CycleEvaluator rubric dimensions**
+
+| Dimension | Max | What it measures |
+|---|---|---|
+| `routing_precision` | 3 | Query-class confidence and cycle completion |
+| `candidate_efficiency` | 3 | Pre/post governance candidate pool ratio |
+| `governance_appropriate` | 3 | Governance mode matched to query risk |
+| `forecast_utilisation` | 3 | Forecast signals acted upon |
+| `attention_coverage` | 3 | Attention dimensions populated (≥9→3, ≥7→2, ≥4→1) |
+| `write_integrity` | 3 | Learning writes carry valid `write_class` |
+
+**PatternCandidateStore**
+
+The store (`mnemos/cognitive/pattern_store.py`) holds candidates separately from the main engram index. It is configured via `MNEMOS_PATTERN_STORE_PATH` and wired into `MnemosRuntime` at startup. Lifecycle:
+
+- `add(candidate)` → status `candidate`
+- `recommend(id, gate_id=…)` → status `promotion_recommended`
+- `promote(id, governance_review_id=…)` → status `approved`, produces `PatternEngram`
+- `reject(id)` → status `rejected`
+
+**Advisory recall**
+
+When `cognitive_cycle: true` and a `PatternCandidateStore` is configured, the runtime calls `store.find_relevant(situation_text, top_k=3)` and injects results into the `CognitiveCycleRecord` as `advisory_patterns`. These are informational only — they never alter retrieval candidates or ranking.
+
+**HTTP endpoints (Phase 20)**
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/v1/mnemos/pattern-candidates` | List candidates (optional `?status=` filter) |
+| `GET` | `/v1/mnemos/pattern-candidates/{id}` | Get single candidate |
+| `POST` | `/v1/mnemos/pattern-candidates/{id}/recommend` | Mark as promotion_recommended (requires `gate_id`) |
+| `POST` | `/v1/mnemos/pattern-candidates/{id}/approve` | Promote to PatternEngram (requires `governance_review_id`) |
+| `POST` | `/v1/mnemos/pattern-candidates/{id}/reject` | Mark as rejected |
+| `GET` | `/v1/mnemos/pattern-candidates/promoted` | List all promoted PatternEngrams |
+
+**Safety invariants (all preserved from v3.2)**
+
+- `PatternEngramCandidate.authoritative_for_retrieval` — always `False`; enforced at class level
+- `PatternEngramCandidate.affects_ranking` — always `False`
+- `PatternEngramCandidate.mutates_policy` — always `False`
+- `PatternLearner` never produces `policy_mutation`, `routing_mutation`, or `template_mutation` types
+- `PatternEngram.from_approved_candidate()` raises `PermissionError` if promotion status is not `PROMOTION_APPROVED`
+- `PatternEngram.write_class` — always `SEMANTIC_WRITE`; approved patterns are semantic facts, not procedural mutations
+- No LLM calls anywhere in the extraction pipeline
+
+**Phase 21 gate evidence**
+
+The deterministic harness (`tools/run_pattern_phase_gate.py`) validates 8 scenarios and 5 cross-cutting gate assertions:
+
+Scenarios: `eval_good_class_a`, `eval_bad_class_b`, `learner_descriptive`, `learner_operational`, `consolidator_merge`, `consolidator_contradict`, `recall_advisory`, `promotion_gate`
+
+Gate assertions: `evaluator_determinism`, `safety_invariant`, `promotion_boundary`, `blocked_types_never_promoted`, `ledger_traceability`
+
+Release evidence: `python -m pytest tests/test_cycle_evaluator.py tests/test_pattern_learner.py tests/test_pattern_store.py tests/test_pattern_recall.py tests/test_promoted_pattern.py tests/test_pattern_endpoints.py` — 182 tests pass. Gate artifact: `benchmarks/results/pattern_phase_gate.json`.
+
+---
 
 ## 5. API Contract
 

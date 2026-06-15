@@ -50,6 +50,7 @@ from mnemos.governance.read_path import GOVERNANCE_MODES
 from mnemos.cognitive.assembler import CycleAssembler
 from mnemos.cognitive.attention import build_attention_decisions
 from mnemos.cognitive.forecast_outcome import ForecastOutcomeRecord
+from mnemos.cognitive.pattern_store import PatternCandidateStore
 
 logger = logging.getLogger("mnemos.service")
 
@@ -110,6 +111,7 @@ class MnemosRuntime:
         self._pulse_engine = PulseEngine(harvester=PulseHarvester())
         self._intent_engine = IntentEngine()
         self._shadow_runner: Optional[ShadowSearchRunner] = None
+        self._pattern_store: Optional[PatternCandidateStore] = None
         self._status = "healthy"
         self._error: Optional[str] = None
         self._mom_stats: Dict[str, int] = {
@@ -258,6 +260,20 @@ class MnemosRuntime:
                 horizon_steps=3,
                 shadow_callback=self._shadow_runner.run,
             )
+
+            # ── Pattern candidate store (advisory; optional) ──────────────────
+            _pattern_store_path = os.environ.get("MNEMOS_PATTERN_STORE_PATH", "").strip()
+            if _pattern_store_path:
+                try:
+                    self._pattern_store = PatternCandidateStore(persist_path=_pattern_store_path)
+                    self._pattern_store.load()
+                    logger.info(
+                        f"Pattern candidate store loaded: {self._pattern_store.count()} candidates "
+                        f"from {_pattern_store_path!r}"
+                    )
+                except Exception as _ps_err:
+                    logger.warning(f"Pattern candidate store load failed (advisory only): {_ps_err}")
+                    self._pattern_store = None
 
             self._initialized = True
             logger.info(
@@ -477,6 +493,14 @@ class MnemosRuntime:
                 "supported_modes": sorted(GOVERNANCE_MODES),
                 "default_mode": self._config.governance_mode if self._config else "off",
                 "policy_profiles": self._governor.policy_profile_ids() if self._governor else ["default"],
+            },
+            "pattern_store_enabled": self._pattern_store is not None,
+            "pattern_store_candidate_count": (
+                self._pattern_store.count() if self._pattern_store is not None else 0
+            ),
+            "pattern_harness": {
+                "enabled": True,
+                "store_configured": self._pattern_store is not None,
             },
             "memory_over_maps": {
                 "phase1_enabled": bool(
@@ -729,6 +753,15 @@ class MnemosRuntime:
                 inputs={"query": query[:120], "top_k": top_k, "mode": selected_mode, "policy": selected_policy},
                 outputs={"result_count": len(results)},
             )
+            # ── Phase 19: Advisory pattern recall ─────────────────────────────
+            _advisory_candidates: list = []
+            if self._pattern_store is not None:
+                try:
+                    _advisory_candidates = self._pattern_store.find_relevant(query, top_k=3)
+                    if _advisory_candidates:
+                        _assembler.add_advisory_patterns(_advisory_candidates)
+                except Exception as _ps_recall_err:
+                    logger.debug(f"Pattern advisory recall failed (non-fatal): {_ps_recall_err}")
             _attention_decisions = build_attention_decisions(
                 mode_meta=mode_meta,
                 governance_mode=selected_governance,
@@ -737,6 +770,8 @@ class MnemosRuntime:
                 phase2_enabled=bool(getattr(self._config, "memory_over_maps_phase2", False)),
                 phase3_enabled=bool(getattr(self._config, "memory_over_maps_phase3", False)),
                 derive_views_requested=derive_views,
+                pattern_store_enabled=self._pattern_store is not None,
+                pattern_advisory_count=len(_advisory_candidates),
             )
             _assembler.add_attention_decisions(_attention_decisions)
 
@@ -1175,6 +1210,139 @@ class MnemosRuntime:
             payload["count"] = len(cycles)
         except Exception as exc:
             payload["error"] = f"Failed to retrieve cognitive cycles: {exc}"
+        return payload
+
+    # ── Pattern candidate + promoted pattern management (Phase 20) ───────────
+
+    def list_pattern_candidates(self, status: Optional[str] = None) -> Dict[str, Any]:
+        """List PatternEngramCandidates, optionally filtered by promotion_status."""
+        payload = self._base_payload()
+        if self._pattern_store is None:
+            payload["error"] = "Pattern candidate store not configured (MNEMOS_PATTERN_STORE_PATH not set)"
+            payload["candidates"] = []
+            return payload
+        if status:
+            candidates = self._pattern_store.list_by_status(status)
+        else:
+            candidates = self._pattern_store.list_all()
+        payload["candidates"] = [c.to_dict() for c in candidates]
+        payload["count"] = len(candidates)
+        payload["status_counts"] = self._pattern_store.count_by_status()
+        return payload
+
+    def get_pattern_candidate(self, candidate_id: str) -> Dict[str, Any]:
+        """Get a single PatternEngramCandidate by ID."""
+        payload = self._base_payload()
+        if self._pattern_store is None:
+            payload["error"] = "Pattern candidate store not configured"
+            return payload
+        candidate = self._pattern_store.get(candidate_id)
+        if candidate is None:
+            payload["error"] = f"Candidate {candidate_id!r} not found"
+            return payload
+        payload["candidate"] = candidate.to_dict()
+        return payload
+
+    def recommend_pattern_candidate(
+        self,
+        candidate_id: str,
+        gate_id: str,
+        confidence_threshold: float = 0.0,
+    ) -> Dict[str, Any]:
+        """Mark a candidate as promotion_recommended."""
+        payload = self._base_payload()
+        if self._pattern_store is None:
+            payload["error"] = "Pattern candidate store not configured"
+            return payload
+        try:
+            candidate = self._pattern_store.recommend(
+                candidate_id,
+                gate_id=gate_id,
+                confidence_threshold=confidence_threshold,
+            )
+            if self._pattern_store._persist_path:
+                self._pattern_store.save()
+            self._audit(
+                "pattern_candidate_recommended",
+                f"Candidate {candidate_id} marked as promotion_recommended",
+                metadata={
+                    "candidate_id": candidate_id,
+                    "pattern_type": candidate.pattern_type,
+                    "gate_id": gate_id,
+                    "promotion_status": candidate.promotion_status,
+                },
+            )
+            payload["candidate"] = candidate.to_dict()
+        except KeyError as exc:
+            payload["error"] = str(exc)
+        return payload
+
+    def approve_pattern_candidate(
+        self,
+        candidate_id: str,
+        governance_review_id: str,
+    ) -> Dict[str, Any]:
+        """Promote a candidate to PatternEngram after explicit governance approval."""
+        payload = self._base_payload()
+        if self._pattern_store is None:
+            payload["error"] = "Pattern candidate store not configured"
+            return payload
+        try:
+            engram = self._pattern_store.promote(
+                candidate_id,
+                governance_review_id=governance_review_id,
+            )
+            if self._pattern_store._persist_path:
+                self._pattern_store.save()
+            self._audit(
+                "pattern_candidate_approved",
+                f"Candidate {candidate_id} promoted to PatternEngram",
+                metadata={
+                    "candidate_id": candidate_id,
+                    "pattern_type": engram.pattern_type,
+                    "governance_review_id": governance_review_id,
+                    "pattern_id": engram.pattern_id,
+                },
+            )
+            payload["pattern"] = engram.to_dict()
+        except (KeyError, PermissionError) as exc:
+            payload["error"] = str(exc)
+        return payload
+
+    def reject_pattern_candidate(self, candidate_id: str) -> Dict[str, Any]:
+        """Reject a PatternEngramCandidate."""
+        payload = self._base_payload()
+        if self._pattern_store is None:
+            payload["error"] = "Pattern candidate store not configured"
+            return payload
+        try:
+            candidate = self._pattern_store.reject(candidate_id)
+            if self._pattern_store._persist_path:
+                self._pattern_store.save()
+            self._audit(
+                "pattern_candidate_rejected",
+                f"Candidate {candidate_id} rejected",
+                metadata={
+                    "candidate_id": candidate_id,
+                    "pattern_type": candidate.pattern_type,
+                    "governance_review_id": candidate.governance_review_id,
+                },
+            )
+            payload["candidate"] = candidate.to_dict()
+        except KeyError as exc:
+            payload["error"] = str(exc)
+        return payload
+
+    def list_promoted_patterns(self) -> Dict[str, Any]:
+        """List all promoted PatternEngram objects."""
+        payload = self._base_payload()
+        if self._pattern_store is None:
+            payload["error"] = "Pattern candidate store not configured"
+            payload["patterns"] = []
+            return payload
+        patterns = self._pattern_store.list_promoted()
+        payload["patterns"] = [p.to_dict() for p in patterns]
+        payload["count"] = len(patterns)
         return payload
 
     def get_governance_stats(self) -> Dict[str, Any]:
@@ -1741,6 +1909,92 @@ def cognitive_cycles():
     if limit < 1 or limit > 200:
         return jsonify({"error": "limit must be between 1 and 200"}), 400
     return jsonify(_runtime.get_cognitive_cycles(limit=limit)), 200
+
+
+@app.get("/v1/mnemos/cognitive/candidates")
+def list_pattern_candidates():
+    if not _authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    err = _ensure_runtime()
+    if err:
+        return jsonify(err), 200
+    status = request.args.get("status")
+    return jsonify(_runtime.list_pattern_candidates(status=status)), 200
+
+
+@app.get("/v1/mnemos/cognitive/candidates/<candidate_id>")
+def get_pattern_candidate(candidate_id):
+    if not _authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    err = _ensure_runtime()
+    if err:
+        return jsonify(err), 200
+    result = _runtime.get_pattern_candidate(candidate_id)
+    if result.get("error") and "not found" in result["error"]:
+        return jsonify(result), 404
+    return jsonify(result), 200
+
+
+@app.post("/v1/mnemos/cognitive/candidates/<candidate_id>/recommend")
+def recommend_pattern_candidate(candidate_id):
+    if not _authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    err = _ensure_runtime()
+    if err:
+        return jsonify(err), 200
+    body = request.get_json(silent=True) or {}
+    gate_id = body.get("gate_id", "")
+    if not gate_id:
+        return jsonify({"error": "gate_id is required"}), 400
+    confidence_threshold = float(body.get("confidence_threshold", 0.0))
+    result = _runtime.recommend_pattern_candidate(
+        candidate_id, gate_id=gate_id, confidence_threshold=confidence_threshold
+    )
+    if result.get("error"):
+        code = 404 if "not found" in result["error"] else 400
+        return jsonify(result), code
+    return jsonify(result), 200
+
+
+@app.post("/v1/mnemos/cognitive/candidates/<candidate_id>/approve")
+def approve_pattern_candidate(candidate_id):
+    if not _authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    err = _ensure_runtime()
+    if err:
+        return jsonify(err), 200
+    body = request.get_json(silent=True) or {}
+    governance_review_id = body.get("governance_review_id", "")
+    if not governance_review_id:
+        return jsonify({"error": "governance_review_id is required"}), 400
+    result = _runtime.approve_pattern_candidate(candidate_id, governance_review_id)
+    if result.get("error"):
+        code = 404 if "not found" in result["error"] else 400
+        return jsonify(result), code
+    return jsonify(result), 200
+
+
+@app.post("/v1/mnemos/cognitive/candidates/<candidate_id>/reject")
+def reject_pattern_candidate(candidate_id):
+    if not _authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    err = _ensure_runtime()
+    if err:
+        return jsonify(err), 200
+    result = _runtime.reject_pattern_candidate(candidate_id)
+    if result.get("error") and "not found" in result["error"]:
+        return jsonify(result), 404
+    return jsonify(result), 200
+
+
+@app.get("/v1/mnemos/cognitive/patterns")
+def list_promoted_patterns():
+    if not _authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    err = _ensure_runtime()
+    if err:
+        return jsonify(err), 200
+    return jsonify(_runtime.list_promoted_patterns()), 200
 
 
 @app.get("/v1/mnemos/pulse")
