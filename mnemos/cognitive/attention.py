@@ -33,6 +33,8 @@ def build_attention_decisions(
     rerank_skipped_reason: Optional[str] = None,
     shadow_search_present: bool = False,
     intent_forecast_present: bool = False,
+    pattern_store_enabled: bool = False,
+    pattern_advisory_count: int = 0,
 ) -> List[AttentionDecision]:
     """
     Build the Attention Contract for a single MNEMOS cognitive cycle.
@@ -330,6 +332,44 @@ def build_attention_decisions(
                 "pre-cognitive cache warming."
             ),
             policy_source="intent_engine.record_and_forecast",
+        ))
+
+    # ── 12. Pattern advisory recall ───────────────────────────────────────────
+    if pattern_store_enabled:
+        if pattern_advisory_count > 0:
+            decisions.append(AttentionDecision(
+                dimension="pattern_advisory",
+                decision="recalled",
+                reason=(
+                    f"Pattern store advisory recall returned {pattern_advisory_count} "
+                    "candidate pattern(s) relevant to this situation. These are "
+                    "advisory-only and do not affect retrieval ranking or candidate "
+                    "selection. Candidates require explicit governance promotion before "
+                    "becoming authoritative."
+                ),
+                policy_source="pattern_candidate_store.find_relevant",
+            ))
+        else:
+            decisions.append(AttentionDecision(
+                dimension="pattern_advisory",
+                decision="none",
+                reason=(
+                    "Pattern store is enabled but no relevant advisory candidates "
+                    "were found for this situation (store may be empty or no "
+                    "candidates met the similarity threshold)."
+                ),
+                policy_source="pattern_candidate_store.find_relevant",
+            ))
+    else:
+        decisions.append(AttentionDecision(
+            dimension="pattern_advisory",
+            decision="disabled",
+            reason=(
+                "Pattern candidate store is not configured for this deployment "
+                "(MNEMOS_PATTERN_STORE_PATH not set). Advisory pattern recall "
+                "is unavailable."
+            ),
+            policy_source="config.pattern_store_path",
         ))
 
     return decisions

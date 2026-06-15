@@ -481,3 +481,68 @@ class TestStructuralSanity:
         )
         for d in decisions:
             assert isinstance(d, AttentionDecision)
+
+
+# ── Pattern advisory (dimension 12) ──────────────────────────────────────────
+
+
+class TestPatternAdvisory:
+    def test_disabled_when_store_not_configured(self):
+        decisions = build_attention_decisions(
+            mode_meta=_base_mode_meta(),
+            governance_mode="off",
+            governance_profile="default",
+            pattern_store_enabled=False,
+        )
+        d = _dims(decisions)
+        assert d["pattern_advisory"] == "disabled"
+
+    def test_recalled_when_store_enabled_and_candidates_found(self):
+        decisions = build_attention_decisions(
+            mode_meta=_base_mode_meta(),
+            governance_mode="off",
+            governance_profile="default",
+            pattern_store_enabled=True,
+            pattern_advisory_count=2,
+        )
+        d = _dims(decisions)
+        assert d["pattern_advisory"] == "recalled"
+        r = _reasons(decisions)["pattern_advisory"]
+        assert "2" in r
+        assert "advisory" in r.lower()
+
+    def test_none_when_store_enabled_but_no_candidates(self):
+        decisions = build_attention_decisions(
+            mode_meta=_base_mode_meta(),
+            governance_mode="off",
+            governance_profile="default",
+            pattern_store_enabled=True,
+            pattern_advisory_count=0,
+        )
+        d = _dims(decisions)
+        assert d["pattern_advisory"] == "none"
+
+    def test_pattern_advisory_always_present(self):
+        """pattern_advisory decision is always emitted (unlike shadow/intent which are optional)."""
+        for enabled in [True, False]:
+            decisions = build_attention_decisions(
+                mode_meta=_base_mode_meta(),
+                governance_mode="off",
+                governance_profile="default",
+                pattern_store_enabled=enabled,
+                pattern_advisory_count=0,
+            )
+            dims = {d.dimension for d in decisions}
+            assert "pattern_advisory" in dims
+
+    def test_recalled_reason_mentions_governance(self):
+        decisions = build_attention_decisions(
+            mode_meta=_base_mode_meta(),
+            governance_mode="off",
+            governance_profile="default",
+            pattern_store_enabled=True,
+            pattern_advisory_count=1,
+        )
+        r = _reasons(decisions)["pattern_advisory"]
+        assert "governance" in r.lower()
+        assert "authoritative" in r.lower()

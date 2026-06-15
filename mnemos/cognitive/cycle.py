@@ -67,6 +67,13 @@ OPERATION_TYPE_MAP: Dict[str, List[OperationType]] = {
     "reflect_reinforcement":    [OperationType.LEARNING],
     "episodic_write":           [OperationType.LEARNING],
     "semantic_write":           [OperationType.LEARNING],
+    "semantic_candidate_write": [OperationType.LEARNING],
+    "governance_score_update":  [OperationType.LEARNING, OperationType.GOVERNANCE],
+    "forecast_outcome_write":   [OperationType.LEARNING, OperationType.FORECASTING],
+    "cache_write":              [OperationType.LEARNING],
+    "audit_write":              [OperationType.AUDIT],
+    "procedural_change_candidate": [OperationType.LEARNING, OperationType.GOVERNANCE],
+    "blocked_procedural_mutation": [OperationType.GOVERNANCE],
     # Governance & Hygiene
     "governance_read_path":     [OperationType.GOVERNANCE],
     "volatility_hygiene":       [OperationType.LEARNING, OperationType.GOVERNANCE],
@@ -347,6 +354,12 @@ class LearningWrite:
     operation: str
     """write | update | reinforce | decay | prune | archive"""
 
+    write_class: Optional[str] = None
+    """
+    Explicit learning/write boundary class, such as episodic_write,
+    semantic_candidate_write, audit_write, or procedural_change_candidate.
+    """
+
     engram_id: Optional[str] = None
     """Engram affected by this write, if applicable."""
 
@@ -361,6 +374,8 @@ class LearningWrite:
             "target_memory_type": self.target_memory_type,
             "operation": self.operation,
         }
+        if self.write_class:
+            d["write_class"] = self.write_class
         if self.engram_id:
             d["engram_id"] = self.engram_id
         if self.delta_summary:
@@ -456,6 +471,16 @@ class CognitiveCycleRecord:
     forensic_ledger_refs: List[str] = field(default_factory=list)
     """References to forensic ledger transaction IDs emitted during this cycle."""
 
+    # ── Advisory pattern recall (Phase 19) ───────────────────────────────────
+    advisory_patterns: List[Dict[str, Any]] = field(default_factory=list)
+    """
+    Advisory PatternEngramCandidate summaries recalled from the pattern store
+    at the start of this cycle.  These are informational only — candidates are
+    advisory-only and never authoritative for retrieval.  Each entry is a dict
+    with keys: candidate_id, pattern_summary, pattern_type, confidence_score,
+    applies_when, promotion_status.
+    """
+
     # ── Decision + outcome ────────────────────────────────────────────────────
     selected_route: str = "return"
     """
@@ -497,6 +522,7 @@ class CognitiveCycleRecord:
             "execution_actions": [a.to_dict() for a in self.execution_actions],
             "learning_writes": [lw.to_dict() for lw in self.learning_writes],
             "forensic_ledger_refs": self.forensic_ledger_refs,
+            "advisory_patterns": self.advisory_patterns,
             "selected_route": self.selected_route,
             "outcome_observation_plan": self.outcome_observation_plan,
             "final_status": self.final_status,
@@ -512,3 +538,102 @@ class CognitiveCycleRecord:
     @classmethod
     def make_id(cls) -> str:
         return str(uuid.uuid4())
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "CognitiveCycleRecord":
+        """Reconstruct a CognitiveCycleRecord from a to_dict() output."""
+        wm_raw = d.get("working_memory_snapshot") or {}
+        wm = WorkingMemorySnapshot(
+            query=wm_raw.get("query"),
+            query_class=wm_raw.get("query_class"),
+            query_class_confidence=float(wm_raw.get("query_class_confidence", 0.0)),
+            session_id=wm_raw.get("session_id"),
+            candidate_count_pre_governance=int(wm_raw.get("candidate_count_pre_governance", 0)),
+            candidate_count_post_governance=int(wm_raw.get("candidate_count_post_governance", 0)),
+            suppression_count=int(wm_raw.get("suppression_count", 0)),
+            contradiction_count=int(wm_raw.get("contradiction_count", 0)),
+            active_retrieval_mode=wm_raw.get("active_retrieval_mode", "semantic"),
+            active_fusion_policy=wm_raw.get("active_fusion_policy"),
+            active_governance_mode=wm_raw.get("active_governance_mode", "off"),
+            active_policy_profile=wm_raw.get("active_policy_profile", "default"),
+            summary_eligible=bool(wm_raw.get("summary_eligible", False)),
+            graph_expansion_eligible=bool(wm_raw.get("graph_expansion_eligible", False)),
+            derived_fact_eligible=bool(wm_raw.get("derived_fact_eligible", False)),
+            forecast_advisory_present=bool(wm_raw.get("forecast_advisory_present", False)),
+            pre_cognitive_cache_hit=bool(wm_raw.get("pre_cognitive_cache_hit", False)),
+            selected_route=wm_raw.get("selected_route", "return"),
+        )
+
+        def _action(a: Dict[str, Any]) -> ActionRecord:
+            return ActionRecord(
+                action_id=a.get("action_id", str(uuid.uuid4())),
+                operation_types=[
+                    OperationType(v) for v in a.get("operation_types", [])
+                    if v in {e.value for e in OperationType}
+                ],
+                name=a.get("name", ""),
+                inputs_summary=a.get("inputs_summary", {}),
+                outputs_summary=a.get("outputs_summary", {}),
+                latency_ms=a.get("latency_ms"),
+                status=a.get("status", "completed"),
+                skip_reason=a.get("skip_reason"),
+            )
+
+        attention = [
+            AttentionDecision(
+                dimension=a.get("dimension", ""),
+                decision=a.get("decision", ""),
+                reason=a.get("reason", ""),
+                policy_source=a.get("policy_source"),
+            )
+            for a in d.get("attention_decisions", [])
+        ]
+        governance = [
+            GovernanceEvalSummary(
+                mode=g.get("mode", "off"),
+                profile=g.get("profile", "default"),
+                candidates_evaluated=int(g.get("candidates_evaluated", 0)),
+                vetoed=int(g.get("vetoed", 0)),
+                suppressed=int(g.get("suppressed", 0)),
+                contradictions_detected=int(g.get("contradictions_detected", 0)),
+                contradiction_suppressed=int(g.get("contradiction_suppressed", 0)),
+                net_candidates_returned=int(g.get("net_candidates_returned", 0)),
+            )
+            for g in d.get("governance_evaluations", [])
+        ]
+        learning = [
+            LearningWrite(
+                target_memory_type=lw.get("target_memory_type", "semantic"),
+                operation=lw.get("operation", "write"),
+                write_class=lw.get("write_class"),
+                engram_id=lw.get("engram_id"),
+                delta_summary=lw.get("delta_summary"),
+                triggered_by=lw.get("triggered_by"),
+            )
+            for lw in d.get("learning_writes", [])
+        ]
+
+        return cls(
+            cycle_id=d.get("cycle_id", str(uuid.uuid4())),
+            trigger_type=d.get("trigger_type", "search"),
+            trigger_source=d.get("trigger_source", "api"),
+            query_or_event=d.get("query_or_event", "")[:240],
+            active_profile=d.get("active_profile", ""),
+            governance_profile=d.get("governance_profile", "default"),
+            working_memory_snapshot=wm,
+            attention_decisions=attention,
+            retrieval_actions=[_action(a) for a in d.get("retrieval_actions", [])],
+            reasoning_actions=[_action(a) for a in d.get("reasoning_actions", [])],
+            forecast_actions=[_action(a) for a in d.get("forecast_actions", [])],
+            governance_evaluations=governance,
+            execution_actions=[_action(a) for a in d.get("execution_actions", [])],
+            learning_writes=learning,
+            forensic_ledger_refs=d.get("forensic_ledger_refs", []),
+            advisory_patterns=d.get("advisory_patterns", []),
+            selected_route=d.get("selected_route", "return"),
+            outcome_observation_plan=d.get("outcome_observation_plan"),
+            final_status=d.get("final_status", "completed"),
+            cycle_started_at=d.get("cycle_started_at", ""),
+            cycle_completed_at=d.get("cycle_completed_at"),
+            cycle_latency_ms=d.get("cycle_latency_ms"),
+        )

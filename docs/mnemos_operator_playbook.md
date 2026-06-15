@@ -119,16 +119,42 @@ Evidence to capture:
    - Autonomous pre-warm trigger.
    - Volatility-driven decay or reconciliation.
    - Pre-cognitive shadow-search cache hit or miss.
+5. Pull recent cognitive cycle records when the incident involves unexpected
+   routing, suppression, forecast action, or derived-view behavior:
+   - `Invoke-RestMethod "http://localhost:8700/v1/mnemos/cognitive/cycles?limit=20"`
+   - Confirm each suspect cycle has `attention_decisions`, `selected_route`,
+     `governance_evaluations`, `forecast_actions`, and `forensic_ledger_refs`.
+   - Treat missing `policy_source` values in attention decisions as a release
+     blocker: cycle explanations must be evidence-derived, not generated after
+     the fact.
 
-### 6.2 Stabilize
+### 6.2 Cognitive Cycle Auditing
+
+Use cognitive cycle records when an incident involves unexpected routing,
+suppression, forecast action, derived-view behavior, or operator confusion about
+why MNEMOS selected a path.
+
+1. For a fresh reproduction, add `"cognitive_cycle": true` to the search request and inspect the returned `cognitive_cycle`.
+2. For recent history, query:
+   - `Invoke-RestMethod "http://localhost:8700/v1/mnemos/cognitive/cycles?limit=20"`
+3. Match `cycle_id`, `selected_route`, and `forensic_ledger_refs` against the incident timestamp and ledger entries.
+4. Confirm each suspect cycle has `attention_decisions`, `governance_evaluations`, `forecast_actions`, and `learning_writes`.
+5. Verify `attention_decisions[*].policy_source` points to runtime, router, forecast, governance, policy, or config metadata.
+6. Verify `learning_writes[*].write_class` does not contain an applied procedural mutation. Pattern candidates may be `promotion_recommended`, but promotion requires explicit governance approval.
+7. Re-run the baseline harness when cognitive transparency is suspect:
+   - `python tools/run_coala_cycle_validation.py --summary-only`
+
+### 6.3 Stabilize
 
 1. Roll back traffic to last known-good stage.
 2. Freeze further promotion.
 3. Maintain read availability over progression speed.
 
-### 6.3 Diagnose
+### 6.4 Diagnose
 
 Run targeted checks:
+- Cognitive cycle auditing:
+  - Follow Section 6.2.
 - Predictive pulse:
   - `Invoke-RestMethod http://localhost:8700/v1/mnemos/pulse`
   - Confirm forensic ledger entries include `forecast_reason` and `confidence_score` for forecast-driven actions.
@@ -144,7 +170,7 @@ Run targeted checks:
 - Governance evidence:
   - `python -m pytest -q tests/test_governance.py tests/test_governance_contradictions.py tests/test_governance_reflect.py tests/test_governance_drift_validation.py`
 
-### 6.4 Recover
+### 6.5 Recover
 
 1. Apply fix.
 2. Re-run failing gate(s) and full CI gate command.

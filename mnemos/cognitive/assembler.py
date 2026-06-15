@@ -87,6 +87,7 @@ class CycleAssembler:
         self._execution_actions: List[ActionRecord] = []
         self._learning_writes: List[LearningWrite] = []
         self._forensic_ledger_refs: List[str] = []
+        self._advisory_patterns: List[Dict[str, Any]] = []
 
         self._started_at: str = datetime.now(timezone.utc).isoformat()
         self._start_monotonic: float = time.monotonic()
@@ -272,6 +273,7 @@ class CycleAssembler:
         *,
         target_memory_type: str,
         operation: str,
+        write_class: Optional[str] = None,
         engram_id: Optional[str] = None,
         delta_summary: Optional[Dict[str, Any]] = None,
         triggered_by: Optional[str] = None,
@@ -281,6 +283,7 @@ class CycleAssembler:
             LearningWrite(
                 target_memory_type=target_memory_type,
                 operation=operation,
+                write_class=write_class,
                 engram_id=engram_id,
                 delta_summary=delta_summary,
                 triggered_by=triggered_by,
@@ -293,6 +296,37 @@ class CycleAssembler:
         """Add a forensic ledger transaction ID to the cycle's audit trail."""
         if ref:
             self._forensic_ledger_refs.append(ref)
+
+    # ── Advisory pattern recall ───────────────────────────────────────────────
+
+    def add_advisory_patterns(self, candidates: list) -> None:
+        """
+        Attach advisory PatternEngramCandidate summaries to this cycle.
+
+        Each candidate is stored as a minimal summary dict:
+          candidate_id, pattern_summary, pattern_type, confidence_score,
+          applies_when, promotion_status.
+
+        Accepts either PatternEngramCandidate objects (with .to_dict()) or
+        plain dicts.  Candidates with authoritative_for_retrieval=True are
+        silently skipped (safety invariant).
+        """
+        for cand in candidates:
+            if hasattr(cand, "to_dict"):
+                d = cand.to_dict()
+            else:
+                d = dict(cand)
+            # Safety: advisory-only store should never surface these, but guard anyway
+            if d.get("authoritative_for_retrieval") is True:
+                continue
+            self._advisory_patterns.append({
+                "candidate_id": d.get("candidate_id", ""),
+                "pattern_summary": d.get("pattern_summary", ""),
+                "pattern_type": d.get("pattern_type", ""),
+                "confidence_score": d.get("confidence_score", 0.0),
+                "applies_when": d.get("applies_when", ""),
+                "promotion_status": d.get("promotion_status", ""),
+            })
 
     # ── Build ─────────────────────────────────────────────────────────────────
 
@@ -329,6 +363,7 @@ class CycleAssembler:
             execution_actions=list(self._execution_actions),
             learning_writes=list(self._learning_writes),
             forensic_ledger_refs=list(self._forensic_ledger_refs),
+            advisory_patterns=list(self._advisory_patterns),
             selected_route=selected_route,
             outcome_observation_plan=outcome_observation_plan,
             final_status=final_status,

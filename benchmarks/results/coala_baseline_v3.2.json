@@ -1,0 +1,1129 @@
+{
+  "cycles": [
+    {
+      "active_profile": "core_appliance",
+      "attention_decisions": [
+        {
+          "decision": "factoid",
+          "dimension": "query_classification",
+          "policy_source": "retrieval.policies.query_classifier",
+          "reason": "Query classified as 'factoid' (confidence=0.91) by the heuristic query family classifier. This classification influences reranking eligibility and fusion policy selection."
+        },
+        {
+          "decision": "hybrid:balanced",
+          "dimension": "retrieval_mode",
+          "policy_source": "retrieval_router.search[retrieval_mode=hybrid]",
+          "reason": "Hybrid retrieval selected with fusion policy 'balanced' using engine 'python_rrf'. Both semantic (dense) and lexical (BM25) lanes were active. Lexical lane available: {lexical_available}."
+        },
+        {
+          "decision": "applied",
+          "dimension": "candidate_envelope",
+          "policy_source": "memory_over_maps_phase2.candidate_envelope",
+          "reason": "Candidate envelope narrowed 16 raw candidates to 8 bounded candidates. Deduplication removed 3, source-cap removed 2, pool-limit removed 3."
+        },
+        {
+          "decision": "eligible",
+          "dimension": "summary_inclusion",
+          "policy_source": "config.memory_over_maps_phase1",
+          "reason": "Memory Over Maps phase 1 is enabled. Summary and lineage nodes are eligible to appear in retrieval results. Summary nodes are isolated from default factoid paths by source_artifact lineage."
+        },
+        {
+          "decision": "blocked",
+          "dimension": "graph_expansion",
+          "policy_source": "retrieval_router[graph_hybrid=read_only_non_public]",
+          "reason": "Graph-hybrid expansion is not active on the standard HTTP retrieval surface. It requires explicit double opt-in and is not enabled by default. Candidates were drawn from vector and lexical lanes only."
+        },
+        {
+          "decision": "not_requested",
+          "dimension": "derived_facts",
+          "policy_source": "config.memory_over_maps_phase3",
+          "reason": "Memory Over Maps phase 3 is enabled, but no derived views were requested in this query (derive_views not present in request body). Default retrieval lane is derived-fact-free."
+        },
+        {
+          "decision": "advisory:default",
+          "dimension": "governance_gate",
+          "policy_source": "config.governance_mode[profile=default]",
+          "reason": "Governance is in advisory mode (profile='default'). All candidates are scored and ranked by governed_score. No candidates are suppressed in this mode \u2014 the caller sees the full scored set with governance metadata."
+        },
+        {
+          "decision": "none",
+          "dimension": "forecast_advisory",
+          "policy_source": "pulse_engine.advisory",
+          "reason": "No pulse forecast advisory was present for this cycle."
+        }
+      ],
+      "cycle_completed_at": "2026-06-14T10:35:05.991088+00:00",
+      "cycle_id": "ce9dce0a-872a-4287-b30c-0a2c23303353",
+      "cycle_latency_ms": 0.0,
+      "cycle_started_at": "2026-06-14T10:35:05.991088+00:00",
+      "execution_actions": [],
+      "final_status": "completed",
+      "forecast_actions": [],
+      "forensic_ledger_refs": [],
+      "governance_evaluations": [],
+      "governance_profile": "default",
+      "learning_writes": [
+        {
+          "operation": "write",
+          "target_memory_type": "episodic",
+          "triggered_by": "cycle_observation",
+          "write_class": "episodic_write"
+        }
+      ],
+      "outcome_observation_plan": null,
+      "query_or_event": "What is the capital of France?",
+      "reasoning_actions": [],
+      "retrieval_actions": [
+        {
+          "action_id": "6361aa19-bd5f-43d9-a615-6672ad20492f",
+          "inputs_summary": {
+            "query_class": "factoid",
+            "top_k": 8
+          },
+          "latency_ms": 20.0,
+          "name": "python_hybrid_rrf",
+          "operation_types": [
+            "retrieval"
+          ],
+          "outputs_summary": {
+            "candidates_returned": 8
+          },
+          "status": "completed"
+        }
+      ],
+      "selected_route": "return",
+      "trigger_source": "api",
+      "trigger_type": "search",
+      "validation_case_id": "CLASS_A_DIRECT_LOOKUP",
+      "working_memory_snapshot": {
+        "active_fusion_policy": "balanced",
+        "active_governance_mode": "advisory",
+        "active_policy_profile": "default",
+        "active_retrieval_mode": "hybrid",
+        "candidate_count_post_governance": 8,
+        "candidate_count_pre_governance": 16,
+        "contradiction_count": 0,
+        "derived_fact_eligible": false,
+        "forecast_advisory_present": false,
+        "graph_expansion_eligible": false,
+        "pre_cognitive_cache_hit": false,
+        "query": "What is the capital of France?",
+        "query_class": "factoid",
+        "query_class_confidence": 0.91,
+        "selected_route": "return",
+        "session_id": null,
+        "summary_eligible": false,
+        "suppression_count": 0
+      }
+    },
+    {
+      "active_profile": "core_appliance",
+      "attention_decisions": [
+        {
+          "decision": "multi_hop",
+          "dimension": "query_classification",
+          "policy_source": "retrieval.policies.query_classifier",
+          "reason": "Query classified as 'multi_hop' (confidence=0.91) by the heuristic query family classifier. This classification influences reranking eligibility and fusion policy selection."
+        },
+        {
+          "decision": "hybrid:balanced",
+          "dimension": "retrieval_mode",
+          "policy_source": "retrieval_router.search[retrieval_mode=hybrid]",
+          "reason": "Hybrid retrieval selected with fusion policy 'balanced' using engine 'python_rrf'. Both semantic (dense) and lexical (BM25) lanes were active. Lexical lane available: {lexical_available}."
+        },
+        {
+          "decision": "applied",
+          "dimension": "candidate_envelope",
+          "policy_source": "memory_over_maps_phase2.candidate_envelope",
+          "reason": "Candidate envelope narrowed 16 raw candidates to 8 bounded candidates. Deduplication removed 3, source-cap removed 2, pool-limit removed 3."
+        },
+        {
+          "decision": "applied",
+          "dimension": "cross_encoder_rerank",
+          "policy_source": "retrieval.policies.rerank_policy",
+          "reason": "Cross-encoder reranking was applied. Candidate ordering may differ from raw fusion scores."
+        },
+        {
+          "decision": "eligible",
+          "dimension": "summary_inclusion",
+          "policy_source": "config.memory_over_maps_phase1",
+          "reason": "Memory Over Maps phase 1 is enabled. Summary and lineage nodes are eligible to appear in retrieval results. Summary nodes are isolated from default factoid paths by source_artifact lineage."
+        },
+        {
+          "decision": "blocked",
+          "dimension": "graph_expansion",
+          "policy_source": "retrieval_router[graph_hybrid=read_only_non_public]",
+          "reason": "Graph-hybrid expansion is not active on the standard HTTP retrieval surface. It requires explicit double opt-in and is not enabled by default. Candidates were drawn from vector and lexical lanes only."
+        },
+        {
+          "decision": "not_requested",
+          "dimension": "derived_facts",
+          "policy_source": "config.memory_over_maps_phase3",
+          "reason": "Memory Over Maps phase 3 is enabled, but no derived views were requested in this query (derive_views not present in request body). Default retrieval lane is derived-fact-free."
+        },
+        {
+          "decision": "advisory:default",
+          "dimension": "governance_gate",
+          "policy_source": "config.governance_mode[profile=default]",
+          "reason": "Governance is in advisory mode (profile='default'). All candidates are scored and ranked by governed_score. No candidates are suppressed in this mode \u2014 the caller sees the full scored set with governance metadata."
+        },
+        {
+          "decision": "none",
+          "dimension": "forecast_advisory",
+          "policy_source": "pulse_engine.advisory",
+          "reason": "No pulse forecast advisory was present for this cycle."
+        }
+      ],
+      "cycle_completed_at": "2026-06-14T10:35:05.991088+00:00",
+      "cycle_id": "974a3031-c613-4131-b2ae-f7bd539ddbe5",
+      "cycle_latency_ms": 0.0,
+      "cycle_started_at": "2026-06-14T10:35:05.991088+00:00",
+      "execution_actions": [],
+      "final_status": "completed",
+      "forecast_actions": [],
+      "forensic_ledger_refs": [],
+      "governance_evaluations": [],
+      "governance_profile": "default",
+      "learning_writes": [
+        {
+          "operation": "write",
+          "target_memory_type": "semantic",
+          "triggered_by": "cycle_observation",
+          "write_class": "semantic_write"
+        }
+      ],
+      "outcome_observation_plan": null,
+      "query_or_event": "Which retained policy controls affect audit deletion?",
+      "reasoning_actions": [],
+      "retrieval_actions": [
+        {
+          "action_id": "593cc071-9371-4e8d-90bb-a5a1856b9b46",
+          "inputs_summary": {
+            "query_class": "multi_hop",
+            "top_k": 8
+          },
+          "latency_ms": 21.0,
+          "name": "python_hybrid_rrf",
+          "operation_types": [
+            "retrieval"
+          ],
+          "outputs_summary": {
+            "candidates_returned": 8
+          },
+          "status": "completed"
+        }
+      ],
+      "selected_route": "return",
+      "trigger_source": "api",
+      "trigger_type": "search",
+      "validation_case_id": "CLASS_B_MULTI_HOP",
+      "working_memory_snapshot": {
+        "active_fusion_policy": "balanced",
+        "active_governance_mode": "advisory",
+        "active_policy_profile": "default",
+        "active_retrieval_mode": "hybrid",
+        "candidate_count_post_governance": 8,
+        "candidate_count_pre_governance": 16,
+        "contradiction_count": 0,
+        "derived_fact_eligible": false,
+        "forecast_advisory_present": false,
+        "graph_expansion_eligible": false,
+        "pre_cognitive_cache_hit": false,
+        "query": "Which retained policy controls affect audit deletion?",
+        "query_class": "multi_hop",
+        "query_class_confidence": 0.91,
+        "selected_route": "return",
+        "session_id": null,
+        "summary_eligible": false,
+        "suppression_count": 0
+      }
+    },
+    {
+      "active_profile": "core_appliance",
+      "attention_decisions": [
+        {
+          "decision": "global_synthesis",
+          "dimension": "query_classification",
+          "policy_source": "retrieval.policies.query_classifier",
+          "reason": "Query classified as 'global_synthesis' (confidence=0.91) by the heuristic query family classifier. This classification influences reranking eligibility and fusion policy selection."
+        },
+        {
+          "decision": "hybrid:balanced",
+          "dimension": "retrieval_mode",
+          "policy_source": "retrieval_router.search[retrieval_mode=hybrid]",
+          "reason": "Hybrid retrieval selected with fusion policy 'balanced' using engine 'python_rrf'. Both semantic (dense) and lexical (BM25) lanes were active. Lexical lane available: {lexical_available}."
+        },
+        {
+          "decision": "applied",
+          "dimension": "candidate_envelope",
+          "policy_source": "memory_over_maps_phase2.candidate_envelope",
+          "reason": "Candidate envelope narrowed 16 raw candidates to 8 bounded candidates. Deduplication removed 3, source-cap removed 2, pool-limit removed 3."
+        },
+        {
+          "decision": "applied",
+          "dimension": "cross_encoder_rerank",
+          "policy_source": "retrieval.policies.rerank_policy",
+          "reason": "Cross-encoder reranking was applied. Candidate ordering may differ from raw fusion scores."
+        },
+        {
+          "decision": "eligible",
+          "dimension": "summary_inclusion",
+          "policy_source": "config.memory_over_maps_phase1",
+          "reason": "Memory Over Maps phase 1 is enabled. Summary and lineage nodes are eligible to appear in retrieval results. Summary nodes are isolated from default factoid paths by source_artifact lineage."
+        },
+        {
+          "decision": "blocked",
+          "dimension": "graph_expansion",
+          "policy_source": "retrieval_router[graph_hybrid=read_only_non_public]",
+          "reason": "Graph-hybrid expansion is not active on the standard HTTP retrieval surface. It requires explicit double opt-in and is not enabled by default. Candidates were drawn from vector and lexical lanes only."
+        },
+        {
+          "decision": "not_requested",
+          "dimension": "derived_facts",
+          "policy_source": "config.memory_over_maps_phase3",
+          "reason": "Memory Over Maps phase 3 is enabled, but no derived views were requested in this query (derive_views not present in request body). Default retrieval lane is derived-fact-free."
+        },
+        {
+          "decision": "advisory:default",
+          "dimension": "governance_gate",
+          "policy_source": "config.governance_mode[profile=default]",
+          "reason": "Governance is in advisory mode (profile='default'). All candidates are scored and ranked by governed_score. No candidates are suppressed in this mode \u2014 the caller sees the full scored set with governance metadata."
+        },
+        {
+          "decision": "none",
+          "dimension": "forecast_advisory",
+          "policy_source": "pulse_engine.advisory",
+          "reason": "No pulse forecast advisory was present for this cycle."
+        }
+      ],
+      "cycle_completed_at": "2026-06-14T10:35:05.991088+00:00",
+      "cycle_id": "55abde18-54f5-4400-921f-aab60ffc8813",
+      "cycle_latency_ms": 0.0,
+      "cycle_started_at": "2026-06-14T10:35:05.991088+00:00",
+      "execution_actions": [],
+      "final_status": "completed",
+      "forecast_actions": [],
+      "forensic_ledger_refs": [],
+      "governance_evaluations": [],
+      "governance_profile": "default",
+      "learning_writes": [
+        {
+          "operation": "write",
+          "target_memory_type": "semantic",
+          "triggered_by": "cycle_observation",
+          "write_class": "semantic_write"
+        }
+      ],
+      "outcome_observation_plan": null,
+      "query_or_event": "Summarise the corpus-wide governance posture.",
+      "reasoning_actions": [
+        {
+          "action_id": "a9042787-63e4-481e-8b73-ac2c6ffdae76",
+          "inputs_summary": {
+            "candidate_count": 8
+          },
+          "name": "evidence_bundle_view",
+          "operation_types": [
+            "retrieval",
+            "reasoning"
+          ],
+          "outputs_summary": {
+            "groups_detected": 0
+          },
+          "status": "completed"
+        }
+      ],
+      "retrieval_actions": [
+        {
+          "action_id": "c79afc4d-209f-473b-9d60-b1a844203e46",
+          "inputs_summary": {
+            "query_class": "global_synthesis",
+            "top_k": 8
+          },
+          "latency_ms": 22.0,
+          "name": "python_hybrid_rrf",
+          "operation_types": [
+            "retrieval"
+          ],
+          "outputs_summary": {
+            "candidates_returned": 8
+          },
+          "status": "completed"
+        }
+      ],
+      "selected_route": "return",
+      "trigger_source": "api",
+      "trigger_type": "search",
+      "validation_case_id": "CLASS_C_GLOBAL_SYNTHESIS",
+      "working_memory_snapshot": {
+        "active_fusion_policy": "balanced",
+        "active_governance_mode": "advisory",
+        "active_policy_profile": "default",
+        "active_retrieval_mode": "hybrid",
+        "candidate_count_post_governance": 8,
+        "candidate_count_pre_governance": 16,
+        "contradiction_count": 0,
+        "derived_fact_eligible": false,
+        "forecast_advisory_present": false,
+        "graph_expansion_eligible": false,
+        "pre_cognitive_cache_hit": false,
+        "query": "Summarise the corpus-wide governance posture.",
+        "query_class": "global_synthesis",
+        "query_class_confidence": 0.91,
+        "selected_route": "return",
+        "session_id": null,
+        "summary_eligible": true,
+        "suppression_count": 0
+      }
+    },
+    {
+      "active_profile": "core_appliance",
+      "attention_decisions": [
+        {
+          "decision": "reconciliation",
+          "dimension": "query_classification",
+          "policy_source": "retrieval.policies.query_classifier",
+          "reason": "Query classified as 'reconciliation' (confidence=0.91) by the heuristic query family classifier. This classification influences reranking eligibility and fusion policy selection."
+        },
+        {
+          "decision": "hybrid:balanced",
+          "dimension": "retrieval_mode",
+          "policy_source": "retrieval_router.search[retrieval_mode=hybrid]",
+          "reason": "Hybrid retrieval selected with fusion policy 'balanced' using engine 'python_rrf'. Both semantic (dense) and lexical (BM25) lanes were active. Lexical lane available: {lexical_available}."
+        },
+        {
+          "decision": "applied",
+          "dimension": "candidate_envelope",
+          "policy_source": "memory_over_maps_phase2.candidate_envelope",
+          "reason": "Candidate envelope narrowed 16 raw candidates to 8 bounded candidates. Deduplication removed 3, source-cap removed 2, pool-limit removed 3."
+        },
+        {
+          "decision": "eligible",
+          "dimension": "summary_inclusion",
+          "policy_source": "config.memory_over_maps_phase1",
+          "reason": "Memory Over Maps phase 1 is enabled. Summary and lineage nodes are eligible to appear in retrieval results. Summary nodes are isolated from default factoid paths by source_artifact lineage."
+        },
+        {
+          "decision": "blocked",
+          "dimension": "graph_expansion",
+          "policy_source": "retrieval_router[graph_hybrid=read_only_non_public]",
+          "reason": "Graph-hybrid expansion is not active on the standard HTTP retrieval surface. It requires explicit double opt-in and is not enabled by default. Candidates were drawn from vector and lexical lanes only."
+        },
+        {
+          "decision": "not_requested",
+          "dimension": "derived_facts",
+          "policy_source": "config.memory_over_maps_phase3",
+          "reason": "Memory Over Maps phase 3 is enabled, but no derived views were requested in this query (derive_views not present in request body). Default retrieval lane is derived-fact-free."
+        },
+        {
+          "decision": "enforced:default",
+          "dimension": "governance_gate",
+          "policy_source": "config.governance_mode[profile=default]",
+          "reason": "Governance is in enforced mode (profile='default'). Vetoed and contradiction-losing candidates are suppressed from the result set. Survivors are ranked by governed_score."
+        },
+        {
+          "decision": "none",
+          "dimension": "forecast_advisory",
+          "policy_source": "pulse_engine.advisory",
+          "reason": "No pulse forecast advisory was present for this cycle."
+        }
+      ],
+      "cycle_completed_at": "2026-06-14T10:35:05.991088+00:00",
+      "cycle_id": "2e1735cd-c4e9-4b60-806b-2086d5e3c25f",
+      "cycle_latency_ms": 0.0,
+      "cycle_started_at": "2026-06-14T10:35:05.991088+00:00",
+      "execution_actions": [],
+      "final_status": "completed",
+      "forecast_actions": [],
+      "forensic_ledger_refs": [],
+      "governance_evaluations": [],
+      "governance_profile": "default",
+      "learning_writes": [
+        {
+          "operation": "update",
+          "target_memory_type": "semantic",
+          "triggered_by": "contradiction_reconciliation",
+          "write_class": "governance_score_update"
+        }
+      ],
+      "outcome_observation_plan": null,
+      "query_or_event": "Reconcile conflicting CEO-name memories.",
+      "reasoning_actions": [
+        {
+          "action_id": "2281276c-308e-44df-9b2a-bf5b6e0ddc41",
+          "inputs_summary": {
+            "candidate_count": 8
+          },
+          "name": "contradiction_detection",
+          "operation_types": [
+            "reasoning",
+            "governance"
+          ],
+          "outputs_summary": {
+            "groups_detected": 1
+          },
+          "status": "completed"
+        }
+      ],
+      "retrieval_actions": [
+        {
+          "action_id": "d85c0175-bf6f-404a-8b31-57e26963518c",
+          "inputs_summary": {
+            "query_class": "reconciliation",
+            "top_k": 8
+          },
+          "latency_ms": 23.0,
+          "name": "python_hybrid_rrf",
+          "operation_types": [
+            "retrieval"
+          ],
+          "outputs_summary": {
+            "candidates_returned": 8
+          },
+          "status": "completed"
+        }
+      ],
+      "selected_route": "return",
+      "trigger_source": "api",
+      "trigger_type": "search",
+      "validation_case_id": "CONTRADICTION_RECONCILIATION",
+      "working_memory_snapshot": {
+        "active_fusion_policy": "balanced",
+        "active_governance_mode": "enforced",
+        "active_policy_profile": "default",
+        "active_retrieval_mode": "hybrid",
+        "candidate_count_post_governance": 8,
+        "candidate_count_pre_governance": 16,
+        "contradiction_count": 1,
+        "derived_fact_eligible": false,
+        "forecast_advisory_present": false,
+        "graph_expansion_eligible": false,
+        "pre_cognitive_cache_hit": false,
+        "query": "Reconcile conflicting CEO-name memories.",
+        "query_class": "reconciliation",
+        "query_class_confidence": 0.91,
+        "selected_route": "return",
+        "session_id": null,
+        "summary_eligible": false,
+        "suppression_count": 2
+      }
+    },
+    {
+      "active_profile": "core_appliance",
+      "attention_decisions": [
+        {
+          "decision": "high_volatility",
+          "dimension": "query_classification",
+          "policy_source": "retrieval.policies.query_classifier",
+          "reason": "Query classified as 'high_volatility' (confidence=0.91) by the heuristic query family classifier. This classification influences reranking eligibility and fusion policy selection."
+        },
+        {
+          "decision": "hybrid:balanced",
+          "dimension": "retrieval_mode",
+          "policy_source": "retrieval_router.search[retrieval_mode=hybrid]",
+          "reason": "Hybrid retrieval selected with fusion policy 'balanced' using engine 'python_rrf'. Both semantic (dense) and lexical (BM25) lanes were active. Lexical lane available: {lexical_available}."
+        },
+        {
+          "decision": "applied",
+          "dimension": "candidate_envelope",
+          "policy_source": "memory_over_maps_phase2.candidate_envelope",
+          "reason": "Candidate envelope narrowed 16 raw candidates to 8 bounded candidates. Deduplication removed 3, source-cap removed 2, pool-limit removed 3."
+        },
+        {
+          "decision": "eligible",
+          "dimension": "summary_inclusion",
+          "policy_source": "config.memory_over_maps_phase1",
+          "reason": "Memory Over Maps phase 1 is enabled. Summary and lineage nodes are eligible to appear in retrieval results. Summary nodes are isolated from default factoid paths by source_artifact lineage."
+        },
+        {
+          "decision": "blocked",
+          "dimension": "graph_expansion",
+          "policy_source": "retrieval_router[graph_hybrid=read_only_non_public]",
+          "reason": "Graph-hybrid expansion is not active on the standard HTTP retrieval surface. It requires explicit double opt-in and is not enabled by default. Candidates were drawn from vector and lexical lanes only."
+        },
+        {
+          "decision": "not_requested",
+          "dimension": "derived_facts",
+          "policy_source": "config.memory_over_maps_phase3",
+          "reason": "Memory Over Maps phase 3 is enabled, but no derived views were requested in this query (derive_views not present in request body). Default retrieval lane is derived-fact-free."
+        },
+        {
+          "decision": "enforced:default",
+          "dimension": "governance_gate",
+          "policy_source": "config.governance_mode[profile=default]",
+          "reason": "Governance is in enforced mode (profile='default'). Vetoed and contradiction-losing candidates are suppressed from the result set. Survivors are ranked by governed_score."
+        },
+        {
+          "decision": "conservative",
+          "dimension": "forecast_advisory",
+          "policy_source": "pulse_engine.advisory",
+          "reason": "Pulse forecast advisory active: suggested_plan='conservative', pressure=0.82, confidence=0.84. Forecast reason: predicted p95 or contradiction pressure"
+        }
+      ],
+      "cycle_completed_at": "2026-06-14T10:35:05.991675+00:00",
+      "cycle_id": "f91fe6c8-a31a-4220-b927-db566ed3540b",
+      "cycle_latency_ms": 0.0,
+      "cycle_started_at": "2026-06-14T10:35:05.991088+00:00",
+      "execution_actions": [],
+      "final_status": "completed",
+      "forecast_actions": [],
+      "forensic_ledger_refs": [],
+      "governance_evaluations": [],
+      "governance_profile": "default",
+      "learning_writes": [
+        {
+          "operation": "write",
+          "target_memory_type": "semantic",
+          "triggered_by": "cycle_observation",
+          "write_class": "semantic_write"
+        }
+      ],
+      "outcome_observation_plan": null,
+      "query_or_event": "Who is the current release owner?",
+      "reasoning_actions": [],
+      "retrieval_actions": [
+        {
+          "action_id": "8fa178fe-d60a-4054-bef4-3af71c8db079",
+          "inputs_summary": {
+            "query_class": "high_volatility",
+            "top_k": 8
+          },
+          "latency_ms": 24.0,
+          "name": "python_hybrid_rrf",
+          "operation_types": [
+            "retrieval"
+          ],
+          "outputs_summary": {
+            "candidates_returned": 8
+          },
+          "status": "completed"
+        }
+      ],
+      "selected_route": "return",
+      "trigger_source": "api",
+      "trigger_type": "search",
+      "validation_case_id": "HIGH_VOLATILITY_GOVERNANCE",
+      "working_memory_snapshot": {
+        "active_fusion_policy": "balanced",
+        "active_governance_mode": "enforced",
+        "active_policy_profile": "default",
+        "active_retrieval_mode": "hybrid",
+        "candidate_count_post_governance": 8,
+        "candidate_count_pre_governance": 16,
+        "contradiction_count": 0,
+        "derived_fact_eligible": false,
+        "forecast_advisory_present": true,
+        "graph_expansion_eligible": false,
+        "pre_cognitive_cache_hit": false,
+        "query": "Who is the current release owner?",
+        "query_class": "high_volatility",
+        "query_class_confidence": 0.91,
+        "selected_route": "return",
+        "session_id": null,
+        "summary_eligible": false,
+        "suppression_count": 2
+      }
+    },
+    {
+      "active_profile": "core_appliance",
+      "attention_decisions": [
+        {
+          "decision": "forecast",
+          "dimension": "query_classification",
+          "policy_source": "retrieval.policies.query_classifier",
+          "reason": "Query classified as 'forecast' (confidence=0.91) by the heuristic query family classifier. This classification influences reranking eligibility and fusion policy selection."
+        },
+        {
+          "decision": "hybrid:balanced",
+          "dimension": "retrieval_mode",
+          "policy_source": "retrieval_router.search[retrieval_mode=hybrid]",
+          "reason": "Hybrid retrieval selected with fusion policy 'balanced' using engine 'python_rrf'. Both semantic (dense) and lexical (BM25) lanes were active. Lexical lane available: {lexical_available}."
+        },
+        {
+          "decision": "applied",
+          "dimension": "candidate_envelope",
+          "policy_source": "memory_over_maps_phase2.candidate_envelope",
+          "reason": "Candidate envelope narrowed 16 raw candidates to 8 bounded candidates. Deduplication removed 3, source-cap removed 2, pool-limit removed 3."
+        },
+        {
+          "decision": "eligible",
+          "dimension": "summary_inclusion",
+          "policy_source": "config.memory_over_maps_phase1",
+          "reason": "Memory Over Maps phase 1 is enabled. Summary and lineage nodes are eligible to appear in retrieval results. Summary nodes are isolated from default factoid paths by source_artifact lineage."
+        },
+        {
+          "decision": "blocked",
+          "dimension": "graph_expansion",
+          "policy_source": "retrieval_router[graph_hybrid=read_only_non_public]",
+          "reason": "Graph-hybrid expansion is not active on the standard HTTP retrieval surface. It requires explicit double opt-in and is not enabled by default. Candidates were drawn from vector and lexical lanes only."
+        },
+        {
+          "decision": "not_requested",
+          "dimension": "derived_facts",
+          "policy_source": "config.memory_over_maps_phase3",
+          "reason": "Memory Over Maps phase 3 is enabled, but no derived views were requested in this query (derive_views not present in request body). Default retrieval lane is derived-fact-free."
+        },
+        {
+          "decision": "advisory:default",
+          "dimension": "governance_gate",
+          "policy_source": "config.governance_mode[profile=default]",
+          "reason": "Governance is in advisory mode (profile='default'). All candidates are scored and ranked by governed_score. No candidates are suppressed in this mode \u2014 the caller sees the full scored set with governance metadata."
+        },
+        {
+          "decision": "conservative",
+          "dimension": "forecast_advisory",
+          "policy_source": "pulse_engine.advisory",
+          "reason": "Pulse forecast advisory active: suggested_plan='conservative', pressure=0.82, confidence=0.84. Forecast reason: predicted p95 or contradiction pressure"
+        }
+      ],
+      "cycle_completed_at": "2026-06-14T10:35:05.991675+00:00",
+      "cycle_id": "54461e3e-0276-4734-9698-b040209e2e26",
+      "cycle_latency_ms": 0.0,
+      "cycle_started_at": "2026-06-14T10:35:05.991675+00:00",
+      "execution_actions": [],
+      "final_status": "completed",
+      "forecast_actions": [
+        {
+          "action_id": "a7586f45-4853-4a6e-8fec-ab33709522bf",
+          "inputs_summary": {
+            "source_signal": "pulse_p95"
+          },
+          "name": "pulse_forecast",
+          "operation_types": [
+            "forecasting"
+          ],
+          "outputs_summary": {
+            "forecast_id": "686accd0-2a5b-4b81-ac0b-f8395ed74c79",
+            "resolved": true
+          },
+          "status": "completed"
+        }
+      ],
+      "forensic_ledger_refs": [
+        "forecast-ledger-5"
+      ],
+      "governance_evaluations": [],
+      "governance_profile": "default",
+      "learning_writes": [
+        {
+          "operation": "write",
+          "target_memory_type": "semantic",
+          "triggered_by": "forecast_resolution",
+          "write_class": "forecast_outcome_write"
+        }
+      ],
+      "outcome_observation_plan": "forecast_outcome_record",
+      "query_or_event": "Predicted p95 breach pulse event.",
+      "reasoning_actions": [],
+      "retrieval_actions": [
+        {
+          "action_id": "e15bb6ff-8c36-421f-a925-ab7a69fdc214",
+          "inputs_summary": {
+            "query_class": "forecast",
+            "top_k": 8
+          },
+          "latency_ms": 25.0,
+          "name": "python_hybrid_rrf",
+          "operation_types": [
+            "retrieval"
+          ],
+          "outputs_summary": {
+            "candidates_returned": 8
+          },
+          "status": "completed"
+        }
+      ],
+      "selected_route": "pre_warm",
+      "trigger_source": "autonomous",
+      "trigger_type": "pulse",
+      "validation_case_id": "FORECAST_TRIGGERED_PULSE",
+      "working_memory_snapshot": {
+        "active_fusion_policy": "balanced",
+        "active_governance_mode": "advisory",
+        "active_policy_profile": "default",
+        "active_retrieval_mode": "hybrid",
+        "candidate_count_post_governance": 8,
+        "candidate_count_pre_governance": 16,
+        "contradiction_count": 0,
+        "derived_fact_eligible": false,
+        "forecast_advisory_present": true,
+        "graph_expansion_eligible": false,
+        "pre_cognitive_cache_hit": false,
+        "query": "Predicted p95 breach pulse event.",
+        "query_class": "forecast",
+        "query_class_confidence": 0.91,
+        "selected_route": "pre_warm",
+        "session_id": null,
+        "summary_eligible": false,
+        "suppression_count": 0
+      }
+    },
+    {
+      "active_profile": "core_appliance",
+      "attention_decisions": [
+        {
+          "decision": "cache_hit",
+          "dimension": "pre_cognitive_routing",
+          "policy_source": "intent_engine.fuzzy_pre_cognitive_get",
+          "reason": "Query matched a pre-cognitive intent cache entry from a prior intent trajectory forecast. Full retrieval was skipped."
+        }
+      ],
+      "cycle_completed_at": "2026-06-14T10:35:05.991675+00:00",
+      "cycle_id": "46ff949b-ddab-474e-bf6b-b854d74edda4",
+      "cycle_latency_ms": 0.0,
+      "cycle_started_at": "2026-06-14T10:35:05.991675+00:00",
+      "execution_actions": [
+        {
+          "action_id": "ffe5a281-12d3-48bf-a5d4-341d2c02780c",
+          "inputs_summary": {
+            "source": "intent_trajectory"
+          },
+          "name": "cache_write",
+          "operation_types": [
+            "learning"
+          ],
+          "outputs_summary": {
+            "cache_scope": "pre_cognitive"
+          },
+          "status": "completed"
+        }
+      ],
+      "final_status": "completed",
+      "forecast_actions": [],
+      "forensic_ledger_refs": [],
+      "governance_evaluations": [],
+      "governance_profile": "default",
+      "learning_writes": [
+        {
+          "operation": "write",
+          "target_memory_type": "cache",
+          "triggered_by": "intent_shadow_search",
+          "write_class": "cache_write"
+        }
+      ],
+      "outcome_observation_plan": null,
+      "query_or_event": "Likely follow-up from intent trajectory.",
+      "reasoning_actions": [],
+      "retrieval_actions": [
+        {
+          "action_id": "f2993109-3862-406a-a554-04b49e8fa017",
+          "inputs_summary": {
+            "cache_key": "intent_cluster_42"
+          },
+          "latency_ms": 1.2,
+          "name": "pre_cognitive_cache",
+          "operation_types": [
+            "retrieval"
+          ],
+          "outputs_summary": {
+            "cache_hit": true
+          },
+          "status": "completed"
+        }
+      ],
+      "selected_route": "return",
+      "trigger_source": "api",
+      "trigger_type": "search",
+      "validation_case_id": "PRE_COGNITIVE_SHADOW_SEARCH",
+      "working_memory_snapshot": {
+        "active_fusion_policy": "balanced",
+        "active_governance_mode": "advisory",
+        "active_policy_profile": "default",
+        "active_retrieval_mode": "pre_cognitive_cache",
+        "candidate_count_post_governance": 8,
+        "candidate_count_pre_governance": 16,
+        "contradiction_count": 0,
+        "derived_fact_eligible": false,
+        "forecast_advisory_present": false,
+        "graph_expansion_eligible": false,
+        "pre_cognitive_cache_hit": true,
+        "query": "Likely follow-up from intent trajectory.",
+        "query_class": "shadow",
+        "query_class_confidence": 0.91,
+        "selected_route": "return",
+        "session_id": null,
+        "summary_eligible": false,
+        "suppression_count": 0
+      }
+    },
+    {
+      "active_profile": "core_appliance",
+      "attention_decisions": [
+        {
+          "decision": "evidence_bundle",
+          "dimension": "query_classification",
+          "policy_source": "retrieval.policies.query_classifier",
+          "reason": "Query classified as 'evidence_bundle' (confidence=0.91) by the heuristic query family classifier. This classification influences reranking eligibility and fusion policy selection."
+        },
+        {
+          "decision": "hybrid:balanced",
+          "dimension": "retrieval_mode",
+          "policy_source": "retrieval_router.search[retrieval_mode=hybrid]",
+          "reason": "Hybrid retrieval selected with fusion policy 'balanced' using engine 'python_rrf'. Both semantic (dense) and lexical (BM25) lanes were active. Lexical lane available: {lexical_available}."
+        },
+        {
+          "decision": "applied",
+          "dimension": "candidate_envelope",
+          "policy_source": "memory_over_maps_phase2.candidate_envelope",
+          "reason": "Candidate envelope narrowed 16 raw candidates to 8 bounded candidates. Deduplication removed 3, source-cap removed 2, pool-limit removed 3."
+        },
+        {
+          "decision": "eligible",
+          "dimension": "summary_inclusion",
+          "policy_source": "config.memory_over_maps_phase1",
+          "reason": "Memory Over Maps phase 1 is enabled. Summary and lineage nodes are eligible to appear in retrieval results. Summary nodes are isolated from default factoid paths by source_artifact lineage."
+        },
+        {
+          "decision": "blocked",
+          "dimension": "graph_expansion",
+          "policy_source": "retrieval_router[graph_hybrid=read_only_non_public]",
+          "reason": "Graph-hybrid expansion is not active on the standard HTTP retrieval surface. It requires explicit double opt-in and is not enabled by default. Candidates were drawn from vector and lexical lanes only."
+        },
+        {
+          "decision": "eligible",
+          "dimension": "derived_facts",
+          "policy_source": "config.memory_over_maps_phase3",
+          "reason": "Derived views were requested (['evidence_bundle']) and Memory Over Maps phase 3 is enabled. Derived views are synthesised from governed evidence and returned separately \u2014 they do NOT contaminate the default retrieval lane."
+        },
+        {
+          "decision": "advisory:default",
+          "dimension": "governance_gate",
+          "policy_source": "config.governance_mode[profile=default]",
+          "reason": "Governance is in advisory mode (profile='default'). All candidates are scored and ranked by governed_score. No candidates are suppressed in this mode \u2014 the caller sees the full scored set with governance metadata."
+        },
+        {
+          "decision": "none",
+          "dimension": "forecast_advisory",
+          "policy_source": "pulse_engine.advisory",
+          "reason": "No pulse forecast advisory was present for this cycle."
+        }
+      ],
+      "cycle_completed_at": "2026-06-14T10:35:05.991675+00:00",
+      "cycle_id": "aa35c4c7-500c-48d5-9420-f66de26d0cd4",
+      "cycle_latency_ms": 0.0,
+      "cycle_started_at": "2026-06-14T10:35:05.991675+00:00",
+      "execution_actions": [],
+      "final_status": "completed",
+      "forecast_actions": [],
+      "forensic_ledger_refs": [
+        "audit-ledger-7"
+      ],
+      "governance_evaluations": [],
+      "governance_profile": "default",
+      "learning_writes": [
+        {
+          "operation": "write",
+          "target_memory_type": "audit",
+          "triggered_by": "evidence_bundle_view",
+          "write_class": "audit_write"
+        }
+      ],
+      "outcome_observation_plan": null,
+      "query_or_event": "Return evidence bundle for retention rules.",
+      "reasoning_actions": [
+        {
+          "action_id": "04febda9-96af-468a-b8de-57f68ed99734",
+          "inputs_summary": {
+            "candidate_count": 8
+          },
+          "name": "evidence_bundle_view",
+          "operation_types": [
+            "retrieval",
+            "reasoning"
+          ],
+          "outputs_summary": {
+            "groups_detected": 0
+          },
+          "status": "completed"
+        }
+      ],
+      "retrieval_actions": [
+        {
+          "action_id": "90929298-81ab-425e-9215-9a2dd1a6066f",
+          "inputs_summary": {
+            "query_class": "evidence_bundle",
+            "top_k": 8
+          },
+          "latency_ms": 27.0,
+          "name": "python_hybrid_rrf",
+          "operation_types": [
+            "retrieval"
+          ],
+          "outputs_summary": {
+            "candidates_returned": 8
+          },
+          "status": "completed"
+        }
+      ],
+      "selected_route": "return",
+      "trigger_source": "api",
+      "trigger_type": "search",
+      "validation_case_id": "DERIVED_VIEW_EVIDENCE_BUNDLE",
+      "working_memory_snapshot": {
+        "active_fusion_policy": "balanced",
+        "active_governance_mode": "advisory",
+        "active_policy_profile": "default",
+        "active_retrieval_mode": "hybrid",
+        "candidate_count_post_governance": 8,
+        "candidate_count_pre_governance": 16,
+        "contradiction_count": 0,
+        "derived_fact_eligible": true,
+        "forecast_advisory_present": false,
+        "graph_expansion_eligible": false,
+        "pre_cognitive_cache_hit": false,
+        "query": "Return evidence bundle for retention rules.",
+        "query_class": "evidence_bundle",
+        "query_class_confidence": 0.91,
+        "selected_route": "return",
+        "session_id": null,
+        "summary_eligible": false,
+        "suppression_count": 0
+      }
+    }
+  ],
+  "forecast_outcomes": [
+    {
+      "actual_outcome": "latency_breach_not_observed",
+      "confidence_score": 0.84,
+      "created_at": "2026-06-14T10:35:05.991675+00:00",
+      "forecast_error_delta": 0.04,
+      "forecast_id": "686accd0-2a5b-4b81-ac0b-f8395ed74c79",
+      "forecast_type": "latency_breach",
+      "future_policy_candidate": null,
+      "learning_recommendation": "keep advisory threshold unchanged",
+      "operator_feedback": "accurate",
+      "predicted_condition": "predicted p95 or contradiction pressure",
+      "resolved_at": "2026-06-14T10:35:05.991675+00:00",
+      "selected_action": "conservative_routing",
+      "source_signal": "pulse_p95",
+      "time_horizon_minutes": 15
+    }
+  ],
+  "gates": {
+    "attention_faithfulness": {
+      "failures": [],
+      "passed": true
+    },
+    "bounded_record": {
+      "failures": [],
+      "max_record_bytes": 16000,
+      "passed": true
+    },
+    "forecast_resolution": {
+      "failures": [],
+      "passed": true
+    },
+    "learning_boundary": {
+      "failures": [],
+      "passed": true
+    },
+    "redaction": {
+      "failures": [],
+      "passed": true
+    },
+    "sam_compatibility": {
+      "failures": [],
+      "passed": true
+    }
+  },
+  "pattern_engram_candidates": [
+    {
+      "affects_ranking": false,
+      "applies_when": "Query requests a derived evidence bundle over governed policy memory.",
+      "authoritative_for_retrieval": false,
+      "candidate_id": "88bc7520-f4c5-4e16-8480-9347a0a7bc5a",
+      "confidence_score": 0.72,
+      "contradicting_engram_ids": [],
+      "contradiction_score": 0.05,
+      "does_not_apply_when": "Query requires default factoid retrieval only.",
+      "first_seen_at": "2026-06-14T10:35:05.991675+00:00",
+      "governance_review_id": null,
+      "governance_review_required": true,
+      "last_seen_at": "2026-06-14T10:35:05.991675+00:00",
+      "mutates_policy": false,
+      "pattern_summary": "Repeated evidence-bundle requests benefit from bounded candidate envelopes.",
+      "pattern_type": "descriptive",
+      "promotion_status": "candidate",
+      "proposed_learning_class": "semantic_candidate_write",
+      "recommended_scope": "evidence_bundle_queries",
+      "risk_if_wrong": "MNEMOS could over-use derived views for simple lookup queries.",
+      "source_cycle_count": 2,
+      "support_score": 0.8,
+      "supporting_cycle_ids": [
+        "aa35c4c7-500c-48d5-9420-f66de26d0cd4",
+        "974a3031-c613-4131-b2ae-f7bd539ddbe5"
+      ],
+      "supporting_engram_ids": [
+        "eng-policy-1",
+        "eng-policy-2"
+      ]
+    },
+    {
+      "affects_ranking": false,
+      "applies_when": "Pulse pressure exceeds the advisory threshold with high confidence.",
+      "authoritative_for_retrieval": false,
+      "candidate_id": "bae913f8-ddaf-4200-ae9c-c3c2da902d31",
+      "confidence_score": 0.94,
+      "contradicting_engram_ids": [],
+      "contradiction_score": 0.02,
+      "does_not_apply_when": "Forecast remains unresolved or low confidence.",
+      "first_seen_at": "2026-06-14T10:35:05.991675+00:00",
+      "governance_review_id": "coala_validation_gate",
+      "governance_review_required": true,
+      "last_seen_at": "2026-06-14T10:35:05.991675+00:00",
+      "mutates_policy": false,
+      "pattern_summary": "Forecast spikes may justify conservative routing recommendations.",
+      "pattern_type": "operational_recommendation",
+      "promotion_status": "promotion_recommended",
+      "proposed_learning_class": "procedural_change_candidate",
+      "recommended_scope": "pulse_governance",
+      "risk_if_wrong": "MNEMOS could route conservatively during normal load.",
+      "source_cycle_count": 1,
+      "support_score": 0.9,
+      "supporting_cycle_ids": [
+        "54461e3e-0276-4734-9698-b040209e2e26"
+      ],
+      "supporting_engram_ids": []
+    },
+    {
+      "affects_ranking": false,
+      "applies_when": "A candidate proposes future behavior change.",
+      "authoritative_for_retrieval": false,
+      "candidate_id": "c74ab950-1013-456e-8010-037a9ea31bea",
+      "confidence_score": 0.99,
+      "contradicting_engram_ids": [],
+      "contradiction_score": 0.0,
+      "does_not_apply_when": "Candidate is descriptive only.",
+      "first_seen_at": "2026-06-14T10:35:05.991675+00:00",
+      "governance_review_id": "coala_validation_gate",
+      "governance_review_required": true,
+      "last_seen_at": "2026-06-14T10:35:05.991675+00:00",
+      "mutates_policy": false,
+      "pattern_summary": "Do not mutate routing policy from pattern candidates without review.",
+      "pattern_type": "routing_mutation",
+      "promotion_status": "promotion_recommended",
+      "proposed_learning_class": "blocked_procedural_mutation",
+      "recommended_scope": "router_policy",
+      "risk_if_wrong": "MNEMOS could amplify its own interpretation into policy.",
+      "source_cycle_count": 2,
+      "support_score": 0.95,
+      "supporting_cycle_ids": [
+        "f91fe6c8-a31a-4220-b927-db566ed3540b",
+        "54461e3e-0276-4734-9698-b040209e2e26"
+      ],
+      "supporting_engram_ids": []
+    }
+  ],
+  "representative_query_count": 8,
+  "representative_query_set": [
+    "CLASS_A_DIRECT_LOOKUP",
+    "CLASS_B_MULTI_HOP",
+    "CLASS_C_GLOBAL_SYNTHESIS",
+    "CONTRADICTION_RECONCILIATION",
+    "HIGH_VOLATILITY_GOVERNANCE",
+    "FORECAST_TRIGGERED_PULSE",
+    "PRE_COGNITIVE_SHADOW_SEARCH",
+    "DERIVED_VIEW_EVIDENCE_BUNDLE"
+  ],
+  "status": "PASS"
+}
