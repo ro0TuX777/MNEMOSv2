@@ -38,6 +38,9 @@ Every AI application that persists and retrieves knowledge ends up rebuilding th
 
 The current MNEMOSv2 workstream moves the system beyond static retrieval. It now supports adaptive routing, hierarchy-aware synthesis, additive consensus behavior, and a TimesFM-backed predictive layer so memory can be routed, governed, reconciled, audited, and pre-warmed before demand arrives.
 
+<img width="1672" height="941" alt="MNEMOS" src="https://github.com/user-attachments/assets/dcd76974-0525-4ac9-8c18-22b016a9b780" />
+
+
 ## Capability Map
 
 Status values are summarized here for scanability. The authoritative status
