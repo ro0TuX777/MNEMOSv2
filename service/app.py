@@ -55,6 +55,8 @@ from mnemos.cognitive.pattern_store import PatternCandidateStore
 logger = logging.getLogger("mnemos.service")
 
 CONTRACT_VERSION = "v1"
+CAPABILITY_FEATURE = "mnemos_memory"
+CAPABILITY_SUPPORTS = ["index", "search", "warmup", "engrams", "audit", "stats", "pulse"]
 SUPPORTED_RETRIEVAL_MODES = {"semantic", "hybrid"}
 RESERVED_FILTER_KEYS = {"__mrl_oversample__", "__hnsw_ef__", "__prefetch_only__"}
 
@@ -565,9 +567,9 @@ class MnemosRuntime:
         payload = self._base_payload()
         retrieval_stats = self._router.stats() if self._router else {}
         payload.update({
-            "feature": "mnemos_memory",
+            "feature": CAPABILITY_FEATURE,
             "profile": self._config.profile if self._config else "unknown",
-            "supports": ["index", "search", "warmup", "engrams", "audit", "stats", "pulse"],
+            "supports": list(CAPABILITY_SUPPORTS),
             "pulse": {
                 "enabled": True,
                 "timesfm_enabled": bool(getattr(self._config, "timesfm_enabled", True)),
@@ -1635,6 +1637,8 @@ def _ensure_runtime():
             "status": "unavailable",
             "source": "mnemos-service",
             "generated_at": _utc_now(),
+            "feature": CAPABILITY_FEATURE,
+            "supports": list(CAPABILITY_SUPPORTS),
             "error": str(e),
         }
 
@@ -2123,6 +2127,8 @@ def stats():
         return jsonify({"error": "unauthorized"}), 401
     err = _ensure_runtime()
     if err:
+        err = dict(err)
+        err.setdefault("stats", {"available": False})
         return jsonify(err), 200
     return jsonify(_runtime.get_stats()), 200
 

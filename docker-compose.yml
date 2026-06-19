@@ -22,7 +22,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mnemos -d mnemos_audit"]
+      test: ["CMD-SHELL", "pg_isready -U mnemos -d mnemos"]
       interval: 10s
       timeout: 5s
       retries: 5
