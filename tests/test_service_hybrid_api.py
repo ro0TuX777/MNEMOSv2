@@ -264,3 +264,21 @@ def test_capabilities_unavailable_response_preserves_contract(monkeypatch):
     assert body["feature"] == "mnemos_memory"
     assert body["supports"] == app_mod.CAPABILITY_SUPPORTS
     assert body["error"] == "init failed"
+
+
+def test_stats_unavailable_response_preserves_smoke_contract(monkeypatch):
+    def fail_initialize():
+        raise RuntimeError("init failed")
+
+    monkeypatch.setattr(app_mod._runtime, "initialize", fail_initialize)
+    app_mod.app.config["TESTING"] = True
+
+    with app_mod.app.test_client() as c:
+        resp = c.get("/v1/mnemos/stats")
+
+    assert resp.status_code == 200
+    body = resp.get_json()
+    assert body["contract_version"] == app_mod.CONTRACT_VERSION
+    assert body["status"] == "unavailable"
+    assert body["stats"] == {"available": False}
+    assert body["error"] == "init failed"

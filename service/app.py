@@ -2127,6 +2127,8 @@ def stats():
         return jsonify({"error": "unauthorized"}), 401
     err = _ensure_runtime()
     if err:
+        err = dict(err)
+        err.setdefault("stats", {"available": False})
         return jsonify(err), 200
     return jsonify(_runtime.get_stats()), 200
 
