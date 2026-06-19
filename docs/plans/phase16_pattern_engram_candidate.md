@@ -1,7 +1,7 @@
 # MNEMOS Phase 16–21: PatternEngramCandidate Extraction Harness
 
-**Canonical repo:** `G:\MNEMOS`
-**Whitepaper:** `G:\MNEMOS\docs\whitepaper.md` (v3.2)
+**Canonical repo:** `<repo-root>`
+**Whitepaper:** `<repo-root>\docs\whitepaper.md` (v3.2)
 **Paper basis:** ExpeL (conceptual), R²-Mem `2605.13486v1` (operational), From Storage to Experience (taxonomy), A-MEM (linking), Governing Evolving Memory (safety)
 **Status:** Plan — not yet implemented
 **Phase sequence:** 16 → 17 → 18 → 19 → 20 → 21

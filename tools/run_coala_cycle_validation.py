@@ -3,7 +3,7 @@ CoALA cycle operational validation harness for MNEMOS.
 
 This harness validates the cognitive-cycle contract against deterministic
 representative records.  It proves that the cycle record is evidence-derived,
-bounded, redacted, SAM-compatible, and linked to forecast lifecycle state.
+bounded, redacted, adapter-compatible, and linked to forecast lifecycle state.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ SENSITIVE_KEYS = {
 }
 
 MAX_RECORD_BYTES = 16000
-REQUIRED_SAM_KEYS = {
+REQUIRED_ADAPTER_KEYS = {
     "cycle_id",
     "trigger_type",
     "query_or_event",
@@ -337,10 +337,10 @@ def _gate_redaction(cycles: List[Dict[str, Any]], forecasts: List[Dict[str, Any]
     return {"passed": not failures, "failures": failures}
 
 
-def _gate_sam_compatibility(cycles: List[Dict[str, Any]]) -> Dict[str, Any]:
+def _gate_adapter_compatibility(cycles: List[Dict[str, Any]]) -> Dict[str, Any]:
     failures = []
     for cycle in cycles:
-        missing = REQUIRED_SAM_KEYS.difference(cycle)
+        missing = REQUIRED_ADAPTER_KEYS.difference(cycle)
         if missing:
             failures.append(f"{cycle['validation_case_id']}: missing {sorted(missing)}")
         for action_group in ("retrieval_actions", "reasoning_actions", "forecast_actions", "execution_actions"):
@@ -390,7 +390,7 @@ def run_validation() -> Dict[str, Any]:
         "attention_faithfulness": _gate_attention_faithfulness(cycles),
         "bounded_record": _gate_bounded_record(cycles),
         "redaction": _gate_redaction(cycles, forecasts),
-        "sam_compatibility": _gate_sam_compatibility(cycles),
+        "adapter_compatibility": _gate_adapter_compatibility(cycles),
         "forecast_resolution": _gate_forecast_resolution(cycles, forecasts),
         "learning_boundary": _gate_learning_boundary(cycles, patterns),
     }

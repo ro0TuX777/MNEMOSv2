@@ -32,6 +32,8 @@ Thumbs.db
 
 # Environment
 .env
+.env.mnemos
+docker-compose.generated.yml
 
 # Local agent/editor settings (machine-specific)
 .claude/settings.local.json
@@ -40,6 +42,7 @@ Thumbs.db
 # Generated benchmark/test artifacts
 tests/_tmp/
 benchmarks/outputs/
+benchmarks/results/ebir_refinement_benchmark.json
 migration_checkpoint.json
 
 # Runtime telemetry sinks (operational data, not source)
@@ -51,6 +54,12 @@ eval_corpora/
 
 # Local dev scratch / temp artifacts (not source)
 .temp/
+_tmp_*/
+temp_paper*.txt
 
-# SAM application assets (belong to SAM project, not MNEMOS)
+# Local EBIR-R2 trial outputs (generated, may contain reviewer responses)
+eval_results/ebir_r2/
+eval_results/ebir_r2_full/
+
+# External application assets (belong outside MNEMOS)
 sam/

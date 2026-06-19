@@ -206,7 +206,7 @@ class AttentionDecision:
     """
     One focus or routing decision made by MNEMOS during the attention stage.
 
-    Consuming systems (SAM, third-party tools) can read the list of
+    External adapters and third-party tools can read the list of
     AttentionDecisions in a CognitiveCycleRecord to understand *why*
     MNEMOS paid attention to certain evidence and ignored other evidence,
     without needing to understand MNEMOS internal routing code.
@@ -397,7 +397,7 @@ class CognitiveCycleRecord:
     operation.  This record is the core artifact of the CoALA-aligned cognitive
     cycle contract.
 
-    Consuming systems (SAM and third-party tools) can use this record to answer:
+    External adapters and third-party tools can use this record to answer:
       - What did MNEMOS observe?
       - What did MNEMOS ignore?
       - What evidence entered the candidate envelope?

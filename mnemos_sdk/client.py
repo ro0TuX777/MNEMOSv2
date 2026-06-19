@@ -34,6 +34,8 @@ class SearchHit:
     score: float
     tier: str
     tiers: List[str]
+    rank: Optional[int] = None
+    evidence: Optional[Dict[str, Any]] = None
     component_scores: Optional[Dict[str, float]] = None
     retrieval_sources: Optional[List[str]] = None
     fusion_policy: Optional[str] = None
@@ -331,6 +333,8 @@ class MnemosClient:
                 score=r.get("score", 0.0),
                 tier=r.get("tier", ""),
                 tiers=r.get("tiers", []),
+                rank=r.get("rank"),
+                evidence=r.get("evidence"),
                 component_scores=r.get("component_scores"),
                 retrieval_sources=r.get("retrieval_sources"),
                 fusion_policy=r.get("fusion_policy"),

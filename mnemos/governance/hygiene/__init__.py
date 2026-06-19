@@ -51,6 +51,17 @@ from mnemos.governance.hygiene.reconciliation_runner import (
     ReconciliationReport,
     ReconciliationRunner,
 )
+from mnemos.governance.hygiene.repfusion_refiner import (
+    CandidateResolution,
+    EvidenceChallenge,
+    ParentEvidence,
+    ReconciliationPacket,
+    RefinementPassRecord,
+    RepFusionRefinementRecord,
+    RepFusionRefinementReport,
+    RepFusionRefiner,
+    RevisionDelta,
+)
 from mnemos.governance.hygiene.clustering_runner import (
     HierarchicalClusterRecord,
     HierarchicalClusteringRunner,
@@ -172,6 +183,15 @@ __all__ = [
     "ReconciliationRecord",
     "ReconciliationReport",
     "ReconciliationRunner",
+    "CandidateResolution",
+    "EvidenceChallenge",
+    "ParentEvidence",
+    "ReconciliationPacket",
+    "RefinementPassRecord",
+    "RepFusionRefinementRecord",
+    "RepFusionRefinementReport",
+    "RepFusionRefiner",
+    "RevisionDelta",
     "HierarchicalClusterRecord",
     "HierarchicalClusteringRunner",
     "HierarchyReport",

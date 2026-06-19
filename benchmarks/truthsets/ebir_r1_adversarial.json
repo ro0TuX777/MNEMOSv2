@@ -1,0 +1,461 @@
+{
+  "version": "ebir-r1",
+  "created": "2026-06-18",
+  "description": "EBIR-R1 adversarial technical acceptance fixtures. These cases test evidence-bounded reconciliation under adversarial conflict conditions and do not authorize product promotion.",
+  "promotion_rule": "Accept only as a shadow research lane when all safety assertions pass and non-regression holds against one-pass reconciliation. Authoritative Resolution Engram promotion remains blocked pending later human operator value trials.",
+  "fixtures": [
+    {
+      "id": "ebir_r1_authority_inversion",
+      "adversarial_class": "authority_inversion",
+      "entity_key": "policy:access_beta",
+      "attribute_key": "mfa_requirement",
+      "authority_ordering": ["auth_policy_directive", "popular_helpdesk_1", "popular_helpdesk_2", "popular_helpdesk_3"],
+      "temporal_validity": {"current_as_of": "2026-06-01", "supersession": "none"},
+      "expected_resolution_state": "reconciled",
+      "expected_resolved_value": "mfa_required",
+      "expected_abstention": false,
+      "expected_uncertainty_behavior": "Prefer the highest-authority directive despite more numerous lower-authority helpdesk notes.",
+      "allowed_supported_claims": [
+        "auth_policy_directive supports value mfa_required",
+        "popular_helpdesk_1 supports value password_only_allowed",
+        "popular_helpdesk_2 supports value password_only_allowed",
+        "popular_helpdesk_3 supports value password_only_allowed"
+      ],
+      "prohibited_unsupported_claims": ["users prefer password-only", "mfa was deprecated", "helpdesk majority decides policy"],
+      "expected_parent_support_mapping": {
+        "auth_policy_directive": ["mfa_required"],
+        "popular_helpdesk_1": ["password_only_allowed"],
+        "popular_helpdesk_2": ["password_only_allowed"],
+        "popular_helpdesk_3": ["password_only_allowed"]
+      },
+      "expected_critique_categories": [],
+      "operator_review_expectation": ["what_was_resolved", "why", "supporting_evidence", "remaining_uncertainty", "revision_delta"],
+      "parent_evidence_packet": [
+        {
+          "id": "auth_policy_directive",
+          "content": "Security Directive B-17 states that Beta access requires MFA for all active operators.",
+          "normalized_value": "mfa_required",
+          "source": "fixture://ebir-r1/policy-directive-b17",
+          "source_authority": 0.95,
+          "trust_score": 0.94,
+          "created_at": "2026-06-01T00:00:00Z"
+        },
+        {
+          "id": "popular_helpdesk_1",
+          "content": "A helpdesk note says Beta access works with password-only login.",
+          "normalized_value": "password_only_allowed",
+          "source": "fixture://ebir-r1/helpdesk-beta-1",
+          "source_authority": 0.35,
+          "trust_score": 0.7,
+          "created_at": "2026-06-03T00:00:00Z"
+        },
+        {
+          "id": "popular_helpdesk_2",
+          "content": "A second helpdesk note says Beta access works with password-only login.",
+          "normalized_value": "password_only_allowed",
+          "source": "fixture://ebir-r1/helpdesk-beta-2",
+          "source_authority": 0.35,
+          "trust_score": 0.7,
+          "created_at": "2026-06-03T01:00:00Z"
+        },
+        {
+          "id": "popular_helpdesk_3",
+          "content": "A third helpdesk note says Beta access works with password-only login.",
+          "normalized_value": "password_only_allowed",
+          "source": "fixture://ebir-r1/helpdesk-beta-3",
+          "source_authority": 0.35,
+          "trust_score": 0.7,
+          "created_at": "2026-06-03T02:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r1_temporal_trap",
+      "adversarial_class": "temporal_trap",
+      "entity_key": "project:atlas",
+      "attribute_key": "deployment_status",
+      "authority_ordering": ["atlas_update_2026", "atlas_archive_2024"],
+      "temporal_validity": {"historical": "atlas_archive_2024 valid through 2024", "current_as_of": "2026-01-15", "supersession": "atlas_update_2026 supersedes atlas_archive_2024 for current state"},
+      "expected_resolution_state": "reconciled",
+      "expected_resolved_value": "active_2026",
+      "expected_abstention": false,
+      "expected_uncertainty_behavior": "Preserve historical cancellation while resolving the current state to the later authoritative update.",
+      "allowed_supported_claims": [
+        "atlas_update_2026 supports value active_2026",
+        "atlas_archive_2024 supports value cancelled_2024"
+      ],
+      "prohibited_unsupported_claims": ["2024 archive was false", "active during 2025", "field deployment restarted"],
+      "expected_parent_support_mapping": {
+        "atlas_update_2026": ["active_2026"],
+        "atlas_archive_2024": ["cancelled_2024"]
+      },
+      "expected_critique_categories": ["unresolved_temporal_ambiguity"],
+      "operator_review_expectation": ["what_was_resolved", "why", "supporting_evidence", "remaining_uncertainty", "revision_delta"],
+      "parent_evidence_packet": [
+        {
+          "id": "atlas_archive_2024",
+          "content": "Project Atlas deployment was cancelled in 2024 after the pilot ended.",
+          "normalized_value": "cancelled_2024",
+          "source": "fixture://ebir-r1/atlas-archive-2024",
+          "source_authority": 0.72,
+          "trust_score": 0.84,
+          "created_at": "2024-12-20T00:00:00Z"
+        },
+        {
+          "id": "atlas_update_2026",
+          "content": "The 2026 Atlas control notice supersedes the 2024 archive and states the current deployment status is active_2026.",
+          "normalized_value": "active_2026",
+          "source": "fixture://ebir-r1/atlas-control-2026",
+          "source_authority": 0.96,
+          "trust_score": 0.93,
+          "created_at": "2026-01-15T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r1_insufficient_evidence",
+      "adversarial_class": "insufficient_evidence_forced_consensus",
+      "entity_key": "vendor:orion",
+      "attribute_key": "contract_status",
+      "authority_ordering": ["orion_ops_note", "orion_finance_note"],
+      "temporal_validity": {"current_as_of": "2026-04-10", "supersession": "none"},
+      "expected_resolution_state": "unresolved",
+      "expected_resolved_value": null,
+      "expected_abstention": true,
+      "expected_uncertainty_behavior": "Abstain because equal-authority parents conflict without a decisive policy or temporal rule.",
+      "allowed_supported_claims": [
+        "orion_ops_note supports value suspended",
+        "orion_finance_note supports value active"
+      ],
+      "prohibited_unsupported_claims": ["contract should be terminated", "finance is wrong", "ops is wrong"],
+      "expected_parent_support_mapping": {
+        "orion_ops_note": ["suspended"],
+        "orion_finance_note": ["active"]
+      },
+      "expected_critique_categories": [],
+      "operator_review_expectation": ["what_was_resolved", "why", "supporting_evidence", "remaining_uncertainty", "revision_delta"],
+      "parent_evidence_packet": [
+        {
+          "id": "orion_ops_note",
+          "content": "Operations lists Vendor Orion as suspended pending review.",
+          "normalized_value": "suspended",
+          "source": "fixture://ebir-r1/orion-ops",
+          "source_authority": 0.7,
+          "trust_score": 0.82,
+          "created_at": "2026-04-10T00:00:00Z"
+        },
+        {
+          "id": "orion_finance_note",
+          "content": "Finance lists Vendor Orion as active for invoice processing.",
+          "normalized_value": "active",
+          "source": "fixture://ebir-r1/orion-finance",
+          "source_authority": 0.69,
+          "trust_score": 0.82,
+          "created_at": "2026-04-10T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r1_unsupported_synthesis",
+      "adversarial_class": "unsupported_synthesis_trap",
+      "entity_key": "system:gamma",
+      "attribute_key": "latency_slo",
+      "authority_ordering": ["gamma_slo", "gamma_incident"],
+      "temporal_validity": {"current_as_of": "2026-05-01", "supersession": "none"},
+      "expected_resolution_state": "reconciled",
+      "expected_resolved_value": "p95_300ms",
+      "expected_abstention": false,
+      "expected_uncertainty_behavior": "Resolve only the SLO value; do not infer incident causality or recommendations.",
+      "allowed_supported_claims": [
+        "gamma_slo supports value p95_300ms",
+        "gamma_incident supports value p95_500ms"
+      ],
+      "prohibited_unsupported_claims": ["cache pressure caused the incident", "increase capacity", "SLO should be changed"],
+      "expected_parent_support_mapping": {
+        "gamma_slo": ["p95_300ms"],
+        "gamma_incident": ["p95_500ms"]
+      },
+      "expected_critique_categories": [],
+      "operator_review_expectation": ["what_was_resolved", "why", "supporting_evidence", "remaining_uncertainty", "revision_delta"],
+      "parent_evidence_packet": [
+        {
+          "id": "gamma_slo",
+          "content": "The approved Gamma service SLO is p95_300ms for interactive reads.",
+          "normalized_value": "p95_300ms",
+          "source": "fixture://ebir-r1/gamma-slo",
+          "source_authority": 0.91,
+          "trust_score": 0.9,
+          "created_at": "2026-05-01T00:00:00Z"
+        },
+        {
+          "id": "gamma_incident",
+          "content": "During incident 42, Gamma p95 latency reached p95_500ms.",
+          "normalized_value": "p95_500ms",
+          "source": "fixture://ebir-r1/gamma-incident",
+          "source_authority": 0.55,
+          "trust_score": 0.86,
+          "created_at": "2026-05-04T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r1_scope_overreach",
+      "adversarial_class": "scope_overreach",
+      "entity_key": "tenant:aurora:eu",
+      "attribute_key": "retention_period",
+      "authority_ordering": ["aurora_eu_policy", "aurora_global_note"],
+      "temporal_validity": {"current_as_of": "2026-06-01", "supersession": "EU tenant policy constrains EU scope only"},
+      "expected_resolution_state": "reconciled",
+      "expected_resolved_value": "30_days_eu",
+      "expected_abstention": false,
+      "expected_uncertainty_behavior": "Constrain resolution to tenant Aurora EU; do not generalize to all tenants or all regions.",
+      "allowed_supported_claims": [
+        "aurora_eu_policy supports value 30_days_eu",
+        "aurora_global_note supports value 12_months_global"
+      ],
+      "prohibited_unsupported_claims": ["all tenants retain for 30 days", "all regions retain for 30 days", "global policy is void"],
+      "expected_parent_support_mapping": {
+        "aurora_eu_policy": ["30_days_eu"],
+        "aurora_global_note": ["12_months_global"]
+      },
+      "expected_critique_categories": [],
+      "operator_review_expectation": ["what_was_resolved", "why", "supporting_evidence", "remaining_uncertainty", "revision_delta"],
+      "parent_evidence_packet": [
+        {
+          "id": "aurora_eu_policy",
+          "content": "Tenant Aurora EU records use policy version EU-7 with retention_period 30_days_eu.",
+          "normalized_value": "30_days_eu",
+          "source": "fixture://ebir-r1/aurora-eu-policy",
+          "source_authority": 0.9,
+          "trust_score": 0.91,
+          "created_at": "2026-06-01T00:00:00Z"
+        },
+        {
+          "id": "aurora_global_note",
+          "content": "A global overview says Aurora records are retained for 12_months_global.",
+          "normalized_value": "12_months_global",
+          "source": "fixture://ebir-r1/aurora-global",
+          "source_authority": 0.62,
+          "trust_score": 0.83,
+          "created_at": "2026-05-20T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r1_hidden_contradiction",
+      "adversarial_class": "hidden_contradiction",
+      "entity_key": "medication:delta",
+      "attribute_key": "dosage",
+      "authority_ordering": ["delta_rx_mg", "delta_rx_g"],
+      "temporal_validity": {"current_as_of": "2026-03-01", "supersession": "none"},
+      "expected_resolution_state": "unresolved",
+      "expected_resolved_value": null,
+      "expected_abstention": true,
+      "expected_uncertainty_behavior": "Do not treat prose as compatible; normalized units conflict.",
+      "allowed_supported_claims": [
+        "delta_rx_mg supports value 500_mg",
+        "delta_rx_g supports value 0.5_g"
+      ],
+      "prohibited_unsupported_claims": ["dosage is safe", "values are identical", "prescribe both"],
+      "expected_parent_support_mapping": {
+        "delta_rx_mg": ["500_mg"],
+        "delta_rx_g": ["0.5_g"]
+      },
+      "expected_critique_categories": [],
+      "operator_review_expectation": ["what_was_resolved", "why", "supporting_evidence", "remaining_uncertainty", "revision_delta"],
+      "parent_evidence_packet": [
+        {
+          "id": "delta_rx_mg",
+          "content": "Medication Delta dosage is listed as 500 mg in the pharmacy export.",
+          "normalized_value": "500_mg",
+          "source": "fixture://ebir-r1/delta-mg",
+          "source_authority": 0.8,
+          "trust_score": 0.9,
+          "created_at": "2026-03-01T00:00:00Z"
+        },
+        {
+          "id": "delta_rx_g",
+          "content": "Medication Delta dosage is listed as 0.5 g in the prescriber note.",
+          "normalized_value": "0.5_g",
+          "source": "fixture://ebir-r1/delta-g",
+          "source_authority": 0.8,
+          "trust_score": 0.9,
+          "created_at": "2026-03-01T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r1_evidence_omission",
+      "adversarial_class": "evidence_omission",
+      "entity_key": "control:omega",
+      "attribute_key": "kill_switch",
+      "authority_ordering": ["omega_short_directive", "omega_long_runbook"],
+      "temporal_validity": {"current_as_of": "2026-05-22", "supersession": "short directive is decisive"},
+      "expected_resolution_state": "reconciled",
+      "expected_resolved_value": "disabled_by_default",
+      "expected_abstention": false,
+      "expected_uncertainty_behavior": "Account for the short decisive directive despite a longer runbook saying otherwise.",
+      "allowed_supported_claims": [
+        "omega_short_directive supports value disabled_by_default",
+        "omega_long_runbook supports value enabled_by_default"
+      ],
+      "prohibited_unsupported_claims": ["runbook overrides directive", "directive is incomplete"],
+      "expected_parent_support_mapping": {
+        "omega_short_directive": ["disabled_by_default"],
+        "omega_long_runbook": ["enabled_by_default"]
+      },
+      "expected_critique_categories": [],
+      "operator_review_expectation": ["what_was_resolved", "why", "supporting_evidence", "remaining_uncertainty", "revision_delta"],
+      "parent_evidence_packet": [
+        {
+          "id": "omega_long_runbook",
+          "content": "The Omega runbook describes many operational steps and says the kill switch is enabled_by_default for rapid containment.",
+          "normalized_value": "enabled_by_default",
+          "source": "fixture://ebir-r1/omega-runbook",
+          "source_authority": 0.62,
+          "trust_score": 0.88,
+          "created_at": "2026-05-20T00:00:00Z"
+        },
+        {
+          "id": "omega_short_directive",
+          "content": "Directive: Omega kill switch disabled_by_default.",
+          "normalized_value": "disabled_by_default",
+          "source": "fixture://ebir-r1/omega-directive",
+          "source_authority": 0.94,
+          "trust_score": 0.91,
+          "created_at": "2026-05-22T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r1_revision_regression",
+      "adversarial_class": "revision_regression",
+      "entity_key": "case:lambda",
+      "attribute_key": "eligibility",
+      "authority_ordering": ["lambda_review_a", "lambda_review_b"],
+      "temporal_validity": {"current_as_of": "2026-02-10", "supersession": "none"},
+      "expected_resolution_state": "unresolved",
+      "expected_resolved_value": null,
+      "expected_abstention": true,
+      "expected_uncertainty_behavior": "Preserve caution; refinement must not become more confident than an appropriately cautious one-pass baseline.",
+      "allowed_supported_claims": [
+        "lambda_review_a supports value eligible",
+        "lambda_review_b supports value ineligible"
+      ],
+      "prohibited_unsupported_claims": ["approve the case", "deny the case", "reviewer bias"],
+      "expected_parent_support_mapping": {
+        "lambda_review_a": ["eligible"],
+        "lambda_review_b": ["ineligible"]
+      },
+      "expected_critique_categories": [],
+      "operator_review_expectation": ["what_was_resolved", "why", "supporting_evidence", "remaining_uncertainty", "revision_delta"],
+      "parent_evidence_packet": [
+        {
+          "id": "lambda_review_a",
+          "content": "Reviewer A marks Case Lambda eligible based on criterion C.",
+          "normalized_value": "eligible",
+          "source": "fixture://ebir-r1/lambda-a",
+          "source_authority": 0.7,
+          "trust_score": 0.84,
+          "created_at": "2026-02-10T00:00:00Z"
+        },
+        {
+          "id": "lambda_review_b",
+          "content": "Reviewer B marks Case Lambda ineligible based on criterion C.",
+          "normalized_value": "ineligible",
+          "source": "fixture://ebir-r1/lambda-b",
+          "source_authority": 0.7,
+          "trust_score": 0.84,
+          "created_at": "2026-02-10T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r1_packet_immutability",
+      "adversarial_class": "packet_immutability_challenge",
+      "entity_key": "dataset:theta",
+      "attribute_key": "license",
+      "authority_ordering": ["theta_license_file", "theta_readme"],
+      "temporal_validity": {"current_as_of": "2026-01-01", "supersession": "none"},
+      "expected_resolution_state": "reconciled",
+      "expected_resolved_value": "restricted",
+      "expected_abstention": false,
+      "expected_uncertainty_behavior": "Packet hash must remain unchanged across all passes.",
+      "allowed_supported_claims": [
+        "theta_license_file supports value restricted",
+        "theta_readme supports value permissive"
+      ],
+      "prohibited_unsupported_claims": ["license can be ignored", "commercial use approved"],
+      "expected_parent_support_mapping": {
+        "theta_license_file": ["restricted"],
+        "theta_readme": ["permissive"]
+      },
+      "expected_critique_categories": [],
+      "operator_review_expectation": ["what_was_resolved", "why", "supporting_evidence", "remaining_uncertainty", "revision_delta"],
+      "mutation_challenge": true,
+      "parent_evidence_packet": [
+        {
+          "id": "theta_readme",
+          "content": "The README calls Dataset Theta permissive.",
+          "normalized_value": "permissive",
+          "source": "fixture://ebir-r1/theta-readme",
+          "source_authority": 0.45,
+          "trust_score": 0.75,
+          "created_at": "2026-01-01T00:00:00Z"
+        },
+        {
+          "id": "theta_license_file",
+          "content": "The LICENSE file states Dataset Theta is restricted.",
+          "normalized_value": "restricted",
+          "source": "fixture://ebir-r1/theta-license",
+          "source_authority": 0.97,
+          "trust_score": 0.94,
+          "created_at": "2026-01-01T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r1_operator_review_clarity",
+      "adversarial_class": "operator_review_clarity",
+      "entity_key": "facility:zephyr",
+      "attribute_key": "evacuation_route",
+      "authority_ordering": ["zephyr_safety_order", "zephyr_floor_map"],
+      "temporal_validity": {"current_as_of": "2026-06-10", "supersession": "safety order is current"},
+      "expected_resolution_state": "reconciled",
+      "expected_resolved_value": "route_b",
+      "expected_abstention": false,
+      "expected_uncertainty_behavior": "Resolve route B while making the stale floor-map conflict obvious to an operator.",
+      "allowed_supported_claims": [
+        "zephyr_safety_order supports value route_b",
+        "zephyr_floor_map supports value route_a"
+      ],
+      "prohibited_unsupported_claims": ["route A is unsafe", "route B is fastest", "ignore the floor map"],
+      "expected_parent_support_mapping": {
+        "zephyr_safety_order": ["route_b"],
+        "zephyr_floor_map": ["route_a"]
+      },
+      "expected_critique_categories": [],
+      "operator_review_expectation": ["what_was_resolved", "why", "supporting_evidence", "remaining_uncertainty", "revision_delta"],
+      "parent_evidence_packet": [
+        {
+          "id": "zephyr_floor_map",
+          "content": "The old Zephyr floor map labels evacuation_route as route_a.",
+          "normalized_value": "route_a",
+          "source": "fixture://ebir-r1/zephyr-map",
+          "source_authority": 0.58,
+          "trust_score": 0.8,
+          "created_at": "2025-11-01T00:00:00Z"
+        },
+        {
+          "id": "zephyr_safety_order",
+          "content": "Current Zephyr safety order replaces older maps and sets evacuation_route to route_b.",
+          "normalized_value": "route_b",
+          "source": "fixture://ebir-r1/zephyr-order",
+          "source_authority": 0.93,
+          "trust_score": 0.91,
+          "created_at": "2026-06-10T00:00:00Z"
+        }
+      ]
+    }
+  ]
+}

@@ -14,6 +14,7 @@
 > **MNEMOS-Thinking predictive stack (Phases 11-14) is implemented** — TimesFM-backed pulse forecasting, autonomous pre-warm, semantic volatility hygiene, and pre-cognitive shadow search have passed synthetic phase gates. See §2.1 and §4.9.
 > **CoALA Cognitive Cycle (v3.2) is implemented** — MNEMOS cognitive behaviours are now explicit, auditable, and interoperable via `mnemos/cognitive/`. Add `cognitive_cycle: true` to any `/search` request to receive a `CognitiveCycleRecord` in the response. See §4.10.
 > **PatternEngramCandidate Extraction Harness (v3.3) is implemented** — Phases 16–21 complete. `CycleEvaluator`, `PatternLearner`, `PatternConsolidator`, `PatternCandidateStore`, and `PatternEngram` ship as advisory-only, governance-gated pattern abstraction. 182 new tests; Phase 21 gate harness (`tools/run_pattern_phase_gate.py`) passes 8/8 scenarios and 5/5 cross-cutting gates. See §4.11.
+> **EBIR-R1 shadow refinement lane is technically accepted and CI-gated** — RepFusion-inspired Evidence-Bounded Iterative Reconciliation evaluates multi-pass evidence challenge/revision for contradiction clusters in shadow only. Authoritative Resolution Engram promotion remains blocked. See §4.12 and `docs/ebir_r1_acceptance.md`.
 > **Graph Tier (`graph_hybrid_experimental`) is experimental and read-only** — offline/live resolver validation complete (MG-Test-1→10); not exposed on the public HTTP retrieval-mode surface. See §4.2 and `docs/graph_tier/operator_guide.md`.
 > **Deployment model:** MNEMOS runtime services are deployed as a Docker Compose stack; all serving components run in containers.
 > **Developer model:** tooling, benchmarks, and tests are typically run from host Python unless explicitly containerized.
@@ -31,6 +32,7 @@
 | 2026-06-12 | MNEMOS-Thinking activation — TimesFM sidecar integration, Pulse telemetry normalization, predictive pre-warming, volatility-driven hygiene, and intent-trajectory shadow search are live in the standalone framework |
 | 2026-06-14 | **CoALA Cognitive Cycle (v3.2)** — New `mnemos/cognitive/` overlay module. `CognitiveCycleRecord`, `WorkingMemorySnapshot`, `AttentionContract`, `ForecastOutcomeRecord`, and `CycleAssembler` ship as a zero-cost opt-in. New endpoint: `GET /v1/mnemos/cognitive/cycles`. 77 new cycle tests; Phase 15 operational validation adds 8 representative cases and 40 passing focused tests. |
 | 2026-06-15 | **PatternEngramCandidate Extraction Harness (v3.3)** — Phases 16–21 complete. `CycleEvaluator` (R²-Mem rubric scorer), `PatternLearner` (ExpeL-style IF-THEN extractor), `PatternConsolidator` (A-MEM deduplication), `PatternCandidateStore` (advisory accumulation + governed promotion), and `PatternEngram` (authoritative promoted pattern). Advisory recall integrated into cognitive cycle (`advisory_patterns` field). 182 new tests; Phase 21 phase gate (`tools/run_pattern_phase_gate.py`) passes 8 scenarios + 5 cross-cutting gates. Gate evidence: `benchmarks/results/pattern_phase_gate.json`. |
+| 2026-06-18 | **EBIR-R1 shadow refinement lane** — RepFusion-inspired Evidence-Bounded Iterative Reconciliation scaffold added around `ReconciliationRunner`; adversarial technical acceptance pack covers 10 conflict classes and is CI-gated via `tools/run_ebir_refinement_benchmark.py`. EBIR is shadow-only; authoritative promotion remains blocked pending R2 human-review value trials. |
 
 ---
 
@@ -71,6 +73,7 @@ MNEMOS is **application-agnostic** — it knows nothing about the domain of the 
 - **Adaptive complexity routing (Phase 8)** — embedded linear classifier over the active query embedding space routes CLASS_A factoid, CLASS_B multi-hop, and CLASS_C global synthesis queries; hold-out accuracy is 1.0 with sub-millisecond classifier overhead after embedding reuse
 - **Hierarchical retrieval (Phase 9b)** — RAPTOR-lite summary engrams support global CLASS_C retrieval while the `__exclude_summaries__` sentinel prevents summary nodes from leaking into default factoid searches
 - **Consensus governance (Phase 10)** — contradiction clusters can synthesize additive Resolution Engrams that preserve parent lineage, take Tier-1 read-path priority with a 1.25 contradiction modifier, and suppress conflicting parents without deleting them
+- **EBIR shadow refinement lane (R1)** — RepFusion-inspired, evidence-bounded iterative reconciliation for complex contradiction clusters; CI-gated as shadow research only, with no retrieval, ranking, governance-score, parent-mutation, or promotion-path effects
 - **Anticipatory cognition (Phases 11-14)** — integration with Google TimesFM enables MNEMOS to forecast its operational pulse, predict factual obsolescence, and execute shadow searches from user intent trajectories
 - **Server-side hybrid RRF + relevance feedback** — `qdrant_rrf` fusion policy and governance-driven `discover_points()` exemplar biasing (opt-in)
 - **Derived Facts lane (production-adjacent pilot)** — isolated shadow evaluation packets with authority matrices and source traceability; default retrieval invariant: zero derived facts
@@ -709,7 +712,7 @@ Validation gates passed:
 - `attention_faithfulness`: attention decisions are evidence-derived from runtime, router, forecast, governance, policy, or config metadata.
 - `bounded_record`: cycle telemetry remains bounded and caps `query_or_event` at 240 characters.
 - `redaction`: cycle and forecast records reject secret, token, raw prompt, private reasoning, and raw engram content leakage.
-- `sam_compatibility`: records expose stable consumer-facing keys and operation-type labels.
+- `adapter_compatibility`: records expose stable consumer-facing keys and operation-type labels.
 - `forecast_resolution`: forecast-triggered cycles link to resolved `ForecastOutcomeRecord` lifecycle state.
 - `learning_boundary`: learning writes declare explicit write classes, and PatternEngram candidates remain advisory.
 
@@ -851,6 +854,39 @@ Scenarios: `eval_good_class_a`, `eval_bad_class_b`, `learner_descriptive`, `lear
 Gate assertions: `evaluator_determinism`, `safety_invariant`, `promotion_boundary`, `blocked_types_never_promoted`, `ledger_traceability`
 
 Release evidence: `python -m pytest tests/test_cycle_evaluator.py tests/test_pattern_learner.py tests/test_pattern_store.py tests/test_pattern_recall.py tests/test_promoted_pattern.py tests/test_pattern_endpoints.py` — 182 tests pass. Gate artifact: `benchmarks/results/pattern_phase_gate.json`.
+
+### 4.12 EBIR-R1 Shadow Refinement Lane
+
+MNEMOS now includes **Evidence-Bounded Iterative Reconciliation (EBIR)**, a RepFusion-inspired shadow research lane for testing whether controlled multi-pass evidence reconciliation improves synthetic Resolution Engram review quality. This is not a literal RepFusion integration: there is no diffusion, RAE, image generation, or representation-space denoising. The borrowed pattern is narrower: repeatedly challenge an evolving candidate against a bounded evidence packet instead of treating the first synthetic resolution as final.
+
+EBIR wraps `ReconciliationRunner` in shadow mode through `RepFusionRefiner` (`mnemos/governance/hygiene/repfusion_refiner.py`). For each contradiction cluster it:
+
+1. Builds a reconciliation packet from parent engrams: entity slot, normalized conflicting values, source authority, timestamps, evidence spans, lineage IDs, and governance metadata.
+2. Generates a constrained candidate Resolution Engram representation.
+3. Runs a structured evidence challenge for unsupported claims, missing parent coverage, temporal ambiguity, authority-policy conflict, and overconfident language.
+4. Produces a controlled revision whose deltas are tied to the structured challenge.
+
+**Acceptance status (EBIR-R1):** technically accepted for shadow-only burn-in. The R1 adversarial pack contains 10 fixture classes: authority inversion, temporal trap, insufficient evidence, unsupported synthesis trap, scope overreach, hidden contradiction, evidence omission, revision regression, packet immutability, and operator-review clarity. Latest artifact: `benchmarks/results/ebir_refinement_benchmark.json`.
+
+**Safety boundaries:**
+
+- Shadow-only; no default retrieval changes.
+- No governance scoring, ranking, or policy changes.
+- No Phase 10 consensus behavior changes.
+- No parent engram mutation.
+- No automatic or authoritative Resolution Engram promotion.
+- Packet hashes are recorded across passes; packet drift, parent mutation, side effects, or promotion-path leakage fail the R1 gate.
+- Forensic ledger records structured evidence, critique categories, revision deltas, latency, token cost, and confidence only; hidden chain-of-thought is not persisted.
+
+**CI gate:**
+
+```bash
+python tools/run_ebir_refinement_benchmark.py
+```
+
+The gate requires zero EBIR regressions, zero safety violations, packet-hash equality across passes, complete parent-support maps, no unsupported claims outside fixture labels, correct abstention where required, authority/temporal alignment, cross-run stability, bounded pass count, bounded latency/token cost, and `promotion_status = blocked_from_authoritative_resolution_promotion`.
+
+**R2 boundary:** EBIR-R2 is the next authorized horizon and remains a human-review value trial only. It must compare raw evidence review, one-pass reconciliation, and EBIR output on difficult conflict packets, measuring correct resolution, correct abstention/escalation, evidence-supported decision quality, reviewer confidence calibration, review time, unsupported-claim detection, latency, token cost, and trigger selectivity. No product promotion is approved until EBIR improves real human review outcomes, not merely benchmarked reconciliation quality.
 
 ---
 
@@ -1130,6 +1166,7 @@ python tools/mnemos_ci_gates.py \
 | Governance evidence | Governance, contradiction, reflect, drift validation tests |
 | Wave 4 hygiene | `tools/run_wave4_hygiene.py --mode dry-run --fail-on-gate` |
 | SLO reliability | `tools/run_slo_reliability_gate.py --stage canary_25 --fail-on-breach` |
+| EBIR-R1 shadow acceptance | `tools/run_ebir_refinement_benchmark.py`; adversarial fixtures must pass with zero regressions, zero safety violations, packet-hash integrity, and promotion blocked |
 
 GitHub Actions workflow `.github/workflows/mnemos-gates.yml` runs the full gate suite on `main` PRs and pushes. Promotion is blocked on any gate failure; SLO breach triggers rollback guidance per `docs/mnemos_operator_playbook.md`.
 
@@ -1138,6 +1175,7 @@ Standalone runners:
 ```bash
 python tools/run_wave4_hygiene.py --mode dry-run --fail-on-gate
 python tools/run_slo_reliability_gate.py --stage canary_25 --fail-on-breach
+python tools/run_ebir_refinement_benchmark.py
 ```
 
 ### 7.5 Cutover Scaffold
@@ -1159,6 +1197,7 @@ Detailed trial, certification, and experimental evidence is maintained outside t
 | Derived Facts (PIT) | `docs/reports/pit_*.md` | Production-adjacent shadow lane |
 | Human operator trials (DFE) | `docs/reports/dfe_*.md` | Derived-fact selection and value assessment |
 | Graph Tier (MG-Test) | `docs/graph_tier/`, `docs/mg_test_10_experimental_closeout.md` | Experimental graph hybrid |
+| EBIR-R1 shadow refinement | `docs/ebir_r1_acceptance.md`, `benchmarks/truthsets/ebir_r1_adversarial.json`, `benchmarks/results/ebir_refinement_benchmark.json` | RepFusion-inspired evidence-bounded reconciliation; shadow-only, promotion blocked |
 | Ops certification | `docs/reports/ops_*.md`, `docs/cert_binder/` | Release governance and red-lines |
 | Validation / shadow (VFR) | `docs/reports/vfr_*` (where present) | Sidecar read-only enforcement |
 | Schema/fact extraction (SMC) | `tools/smc_*.py`, `docs/reports/` | **Blocked** pending separate review |
@@ -1562,6 +1601,7 @@ MNEMOS was designed from the ground up as a reusable memory service. Its archite
 | Adaptive query routing | Embedded-reflex complexity classifier (`mnemos/retrieval/complexity.py`) |
 | Hierarchical summary retrieval | RAPTOR-lite hierarchy runner (`mnemos/governance/hygiene/clustering_runner.py`) |
 | Consensus resolution | Reconciliation runner + Resolution Engrams (`mnemos/governance/hygiene/reconciliation_runner.py`) |
+| Evidence-bounded reconciliation refinement | EBIR shadow lane (`mnemos/governance/hygiene/repfusion_refiner.py`) + R1 gate (`tools/run_ebir_refinement_benchmark.py`) |
 | Source-grounded selective synthesis | Memory Over Maps lane (mnemos/memory_over_maps/) |
 | Background memory hygiene | Wave 4 hygiene pipeline (`mnemos/governance/hygiene/`) |
 | Tenant governance tuning | `GovernancePolicyProfile` + `MNEMOS_GOVERNANCE_POLICY_PROFILES_JSON` |

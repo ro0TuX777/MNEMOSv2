@@ -1021,7 +1021,7 @@
       "failures": [],
       "passed": true
     },
-    "sam_compatibility": {
+    "adapter_compatibility": {
       "failures": [],
       "passed": true
     }

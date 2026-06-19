@@ -34,7 +34,7 @@ This covers the primary MNEMOS cognitive paths: direct lookup, multi-hop retriev
 | `attention_faithfulness` | Every attention decision must include a runtime/config `policy_source`; LLM or generated-explanation sources are rejected. |
 | `bounded_record` | Serialized cycle records must remain under the bounded size limit and keep `query_or_event` capped at 240 characters. |
 | `redaction` | Cycle and forecast records must not expose sensitive keys such as secrets, tokens, raw prompts, private reasoning, or raw engram content. |
-| `sam_compatibility` | Records must include the stable SAM-facing keys and operation-type labels on action records. |
+| `adapter_compatibility` | Records must include the stable adapter-facing keys and operation-type labels on action records. |
 | `forecast_resolution` | Forecast-triggered cycles must link to a resolved `ForecastOutcomeRecord` lifecycle. |
 | `learning_boundary` | Learning writes must declare an explicit write class; candidates remain advisory and non-authoritative. |
 

@@ -39,6 +39,10 @@ jobs:
         run: python tools/mnemos_ci_gates.py --run-health-audit --smoke-spec tools/mnemos_smoke_spec.json --run-memory-over-maps-gates --run-governance-evidence-gates --run-wave4-hygiene-gate --run-slo-reliability-gate
         continue-on-error: false
 
+      - name: EBIR-R1 shadow acceptance gate
+        run: python tools/run_ebir_refinement_benchmark.py
+        continue-on-error: false
+
       - name: Cleanup
         if: always()
         run: docker rm -f mnemos-ci || true

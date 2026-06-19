@@ -14,6 +14,31 @@
 
 - Program roadmap and 30/60/90 execution plan: `docs/mnemosv2_enhancement_roadmap.md`
 - Operator release/incident runbook: `docs/mnemos_operator_playbook.md`
+- EBIR-R1 shadow acceptance decision: `docs/ebir_r1_acceptance.md`
+
+---
+
+## EBIR-R1 Shadow Acceptance Gate (June 18, 2026)
+
+Evidence-Bounded Iterative Reconciliation (EBIR) is technically accepted only
+as a shadow research lane. Authoritative Resolution Engram promotion remains
+blocked.
+
+Gate command:
+
+```bash
+python tools/run_ebir_refinement_benchmark.py
+```
+
+Artifacts:
+
+- Fixture pack: `benchmarks/truthsets/ebir_r1_adversarial.json`
+- Latest result: `benchmarks/results/ebir_refinement_benchmark.json`
+- Validator decision: `docs/ebir_r1_acceptance.md`
+
+The CI gate must preserve `blocked_from_authoritative_resolution_promotion` and
+fail on EBIR safety violations, regressions, parent-evidence mutation,
+packet-hash drift, or promotion-path side effects.
 
 ---
 

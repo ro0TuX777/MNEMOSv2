@@ -24,6 +24,10 @@ The current MNEMOSv2 workstream moves the system beyond static retrieval. It now
 | **Predictive pulse** | TimesFM-backed operational forecasts for query volume, p95 latency, cache pressure, and degradation risk |
 | **Predictive hygiene** | Semantic volatility signals accelerate decay and reconciliation for high-change engram families |
 | **Pre-cognitive retrieval** | Intent trajectories can populate pre-cognitive cache entries through low-priority shadow search |
+| **Citation-ready evidence contract** | Search responses expose per-result provenance and grouped source summaries for downstream chat, RAG, and agent UIs |
+| **EBIR shadow refinement** | Offline evidence-based refinement benchmarks reconcile conflicting parent evidence without promoting derived claims into live memory |
+| **EBIR-R2 reviewer harness** | Frozen truthsets, blinded Markdown packets, deterministic assignment, compiler validation, and gold-label scoring for human evaluation |
+| **Context Atlas / associative retrieval specs** | Deferred design lanes for context exploration and projection-based associative retrieval, kept separate from live runtime behavior |
 | **Reflect precision** | Lexical or NLI-backed usage detection for safer post-answer reinforcement |
 | **Forensic auditability** | PostgreSQL-backed audit trail, immutable lineage edges, and explainable governance modifiers |
 | **Boundary SDK** | Python client with readiness polling, retry, timeout, and graceful degradation helpers |
@@ -42,12 +46,16 @@ MNEMOSv2 Phase 7-10 advances are documented in [docs/whitepaperupdates.md](docs/
 | **Phase 12: Autonomous pre-warm** | High-confidence forecast spikes can trigger governed warmup with cooldown and audit logs |
 | **Phase 13: Predictive hygiene** | Volatility forecasts bias freshness decay and proactive reconciliation |
 | **Phase 14: Shadow search** | Forecasted intent trajectories populate pre-cognitive cache entries |
+| **Phase 15: Cognitive-cycle transparency** | CoALA-aligned cycle records expose bounded, redacted, adapter-compatible evidence paths |
+| **EBIR-R1/R2: Evidence refinement evaluation** | Shadow-only refinement and reviewer-trial harness validate contradiction handling without changing live retrieval or authority |
+| **Evidence contract** | `/search` results carry normalized provenance packets and `meta.evidence_summary` for citation-aware integrations |
 
 Benchmark evidence lives in:
 
 - [benchmarks/results/phase_8_complexity_accuracy.json](benchmarks/results/phase_8_complexity_accuracy.json)
 - [benchmarks/results/phase_9_hierarchy_sim.json](benchmarks/results/phase_9_hierarchy_sim.json)
 - [benchmarks/results/phase_10_consensus_gate.json](benchmarks/results/phase_10_consensus_gate.json)
+- [benchmarks/results/coala_baseline_v3.2.json](benchmarks/results/coala_baseline_v3.2.json)
 - [benchmarks/results/latency_slo_burn_in.json](benchmarks/results/latency_slo_burn_in.json) — supplemental illustrative trend series (not harness-measured; per-phase measured evidence is in the three gate artifacts above)
 
 ## Deployment Profiles
@@ -117,6 +125,10 @@ Every response includes contract metadata such as `contract_version`, `status`, 
 | Resolution gate | `python tools/validate_phase10_resolution_gate.py` | Verify Resolution Engram priority and parent suppression |
 | Contract diff | `python tools/contract_diff.py --old v1.json --new v2.json` | Backward/forward compatibility checks |
 | CI gates | `python tools/mnemos_ci_gates.py --run-health-audit` | Pipeline gate runner |
+| EBIR-R1 refinement benchmark | `python tools/run_ebir_refinement_benchmark.py --truthset benchmarks/truthsets/ebir_r1_adversarial.json --fail-on-gate` | Shadow-only refinement validation over adversarial contradiction fixtures |
+| EBIR-R2 preflight | `python tools/run_ebir_r2_preflight.py --truthset benchmarks/truthsets/ebir_r2_reviewer_tasks.json --reviewers configs/ebir_r2_reviewers.json --blind --output-dir eval_results/ebir_r2 --fail-on-gate` | Validate blinded reviewer packets before human distribution |
+| EBIR-R2 compiler | `python tools/compile_ebir_r2_pilot_report.py --manifest eval_results/ebir_r2/assignment_manifest.json --responses-dir eval_results/ebir_r2/pilot_responses --output eval_results/ebir_r2/ebir_r2_pilot_report.md --fail-on-gate` | Compile completed Markdown responses without exposing gold labels to reviewers |
+| EBIR-R2 gold scoring | `python tools/score_ebir_r2_gold_report.py --truthset benchmarks/truthsets/ebir_r2_full_reviewer_tasks.json --compiled-report eval_results/ebir_r2_full/ebir_r2_full_report.md --output eval_results/ebir_r2_full/ebir_r2_gold_report.json --fail-on-gate` | Restricted post-freeze unblinding and condition-level scoring |
 
 ## Repository Layout
 
@@ -137,11 +149,18 @@ docs/                Whitepaper, operator playbook, and phase reports
 - [Phase 7-10 supplement](docs/whitepaperupdates.md): adaptive routing, hierarchy, and consensus governance update
 - [Operator playbook](docs/mnemos_operator_playbook.md): diagnostics, rollout, rollback, and incident procedures
 - [Installation guide](INSTALL.md): installer usage, deployment profiles, and manual setup
+- [Chat integration evidence contract](docs/chat_integration_evidence_contract.md): normalized provenance fields for citation-aware consumers
+- [EBIR-R1 acceptance](docs/ebir_r1_acceptance.md): shadow-only refinement acceptance gates
+- [EBIR-R2 trial protocol](docs/ebir_r2_trial_protocol.md): blinded reviewer-trial protocol and scoring workflow
+- [Context Atlas P0 spec](docs/context_atlas_spec.md): deferred exploration API design
+- [Associative retrieval A1 spec](docs/associative_retrieval_a1_spec.md): deferred benchmark-first graph projection design
 
 ## Status Notes
 
 - `graph_hybrid_experimental` remains experimental and read-only; it is not exposed on the public retrieval-mode surface by default.
 - Summary and Resolution Engrams are synthetic governed artifacts with lineage back to raw parents.
+- EBIR refinement and EBIR-R2 scoring are offline, shadow-only evaluation paths; they do not write memory, alter ranking, or promote authority.
+- Context Atlas P0 and A1 associative retrieval remain specifications until their prerequisite gates are complete.
 - Reserved sentinels such as `__exclude_derived__` and `__exclude_summaries__` are server-managed and rejected when supplied directly by clients.
 - Predictive features are controlled by `MNEMOS_TIMESFM_ENABLED` and `MNEMOS_PULSE_ACTIONS`; advisory mode is the default production posture.
 

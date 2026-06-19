@@ -1,0 +1,22 @@
+{
+  "version": "ebir-r2-reviewers-v1",
+  "created": "2026-06-19",
+  "description": "Synthetic reviewer pool for EBIR-R2 preflight assignment validation. Replace with approved reviewer IDs before pilot execution.",
+  "reviewers": [
+    {
+      "reviewer_id": "reviewer_slot_01",
+      "role": "governance_reviewer",
+      "tenant_scope": "synthetic"
+    },
+    {
+      "reviewer_id": "reviewer_slot_02",
+      "role": "evidence_reviewer",
+      "tenant_scope": "synthetic"
+    },
+    {
+      "reviewer_id": "reviewer_slot_03",
+      "role": "operator_reviewer",
+      "tenant_scope": "synthetic"
+    }
+  ]
+}

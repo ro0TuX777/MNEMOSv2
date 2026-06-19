@@ -1,0 +1,244 @@
+{
+  "version": "ebir-r2-reviewer-tasks-v1",
+  "created": "2026-06-19",
+  "freeze_status": "frozen_for_preflight",
+  "description": "Synthetic sanitized EBIR-R2 reviewer-task corpus for preflight packet generation. These cases validate trial structure only and do not authorize promotion.",
+  "promotion_status": "blocked_from_authoritative_resolution_promotion",
+  "conditions": [
+    "raw_evidence",
+    "one_pass_reconciliation",
+    "ebir_refinement"
+  ],
+  "reviewer_task_schema": {
+    "required_packet_fields": [
+      "packet_id",
+      "reviewer_id",
+      "case_blind_id",
+      "condition_blind_id",
+      "task",
+      "parent_evidence",
+      "candidate",
+      "reviewer_questions",
+      "scoring_rubric"
+    ],
+    "required_candidate_fields": [
+      "provided",
+      "status",
+      "resolved_value",
+      "summary",
+      "confidence",
+      "uncertainty_notes",
+      "parent_support_map",
+      "claim_support"
+    ]
+  },
+  "blinding_rules": {
+    "remove_condition_labels": true,
+    "remove_gold_labels": true,
+    "remove_ebir_internals": true,
+    "deterministic_seed_required": true
+  },
+  "assignment_rules": {
+    "min_reviewers": 3,
+    "no_reviewer_same_case_twice": true,
+    "balance_conditions_across_reviewers": true
+  },
+  "reviewer_questions": [
+    {
+      "id": "correct_resolution",
+      "prompt": "Is the resolution or abstention decision correct given the evidence?",
+      "scale": "0_2"
+    },
+    {
+      "id": "evidence_supported",
+      "prompt": "Are all claims supported by the parent evidence?",
+      "scale": "0_2"
+    },
+    {
+      "id": "abstention_or_escalation",
+      "prompt": "Does the packet correctly abstain or escalate when evidence is insufficient?",
+      "scale": "0_2"
+    },
+    {
+      "id": "unsupported_claim_detection",
+      "prompt": "Are unsupported claims absent or clearly identified?",
+      "scale": "0_2"
+    },
+    {
+      "id": "uncertainty_clarity",
+      "prompt": "Is remaining uncertainty clear enough for human review?",
+      "scale": "0_2"
+    },
+    {
+      "id": "reviewer_confidence",
+      "prompt": "How confident are you in your review judgment?",
+      "scale": "1_5"
+    },
+    {
+      "id": "synthesized_recommendation_impression",
+      "prompt": "Did this packet appear to include a synthesized recommendation?",
+      "scale": "yes_no_unsure"
+    },
+    {
+      "id": "synthesized_recommendation_impression_confidence",
+      "prompt": "How confident are you in that impression?",
+      "scale": "1_5"
+    }
+  ],
+  "scoring_rubric": {
+    "0": "Incorrect, unsupported, misleading, or unsafe.",
+    "1": "Partially correct but incomplete, unclear, or weakly supported.",
+    "2": "Correct, evidence-supported, appropriately cautious, and reviewable.",
+    "confidence_1_5": "1 is very low confidence; 5 is very high confidence.",
+    "yes_no_unsure": "Use Yes, No, or Unsure without inferring or labeling the study condition."
+  },
+  "acceptance_criteria": {
+    "preflight": [
+      "all_cases_have_three_conditions",
+      "identical_parent_evidence_across_conditions",
+      "gold_absent_from_reviewer_packets",
+      "condition_and_ebir_internals_removed",
+      "no_reviewer_same_case_twice",
+      "balanced_condition_assignment",
+      "normalized_packet_schema",
+      "ebir_shadow_only",
+      "no_runtime_or_memory_writes"
+    ]
+  },
+  "cases": [
+    {
+      "id": "ebir_r2_authority_inversion_synth",
+      "case_family": "authority_inversion",
+      "review_task": "Determine the current MFA requirement for Beta access.",
+      "entity_key": "policy:access_beta",
+      "attribute_key": "mfa_requirement",
+      "temporal_validity": {
+        "current_as_of": "2026-06-01",
+        "supersession": "none"
+      },
+      "gold_label": {
+        "expected_resolution_state": "reconciled",
+        "expected_resolved_value": "mfa_required",
+        "expected_abstention": false,
+        "required_parent_ids": [
+          "r2_auth_policy_directive",
+          "r2_helpdesk_beta"
+        ],
+        "prohibited_unsupported_claims": [
+          "helpdesk majority decides policy",
+          "mfa was deprecated"
+        ]
+      },
+      "parent_evidence_packet": [
+        {
+          "id": "r2_auth_policy_directive",
+          "content": "Security Directive B-17 states that Beta access requires MFA for all active operators.",
+          "normalized_value": "mfa_required",
+          "source": "fixture://ebir-r2/policy-directive-b17",
+          "source_authority": 0.95,
+          "trust_score": 0.94,
+          "created_at": "2026-06-01T00:00:00Z"
+        },
+        {
+          "id": "r2_helpdesk_beta",
+          "content": "A helpdesk note says Beta access works with password-only login.",
+          "normalized_value": "password_only_allowed",
+          "source": "fixture://ebir-r2/helpdesk-beta",
+          "source_authority": 0.35,
+          "trust_score": 0.70,
+          "created_at": "2026-06-03T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r2_temporal_supersession_synth",
+      "case_family": "temporal_supersession",
+      "review_task": "Determine the current deployment status for Project Atlas.",
+      "entity_key": "project:atlas",
+      "attribute_key": "deployment_status",
+      "temporal_validity": {
+        "historical": "archive valid through 2024",
+        "current_as_of": "2026-01-15",
+        "supersession": "control notice supersedes archive for current state"
+      },
+      "gold_label": {
+        "expected_resolution_state": "reconciled",
+        "expected_resolved_value": "active_2026",
+        "expected_abstention": false,
+        "required_parent_ids": [
+          "r2_atlas_archive_2024",
+          "r2_atlas_update_2026"
+        ],
+        "prohibited_unsupported_claims": [
+          "2024 archive was false",
+          "active during 2025"
+        ]
+      },
+      "parent_evidence_packet": [
+        {
+          "id": "r2_atlas_archive_2024",
+          "content": "Project Atlas deployment was cancelled in 2024 after the pilot ended.",
+          "normalized_value": "cancelled_2024",
+          "source": "fixture://ebir-r2/atlas-archive-2024",
+          "source_authority": 0.72,
+          "trust_score": 0.84,
+          "created_at": "2024-12-20T00:00:00Z"
+        },
+        {
+          "id": "r2_atlas_update_2026",
+          "content": "The 2026 Atlas control notice supersedes the 2024 archive and states the current deployment status is active_2026.",
+          "normalized_value": "active_2026",
+          "source": "fixture://ebir-r2/atlas-control-2026",
+          "source_authority": 0.96,
+          "trust_score": 0.93,
+          "created_at": "2026-01-15T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r2_insufficient_evidence_synth",
+      "case_family": "insufficient_evidence",
+      "review_task": "Determine whether Vendor Orion is active or suspended.",
+      "entity_key": "vendor:orion",
+      "attribute_key": "contract_status",
+      "temporal_validity": {
+        "current_as_of": "2026-04-10",
+        "supersession": "none"
+      },
+      "gold_label": {
+        "expected_resolution_state": "unresolved",
+        "expected_resolved_value": null,
+        "expected_abstention": true,
+        "required_parent_ids": [
+          "r2_orion_ops_note",
+          "r2_orion_finance_note"
+        ],
+        "prohibited_unsupported_claims": [
+          "contract should be terminated",
+          "finance is wrong",
+          "ops is wrong"
+        ]
+      },
+      "parent_evidence_packet": [
+        {
+          "id": "r2_orion_ops_note",
+          "content": "Operations lists Vendor Orion as suspended pending review.",
+          "normalized_value": "suspended",
+          "source": "fixture://ebir-r2/orion-ops",
+          "source_authority": 0.70,
+          "trust_score": 0.82,
+          "created_at": "2026-04-10T00:00:00Z"
+        },
+        {
+          "id": "r2_orion_finance_note",
+          "content": "Finance lists Vendor Orion as active for invoice processing.",
+          "normalized_value": "active",
+          "source": "fixture://ebir-r2/orion-finance",
+          "source_authority": 0.69,
+          "trust_score": 0.82,
+          "created_at": "2026-04-10T00:00:00Z"
+        }
+      ]
+    }
+  ]
+}

@@ -11,6 +11,7 @@ Step 1: Read MNEMOS docs (required)
 - <MNEMOS_PATH>/Use Cases.md
 - <MNEMOS_PATH>/service/contract.json
 - <MNEMOS_PATH>/mnemos_sdk/client.py (skim public API)
+- <MNEMOS_PATH>/docs/chat_integration_evidence_contract.md (required for chat/RAG integrations)
 
 Step 2: Decide operation mode
 - **Standalone**: MNEMOS runs independently, consumer calls via SDK or HTTP.

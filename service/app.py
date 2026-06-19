@@ -306,6 +306,105 @@ class MnemosRuntime:
         }
 
     @staticmethod
+    def _first_metadata_value(metadata: Dict[str, Any], *keys: str) -> Any:
+        for key in keys:
+            value = metadata.get(key)
+            if value not in (None, ""):
+                return value
+        return None
+
+    @classmethod
+    def _build_evidence_packet(cls, result: Any, *, rank: int) -> Dict[str, Any]:
+        engram = result.engram
+        metadata = dict(getattr(engram, "metadata", {}) or {})
+        source_uri = cls._first_metadata_value(
+            metadata,
+            "source_uri",
+            "path",
+            "file_path",
+            "canonical_uri",
+            "uri",
+        ) or getattr(engram, "source", "") or None
+        filename = cls._first_metadata_value(metadata, "filename", "file_name")
+        if filename is None and source_uri:
+            filename = Path(str(source_uri)).name
+
+        title = cls._first_metadata_value(metadata, "title", "document_title")
+        chunk_index = cls._first_metadata_value(metadata, "chunk_index", "chunk")
+        chunk_count = cls._first_metadata_value(metadata, "chunk_count", "total_chunks")
+        score = round(float(getattr(result, "score", 0.0) or 0.0), 4)
+
+        label_parts = [str(filename or title or getattr(engram, "id", ""))]
+        if chunk_index is not None and chunk_count is not None:
+            label_parts.append(f"chunk {chunk_index}/{chunk_count}")
+        elif chunk_index is not None:
+            label_parts.append(f"chunk {chunk_index}")
+
+        return {
+            "result_id": getattr(engram, "id", None),
+            "engram_id": getattr(engram, "id", None),
+            "label": " ".join(part for part in label_parts if part).strip(),
+            "document_title": title,
+            "filename": filename,
+            "source_uri": source_uri,
+            "file_id": cls._first_metadata_value(metadata, "file_id", "artifact_id"),
+            "file_hash": cls._first_metadata_value(metadata, "file_hash", "sha256", "content_hash"),
+            "chunk_id": cls._first_metadata_value(metadata, "chunk_id"),
+            "chunk_index": chunk_index,
+            "chunk_count": chunk_count,
+            "page_start": cls._first_metadata_value(metadata, "page_start", "start_page"),
+            "page_end": cls._first_metadata_value(metadata, "page_end", "end_page"),
+            "char_start": cls._first_metadata_value(metadata, "char_start", "start_char"),
+            "char_end": cls._first_metadata_value(metadata, "char_end", "end_char"),
+            "ingestion_source": cls._first_metadata_value(metadata, "ingestion_source", "ingester"),
+            "canonical_store": cls._first_metadata_value(metadata, "canonical_store") or "mnemos",
+            "score": score,
+            "rank": int(rank),
+        }
+
+    @staticmethod
+    def _build_evidence_summary(result_entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+        grouped: Dict[str, Dict[str, Any]] = {}
+        for entry in result_entries:
+            evidence = entry.get("evidence") or {}
+            key = str(
+                evidence.get("source_uri")
+                or evidence.get("filename")
+                or evidence.get("document_title")
+                or evidence.get("engram_id")
+                or ""
+            )
+            if not key:
+                continue
+            source = grouped.setdefault(
+                key,
+                {
+                    "filename": evidence.get("filename"),
+                    "title": evidence.get("document_title"),
+                    "source_uri": evidence.get("source_uri"),
+                    "top_score": evidence.get("score"),
+                    "chunks_returned": 0,
+                    "chunk_indices": [],
+                    "ranks": [],
+                },
+            )
+            score = evidence.get("score")
+            if score is not None and (
+                source["top_score"] is None or float(score) > float(source["top_score"])
+            ):
+                source["top_score"] = score
+            source["chunks_returned"] += 1
+            if evidence.get("chunk_index") is not None:
+                source["chunk_indices"].append(evidence["chunk_index"])
+            if evidence.get("rank") is not None:
+                source["ranks"].append(evidence["rank"])
+
+        return {
+            "source_count": len(grouped),
+            "sources": list(grouped.values()),
+        }
+
+    @staticmethod
     def _build_governance_trace(
         *,
         decision: Any,
@@ -965,12 +1064,15 @@ class MnemosRuntime:
         result_list = []
         include_lineage = bool(getattr(self._config, "memory_over_maps_phase1", False)) and selected_explain
         for idx, r in enumerate(results):
+            rank = idx + 1
             entry: Dict = {
                 "engram": r.engram.to_dict(include_lineage=include_lineage),
                 "score": round(r.score, 4),
+                "rank": rank,
                 "tier": r.tier,
                 "tiers": r.metadata.get("tiers", [r.tier]),
             }
+            entry["evidence"] = self._build_evidence_packet(r, rank=rank)
             if selected_explain and mode_meta.get("retrieval_mode") == "hybrid":
                 entry.update({
                     "component_scores": r.metadata.get("component_scores"),
@@ -986,7 +1088,7 @@ class MnemosRuntime:
                     entry["governance_trace"] = self._build_governance_trace(
                         decision=dec,
                         raw_rank=raw_rank_by_id.get(r.engram.id),
-                        final_rank=idx + 1,
+                        final_rank=rank,
                     )
             result_list.append(entry)
 
@@ -1001,6 +1103,7 @@ class MnemosRuntime:
             "fusion_policy": mode_meta.get("fusion_policy"),
             "lexical_lane_available": mode_meta.get("lexical_available", False),
             "explain": selected_explain,
+            "evidence_summary": self._build_evidence_summary(result_list),
         }
         envelope_ratio = round((env_final / env_initial), 4) if env_initial else 0.0
         cost_units = (

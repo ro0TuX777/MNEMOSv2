@@ -1,0 +1,512 @@
+{
+  "version": "ebir-r2-full-reviewer-tasks-v1",
+  "created": "2026-06-19",
+  "freeze_status": "frozen_for_full_r2_preflight",
+  "description": "Expanded synthetic sanitized EBIR-R2 reviewer-task corpus for the full condition-masked human-review trial setup. This corpus preserves the pilot packet schema, reviewer wording, response fields, and three-condition structure.",
+  "promotion_status": "blocked_from_authoritative_resolution_promotion",
+  "conditions": [
+    "raw_evidence",
+    "one_pass_reconciliation",
+    "ebir_refinement"
+  ],
+  "reviewer_task_schema": {
+    "required_packet_fields": [
+      "packet_id",
+      "reviewer_id",
+      "case_blind_id",
+      "condition_blind_id",
+      "task",
+      "parent_evidence",
+      "candidate",
+      "reviewer_questions",
+      "scoring_rubric"
+    ],
+    "required_candidate_fields": [
+      "provided",
+      "status",
+      "resolved_value",
+      "summary",
+      "confidence",
+      "uncertainty_notes",
+      "parent_support_map",
+      "claim_support"
+    ]
+  },
+  "blinding_rules": {
+    "remove_condition_labels": true,
+    "remove_gold_labels": true,
+    "remove_ebir_internals": true,
+    "deterministic_seed_required": true
+  },
+  "assignment_rules": {
+    "min_reviewers": 3,
+    "no_reviewer_same_case_twice": true,
+    "balance_conditions_across_reviewers": true
+  },
+  "reviewer_questions": [
+    {
+      "id": "correct_resolution",
+      "prompt": "Is the resolution or abstention decision correct given the evidence?",
+      "scale": "0_2"
+    },
+    {
+      "id": "evidence_supported",
+      "prompt": "Are all claims supported by the parent evidence?",
+      "scale": "0_2"
+    },
+    {
+      "id": "abstention_or_escalation",
+      "prompt": "Does the packet correctly abstain or escalate when evidence is insufficient?",
+      "scale": "0_2"
+    },
+    {
+      "id": "unsupported_claim_detection",
+      "prompt": "Are unsupported claims absent or clearly identified?",
+      "scale": "0_2"
+    },
+    {
+      "id": "uncertainty_clarity",
+      "prompt": "Is remaining uncertainty clear enough for human review?",
+      "scale": "0_2"
+    },
+    {
+      "id": "reviewer_confidence",
+      "prompt": "How confident are you in your review judgment?",
+      "scale": "1_5"
+    },
+    {
+      "id": "synthesized_recommendation_impression",
+      "prompt": "Did this packet appear to include a synthesized recommendation?",
+      "scale": "yes_no_unsure"
+    },
+    {
+      "id": "synthesized_recommendation_impression_confidence",
+      "prompt": "How confident are you in that impression?",
+      "scale": "1_5"
+    }
+  ],
+  "scoring_rubric": {
+    "0": "Incorrect, unsupported, misleading, or unsafe.",
+    "1": "Partially correct but incomplete, unclear, or weakly supported.",
+    "2": "Correct, evidence-supported, appropriately cautious, and reviewable.",
+    "confidence_1_5": "1 is very low confidence; 5 is very high confidence.",
+    "yes_no_unsure": "Use Yes, No, or Unsure without inferring or labeling the study condition."
+  },
+  "acceptance_criteria": {
+    "preflight": [
+      "all_cases_have_three_conditions",
+      "identical_parent_evidence_across_conditions",
+      "gold_absent_from_reviewer_packets",
+      "condition_and_ebir_internals_removed",
+      "no_reviewer_same_case_twice",
+      "balanced_condition_assignment",
+      "normalized_packet_schema",
+      "ebir_shadow_only",
+      "no_runtime_or_memory_writes"
+    ]
+  },
+  "cases": [
+    {
+      "id": "ebir_r2_full_authority_inversion",
+      "case_family": "authority_inversion",
+      "review_task": "Determine the current MFA requirement for Beta access.",
+      "entity_key": "policy:access_beta",
+      "attribute_key": "mfa_requirement",
+      "temporal_validity": {
+        "current_as_of": "2026-06-01",
+        "supersession": "none"
+      },
+      "gold_label": {
+        "expected_resolution_state": "reconciled",
+        "expected_resolved_value": "mfa_required",
+        "expected_abstention": false,
+        "required_parent_ids": [
+          "r2full_auth_policy_directive",
+          "r2full_helpdesk_beta"
+        ],
+        "prohibited_unsupported_claims": [
+          "helpdesk majority decides policy",
+          "mfa was deprecated"
+        ]
+      },
+      "parent_evidence_packet": [
+        {
+          "id": "r2full_auth_policy_directive",
+          "content": "Security Directive B-17 states that Beta access requires MFA for all active operators.",
+          "normalized_value": "mfa_required",
+          "source": "fixture://full-r2/policy-directive-b17",
+          "source_authority": 0.95,
+          "trust_score": 0.94,
+          "created_at": "2026-06-01T00:00:00Z"
+        },
+        {
+          "id": "r2full_helpdesk_beta",
+          "content": "A helpdesk note says Beta access works with password-only login.",
+          "normalized_value": "password_only_allowed",
+          "source": "fixture://full-r2/helpdesk-beta",
+          "source_authority": 0.35,
+          "trust_score": 0.7,
+          "created_at": "2026-06-03T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r2_full_temporal_supersession",
+      "case_family": "temporal_supersession",
+      "review_task": "Determine the current deployment status for Project Atlas.",
+      "entity_key": "project:atlas",
+      "attribute_key": "deployment_status",
+      "temporal_validity": {
+        "historical": "archive valid through 2024",
+        "current_as_of": "2026-01-15",
+        "supersession": "control notice supersedes archive for current state"
+      },
+      "gold_label": {
+        "expected_resolution_state": "reconciled",
+        "expected_resolved_value": "active_2026",
+        "expected_abstention": false,
+        "required_parent_ids": [
+          "r2full_atlas_archive_2024",
+          "r2full_atlas_update_2026"
+        ],
+        "prohibited_unsupported_claims": [
+          "2024 archive was false",
+          "active during 2025"
+        ]
+      },
+      "parent_evidence_packet": [
+        {
+          "id": "r2full_atlas_archive_2024",
+          "content": "Project Atlas deployment was cancelled in 2024 after the pilot ended.",
+          "normalized_value": "cancelled_2024",
+          "source": "fixture://full-r2/atlas-archive-2024",
+          "source_authority": 0.72,
+          "trust_score": 0.84,
+          "created_at": "2024-12-20T00:00:00Z"
+        },
+        {
+          "id": "r2full_atlas_update_2026",
+          "content": "The 2026 Atlas control notice supersedes the 2024 archive and states the current deployment status is active_2026.",
+          "normalized_value": "active_2026",
+          "source": "fixture://full-r2/atlas-control-2026",
+          "source_authority": 0.96,
+          "trust_score": 0.93,
+          "created_at": "2026-01-15T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r2_full_insufficient_evidence",
+      "case_family": "insufficient_evidence",
+      "review_task": "Determine whether Vendor Orion is active or suspended.",
+      "entity_key": "vendor:orion",
+      "attribute_key": "contract_status",
+      "temporal_validity": {
+        "current_as_of": "2026-04-10",
+        "supersession": "none"
+      },
+      "gold_label": {
+        "expected_resolution_state": "unresolved",
+        "expected_resolved_value": null,
+        "expected_abstention": true,
+        "required_parent_ids": [
+          "r2full_orion_ops_note",
+          "r2full_orion_finance_note"
+        ],
+        "prohibited_unsupported_claims": [
+          "contract should be terminated",
+          "finance is wrong",
+          "ops is wrong"
+        ]
+      },
+      "parent_evidence_packet": [
+        {
+          "id": "r2full_orion_ops_note",
+          "content": "Operations lists Vendor Orion as suspended pending review.",
+          "normalized_value": "suspended",
+          "source": "fixture://full-r2/orion-ops",
+          "source_authority": 0.7,
+          "trust_score": 0.82,
+          "created_at": "2026-04-10T00:00:00Z"
+        },
+        {
+          "id": "r2full_orion_finance_note",
+          "content": "Finance lists Vendor Orion as active for invoice processing.",
+          "normalized_value": "active",
+          "source": "fixture://full-r2/orion-finance",
+          "source_authority": 0.69,
+          "trust_score": 0.82,
+          "created_at": "2026-04-10T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r2_full_scope_overreach",
+      "case_family": "scope_overreach",
+      "review_task": "Determine the retention period for Tenant Aurora EU records.",
+      "entity_key": "tenant:aurora:eu",
+      "attribute_key": "retention_period",
+      "temporal_validity": {
+        "current_as_of": "2026-06-01",
+        "supersession": "EU tenant policy constrains EU scope only"
+      },
+      "gold_label": {
+        "expected_resolution_state": "reconciled",
+        "expected_resolved_value": "30_days_eu",
+        "expected_abstention": false,
+        "required_parent_ids": [
+          "r2full_aurora_eu_policy",
+          "r2full_aurora_global_note"
+        ],
+        "prohibited_unsupported_claims": [
+          "all tenants retain for 30 days",
+          "all regions retain for 30 days",
+          "global policy is void"
+        ]
+      },
+      "parent_evidence_packet": [
+        {
+          "id": "r2full_aurora_eu_policy",
+          "content": "Tenant Aurora EU records use policy version EU-7 with retention_period 30_days_eu.",
+          "normalized_value": "30_days_eu",
+          "source": "fixture://full-r2/aurora-eu-policy",
+          "source_authority": 0.9,
+          "trust_score": 0.91,
+          "created_at": "2026-06-01T00:00:00Z"
+        },
+        {
+          "id": "r2full_aurora_global_note",
+          "content": "A global overview says Aurora records are retained for 12_months_global.",
+          "normalized_value": "12_months_global",
+          "source": "fixture://full-r2/aurora-global",
+          "source_authority": 0.62,
+          "trust_score": 0.83,
+          "created_at": "2026-05-20T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r2_full_hidden_unit_conflict",
+      "case_family": "hidden_contradiction",
+      "review_task": "Determine the dosage value listed for Medication Delta.",
+      "entity_key": "medication:delta",
+      "attribute_key": "dosage",
+      "temporal_validity": {
+        "current_as_of": "2026-03-01",
+        "supersession": "none"
+      },
+      "gold_label": {
+        "expected_resolution_state": "unresolved",
+        "expected_resolved_value": null,
+        "expected_abstention": true,
+        "required_parent_ids": [
+          "r2full_delta_rx_mg",
+          "r2full_delta_rx_g"
+        ],
+        "prohibited_unsupported_claims": [
+          "dosage is safe",
+          "values are identical",
+          "prescribe both"
+        ]
+      },
+      "parent_evidence_packet": [
+        {
+          "id": "r2full_delta_rx_mg",
+          "content": "Medication Delta dosage is listed as 500 mg in the pharmacy export.",
+          "normalized_value": "500_mg",
+          "source": "fixture://full-r2/delta-mg",
+          "source_authority": 0.8,
+          "trust_score": 0.9,
+          "created_at": "2026-03-01T00:00:00Z"
+        },
+        {
+          "id": "r2full_delta_rx_g",
+          "content": "Medication Delta dosage is listed as 0.5 g in the prescriber note.",
+          "normalized_value": "0.5_g",
+          "source": "fixture://full-r2/delta-g",
+          "source_authority": 0.8,
+          "trust_score": 0.9,
+          "created_at": "2026-03-01T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r2_full_evidence_omission",
+      "case_family": "evidence_omission",
+      "review_task": "Determine the default state of the Omega kill switch.",
+      "entity_key": "control:omega",
+      "attribute_key": "kill_switch",
+      "temporal_validity": {
+        "current_as_of": "2026-05-22",
+        "supersession": "short directive is decisive"
+      },
+      "gold_label": {
+        "expected_resolution_state": "reconciled",
+        "expected_resolved_value": "disabled_by_default",
+        "expected_abstention": false,
+        "required_parent_ids": [
+          "r2full_omega_long_runbook",
+          "r2full_omega_short_directive"
+        ],
+        "prohibited_unsupported_claims": [
+          "runbook overrides directive",
+          "directive is incomplete"
+        ]
+      },
+      "parent_evidence_packet": [
+        {
+          "id": "r2full_omega_long_runbook",
+          "content": "The Omega runbook describes many operational steps and says the kill switch is enabled_by_default for rapid containment.",
+          "normalized_value": "enabled_by_default",
+          "source": "fixture://full-r2/omega-runbook",
+          "source_authority": 0.62,
+          "trust_score": 0.88,
+          "created_at": "2026-05-20T00:00:00Z"
+        },
+        {
+          "id": "r2full_omega_short_directive",
+          "content": "Directive: Omega kill switch disabled_by_default.",
+          "normalized_value": "disabled_by_default",
+          "source": "fixture://full-r2/omega-directive",
+          "source_authority": 0.94,
+          "trust_score": 0.91,
+          "created_at": "2026-05-22T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r2_full_revision_regression",
+      "case_family": "revision_regression",
+      "review_task": "Determine whether Case Lambda is eligible or ineligible.",
+      "entity_key": "case:lambda",
+      "attribute_key": "eligibility",
+      "temporal_validity": {
+        "current_as_of": "2026-02-10",
+        "supersession": "none"
+      },
+      "gold_label": {
+        "expected_resolution_state": "unresolved",
+        "expected_resolved_value": null,
+        "expected_abstention": true,
+        "required_parent_ids": [
+          "r2full_lambda_review_a",
+          "r2full_lambda_review_b"
+        ],
+        "prohibited_unsupported_claims": [
+          "approve the case",
+          "deny the case",
+          "reviewer bias"
+        ]
+      },
+      "parent_evidence_packet": [
+        {
+          "id": "r2full_lambda_review_a",
+          "content": "Reviewer A marks Case Lambda eligible based on criterion C.",
+          "normalized_value": "eligible",
+          "source": "fixture://full-r2/lambda-a",
+          "source_authority": 0.7,
+          "trust_score": 0.84,
+          "created_at": "2026-02-10T00:00:00Z"
+        },
+        {
+          "id": "r2full_lambda_review_b",
+          "content": "Reviewer B marks Case Lambda ineligible based on criterion C.",
+          "normalized_value": "ineligible",
+          "source": "fixture://full-r2/lambda-b",
+          "source_authority": 0.7,
+          "trust_score": 0.84,
+          "created_at": "2026-02-10T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r2_full_packet_immutability",
+      "case_family": "packet_immutability",
+      "review_task": "Determine the license classification for Dataset Theta.",
+      "entity_key": "dataset:theta",
+      "attribute_key": "license",
+      "temporal_validity": {
+        "current_as_of": "2026-01-01",
+        "supersession": "none"
+      },
+      "gold_label": {
+        "expected_resolution_state": "reconciled",
+        "expected_resolved_value": "restricted",
+        "expected_abstention": false,
+        "required_parent_ids": [
+          "r2full_theta_readme",
+          "r2full_theta_license_file"
+        ],
+        "prohibited_unsupported_claims": [
+          "license can be ignored",
+          "commercial use approved"
+        ]
+      },
+      "parent_evidence_packet": [
+        {
+          "id": "r2full_theta_readme",
+          "content": "The README calls Dataset Theta permissive.",
+          "normalized_value": "permissive",
+          "source": "fixture://full-r2/theta-readme",
+          "source_authority": 0.45,
+          "trust_score": 0.75,
+          "created_at": "2026-01-01T00:00:00Z"
+        },
+        {
+          "id": "r2full_theta_license_file",
+          "content": "The LICENSE file states Dataset Theta is restricted.",
+          "normalized_value": "restricted",
+          "source": "fixture://full-r2/theta-license",
+          "source_authority": 0.97,
+          "trust_score": 0.94,
+          "created_at": "2026-01-01T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ebir_r2_full_operator_review_clarity",
+      "case_family": "operator_review_clarity",
+      "review_task": "Determine the current evacuation route for Facility Zephyr.",
+      "entity_key": "facility:zephyr",
+      "attribute_key": "evacuation_route",
+      "temporal_validity": {
+        "current_as_of": "2026-06-10",
+        "supersession": "safety order is current"
+      },
+      "gold_label": {
+        "expected_resolution_state": "reconciled",
+        "expected_resolved_value": "route_b",
+        "expected_abstention": false,
+        "required_parent_ids": [
+          "r2full_zephyr_floor_map",
+          "r2full_zephyr_safety_order"
+        ],
+        "prohibited_unsupported_claims": [
+          "route A is unsafe",
+          "route B is fastest",
+          "ignore the floor map"
+        ]
+      },
+      "parent_evidence_packet": [
+        {
+          "id": "r2full_zephyr_floor_map",
+          "content": "The old Zephyr floor map labels evacuation_route as route_a.",
+          "normalized_value": "route_a",
+          "source": "fixture://full-r2/zephyr-map",
+          "source_authority": 0.58,
+          "trust_score": 0.8,
+          "created_at": "2025-11-01T00:00:00Z"
+        },
+        {
+          "id": "r2full_zephyr_safety_order",
+          "content": "Current Zephyr safety order replaces older maps and sets evacuation_route to route_b.",
+          "normalized_value": "route_b",
+          "source": "fixture://full-r2/zephyr-order",
+          "source_authority": 0.93,
+          "trust_score": 0.91,
+          "created_at": "2026-06-10T00:00:00Z"
+        }
+      ]
+    }
+  ]
+}
