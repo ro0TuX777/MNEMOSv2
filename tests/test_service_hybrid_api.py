@@ -244,3 +244,23 @@ def test_search_invalid_governance_profile_rejected(client, monkeypatch):
     body = resp.get_json()
     assert body["error"] == "Invalid governance_profile"
     assert "tenant_finance" in body["supported_governance_profiles"]
+
+
+def test_capabilities_unavailable_response_preserves_contract(monkeypatch):
+    def fail_initialize():
+        raise RuntimeError("init failed")
+
+    monkeypatch.setattr(app_mod._runtime, "initialize", fail_initialize)
+    app_mod.app.config["TESTING"] = True
+
+    with app_mod.app.test_client() as c:
+        resp = c.get("/v1/mnemos/capabilities")
+
+    assert resp.status_code == 200
+    body = resp.get_json()
+    assert body["contract_version"] == app_mod.CONTRACT_VERSION
+    assert body["status"] == "unavailable"
+    assert body["source"] == "mnemos-service"
+    assert body["feature"] == "mnemos_memory"
+    assert body["supports"] == app_mod.CAPABILITY_SUPPORTS
+    assert body["error"] == "init failed"
