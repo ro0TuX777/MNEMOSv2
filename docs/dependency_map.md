@@ -78,7 +78,7 @@ Policy:
 
 ## SBOM Posture
 
-The repository does not currently publish a generated SBOM artifact. Before an
-external release, add a repeatable SBOM generation step under `docs/sbom/` or a
-release artifact workflow and link the generated artifact from this document.
-
+The repository does not currently publish a generated SBOM artifact. The
+intended release workflow is documented in [docs/sbom/README.md](sbom/README.md).
+Before an external release, generate an SPDX or CycloneDX artifact and link it
+from this document or the release notes.
