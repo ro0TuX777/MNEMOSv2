@@ -4,6 +4,34 @@
 
 MNEMOS is a containerized, contract-governed memory service for AI-native applications. It gives agents and RAG systems a reusable memory layer that can ingest knowledge, retrieve it under latency budgets, explain why results won or lost, and reconcile contradictions without deleting the original evidence.
 
+## Maturity And Support Boundaries
+
+MNEMOS is no longer just a prototype, but not every capability in the repository
+has the same production status. Treat the following documents as the public
+trust boundary before making deployment or product claims:
+
+- [Support matrix](docs/support_matrix.md): supported, beta, experimental,
+  blocked, and spec-only capabilities.
+- [Deployment profiles](docs/deployment_profiles.md): smallest safe stack,
+  supported profiles, optional components, and promotion rules.
+- [Dependency map](docs/dependency_map.md): runtime dependencies, fork policy,
+  storage/network requirements, and SBOM posture.
+- [ADR 0001](docs/adr/0001-deployment-profiles.md): why deployment profiles are
+  the public support boundary.
+
+Short version:
+
+- **Supported:** Core Memory Appliance, Governance Native, REST API/SDK, audit
+  ledger, evidence contract, summary isolation, and governed Resolution Engrams.
+- **Beta / pilot:** governance modes, hybrid retrieval, and the EBIR-R2 reviewer
+  harness.
+- **Experimental / shadow-only:** TimesFM predictive pulse, Graph Tier, derived
+  facts, and EBIR-R1 refinement.
+- **Research / spec only:** Context Atlas P0, Associative Retrieval A1, and
+  future multimodal evidence extensions.
+- **Blocked for production:** ColBERT/reranker promotion and EBIR authoritative
+  promotion until their gates and human-value evidence pass.
+
 ## Why MNEMOS Exists
 
 Every AI application that persists and retrieves knowledge ends up rebuilding the same infrastructure: embedding pipelines, vector databases, rerankers, metadata filters, compression, audit trails, and governance logic. MNEMOS packages those concerns as an application-agnostic memory appliance with a versioned REST contract and a Python boundary SDK.
@@ -145,6 +173,10 @@ docs/                Whitepaper, operator playbook, and phase reports
 
 ## Documentation
 
+- [Support matrix](docs/support_matrix.md): public status of supported, beta, experimental, blocked, and spec-only capabilities
+- [Deployment profiles](docs/deployment_profiles.md): tiered deployment guidance and minimal safe start
+- [Dependency map](docs/dependency_map.md): dependency, fork, network, storage, and SBOM posture
+- [ADR 0001](docs/adr/0001-deployment-profiles.md): deployment profiles as support boundaries
 - [Whitepaper](docs/whitepaper.md): architecture, governance, benchmarks, deployment model
 - [Phase 7-10 supplement](docs/whitepaperupdates.md): adaptive routing, hierarchy, and consensus governance update
 - [Operator playbook](docs/mnemos_operator_playbook.md): diagnostics, rollout, rollback, and incident procedures
