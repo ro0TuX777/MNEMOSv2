@@ -37,6 +37,19 @@ docker compose -f benchmarks/docker-compose.bench.yml up -d
 python tools/benchmark_smoke.py --track retrieval --corpus-size 200 --runs 1
 ```
 
+If the default Qdrant or Postgres ports are already in use, run the benchmark
+stack on isolated ports and point the smoke command at them:
+
+```powershell
+$env:MNEMOS_BENCH_QDRANT_PORT="6335"
+$env:MNEMOS_BENCH_POSTGRES_PORT="5434"
+docker compose -f benchmarks/docker-compose.bench.yml up -d
+
+$env:MNEMOS_BENCH_QDRANT_URL="http://localhost:6335"
+$env:MNEMOS_BENCH_POSTGRES_DSN="postgresql://mnemos:mnemos@localhost:5434/mnemos"
+python tools/benchmark_smoke.py --track retrieval --corpus-size 200 --runs 1
+```
+
 Claim boundary: installer smoke validates reproducible profile generation, not
 retrieval quality. Retrieval smoke validates a small configured run, not final
 product-quality claims. Use curated or real-world labeled benchmarks before

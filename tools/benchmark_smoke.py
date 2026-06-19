@@ -25,6 +25,10 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from benchmarks.metrics.system_metrics import capture_environment, snapshot_to_dict
 from benchmarks.run_profile_benchmarks import run_suite
 
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
 
 PUBLIC_PACKAGES = [
     "flask",
@@ -272,4 +276,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
