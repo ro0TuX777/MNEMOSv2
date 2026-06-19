@@ -177,6 +177,7 @@ benchmarks/          Truthsets, simulations, and result artifacts
 tests/               Unit and regression tests
 docs/                Whitepaper, operator playbook, and phase reports
 ```
+<img width="1672" height="941" alt="MNEMOSLog" src="https://github.com/user-attachments/assets/dd235204-38ae-46c4-b385-7d487d911f76" />
 
 ## Documentation
 
