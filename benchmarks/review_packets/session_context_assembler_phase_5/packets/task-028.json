@@ -1,0 +1,129 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Backup retention was set to 30 days by the original storage policy.",
+          "source_links": [
+            "SRC-SCA-backup-policy-v1"
+          ],
+          "speaker": "agent",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Compliance update raised that to 90 days for audit purposes.",
+          "source_links": [
+            "SRC-SCA-backup-policy-v2"
+          ],
+          "speaker": "user",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded supersession: 90-day retention is current.",
+          "speaker": "agent",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Unrelated: is the office parking policy changing?",
+          "speaker": "user",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "No change to parking policy.",
+          "speaker": "agent",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Before the audit, what is the current backup retention period?",
+          "speaker": "user",
+          "turn_id": "t6"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [
+            "SRC-SCA-backup-policy-v1"
+          ],
+          "session_turns": [
+            {
+              "content": "Backup retention was set to 30 days by the original storage policy.",
+              "source_links": [
+                "SRC-SCA-backup-policy-v1"
+              ],
+              "speaker": "agent",
+              "turn_id": "t1"
+            }
+          ],
+          "synthetic_context": true
+        },
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [
+            "SRC-SCA-backup-policy-v2"
+          ],
+          "session_turns": [
+            {
+              "content": "Compliance update raised that to 90 days for audit purposes.",
+              "source_links": [
+                "SRC-SCA-backup-policy-v2"
+              ],
+              "speaker": "user",
+              "turn_id": "t2"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Unrelated: is the office parking policy changing?",
+          "speaker": "user",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "No change to parking policy.",
+          "speaker": "agent",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Before the audit, what is the current backup retention period?",
+          "speaker": "user",
+          "turn_id": "t6"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-028",
+  "task_prompt": "Reconfirm the current backup retention period before the audit."
+}

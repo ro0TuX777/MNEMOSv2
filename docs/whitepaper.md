@@ -15,6 +15,7 @@
 > **CoALA Cognitive Cycle (v3.2) is implemented** — MNEMOS cognitive behaviours are now explicit, auditable, and interoperable via `mnemos/cognitive/`. Add `cognitive_cycle: true` to any `/search` request to receive a `CognitiveCycleRecord` in the response. See §4.10.
 > **PatternEngramCandidate Extraction Harness (v3.3) is implemented** — Phases 16–21 complete. `CycleEvaluator`, `PatternLearner`, `PatternConsolidator`, `PatternCandidateStore`, and `PatternEngram` ship as advisory-only, governance-gated pattern abstraction. 182 new tests; Phase 21 gate harness (`tools/run_pattern_phase_gate.py`) passes 8/8 scenarios and 5/5 cross-cutting gates. See §4.11.
 > **EBIR-R1 shadow refinement lane is technically accepted and CI-gated** — RepFusion-inspired Evidence-Bounded Iterative Reconciliation evaluates multi-pass evidence challenge/revision for contradiction clusters in shadow only. Authoritative Resolution Engram promotion remains blocked. See §4.12 and `docs/ebir_r1_acceptance.md`.
+> **Session Context Assembler local shadow milestone is technically accepted** — a consumer-neutral, read-only adapter can assemble bounded, provenance-labeled context packages in an isolated local harness. It has no listener, route, SDK, external consumer connection, deployment, or effect on MNEMOS authority surfaces. See §4.13 and ADR 0008.
 > **Graph Tier (`graph_hybrid_experimental`) is experimental and read-only** — offline/live resolver validation complete (MG-Test-1→10); not exposed on the public HTTP retrieval-mode surface. See §4.2 and `docs/graph_tier/operator_guide.md`.
 > **Deployment model:** MNEMOS runtime services are deployed as a Docker Compose stack; all serving components run in containers.
 > **Developer model:** tooling, benchmarks, and tests are typically run from host Python unless explicitly containerized.
@@ -33,6 +34,7 @@
 | 2026-06-14 | **CoALA Cognitive Cycle (v3.2)** — New `mnemos/cognitive/` overlay module. `CognitiveCycleRecord`, `WorkingMemorySnapshot`, `AttentionContract`, `ForecastOutcomeRecord`, and `CycleAssembler` ship as a zero-cost opt-in. New endpoint: `GET /v1/mnemos/cognitive/cycles`. 77 new cycle tests; Phase 15 operational validation adds 8 representative cases and 40 passing focused tests. |
 | 2026-06-15 | **PatternEngramCandidate Extraction Harness (v3.3)** — Phases 16–21 complete. `CycleEvaluator` (R²-Mem rubric scorer), `PatternLearner` (ExpeL-style IF-THEN extractor), `PatternConsolidator` (A-MEM deduplication), `PatternCandidateStore` (advisory accumulation + governed promotion), and `PatternEngram` (authoritative promoted pattern). Advisory recall integrated into cognitive cycle (`advisory_patterns` field). 182 new tests; Phase 21 phase gate (`tools/run_pattern_phase_gate.py`) passes 8 scenarios + 5 cross-cutting gates. Gate evidence: `benchmarks/results/pattern_phase_gate.json`. |
 | 2026-06-18 | **EBIR-R1 shadow refinement lane** — RepFusion-inspired Evidence-Bounded Iterative Reconciliation scaffold added around `ReconciliationRunner`; adversarial technical acceptance pack covers 10 conflict classes and is CI-gated via `tools/run_ebir_refinement_benchmark.py`. EBIR is shadow-only; authoritative promotion remains blocked pending R2 human-review value trials. |
+| 2026-06-22 | **Session Context Assembler research milestone** — governed selector and consumer-neutral, read-only local shadow adapter accepted through ADR 0008. Technical gates cover lineage, digest verification, binding budgets, content-free telemetry, determinism, isolation, kill-switch behavior, and mutation sensitivity. No external integration or production surface is authorized. |
 
 ---
 
@@ -74,6 +76,7 @@ MNEMOS is **application-agnostic** — it knows nothing about the domain of the 
 - **Hierarchical retrieval (Phase 9b)** — RAPTOR-lite summary engrams support global CLASS_C retrieval while the `__exclude_summaries__` sentinel prevents summary nodes from leaking into default factoid searches
 - **Consensus governance (Phase 10)** — contradiction clusters can synthesize additive Resolution Engrams that preserve parent lineage, take Tier-1 read-path priority with a 1.25 contradiction modifier, and suppress conflicting parents without deleting them
 - **EBIR shadow refinement lane (R1)** — RepFusion-inspired, evidence-bounded iterative reconciliation for complex contradiction clusters; CI-gated as shadow research only, with no retrieval, ranking, governance-score, parent-mutation, or promotion-path effects
+- **Session Context Assembler (research milestone)** — governed, budget-aware session selection and a consumer-neutral, read-only local shadow adapter; provenance, abstention, replay, digest, disclosure, telemetry, and kill-switch behavior are test-gated without changing runtime, retrieval, governance, or write paths
 - **Anticipatory cognition (Phases 11-14)** — integration with Google TimesFM enables MNEMOS to forecast its operational pulse, predict factual obsolescence, and execute shadow searches from user intent trajectories
 - **Server-side hybrid RRF + relevance feedback** — `qdrant_rrf` fusion policy and governance-driven `discover_points()` exemplar biasing (opt-in)
 - **Derived Facts lane (production-adjacent pilot)** — isolated shadow evaluation packets with authority matrices and source traceability; default retrieval invariant: zero derived facts
@@ -888,6 +891,30 @@ The gate requires zero EBIR regressions, zero safety violations, packet-hash equ
 
 **R2 boundary:** EBIR-R2 is the next authorized horizon and remains a human-review value trial only. It must compare raw evidence review, one-pass reconciliation, and EBIR output on difficult conflict packets, measuring correct resolution, correct abstention/escalation, evidence-supported decision quality, reviewer confidence calibration, review time, unsupported-claim detection, latency, token cost, and trigger selectivity. No product promotion is approved until EBIR improves real human review outcomes, not merely benchmarked reconciliation quality.
 
+### 4.13 Session Context Assembler: Consumer-Neutral Local Shadow Milestone
+
+The Session Context Assembler is a governed MNEMOS research capability for constructing bounded context packages from eligible session artifacts. Its S1 selector reserves budget in policy order for prior decisions, unresolved or mixed contradictions, and their required source-linked evidence before allocating remaining space to task-relevant supporting episodes and optional semantic fill. If mandatory eligible context cannot fit, the package explicitly abstains instead of silently reporting success.
+
+Selected artifacts retain artifact-local provenance and safety labels: `synthetic_context`, `non_authoritative`, `non_promotable`, `parent_engram_ids`, `parent_source_ids`, lineage completeness, and artifact type. The consumer receives context, not memory authority: package content is not source truth and cannot alter Engrams, contradiction state, governance, promotion, retrieval ranking, or durable write paths.
+
+ADR 0008 authorizes and closes out only an **isolated, consumer-neutral, read-only local shadow adapter**. The local implementation demonstrates:
+
+- authenticated request validation through a transport-neutral local abstraction;
+- tenant/scope, entitlement, classification, disclosure, and redaction enforcement;
+- policy- and version-pinned replay behavior with fail-closed drift handling;
+- canonical package digests and artifact-local lineage verification;
+- bounded package assembly with visible omission and abstention state;
+- content-free shadow telemetry; and
+- an atomic kill switch that blocks new assembly, cache writes, sink events, and delivery attempts without disturbing MNEMOS state.
+
+The isolated gate passes frozen-corpus integrity, assembly, digest, lineage, budget, telemetry, determinism, and runtime/network-isolation checks. It also detects eight deliberate mutations covering digest tampering, lineage removal, telemetry escape, kill-switch bypass, replay-policy bypass, authorization bypass, redaction bypass, and abstention suppression. The focused evidence is **175 relevant tests**, not a whole-repository release certification; unrelated failures and optional dependency availability are outside this feature-lane claim.
+
+**Research and release boundary:** this milestone contains no network listener, API route, SDK, external consumer connection, live routing, staging or production deployment, durable memory write, retrieval change, governance mutation, or consumer active-path effect. A passing gate authorizes review of a separately governed consumer-neutral shadow-evaluation proposal only. Model-assisted answer-fidelity testing remains surrogate evidence, and prepared owner review remains non-independent and non-generalizable; neither is a broad human-value claim.
+
+For a future separately authorized consumer evaluation, a downstream application could inspect a source-linked, artifact-lineage-preserving, `synthetic_context`-labeled, non-authoritative, non-promotable, policy-scoped, budget-bounded package with explicit omissions or abstention. This could reduce irrelevant context while preserving earlier decisions, contradictions, and source evidence, without turning the consumer into an alternate memory authority.
+
+Evidence: `docs/adr/0008-consumer-neutral-read-only-shadow-adapter-implementation.md`, `docs/session_context_assembler_spec.md`, `docs/session_context_assembler_shadow_adapter_implementation_notes.md`, and `benchmarks/results/session_context_assembler_shadow_adapter_gate.md`.
+
 ---
 
 ## 5. API Contract
@@ -1602,6 +1629,7 @@ MNEMOS was designed from the ground up as a reusable memory service. Its archite
 | Hierarchical summary retrieval | RAPTOR-lite hierarchy runner (`mnemos/governance/hygiene/clustering_runner.py`) |
 | Consensus resolution | Reconciliation runner + Resolution Engrams (`mnemos/governance/hygiene/reconciliation_runner.py`) |
 | Evidence-bounded reconciliation refinement | EBIR shadow lane (`mnemos/governance/hygiene/repfusion_refiner.py`) + R1 gate (`tools/run_ebir_refinement_benchmark.py`) |
+| Governed session context assembly | S1 selector + consumer-neutral read-only local shadow adapter (`prototype/session_context_assembler/`) + isolated gate (`tools/run_session_context_assembler_shadow_adapter_gate.py`) |
 | Source-grounded selective synthesis | Memory Over Maps lane (mnemos/memory_over_maps/) |
 | Background memory hygiene | Wave 4 hygiene pipeline (`mnemos/governance/hygiene/`) |
 | Tenant governance tuning | `GovernancePolicyProfile` + `MNEMOS_GOVERNANCE_POLICY_PROFILES_JSON` |

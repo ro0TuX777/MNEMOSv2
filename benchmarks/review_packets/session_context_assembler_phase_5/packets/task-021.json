@@ -1,0 +1,102 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Use {date}_{report}.md (DEC-SCA-112a).",
+          "source_links": [
+            "SRC-SCA-naming-v1"
+          ],
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Add a run-label prefix: {label}_{date}_{report}.md (DEC-SCA-112b), supersedes the plain version.",
+          "source_links": [
+            "SRC-SCA-naming-v2"
+          ],
+          "speaker": "user",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded labeled convention as current.",
+          "speaker": "agent",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What's the agreed file-naming convention again?",
+          "speaker": "user",
+          "turn_id": "t4"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded labeled convention as current.",
+          "speaker": "agent",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What's the agreed file-naming convention again?",
+          "speaker": "user",
+          "turn_id": "t4"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-112a",
+            "DEC-SCA-112b"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-naming-v1",
+            "SRC-SCA-naming-v2"
+          ],
+          "session_turns": [
+            {
+              "content": "Use {date}_{report}.md (DEC-SCA-112a).",
+              "source_links": [
+                "SRC-SCA-naming-v1"
+              ],
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Add a run-label prefix: {label}_{date}_{report}.md (DEC-SCA-112b), supersedes the plain version.",
+              "source_links": [
+                "SRC-SCA-naming-v2"
+              ],
+              "speaker": "user",
+              "turn_id": "t2"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "artifact_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-021",
+  "task_prompt": "What naming convention did we land on for benchmark output files?"
+}

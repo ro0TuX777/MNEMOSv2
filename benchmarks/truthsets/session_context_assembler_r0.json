@@ -1,0 +1,483 @@
+{
+  "version": "session-context-assembler-r0",
+  "created": "2026-06-21",
+  "description": "Frozen replay corpus for the EpiCache-inspired session-context-assembler shadow research lane. Illustrative, fixture-local synthetic cases — not derived from real conversations, real tenants, or real Engrams. Not measured benchmark results; this file defines inputs and expected-recall labels only.",
+  "promotion_rule": "Use only to evaluate Phase 3 baselines (A: full history, B: naive sliding window, C: governed episode-selected context) under docs/session_context_assembler_spec.md Phase 4 gates. Passing this corpus does not authorize production integration, Engram writes, retrieval-ranking changes, or governance/authority mutation. See docs/adr/0007-session-context-assembler-shadow-only.md.",
+  "id_namespace_note": "All session_id, task_id, decision_id, source_id, and engram_id values use the SCA-R0 fixture namespace and are not references to any real MNEMOS artifact.",
+  "case_families": [
+    "prior_architectural_decision_recall",
+    "contradiction_aware_followup",
+    "source_specific_followup",
+    "long_running_implementation_discussion",
+    "topic_shift_and_return",
+    "stale_session_material_exclusion",
+    "multiple_similar_prior_decisions",
+    "unresolved_vs_resolved_decision_distinction"
+  ],
+  "cases": [
+    {
+      "id": "sca_r0_pad_001",
+      "case_family": "prior_architectural_decision_recall",
+      "session_id": "SCA-R0-SESS-001",
+      "task_id": "SCA-R0-TASK-001",
+      "current_task": "Confirm whether the retrieval layer should use pgvector or Qdrant before adding a new tenant.",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_vector_store_decision", "content": "We need to pick a vector store before the pilot."},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_vector_store_decision", "content": "Comparing pgvector and Qdrant on latency and ops overhead."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_vector_store_decision", "content": "Qdrant wins on latency at our scale, go with Qdrant."},
+        {"turn_id": "t4", "speaker": "agent", "episode_hint": "ep_vector_store_decision", "content": "Decision recorded: Qdrant is the retrieval backend (DEC-SCA-101)."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_unrelated_billing", "content": "Separately, the invoicing export job failed last night."},
+        {"turn_id": "t6", "speaker": "agent", "episode_hint": "ep_unrelated_billing", "content": "Logged for the ops queue, unrelated to retrieval."},
+        {"turn_id": "t7", "speaker": "user", "episode_hint": "ep_tenant_onboarding", "content": "Now let's onboard the new tenant onto the retrieval layer."}
+      ],
+      "required_prior_decision_ids": ["DEC-SCA-101"],
+      "required_source_ids": ["SRC-SCA-vector-store-comparison"],
+      "known_irrelevant_history_turn_ids": ["t5", "t6"],
+      "expected_context_budget": 350,
+      "notes": "Correct selection must surface the Qdrant decision episode (t1-t4) and exclude the unrelated billing episode (t5-t6)."
+    },
+    {
+      "id": "sca_r0_pad_002",
+      "case_family": "prior_architectural_decision_recall",
+      "session_id": "SCA-R0-SESS-002",
+      "task_id": "SCA-R0-TASK-002",
+      "current_task": "Decide whether the new ingestion path needs its own auth scope.",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_auth_model_decision", "content": "We agreed every consumer gets a scoped token, not a shared admin token."},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_auth_model_decision", "content": "Recorded: per-consumer scoped tokens (DEC-SCA-102), no shared admin tokens."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_dashboard_copy", "content": "Also can you fix the typo on the dashboard header?"},
+        {"turn_id": "t4", "speaker": "agent", "episode_hint": "ep_dashboard_copy", "content": "Fixed, unrelated to auth."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_ingestion_followup", "content": "Should the new ingestion path follow the same scoped-token rule?"}
+      ],
+      "required_prior_decision_ids": ["DEC-SCA-102"],
+      "required_source_ids": ["SRC-SCA-auth-model-decision"],
+      "known_irrelevant_history_turn_ids": ["t3", "t4"],
+      "expected_context_budget": 300,
+      "notes": "Assembler must retrieve the scoped-token decision even though it occurred two episodes earlier and an unrelated UI fix sits between."
+    },
+    {
+      "id": "sca_r0_pad_003",
+      "case_family": "prior_architectural_decision_recall",
+      "session_id": "SCA-R0-SESS-003",
+      "task_id": "SCA-R0-TASK-003",
+      "current_task": "Add a new benchmark gate; confirm it should block CI like the others.",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_ci_gate_policy", "content": "All phase-gate regressions must block promotion automatically, no manual override."},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_ci_gate_policy", "content": "Recorded: CI gates are hard blocks (DEC-SCA-103)."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_unrelated_naming", "content": "What should we name the new benchmark output folder?"},
+        {"turn_id": "t4", "speaker": "agent", "episode_hint": "ep_unrelated_naming", "content": "Suggest benchmarks/outputs/new_gate/."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_new_gate_followup", "content": "OK, and should this new gate also be a hard CI block?"}
+      ],
+      "required_prior_decision_ids": ["DEC-SCA-103"],
+      "required_source_ids": ["SRC-SCA-ci-gate-policy"],
+      "known_irrelevant_history_turn_ids": ["t3", "t4"],
+      "expected_context_budget": 280,
+      "notes": "Tests recall of a standing policy decision applied to a new, unrelated-sounding follow-up."
+    },
+    {
+      "id": "sca_r0_caf_001",
+      "case_family": "contradiction_aware_followup",
+      "session_id": "SCA-R0-SESS-004",
+      "task_id": "SCA-R0-TASK-004",
+      "current_task": "Reconfirm the MFA requirement for Beta access before documenting it.",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "agent", "episode_hint": "ep_mfa_policy", "content": "Security Directive B-17 requires MFA for Beta access (SRC-SCA-policy-b17, high authority)."},
+        {"turn_id": "t2", "speaker": "user", "episode_hint": "ep_mfa_policy", "content": "A helpdesk note claims password-only login works for Beta (SRC-SCA-helpdesk-1, low authority)."},
+        {"turn_id": "t3", "speaker": "agent", "episode_hint": "ep_mfa_policy", "content": "Noted as contradicted by the directive; directive wins on authority."},
+        {"turn_id": "t4", "speaker": "user", "episode_hint": "ep_unrelated_release_notes", "content": "Let's also draft this week's release notes."},
+        {"turn_id": "t5", "speaker": "agent", "episode_hint": "ep_unrelated_release_notes", "content": "Draft created, separate from the MFA topic."},
+        {"turn_id": "t6", "speaker": "user", "episode_hint": "ep_mfa_doc_followup", "content": "Before I document Beta access requirements, what's the current MFA position?"}
+      ],
+      "required_prior_decision_ids": [],
+      "required_source_ids": ["SRC-SCA-policy-b17", "SRC-SCA-helpdesk-1"],
+      "known_irrelevant_history_turn_ids": ["t4", "t5"],
+      "expected_context_budget": 320,
+      "notes": "Selection must preserve both the authoritative source and the contradicted low-authority source plus the resolution rationale, not just the winning claim."
+    },
+    {
+      "id": "sca_r0_caf_002",
+      "case_family": "contradiction_aware_followup",
+      "session_id": "SCA-R0-SESS-005",
+      "task_id": "SCA-R0-TASK-005",
+      "current_task": "Clarify project Atlas's current deployment status for a status report.",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "agent", "episode_hint": "ep_atlas_status", "content": "Archive note from 2024 says Atlas is decommissioned (SRC-SCA-atlas-archive-2024)."},
+        {"turn_id": "t2", "speaker": "user", "episode_hint": "ep_atlas_status", "content": "2026 update supersedes that: Atlas is active again (SRC-SCA-atlas-update-2026)."},
+        {"turn_id": "t3", "speaker": "agent", "episode_hint": "ep_atlas_status", "content": "Recorded supersession: 2026 update is current."},
+        {"turn_id": "t4", "speaker": "user", "episode_hint": "ep_unrelated_holiday_calendar", "content": "Also, what's the team's holiday calendar look like next month?"},
+        {"turn_id": "t5", "speaker": "agent", "episode_hint": "ep_unrelated_holiday_calendar", "content": "Shared the calendar link."},
+        {"turn_id": "t6", "speaker": "user", "episode_hint": "ep_atlas_report_followup", "content": "For the report, is Atlas active or decommissioned right now?"}
+      ],
+      "required_prior_decision_ids": [],
+      "required_source_ids": ["SRC-SCA-atlas-archive-2024", "SRC-SCA-atlas-update-2026"],
+      "known_irrelevant_history_turn_ids": ["t4", "t5"],
+      "expected_context_budget": 320,
+      "notes": "Tests temporal-supersession-aware contradiction handling, not just authority-based contradiction."
+    },
+    {
+      "id": "sca_r0_caf_003",
+      "case_family": "contradiction_aware_followup",
+      "session_id": "SCA-R0-SESS-006",
+      "task_id": "SCA-R0-TASK-006",
+      "current_task": "Settle whether the rate limit is 100 or 1000 requests/min before writing docs.",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_rate_limit", "content": "Old runbook says 100 req/min (SRC-SCA-runbook-old)."},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_rate_limit", "content": "Current config file says 1000 req/min (SRC-SCA-config-current), more authoritative and more recent."},
+        {"turn_id": "t3", "speaker": "agent", "episode_hint": "ep_rate_limit", "content": "Flagged as contradiction pending confirmation, not yet resolved."},
+        {"turn_id": "t4", "speaker": "user", "episode_hint": "ep_unrelated_lunch_poll", "content": "What did the team vote for the lunch order?"},
+        {"turn_id": "t5", "speaker": "agent", "episode_hint": "ep_unrelated_lunch_poll", "content": "Pizza won."},
+        {"turn_id": "t6", "speaker": "user", "episode_hint": "ep_rate_limit_doc_followup", "content": "Which rate limit number should go in the docs?"}
+      ],
+      "required_prior_decision_ids": [],
+      "required_source_ids": ["SRC-SCA-runbook-old", "SRC-SCA-config-current"],
+      "known_irrelevant_history_turn_ids": ["t4", "t5"],
+      "expected_context_budget": 300,
+      "notes": "This contradiction is explicitly unresolved; correct behavior surfaces both values and the unresolved flag, not a fabricated resolution."
+    },
+    {
+      "id": "sca_r0_ssf_001",
+      "case_family": "source_specific_followup",
+      "session_id": "SCA-R0-SESS-007",
+      "task_id": "SCA-R0-TASK-007",
+      "current_task": "What did the security audit document say about session timeout length?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "agent", "episode_hint": "ep_security_audit", "content": "Security audit (SRC-SCA-audit-2026-04) recommends a 15-minute idle timeout."},
+        {"turn_id": "t2", "speaker": "user", "episode_hint": "ep_security_audit", "content": "Also recommends rotating refresh tokens weekly."},
+        {"turn_id": "t3", "speaker": "agent", "episode_hint": "ep_unrelated_logo", "content": "Switching topics, the new logo asset is ready for review."},
+        {"turn_id": "t4", "speaker": "user", "episode_hint": "ep_unrelated_logo", "content": "Looks good, approved."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_audit_followup", "content": "Remind me exactly what the audit said about timeout length."}
+      ],
+      "required_prior_decision_ids": [],
+      "required_source_ids": ["SRC-SCA-audit-2026-04"],
+      "known_irrelevant_history_turn_ids": ["t3", "t4"],
+      "expected_context_budget": 260,
+      "notes": "Query names the source by description; assembler must resolve it to the correct source_id without pulling in the unrelated logo episode."
+    },
+    {
+      "id": "sca_r0_ssf_002",
+      "case_family": "source_specific_followup",
+      "session_id": "SCA-R0-SESS-008",
+      "task_id": "SCA-R0-TASK-008",
+      "current_task": "What number did the vendor SLA document commit to for uptime?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "agent", "episode_hint": "ep_vendor_sla", "content": "Vendor SLA (SRC-SCA-vendor-sla-2026) commits to 99.9% uptime."},
+        {"turn_id": "t2", "speaker": "user", "episode_hint": "ep_vendor_sla", "content": "Penalty clause kicks in below 99.5%."},
+        {"turn_id": "t3", "speaker": "agent", "episode_hint": "ep_unrelated_travel", "content": "Travel booking for the conference is confirmed."},
+        {"turn_id": "t4", "speaker": "user", "episode_hint": "ep_unrelated_travel", "content": "Thanks."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_sla_followup", "content": "What uptime number did the vendor commit to again?"}
+      ],
+      "required_prior_decision_ids": [],
+      "required_source_ids": ["SRC-SCA-vendor-sla-2026"],
+      "known_irrelevant_history_turn_ids": ["t3", "t4"],
+      "expected_context_budget": 240,
+      "notes": "Single-source factual recall; tests precision of source-specific retrieval against an unrelated travel episode."
+    },
+    {
+      "id": "sca_r0_ssf_003",
+      "case_family": "source_specific_followup",
+      "session_id": "SCA-R0-SESS-009",
+      "task_id": "SCA-R0-TASK-009",
+      "current_task": "What did the incident postmortem say caused last month's outage?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "agent", "episode_hint": "ep_postmortem", "content": "Postmortem (SRC-SCA-postmortem-0512) attributes the outage to a missed index migration."},
+        {"turn_id": "t2", "speaker": "user", "episode_hint": "ep_postmortem", "content": "Action item: add a migration-check CI gate."},
+        {"turn_id": "t3", "speaker": "agent", "episode_hint": "ep_unrelated_swag", "content": "Conference swag order is finalized."},
+        {"turn_id": "t4", "speaker": "user", "episode_hint": "ep_postmortem_followup", "content": "What was the root cause again, for the customer-facing summary?"}
+      ],
+      "required_prior_decision_ids": [],
+      "required_source_ids": ["SRC-SCA-postmortem-0512"],
+      "known_irrelevant_history_turn_ids": ["t3"],
+      "expected_context_budget": 220,
+      "notes": "Short single-irrelevant-turn distractor; tests minimal over-inclusion."
+    },
+    {
+      "id": "sca_r0_lrid_001",
+      "case_family": "long_running_implementation_discussion",
+      "session_id": "SCA-R0-SESS-010",
+      "task_id": "SCA-R0-TASK-010",
+      "current_task": "Continue implementing the cache-invalidation fanout fix; what's left?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_cache_fix", "content": "Start: cache invalidation fanout is too slow on writes."},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_cache_fix", "content": "Identified hot key contention as the cause."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_cache_fix", "content": "Agreed: batch invalidations per write instead of per key."},
+        {"turn_id": "t4", "speaker": "agent", "episode_hint": "ep_cache_fix", "content": "Implemented batching (DEC-SCA-104); need tests next."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_cache_fix", "content": "Tests written, two edge cases failing on empty batch."},
+        {"turn_id": "t6", "speaker": "agent", "episode_hint": "ep_cache_fix", "content": "Empty-batch case fixed, one edge case remains: concurrent batch overlap."},
+        {"turn_id": "t7", "speaker": "user", "episode_hint": "ep_unrelated_standup", "content": "Quick context switch: standup notes for today are posted."},
+        {"turn_id": "t8", "speaker": "user", "episode_hint": "ep_cache_fix", "content": "Back to the cache fix — what's left before we can merge?"}
+      ],
+      "required_prior_decision_ids": ["DEC-SCA-104"],
+      "required_source_ids": ["SRC-SCA-cache-fanout-discussion"],
+      "known_irrelevant_history_turn_ids": ["t7"],
+      "expected_context_budget": 420,
+      "notes": "Long single-episode technical thread; assembler must retain the full implementation trajectory (t1-t6, t8) including the still-open concurrent-overlap edge case."
+    },
+    {
+      "id": "sca_r0_lrid_002",
+      "case_family": "long_running_implementation_discussion",
+      "session_id": "SCA-R0-SESS-011",
+      "task_id": "SCA-R0-TASK-011",
+      "current_task": "Resume the tenant-policy validation work; what was the last blocker?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_tenant_policy", "content": "Tenant policy profiles need schema validation at load time."},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_tenant_policy", "content": "Drafted schema; missing default values for half-life and penalty fields."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_tenant_policy", "content": "Use platform defaults unless tenant overrides explicitly."},
+        {"turn_id": "t4", "speaker": "agent", "episode_hint": "ep_tenant_policy", "content": "Recorded (DEC-SCA-105); implemented default fallback."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_tenant_policy", "content": "Validation rejects valid overrides with nested objects — that's the current blocker."},
+        {"turn_id": "t6", "speaker": "user", "episode_hint": "ep_tenant_policy", "content": "What's the blocker status now?"}
+      ],
+      "required_prior_decision_ids": ["DEC-SCA-105"],
+      "required_source_ids": ["SRC-SCA-tenant-policy-discussion"],
+      "known_irrelevant_history_turn_ids": [],
+      "expected_context_budget": 360,
+      "notes": "No distractor turns; tests that the assembler does not over-trim a single dense relevant episode."
+    },
+    {
+      "id": "sca_r0_lrid_003",
+      "case_family": "long_running_implementation_discussion",
+      "session_id": "SCA-R0-SESS-012",
+      "task_id": "SCA-R0-TASK-012",
+      "current_task": "Continue the SLO definition work; which thresholds are still undecided?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_slo_def", "content": "We need p50/p95 latency SLOs."},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_slo_def", "content": "Proposed p50 <= 150ms, p95 <= 500ms."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_slo_def", "content": "Agreed on p50, p95 should be 400ms not 500ms (DEC-SCA-106)."},
+        {"turn_id": "t4", "speaker": "agent", "episode_hint": "ep_slo_def", "content": "Updated; stale-cache survival threshold still undecided."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_unrelated_email", "content": "Side note: forward me last week's status email."},
+        {"turn_id": "t6", "speaker": "user", "episode_hint": "ep_slo_def", "content": "Which SLO thresholds are still open?"}
+      ],
+      "required_prior_decision_ids": ["DEC-SCA-106"],
+      "required_source_ids": ["SRC-SCA-slo-definition-discussion"],
+      "known_irrelevant_history_turn_ids": ["t5"],
+      "expected_context_budget": 340,
+      "notes": "Tests retention of both a settled decision (p95=400ms) and an explicitly still-open item (stale-cache threshold) in the same episode."
+    },
+    {
+      "id": "sca_r0_tsr_001",
+      "case_family": "topic_shift_and_return",
+      "session_id": "SCA-R0-SESS-013",
+      "task_id": "SCA-R0-TASK-013",
+      "current_task": "Back to the reranker discussion — did we settle on a model?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_reranker", "content": "Comparing cross-encoder rerankers for candidate envelopes."},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_reranker", "content": "Two candidates: a small distilled model and a larger general one."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_billing_topic", "content": "Switching topics: the billing reconciliation job needs a rerun."},
+        {"turn_id": "t4", "speaker": "agent", "episode_hint": "ep_billing_topic", "content": "Triggered the rerun."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_billing_topic", "content": "Also check why last month's invoice totals were off by 2%."},
+        {"turn_id": "t6", "speaker": "agent", "episode_hint": "ep_billing_topic", "content": "Found a rounding bug in the tax calculation, fixed."},
+        {"turn_id": "t7", "speaker": "user", "episode_hint": "ep_reranker", "content": "OK, back to the reranker — did we settle on a model?"}
+      ],
+      "required_prior_decision_ids": [],
+      "required_source_ids": ["SRC-SCA-reranker-discussion"],
+      "known_irrelevant_history_turn_ids": ["t3", "t4", "t5", "t6"],
+      "expected_context_budget": 360,
+      "notes": "Classic topic-shift-and-return; the intervening billing episode is substantial and must not bleed into the resumed reranker context."
+    },
+    {
+      "id": "sca_r0_tsr_002",
+      "case_family": "topic_shift_and_return",
+      "session_id": "SCA-R0-SESS-014",
+      "task_id": "SCA-R0-TASK-014",
+      "current_task": "Resuming the onboarding-flow redesign — where did we leave off?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_onboarding_redesign", "content": "Redesigning the onboarding flow to reduce drop-off at step 3."},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_onboarding_redesign", "content": "Proposed merging steps 3 and 4."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_incident_topic", "content": "Pause — there's a production incident, P1 severity."},
+        {"turn_id": "t4", "speaker": "agent", "episode_hint": "ep_incident_topic", "content": "Mitigated; root cause was a bad config push."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_incident_topic", "content": "Filed the postmortem ticket."},
+        {"turn_id": "t6", "speaker": "user", "episode_hint": "ep_onboarding_redesign", "content": "Crisis handled. Back to onboarding — where did we leave off?"}
+      ],
+      "required_prior_decision_ids": [],
+      "required_source_ids": ["SRC-SCA-onboarding-redesign-discussion"],
+      "known_irrelevant_history_turn_ids": ["t3", "t4", "t5"],
+      "expected_context_budget": 320,
+      "notes": "The interrupting episode is high-salience (P1 incident) but still irrelevant to the resumed task; tests against recency/salience bias."
+    },
+    {
+      "id": "sca_r0_tsr_003",
+      "case_family": "topic_shift_and_return",
+      "session_id": "SCA-R0-SESS-015",
+      "task_id": "SCA-R0-TASK-015",
+      "current_task": "Back to the API versioning question from earlier.",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_api_versioning", "content": "Should we version the API in the URL path or a header?"},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_api_versioning", "content": "URL path is more visible but harder to change later; header is more flexible."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_docs_topic", "content": "Different topic: can you proofread the new README section?"},
+        {"turn_id": "t4", "speaker": "agent", "episode_hint": "ep_docs_topic", "content": "Proofread done, two typos fixed."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_api_versioning", "content": "Back to versioning — what were the tradeoffs again?"}
+      ],
+      "required_prior_decision_ids": [],
+      "required_source_ids": ["SRC-SCA-api-versioning-discussion"],
+      "known_irrelevant_history_turn_ids": ["t3", "t4"],
+      "expected_context_budget": 280,
+      "notes": "Short intervening episode; tests baseline topic-shift handling without confounding salience."
+    },
+    {
+      "id": "sca_r0_sse_001",
+      "case_family": "stale_session_material_exclusion",
+      "session_id": "SCA-R0-SESS-016",
+      "task_id": "SCA-R0-TASK-016",
+      "current_task": "What's the current retry policy for the ingestion worker?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_retry_policy_old", "content": "[3 weeks earlier] Retry policy: 3 attempts, fixed 5s delay."},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_retry_policy_old", "content": "Recorded (superseded later)."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_retry_policy_update", "content": "[this week] Update: switch to exponential backoff, 5 attempts max (DEC-SCA-107), this replaces the old fixed-delay policy."},
+        {"turn_id": "t4", "speaker": "agent", "episode_hint": "ep_retry_policy_update", "content": "Recorded as current policy; old fixed-delay policy is now stale."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_retry_followup", "content": "Remind me what the retry policy is right now."}
+      ],
+      "required_prior_decision_ids": ["DEC-SCA-107"],
+      "required_source_ids": ["SRC-SCA-retry-policy-update"],
+      "known_irrelevant_history_turn_ids": ["t1", "t2"],
+      "expected_context_budget": 260,
+      "notes": "t1/t2 describe a since-superseded policy and must be excluded from the selected context, not merely deprioritized."
+    },
+    {
+      "id": "sca_r0_sse_002",
+      "case_family": "stale_session_material_exclusion",
+      "session_id": "SCA-R0-SESS-017",
+      "task_id": "SCA-R0-TASK-017",
+      "current_task": "Which embedding model are we using for retrieval right now?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_embedding_old", "content": "[old] Using a 384-dim BGE collection for embeddings."},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_embedding_old", "content": "Noted, legacy collection."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_embedding_migration", "content": "[recent] Migrated to Nomic MRL collection (DEC-SCA-108); legacy BGE collection cleaned up after representative replay."},
+        {"turn_id": "t4", "speaker": "agent", "episode_hint": "ep_embedding_migration", "content": "Migration complete and verified."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_embedding_followup", "content": "What embedding model is live right now?"}
+      ],
+      "required_prior_decision_ids": ["DEC-SCA-108"],
+      "required_source_ids": ["SRC-SCA-embedding-migration"],
+      "known_irrelevant_history_turn_ids": ["t1", "t2"],
+      "expected_context_budget": 260,
+      "notes": "Mirrors a real MNEMOS event shape (Matryoshka migration) at fixture-only scale; tests exclusion of a decommissioned prior state."
+    },
+    {
+      "id": "sca_r0_sse_003",
+      "case_family": "stale_session_material_exclusion",
+      "session_id": "SCA-R0-SESS-018",
+      "task_id": "SCA-R0-TASK-018",
+      "current_task": "What's the team's current on-call rotation owner?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_oncall_old", "content": "[old] On-call owner for this month is Person A."},
+        {"turn_id": "t2", "speaker": "user", "episode_hint": "ep_oncall_update", "content": "[update] Person A swapped with Person B starting next week."},
+        {"turn_id": "t3", "speaker": "agent", "episode_hint": "ep_oncall_update", "content": "Recorded swap (DEC-SCA-109); Person B is now current owner."},
+        {"turn_id": "t4", "speaker": "user", "episode_hint": "ep_oncall_followup", "content": "Who's on-call right now?"}
+      ],
+      "required_prior_decision_ids": ["DEC-SCA-109"],
+      "required_source_ids": ["SRC-SCA-oncall-swap"],
+      "known_irrelevant_history_turn_ids": ["t1"],
+      "expected_context_budget": 200,
+      "notes": "Minimal case: a single stale fact (t1) directly superseded by t2-t3; tests against naive recency-only selection that might still include t1 for 'completeness'."
+    },
+    {
+      "id": "sca_r0_mspd_001",
+      "case_family": "multiple_similar_prior_decisions",
+      "session_id": "SCA-R0-SESS-019",
+      "task_id": "SCA-R0-TASK-019",
+      "current_task": "What's the final agreed timeout value for the ingestion worker, after all the back-and-forth?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_timeout_v1", "content": "Set ingestion timeout to 30s (DEC-SCA-110a)."},
+        {"turn_id": "t2", "speaker": "user", "episode_hint": "ep_timeout_v2", "content": "Actually, raise it to 60s for large payloads (DEC-SCA-110b), supersedes 30s."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_timeout_v3", "content": "On reflection, 45s is the right balance (DEC-SCA-110c), this is final, supersedes 60s."},
+        {"turn_id": "t4", "speaker": "agent", "episode_hint": "ep_timeout_v3", "content": "Recorded 45s as current."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_timeout_followup", "content": "After all that back-and-forth, what's the final timeout value?"}
+      ],
+      "required_prior_decision_ids": ["DEC-SCA-110c"],
+      "required_source_ids": ["SRC-SCA-timeout-v1", "SRC-SCA-timeout-v2", "SRC-SCA-timeout-v3"],
+      "known_irrelevant_history_turn_ids": [],
+      "expected_context_budget": 320,
+      "notes": "Three similar decisions on the same parameter; correct answer is the final one (45s/DEC-SCA-110c), but all three sources should remain traceable in selection rationale to show the revision chain."
+    },
+    {
+      "id": "sca_r0_mspd_002",
+      "case_family": "multiple_similar_prior_decisions",
+      "session_id": "SCA-R0-SESS-020",
+      "task_id": "SCA-R0-TASK-020",
+      "current_task": "Which authority threshold for low-authority suppression is currently active?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_threshold_v1", "content": "Suppress sources below authority 0.2 (DEC-SCA-111a)."},
+        {"turn_id": "t2", "speaker": "user", "episode_hint": "ep_threshold_v2", "content": "Too aggressive, change to 0.1 (DEC-SCA-111b), supersedes 0.2."},
+        {"turn_id": "t3", "speaker": "agent", "episode_hint": "ep_threshold_v2", "content": "Recorded 0.1 as current threshold."},
+        {"turn_id": "t4", "speaker": "user", "episode_hint": "ep_threshold_followup", "content": "What's the active suppression threshold?"}
+      ],
+      "required_prior_decision_ids": ["DEC-SCA-111b"],
+      "required_source_ids": ["SRC-SCA-threshold-v1", "SRC-SCA-threshold-v2"],
+      "known_irrelevant_history_turn_ids": [],
+      "expected_context_budget": 240,
+      "notes": "Two similar decisions, simpler revision chain than mspd_001; tests minimal-case precision."
+    },
+    {
+      "id": "sca_r0_mspd_003",
+      "case_family": "multiple_similar_prior_decisions",
+      "session_id": "SCA-R0-SESS-021",
+      "task_id": "SCA-R0-TASK-021",
+      "current_task": "What naming convention did we land on for benchmark output files?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_naming_v1", "content": "Use {date}_{report}.md (DEC-SCA-112a)."},
+        {"turn_id": "t2", "speaker": "user", "episode_hint": "ep_naming_v2", "content": "Add a run-label prefix: {label}_{date}_{report}.md (DEC-SCA-112b), supersedes the plain version."},
+        {"turn_id": "t3", "speaker": "agent", "episode_hint": "ep_naming_v2", "content": "Recorded labeled convention as current."},
+        {"turn_id": "t4", "speaker": "user", "episode_hint": "ep_naming_followup", "content": "What's the agreed file-naming convention again?"}
+      ],
+      "required_prior_decision_ids": ["DEC-SCA-112b"],
+      "required_source_ids": ["SRC-SCA-naming-v1", "SRC-SCA-naming-v2"],
+      "known_irrelevant_history_turn_ids": [],
+      "expected_context_budget": 240,
+      "notes": "Mirrors the real wave4_hygiene/labeled-report naming pattern in benchmarks/outputs/summaries at fixture-only scale."
+    },
+    {
+      "id": "sca_r0_urd_001",
+      "case_family": "unresolved_vs_resolved_decision_distinction",
+      "session_id": "SCA-R0-SESS-022",
+      "task_id": "SCA-R0-TASK-022",
+      "current_task": "Is the multi-tenant cache-isolation question resolved yet?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_cache_isolation", "content": "Should cache keys be tenant-prefixed or use separate cache instances per tenant?"},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_cache_isolation", "content": "Tenant-prefixed keys are cheaper; separate instances are more isolated. No decision yet, flagged open."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_cache_isolation", "content": "Let's revisit after the SLO work lands."},
+        {"turn_id": "t4", "speaker": "user", "episode_hint": "ep_isolation_followup", "content": "Did we ever resolve the cache-isolation approach?"}
+      ],
+      "required_prior_decision_ids": [],
+      "required_source_ids": ["SRC-SCA-cache-isolation-discussion"],
+      "known_irrelevant_history_turn_ids": [],
+      "expected_context_budget": 260,
+      "notes": "Must not fabricate a decision; correct selection preserves the explicit open/unresolved status (t2-t3) and must not synthesize DEC-SCA-* for this topic."
+    },
+    {
+      "id": "sca_r0_urd_002",
+      "case_family": "unresolved_vs_resolved_decision_distinction",
+      "session_id": "SCA-R0-SESS-023",
+      "task_id": "SCA-R0-TASK-023",
+      "current_task": "Did we finalize the rollback window for the canary deployment?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_rollback_window", "content": "Proposed a 30-minute canary rollback window."},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_rollback_window", "content": "Concern raised: 30 minutes may be too short for slow-burn regressions. No agreement reached."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_unrelated_docs_pr", "content": "Separately, can you review the docs PR?"},
+        {"turn_id": "t4", "speaker": "agent", "episode_hint": "ep_unrelated_docs_pr", "content": "Reviewed, approved."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_rollback_followup", "content": "So is the rollback window finalized at 30 minutes or not?"}
+      ],
+      "required_prior_decision_ids": [],
+      "required_source_ids": ["SRC-SCA-rollback-window-discussion"],
+      "known_irrelevant_history_turn_ids": ["t3", "t4"],
+      "expected_context_budget": 280,
+      "notes": "Tests that an unresolved disagreement is not collapsed into a false resolved decision when summarized into synthetic_context."
+    },
+    {
+      "id": "sca_r0_urd_003",
+      "case_family": "unresolved_vs_resolved_decision_distinction",
+      "session_id": "SCA-R0-SESS-024",
+      "task_id": "SCA-R0-TASK-024",
+      "current_task": "What's the status on the explainability-output format — locked in or still draft?",
+      "conversation_history": [
+        {"turn_id": "t1", "speaker": "user", "episode_hint": "ep_explain_format", "content": "Draft explain payload includes why-won/why-lost traces."},
+        {"turn_id": "t2", "speaker": "agent", "episode_hint": "ep_explain_format", "content": "Schema drafted but explicitly marked provisional pending operator feedback."},
+        {"turn_id": "t3", "speaker": "user", "episode_hint": "ep_explain_format", "content": "Agreed: ship behind a flag first, lock schema only after feedback (DEC-SCA-113, scope: flag rollout only, NOT schema finalization)."},
+        {"turn_id": "t4", "speaker": "agent", "episode_hint": "ep_explain_format", "content": "Recorded: flag-gated rollout decided; schema finalization remains open."},
+        {"turn_id": "t5", "speaker": "user", "episode_hint": "ep_explain_followup", "content": "Is the explain-output format locked in yet?"}
+      ],
+      "required_prior_decision_ids": ["DEC-SCA-113"],
+      "required_source_ids": ["SRC-SCA-explain-format-discussion"],
+      "known_irrelevant_history_turn_ids": [],
+      "expected_context_budget": 300,
+      "notes": "Mixed case: one sub-decision is resolved (flag-gated rollout) while a related sub-question (schema lock-in) is explicitly still open. Tests granularity of resolved/unresolved distinction within a single episode."
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What did the team vote for the lunch order?",
+          "speaker": "user",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Pizza won.",
+          "speaker": "agent",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Which rate limit number should go in the docs?",
+          "speaker": "user",
+          "turn_id": "t6"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Old runbook says 100 req/min (SRC-SCA-runbook-old).",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Current config file says 1000 req/min (SRC-SCA-config-current), more authoritative and more recent.",
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Flagged as contradiction pending confirmation, not yet resolved.",
+          "speaker": "agent",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What did the team vote for the lunch order?",
+          "speaker": "user",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Pizza won.",
+          "speaker": "agent",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Which rate limit number should go in the docs?",
+          "speaker": "user",
+          "turn_id": "t6"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [
+            "SRC-SCA-config-current",
+            "SRC-SCA-runbook-old"
+          ],
+          "session_turns": [
+            {
+              "content": "Old runbook says 100 req/min (SRC-SCA-runbook-old).",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Current config file says 1000 req/min (SRC-SCA-config-current), more authoritative and more recent.",
+              "speaker": "agent",
+              "turn_id": "t2"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "artifact_context",
+      "warning": {
+        "context_budget_insufficient": true,
+        "omitted_required_artifact_types": [
+          "contradiction_artifact"
+        ],
+        "selection_abstention_reason": "One or more mandatory eligible artifact types could not fit inside the context budget; lower-priority semantic fill was withheld."
+      }
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-006",
+  "task_prompt": "Settle whether the rate limit is 100 or 1000 requests/min before writing docs."
+}

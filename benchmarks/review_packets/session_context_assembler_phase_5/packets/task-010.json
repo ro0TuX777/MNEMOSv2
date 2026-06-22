@@ -1,0 +1,134 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Start: cache invalidation fanout is too slow on writes.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Identified hot key contention as the cause.",
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Agreed: batch invalidations per write instead of per key.",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Implemented batching (DEC-SCA-104); need tests next.",
+          "source_links": [
+            "SRC-SCA-cache-fanout-discussion"
+          ],
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Tests written, two edge cases failing on empty batch.",
+          "speaker": "user",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Empty-batch case fixed, one edge case remains: concurrent batch overlap.",
+          "speaker": "agent",
+          "turn_id": "t6"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Quick context switch: standup notes for today are posted.",
+          "speaker": "user",
+          "turn_id": "t7"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Back to the cache fix \u2014 what's left before we can merge?",
+          "speaker": "user",
+          "turn_id": "t8"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-104"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-cache-fanout-discussion"
+          ],
+          "session_turns": [
+            {
+              "content": "Agreed: batch invalidations per write instead of per key.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Implemented batching (DEC-SCA-104); need tests next.",
+              "source_links": [
+                "SRC-SCA-cache-fanout-discussion"
+              ],
+              "speaker": "agent",
+              "turn_id": "t4"
+            },
+            {
+              "content": "Tests written, two edge cases failing on empty batch.",
+              "speaker": "user",
+              "turn_id": "t5"
+            },
+            {
+              "content": "Empty-batch case fixed, one edge case remains: concurrent batch overlap.",
+              "speaker": "agent",
+              "turn_id": "t6"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Empty-batch case fixed, one edge case remains: concurrent batch overlap.",
+          "speaker": "agent",
+          "turn_id": "t6"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Quick context switch: standup notes for today are posted.",
+          "speaker": "user",
+          "turn_id": "t7"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Back to the cache fix \u2014 what's left before we can merge?",
+          "speaker": "user",
+          "turn_id": "t8"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-010",
+  "task_prompt": "Continue implementing the cache-invalidation fanout fix; what's left?"
+}

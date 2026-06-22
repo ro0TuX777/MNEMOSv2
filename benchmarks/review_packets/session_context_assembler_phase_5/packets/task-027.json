@@ -1,0 +1,159 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Export job retries need a clear backoff strategy.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Comparing fixed-delay backoff vs exponential backoff for export retries.",
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Exponential backoff, capped at 5 attempts.",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded: export job retries use exponential backoff capped at 5 attempts (DEC-SCA-204). See SRC-SCA-export-retry-decision.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Switching gears entirely: the office snack order needs confirming.",
+          "speaker": "user",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Confirmed, totally separate matter.",
+          "speaker": "agent",
+          "turn_id": "t6"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Also, can you check why the printer on the third floor keeps jamming?",
+          "speaker": "user",
+          "turn_id": "t7"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Checked, paper tray sensor was misaligned, now fixed.",
+          "speaker": "agent",
+          "turn_id": "t8"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Separate topic: what is the retry backoff strategy for the ingestion job's export step?",
+          "speaker": "user",
+          "turn_id": "t9"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Ingestion's export step retry backoff wasn't decided yet, still open, no decision recorded.",
+          "speaker": "agent",
+          "turn_id": "t10"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Back to my original question: what did we decide about retry backoff strategy for the export job?",
+          "speaker": "user",
+          "turn_id": "t11"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Checked, paper tray sensor was misaligned, now fixed.",
+          "speaker": "agent",
+          "turn_id": "t8"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Separate topic: what is the retry backoff strategy for the ingestion job's export step?",
+          "speaker": "user",
+          "turn_id": "t9"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Ingestion's export step retry backoff wasn't decided yet, still open, no decision recorded.",
+          "speaker": "agent",
+          "turn_id": "t10"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Back to my original question: what did we decide about retry backoff strategy for the export job?",
+          "speaker": "user",
+          "turn_id": "t11"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-204"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-export-retry-decision"
+          ],
+          "session_turns": [
+            {
+              "content": "Export job retries need a clear backoff strategy.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Comparing fixed-delay backoff vs exponential backoff for export retries.",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Exponential backoff, capped at 5 attempts.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Recorded: export job retries use exponential backoff capped at 5 attempts (DEC-SCA-204). See SRC-SCA-export-retry-decision.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "artifact_context",
+      "warning": {
+        "context_budget_insufficient": true,
+        "omitted_required_artifact_types": [
+          "contradiction_artifact"
+        ],
+        "selection_abstention_reason": "One or more mandatory eligible artifact types could not fit inside the context budget; lower-priority semantic fill was withheld."
+      }
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-027",
+  "task_prompt": "What did we decide about retry backoff strategy for the export job?"
+}

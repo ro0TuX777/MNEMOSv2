@@ -1,0 +1,102 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-111a",
+            "DEC-SCA-111b"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-threshold-v1",
+            "SRC-SCA-threshold-v2"
+          ],
+          "session_turns": [
+            {
+              "content": "Suppress sources below authority 0.2 (DEC-SCA-111a).",
+              "source_links": [
+                "SRC-SCA-threshold-v1"
+              ],
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Too aggressive, change to 0.1 (DEC-SCA-111b), supersedes 0.2.",
+              "source_links": [
+                "SRC-SCA-threshold-v2"
+              ],
+              "speaker": "user",
+              "turn_id": "t2"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Suppress sources below authority 0.2 (DEC-SCA-111a).",
+          "source_links": [
+            "SRC-SCA-threshold-v1"
+          ],
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Too aggressive, change to 0.1 (DEC-SCA-111b), supersedes 0.2.",
+          "source_links": [
+            "SRC-SCA-threshold-v2"
+          ],
+          "speaker": "user",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded 0.1 as current threshold.",
+          "speaker": "agent",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What's the active suppression threshold?",
+          "speaker": "user",
+          "turn_id": "t4"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded 0.1 as current threshold.",
+          "speaker": "agent",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What's the active suppression threshold?",
+          "speaker": "user",
+          "turn_id": "t4"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-020",
+  "task_prompt": "Which authority threshold for low-authority suppression is currently active?"
+}

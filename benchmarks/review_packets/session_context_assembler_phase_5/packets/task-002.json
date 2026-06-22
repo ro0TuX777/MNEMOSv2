@@ -1,0 +1,100 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-102"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-auth-model-decision"
+          ],
+          "session_turns": [
+            {
+              "content": "We agreed every consumer gets a scoped token, not a shared admin token.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Recorded: per-consumer scoped tokens (DEC-SCA-102), no shared admin tokens.",
+              "source_links": [
+                "SRC-SCA-auth-model-decision"
+              ],
+              "speaker": "agent",
+              "turn_id": "t2"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "We agreed every consumer gets a scoped token, not a shared admin token.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded: per-consumer scoped tokens (DEC-SCA-102), no shared admin tokens.",
+          "source_links": [
+            "SRC-SCA-auth-model-decision"
+          ],
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Also can you fix the typo on the dashboard header?",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Fixed, unrelated to auth.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Should the new ingestion path follow the same scoped-token rule?",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Fixed, unrelated to auth.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Should the new ingestion path follow the same scoped-token rule?",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-002",
+  "task_prompt": "Decide whether the new ingestion path needs its own auth scope."
+}

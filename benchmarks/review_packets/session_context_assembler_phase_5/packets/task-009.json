@@ -1,0 +1,86 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Postmortem (SRC-SCA-postmortem-0512) attributes the outage to a missed index migration.",
+          "speaker": "agent",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Action item: add a migration-check CI gate.",
+          "speaker": "user",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Conference swag order is finalized.",
+          "speaker": "agent",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What was the root cause again, for the customer-facing summary?",
+          "speaker": "user",
+          "turn_id": "t4"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Conference swag order is finalized.",
+          "speaker": "agent",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What was the root cause again, for the customer-facing summary?",
+          "speaker": "user",
+          "turn_id": "t4"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [
+            "SRC-SCA-postmortem-0512"
+          ],
+          "session_turns": [
+            {
+              "content": "Postmortem (SRC-SCA-postmortem-0512) attributes the outage to a missed index migration.",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Action item: add a migration-check CI gate.",
+              "speaker": "user",
+              "turn_id": "t2"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "artifact_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-009",
+  "task_prompt": "What did the incident postmortem say caused last month's outage?"
+}

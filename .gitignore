@@ -45,6 +45,10 @@ benchmarks/outputs/
 benchmarks/results/ebir_refinement_benchmark.json
 migration_checkpoint.json
 
+# Restricted reviewer unblinding keys (never publish)
+benchmarks/review_packets/session_context_assembler_phase_5/coordinator_manifest.json
+benchmarks/review_packets/session_context_assembler_phase_5a_owner_manifest.json
+
 # Runtime telemetry sinks (operational data, not source)
 logs/retrieval_telemetry.jsonl
 

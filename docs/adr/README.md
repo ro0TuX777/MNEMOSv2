@@ -11,4 +11,5 @@ audit.
 | [0004](0004-ebir-shadow-only.md) | EBIR remains shadow-only until human-value evidence passes | Accepted |
 | [0005](0005-context-atlas-spec-only.md) | Context Atlas P0 is spec-only | Accepted |
 | [0006](0006-chat-evidence-contract.md) | Chat integrations use the evidence contract for citations | Accepted |
-
+| [0007](0007-session-context-assembler-shadow-only.md) | Session context assembler remains shadow-only research | Accepted |
+| [0008](0008-consumer-neutral-read-only-shadow-adapter-implementation.md) | Consumer-neutral read-only shadow adapter implementation boundary | Accepted (isolated shadow only) |

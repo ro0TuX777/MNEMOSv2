@@ -1,0 +1,131 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-105"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-tenant-policy-discussion"
+          ],
+          "session_turns": [
+            {
+              "content": "Recorded (DEC-SCA-105); implemented default fallback.",
+              "source_links": [
+                "SRC-SCA-tenant-policy-discussion"
+              ],
+              "speaker": "agent",
+              "turn_id": "t4"
+            }
+          ],
+          "synthetic_context": true
+        },
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "session_turns": [
+            {
+              "content": "Validation rejects valid overrides with nested objects \u2014 that's the current blocker.",
+              "speaker": "user",
+              "turn_id": "t5"
+            },
+            {
+              "content": "What's the blocker status now?",
+              "speaker": "user",
+              "turn_id": "t6"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded (DEC-SCA-105); implemented default fallback.",
+          "source_links": [
+            "SRC-SCA-tenant-policy-discussion"
+          ],
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Validation rejects valid overrides with nested objects \u2014 that's the current blocker.",
+          "speaker": "user",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What's the blocker status now?",
+          "speaker": "user",
+          "turn_id": "t6"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Tenant policy profiles need schema validation at load time.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Drafted schema; missing default values for half-life and penalty fields.",
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Use platform defaults unless tenant overrides explicitly.",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded (DEC-SCA-105); implemented default fallback.",
+          "source_links": [
+            "SRC-SCA-tenant-policy-discussion"
+          ],
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Validation rejects valid overrides with nested objects \u2014 that's the current blocker.",
+          "speaker": "user",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What's the blocker status now?",
+          "speaker": "user",
+          "turn_id": "t6"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-011",
+  "task_prompt": "Resume the tenant-policy validation work; what was the last blocker?"
+}

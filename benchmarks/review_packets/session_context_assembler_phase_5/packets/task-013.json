@@ -1,0 +1,126 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Found a rounding bug in the tax calculation, fixed.",
+          "speaker": "agent",
+          "turn_id": "t6"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "OK, back to the reranker \u2014 did we settle on a model?",
+          "speaker": "user",
+          "turn_id": "t7"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [
+            "SRC-SCA-reranker-discussion"
+          ],
+          "session_turns": [
+            {
+              "content": "Comparing cross-encoder rerankers for candidate envelopes.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Two candidates: a small distilled model and a larger general one.",
+              "source_links": [
+                "SRC-SCA-reranker-discussion"
+              ],
+              "speaker": "agent",
+              "turn_id": "t2"
+            }
+          ],
+          "synthetic_context": true
+        },
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "session_turns": [
+            {
+              "content": "OK, back to the reranker \u2014 did we settle on a model?",
+              "speaker": "user",
+              "turn_id": "t7"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Comparing cross-encoder rerankers for candidate envelopes.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Two candidates: a small distilled model and a larger general one.",
+          "source_links": [
+            "SRC-SCA-reranker-discussion"
+          ],
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Switching topics: the billing reconciliation job needs a rerun.",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Triggered the rerun.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Also check why last month's invoice totals were off by 2%.",
+          "speaker": "user",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Found a rounding bug in the tax calculation, fixed.",
+          "speaker": "agent",
+          "turn_id": "t6"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "OK, back to the reranker \u2014 did we settle on a model?",
+          "speaker": "user",
+          "turn_id": "t7"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-013",
+  "task_prompt": "Back to the reranker discussion \u2014 did we settle on a model?"
+}

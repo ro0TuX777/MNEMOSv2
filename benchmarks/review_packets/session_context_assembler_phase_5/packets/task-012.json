@@ -1,0 +1,124 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Updated; stale-cache survival threshold still undecided.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Side note: forward me last week's status email.",
+          "speaker": "user",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Which SLO thresholds are still open?",
+          "speaker": "user",
+          "turn_id": "t6"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "We need p50/p95 latency SLOs.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Proposed p50 <= 150ms, p95 <= 500ms.",
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Agreed on p50, p95 should be 400ms not 500ms (DEC-SCA-106).",
+          "source_links": [
+            "SRC-SCA-slo-definition-discussion"
+          ],
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Updated; stale-cache survival threshold still undecided.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Side note: forward me last week's status email.",
+          "speaker": "user",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Which SLO thresholds are still open?",
+          "speaker": "user",
+          "turn_id": "t6"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-106"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-slo-definition-discussion"
+          ],
+          "session_turns": [
+            {
+              "content": "We need p50/p95 latency SLOs.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Proposed p50 <= 150ms, p95 <= 500ms.",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Agreed on p50, p95 should be 400ms not 500ms (DEC-SCA-106).",
+              "source_links": [
+                "SRC-SCA-slo-definition-discussion"
+              ],
+              "speaker": "user",
+              "turn_id": "t3"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "artifact_context",
+      "warning": {
+        "context_budget_insufficient": true,
+        "omitted_required_artifact_types": [
+          "contradiction_artifact"
+        ],
+        "selection_abstention_reason": "One or more mandatory eligible artifact types could not fit inside the context budget; lower-priority semantic fill was withheld."
+      }
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-012",
+  "task_prompt": "Continue the SLO definition work; which thresholds are still undecided?"
+}
