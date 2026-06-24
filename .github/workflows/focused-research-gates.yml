@@ -53,6 +53,8 @@ jobs:
         with:
           python-version: "3.11"
       - run: python -m pip install pytest
+      - name: Generate deterministic R2 verification artifacts
+        run: python tools/run_session_context_assembler_r2_verification.py
       - name: Run deterministic assembler gates
         run: >-
           python -m pytest -q
