@@ -74,7 +74,7 @@ NO_PRODUCTION_USE
 
 A separate proposal may now be drafted for a read-only, consumer-neutral
 technical shadow adapter. Nothing in Phase 5A authorizes implementation or
-routing. SAM is one possible future test consumer only; it is not the
+routing. Any future external consumer is test-only; it is not the
 architectural owner, default runtime, or product identity of the assembler.
 
 The hardened design requires artifact-local provenance, canonical package

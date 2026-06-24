@@ -79,7 +79,7 @@ Session / working-memory     EpiCache-style episode segmentation — closest
                               optimization layer from quietly becoming a
                               second, ungoverned memory store.
 
-                              SAM may be used as one future test consumer,
+                              A future external test consumer may be used,
                               but is not the architectural owner, default
                               runtime, or product identity of the assembler.
 

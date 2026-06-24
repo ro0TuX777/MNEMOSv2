@@ -42,7 +42,7 @@ The implementation remains a technical shadow. It may compare what would have
 been delivered, but it must not supply or replace live consumer context, affect
 an answer or workflow decision, or become a dependency of a consumer request.
 
-SAM may be used later as one example test consumer under separate approval. It
+An external agent may be used later as one example test consumer under separate approval. It
 is not the architectural owner, default runtime, or product identity of the
 assembler or adapter.
 

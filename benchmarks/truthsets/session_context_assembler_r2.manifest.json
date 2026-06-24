@@ -3,7 +3,7 @@
   "source_file": "benchmarks/truthsets/session_context_assembler_r2.json",
   "frozen": true,
   "frozen_date": "2026-06-22",
-  "file_sha256": "ba990a35d507811105f879003d9c4b9ea8acea3884a8a694046e38f6bcb51ef5",
+  "file_sha256": "900b4816fe2cc32e18949683de531fba065975edb65745eb875bc698fbe38b91",
   "case_count": 10,
   "case_hashes": {
     "sca_r2_old_decisive_001": "30ddca9d863b28851e418d439785eefd6fe0f65877a61886c367ccc14a537e1c",

@@ -63,11 +63,19 @@ that critical gates are not vacuous.
 
 ## Workstream C — optional model-assisted surrogate
 
-Not run under this closeout. Any future fixed-model answer-fidelity evaluation
-must be separately labeled `MODEL_ASSISTED_SURROGATE_EVALUATION`, use identical
-model/prompt settings across A/B/C1, and report only grounded agreement,
-source-ID preservation, contradiction handling, abstention acknowledgement,
-and unsupported-claim rate. It cannot substitute for human evidence.
+Completed 2026-06-24 with a fixed local Qwen2.5 7B model, temperature 0, seed
+5101, and identical prompt/schema settings across A/B/C1. Scoring-only R2
+expectations were joined only after model responses.
+
+| Condition | Grounded agreement | Source-ID preservation | Contradiction handling | Abstention acknowledgement | Unsupported-claim rate |
+|---|---:|---:|---:|---:|---:|
+| A | 0.700 | 0.700 | 0.900 | 1.000 | 0.000 |
+| B | 0.300 | 0.300 | 0.900 | 0.700 | 0.100 |
+| C1 | 0.700 | 0.700 | 0.900 | 0.900 | 0.000 |
+
+Evidence: `benchmarks/results/session_context_assembler_model_fidelity.json`.
+These are `MODEL_ASSISTED_SURROGATE_EVALUATION` observations only. They cannot
+substitute for human evidence or support a generalization or production claim.
 
 ## Workstream D — product-owner pack
 
@@ -97,6 +105,6 @@ A Phase 5A PASS authorizes a separate proposal for a read-only,
 consumer-neutral technical shadow adapter.
 
 It does not authorize live routing, production use, memory writes, governance
-mutation, promotion behavior, or a human-value claim. SAM is one possible
+mutation, promotion behavior, or a human-value claim. An external agent is one possible
 future consumer for testing only; it is not part of MNEMOS's core architecture
 or product boundary.

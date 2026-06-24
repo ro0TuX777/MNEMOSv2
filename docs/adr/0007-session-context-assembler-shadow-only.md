@@ -44,8 +44,8 @@ MNEMOS governed durable memory
 -> external application, agent, workflow, or operator interface
 ```
 
-SAM is one possible future consumer for testing only; it is not part of
-MNEMOS's core architecture or product boundary.
+Any future consumer remains test-only unless separately approved; no external
+agent system is part of MNEMOS's core architecture or product boundary.
 
 ## Alternatives Considered
 

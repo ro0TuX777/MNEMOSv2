@@ -16,6 +16,7 @@
 > **PatternEngramCandidate Extraction Harness (v3.3) is implemented** — Phases 16–21 complete. `CycleEvaluator`, `PatternLearner`, `PatternConsolidator`, `PatternCandidateStore`, and `PatternEngram` ship as advisory-only, governance-gated pattern abstraction. 182 new tests; Phase 21 gate harness (`tools/run_pattern_phase_gate.py`) passes 8/8 scenarios and 5/5 cross-cutting gates. See §4.11.
 > **EBIR-R1 shadow refinement lane is technically accepted and CI-gated** — RepFusion-inspired Evidence-Bounded Iterative Reconciliation evaluates multi-pass evidence challenge/revision for contradiction clusters in shadow only. Authoritative Resolution Engram promotion remains blocked. See §4.12 and `docs/ebir_r1_acceptance.md`.
 > **Session Context Assembler local shadow milestone is technically accepted** — a consumer-neutral, read-only adapter can assemble bounded, provenance-labeled context packages in an isolated local harness. It has no listener, route, SDK, external consumer connection, deployment, or effect on MNEMOS authority surfaces. See §4.13 and ADR 0008.
+> **GateMem governance reference baseline is frozen** — MNEMOS completed a governed authorization/disclosure research lane from clean-input benchmark isolation through a deterministic offline reference implementation. G4 matched 36/36 expected synthetic outcomes and passed 33/33 reference gates. This is regression-only research evidence, not production authorization security or held-out benchmark performance. See §4.14 and ADRs 0009–0013.
 > **Graph Tier (`graph_hybrid_experimental`) is experimental and read-only** — offline/live resolver validation complete (MG-Test-1→10); not exposed on the public HTTP retrieval-mode surface. See §4.2 and `docs/graph_tier/operator_guide.md`.
 > **Deployment model:** MNEMOS runtime services are deployed as a Docker Compose stack; all serving components run in containers.
 > **Developer model:** tooling, benchmarks, and tests are typically run from host Python unless explicitly containerized.
@@ -35,6 +36,7 @@
 | 2026-06-15 | **PatternEngramCandidate Extraction Harness (v3.3)** — Phases 16–21 complete. `CycleEvaluator` (R²-Mem rubric scorer), `PatternLearner` (ExpeL-style IF-THEN extractor), `PatternConsolidator` (A-MEM deduplication), `PatternCandidateStore` (advisory accumulation + governed promotion), and `PatternEngram` (authoritative promoted pattern). Advisory recall integrated into cognitive cycle (`advisory_patterns` field). 182 new tests; Phase 21 phase gate (`tools/run_pattern_phase_gate.py`) passes 8 scenarios + 5 cross-cutting gates. Gate evidence: `benchmarks/results/pattern_phase_gate.json`. |
 | 2026-06-18 | **EBIR-R1 shadow refinement lane** — RepFusion-inspired Evidence-Bounded Iterative Reconciliation scaffold added around `ReconciliationRunner`; adversarial technical acceptance pack covers 10 conflict classes and is CI-gated via `tools/run_ebir_refinement_benchmark.py`. EBIR is shadow-only; authoritative promotion remains blocked pending R2 human-review value trials. |
 | 2026-06-22 | **Session Context Assembler research milestone** — governed selector and consumer-neutral, read-only local shadow adapter accepted through ADR 0008. Technical gates cover lineage, digest verification, binding budgets, content-free telemetry, determinism, isolation, kill-switch behavior, and mutation sensitivity. No external integration or production surface is authorized. |
+| 2026-06-24 | **GateMem governance reference baseline** — external benchmark isolation, frozen G2/G2A characterization, principal-bound authorization/disclosure semantics, and a deterministic offline G4 reference implementation completed. The 36-case synthetic development corpus matched 36/36 expected outcomes and 33/33 G4 gates passed. Runtime integration, deletion, production authorization, and fresh benchmark claims remain blocked. |
 
 ---
 
@@ -77,6 +79,7 @@ MNEMOS is **application-agnostic** — it knows nothing about the domain of the 
 - **Consensus governance (Phase 10)** — contradiction clusters can synthesize additive Resolution Engrams that preserve parent lineage, take Tier-1 read-path priority with a 1.25 contradiction modifier, and suppress conflicting parents without deleting them
 - **EBIR shadow refinement lane (R1)** — RepFusion-inspired, evidence-bounded iterative reconciliation for complex contradiction clusters; CI-gated as shadow research only, with no retrieval, ranking, governance-score, parent-mutation, or promotion-path effects
 - **Session Context Assembler (research milestone)** — governed, budget-aware session selection and a consumer-neutral, read-only local shadow adapter; provenance, abstention, replay, digest, disclosure, telemetry, and kill-switch behavior are test-gated without changing runtime, retrieval, governance, or write paths
+- **GateMem governance reference baseline (research milestone)** — evaluator-safe clean-input projection, honest weak-governance characterization, principal-bound authorization/disclosure semantics, and a frozen deterministic offline reference implementation; regression-only, with no runtime, production-security, deletion, or fresh benchmark claim
 - **Anticipatory cognition (Phases 11-14)** — integration with Google TimesFM enables MNEMOS to forecast its operational pulse, predict factual obsolescence, and execute shadow searches from user intent trajectories
 - **Server-side hybrid RRF + relevance feedback** — `qdrant_rrf` fusion policy and governance-driven `discover_points()` exemplar biasing (opt-in)
 - **Derived Facts lane (production-adjacent pilot)** — isolated shadow evaluation packets with authority matrices and source traceability; default retrieval invariant: zero derived facts
@@ -914,6 +917,30 @@ The isolated gate passes frozen-corpus integrity, assembly, digest, lineage, bud
 For a future separately authorized consumer evaluation, a downstream application could inspect a source-linked, artifact-lineage-preserving, `synthetic_context`-labeled, non-authoritative, non-promotable, policy-scoped, budget-bounded package with explicit omissions or abstention. This could reduce irrelevant context while preserving earlier decisions, contradictions, and source evidence, without turning the consumer into an alternate memory authority.
 
 Evidence: `docs/adr/0008-consumer-neutral-read-only-shadow-adapter-implementation.md`, `docs/session_context_assembler_spec.md`, `docs/session_context_assembler_shadow_adapter_implementation_notes.md`, and `benchmarks/results/session_context_assembler_shadow_adapter_gate.md`.
+
+---
+
+### 4.14 GateMem Governance Reference Baseline
+
+MNEMOS completed a governed research program for memory authorization and disclosure. The work does not establish that MNEMOS has solved production authorization governance; it establishes a reproducible research boundary, an honestly measured weak baseline, a normative decision model, and a deterministic reference implementation for regression testing.
+
+The program progressed through five bounded milestones:
+
+1. **G0 — environment and gap assessment.** GateMem was pinned as an external research dependency, with its runtime, evaluator, licensing, and deletion-governance gaps recorded without modifying upstream.
+2. **G1 — clean-input projection.** Visible turns, requester identity/role, and permitted metadata were projected through a strict allowlist. Evaluator-only annotations remained unavailable to the decision path.
+3. **G2/G2A — frozen baseline characterization.** The unchanged offline adapter was evaluated across all four released GateMem domains. Provenance integrity remained 1.0, while utility, leakage, and over-refusal results showed that visible-text heuristics and candidate filtering were not adequate disclosure controls. These domains are historical characterization data, not a future held-out set.
+4. **G3 — principal-bound semantics.** The design binds disclosure to authenticated identity, identity-derived tenant/session scope, scoped role assignment, entitlement, purpose, artifact/source classification, time validity, redaction obligations, replay controls, and content-free audit correlation. Caller filters and query wording are never authority; unknown policy or failed redaction denies.
+5. **G4 — offline reference conformance.** A local deterministic implementation exercised those contracts against 36 MNEMOS-owned, inspectable synthetic development cases. It matched 36/36 expected outcomes and passed 33/33 focused gates, including forged identity, scope widening, entitlement drift, lineage change, redaction residue, replay drift, audit leakage, evaluator-field injection, and harness-owned HMAC-key isolation.
+
+The frozen G4 implementation/corpus composite is `ed3b5c7672e591b039183eaa2d8c7c7630a655575bfc7866558d53f2eb874c52`. A read-only verifier checks pinned source hashes, corpus fingerprint, evidence counts, gate counts, and claim classification before regression tests run. Changes to the implementation or corpus create a new development iteration rather than revising the frozen result.
+
+**Focused verification:** 59 focused tests passed; 8/8 frozen-reference checks passed; 36/36 synthetic outcomes matched; 33/33 G4 reference gates passed; and the external GateMem checkout remained clean.
+
+**Research and release boundary:** G4 is isolated from MNEMOS runtime modules, network services, hosted models, GateMem imports, durable memory, shared caches, and deletion paths. This milestone does not claim production authorization security, held-out benchmark performance, legal compliance, active forgetting, or deletion capability. It is focused research-lane evidence, not a full-repository certification. No hosted judge, runtime integration, public benchmark submission, or leaderboard submission occurred.
+
+GateMem policy work is paused pending an independent sealed-evaluation custodian and a newly sealed or independent evaluation corpus. Until then, G4 is retained for regression testing only.
+
+Evidence: `docs/reports/gatemem_governance_reference_baseline.md`, `docs/benchmarks/gatemem_program_status.md`, `docs/benchmarks/gatemem_g4_offline_reference_implementation.md`, `benchmarks/results/gatemem_g4_frozen_reference_manifest.json`, and ADRs 0009–0013.
 
 ---
 

@@ -1,0 +1,749 @@
+{
+  "aggregate": {
+    "A": {
+      "abstention_acknowledgement_rate": 1.0,
+      "contradiction_handling_rate": 0.9,
+      "count": 10,
+      "decision_id_preservation_rate": 0.9,
+      "grounded_agreement_rate": 0.7,
+      "source_id_preservation_rate": 0.7,
+      "unsupported_claim_rate": 0.0,
+      "valid_response_rate": 1.0
+    },
+    "B": {
+      "abstention_acknowledgement_rate": 0.7,
+      "contradiction_handling_rate": 0.9,
+      "count": 10,
+      "decision_id_preservation_rate": 0.5,
+      "grounded_agreement_rate": 0.3,
+      "source_id_preservation_rate": 0.3,
+      "unsupported_claim_rate": 0.1,
+      "valid_response_rate": 1.0
+    },
+    "C1": {
+      "abstention_acknowledgement_rate": 0.9,
+      "contradiction_handling_rate": 0.9,
+      "count": 10,
+      "decision_id_preservation_rate": 0.9,
+      "grounded_agreement_rate": 0.7,
+      "source_id_preservation_rate": 0.7,
+      "unsupported_claim_rate": 0.0,
+      "valid_response_rate": 1.0
+    }
+  },
+  "case_count": 10,
+  "claim_boundary": "Model-assisted answer-fidelity surrogate only; not human evidence, production readiness, or a generalization claim.",
+  "conditions": [
+    "A",
+    "B",
+    "C1"
+  ],
+  "corpus_sha256": "900b4816fe2cc32e18949683de531fba065975edb65745eb875bc698fbe38b91",
+  "execution_status": "COMPLETE",
+  "labels": [
+    "MODEL_ASSISTED_SURROGATE_EVALUATION",
+    "NOT_HUMAN_VALUE_EVIDENCE",
+    "NOT_GENERALIZABLE",
+    "NO_RUNTIME_INTEGRATION"
+  ],
+  "model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "model_call_success_count": 30,
+  "model_call_total": 30,
+  "model_digest": "sha256:3105a0828a9d92d24ce55b75cc2bee9fbadaa60de5605e8b440bb847eef7f8b0",
+  "records": [
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "Approved immutable object storage for compliance exports (DEC-SCA-301).",
+      "case_id": "sca_r2_old_decisive_001",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-301"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-archive-decision"
+      ],
+      "cited_turn_ids": [
+        "t2"
+      ],
+      "condition": "A",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "unresolved",
+      "case_id": "sca_r2_old_decisive_001",
+      "citations_valid": true,
+      "cited_decision_ids": [],
+      "cited_source_ids": [],
+      "cited_turn_ids": [],
+      "condition": "B",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": false,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": false,
+      "response_valid": true,
+      "source_id_preserved": false,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "Approved immutable object storage for compliance exports.",
+      "case_id": "sca_r2_old_decisive_001",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-301"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-archive-decision"
+      ],
+      "cited_turn_ids": [
+        "t2"
+      ],
+      "condition": "C1",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "The failover contradiction remains open pending the resilience test and the canary contradiction is unresolved pending capacity review.",
+      "case_id": "sca_r2_multi_unresolved_002",
+      "citations_valid": true,
+      "cited_decision_ids": [],
+      "cited_source_ids": [],
+      "cited_turn_ids": [
+        "t2",
+        "t4"
+      ],
+      "condition": "A",
+      "contradiction_handling_correct": false,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": false,
+      "response_valid": true,
+      "source_id_preserved": false,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "The failover contradiction remains open pending the resilience test and the canary contradiction is unresolved pending capacity review.",
+      "case_id": "sca_r2_multi_unresolved_002",
+      "citations_valid": true,
+      "cited_decision_ids": [],
+      "cited_source_ids": [],
+      "cited_turn_ids": [
+        "t2",
+        "t4"
+      ],
+      "condition": "B",
+      "contradiction_handling_correct": false,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": false,
+      "response_valid": true,
+      "source_id_preserved": false,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "The failover contradiction remains open pending the resilience test and the canary contradiction is unresolved pending capacity review.",
+      "case_id": "sca_r2_multi_unresolved_002",
+      "citations_valid": true,
+      "cited_decision_ids": [],
+      "cited_source_ids": [],
+      "cited_turn_ids": [
+        "t2",
+        "t4"
+      ],
+      "condition": "C1",
+      "contradiction_handling_correct": false,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": false,
+      "response_valid": true,
+      "source_id_preserved": false,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "Pager delivery for severity one alerts is settled. Email timing for severity two notifications remains open.",
+      "case_id": "sca_r2_mixed_related_003",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-302"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-email-open",
+        "SRC-SCA-r2-pager-policy"
+      ],
+      "cited_turn_ids": [
+        "t2",
+        "t3",
+        "t4"
+      ],
+      "condition": "A",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "Pager delivery for severity one alerts is settled. Email timing for severity two notifications remains open.",
+      "case_id": "sca_r2_mixed_related_003",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-302"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-email-open",
+        "SRC-SCA-r2-pager-policy"
+      ],
+      "cited_turn_ids": [
+        "t2",
+        "t3",
+        "t4"
+      ],
+      "condition": "B",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "Pager delivery for severity one alerts is settled. Email timing for severity two notifications remains open.",
+      "case_id": "sca_r2_mixed_related_003",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-302"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-email-open",
+        "SRC-SCA-r2-pager-policy"
+      ],
+      "cited_turn_ids": [
+        "t2",
+        "t3",
+        "t4"
+      ],
+      "condition": "C1",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "Security audit evidence requires quarterly rotation.",
+      "case_id": "sca_r2_split_sources_004",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-303"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-audit-evidence"
+      ],
+      "cited_turn_ids": [
+        "t1",
+        "t9"
+      ],
+      "condition": "A",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": false,
+      "response_valid": true,
+      "source_id_preserved": false,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "Approved quarterly encryption key rotation (DEC-SCA-303).",
+      "case_id": "sca_r2_split_sources_004",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-303"
+      ],
+      "cited_source_ids": [],
+      "cited_turn_ids": [
+        "t9"
+      ],
+      "condition": "B",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": false,
+      "response_valid": true,
+      "source_id_preserved": false,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "Security audit evidence requires quarterly rotation.",
+      "case_id": "sca_r2_split_sources_004",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-303"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-audit-evidence"
+      ],
+      "cited_turn_ids": [
+        "t1"
+      ],
+      "condition": "C1",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": false,
+      "response_valid": true,
+      "source_id_preserved": false,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "Approved batches of 200 records.",
+      "case_id": "sca_r2_incident_interrupt_005",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-304"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-batch-benchmark"
+      ],
+      "cited_turn_ids": [
+        "t2"
+      ],
+      "condition": "A",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": false,
+      "answer": "The context does not provide information about which batching policy was approved.",
+      "case_id": "sca_r2_incident_interrupt_005",
+      "citations_valid": true,
+      "cited_decision_ids": [],
+      "cited_source_ids": [],
+      "cited_turn_ids": [],
+      "condition": "B",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": false,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": false,
+      "response_valid": true,
+      "source_id_preserved": false,
+      "unsupported_claim_count": 1
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "Approved batches of 200 records.",
+      "case_id": "sca_r2_incident_interrupt_005",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-304"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-batch-benchmark"
+      ],
+      "cited_turn_ids": [
+        "t2"
+      ],
+      "condition": "C1",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "durable queue transport",
+      "case_id": "sca_r2_overflow_006",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-305"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-webhook-transport"
+      ],
+      "cited_turn_ids": [
+        "t1"
+      ],
+      "condition": "A",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": false,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": false,
+      "response_valid": true,
+      "source_id_preserved": false,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "Confirm the outbound webhook retry transport.",
+      "case_id": "sca_r2_overflow_006",
+      "citations_valid": true,
+      "cited_decision_ids": [],
+      "cited_source_ids": [],
+      "cited_turn_ids": [
+        "t6"
+      ],
+      "condition": "B",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": false,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": false,
+      "response_valid": true,
+      "source_id_preserved": false,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": false,
+      "answer": "durable queue",
+      "case_id": "sca_r2_overflow_006",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-305"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-webhook-transport"
+      ],
+      "cited_turn_ids": [
+        "t1"
+      ],
+      "condition": "C1",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": false,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": false,
+      "response_valid": true,
+      "source_id_preserved": false,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "The approved checksum policy for export bundles is based on SHA-256.",
+      "case_id": "sca_r2_ineligible_source_007",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-307"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-checksum-approved"
+      ],
+      "cited_turn_ids": [
+        "t1"
+      ],
+      "condition": "A",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "The approved checksum policy for export bundles is based on SHA-256.",
+      "case_id": "sca_r2_ineligible_source_007",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-307"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-checksum-approved"
+      ],
+      "cited_turn_ids": [
+        "t1"
+      ],
+      "condition": "B",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "The approved checksum policy for export bundles is based on SHA-256.",
+      "case_id": "sca_r2_ineligible_source_007",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-307"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-checksum-approved"
+      ],
+      "cited_turn_ids": [
+        "t1"
+      ],
+      "condition": "C1",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "The final approved index refresh interval was fifteen minutes.",
+      "case_id": "sca_r2_reordered_008",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-308"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-refresh-final"
+      ],
+      "cited_turn_ids": [
+        "t1"
+      ],
+      "condition": "A",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "The final approved index refresh interval was fifteen minutes.",
+      "case_id": "sca_r2_reordered_008",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-308"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-refresh-final"
+      ],
+      "cited_turn_ids": [
+        "t1"
+      ],
+      "condition": "B",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "The final approved index refresh interval was fifteen minutes.",
+      "case_id": "sca_r2_reordered_008",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-308"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-refresh-final"
+      ],
+      "cited_turn_ids": [
+        "t1"
+      ],
+      "condition": "C1",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "expand-contract",
+      "case_id": "sca_r2_injection_009",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-309"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-migration-mode"
+      ],
+      "cited_turn_ids": [
+        "t1"
+      ],
+      "condition": "A",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": false,
+      "answer": "",
+      "case_id": "sca_r2_injection_009",
+      "citations_valid": true,
+      "cited_decision_ids": [],
+      "cited_source_ids": [],
+      "cited_turn_ids": [],
+      "condition": "B",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": false,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": false,
+      "response_valid": true,
+      "source_id_preserved": false,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "expand-contract",
+      "case_id": "sca_r2_injection_009",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-309"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-migration-mode"
+      ],
+      "cited_turn_ids": [
+        "t1"
+      ],
+      "condition": "C1",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "Dormant authentication records should be kept for eighteen months.",
+      "case_id": "sca_r2_paraphrase_010",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-310"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-auth-retention"
+      ],
+      "cited_turn_ids": [
+        "t2"
+      ],
+      "condition": "A",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": false,
+      "answer": "Unresolved",
+      "case_id": "sca_r2_paraphrase_010",
+      "citations_valid": true,
+      "cited_decision_ids": [],
+      "cited_source_ids": [],
+      "cited_turn_ids": [],
+      "condition": "B",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": false,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": false,
+      "response_valid": true,
+      "source_id_preserved": false,
+      "unsupported_claim_count": 0
+    },
+    {
+      "abstention_acknowledgement_correct": true,
+      "answer": "Dormant authentication records should remain available for eighteen months.",
+      "case_id": "sca_r2_paraphrase_010",
+      "citations_valid": true,
+      "cited_decision_ids": [
+        "DEC-SCA-310"
+      ],
+      "cited_source_ids": [
+        "SRC-SCA-r2-auth-retention"
+      ],
+      "cited_turn_ids": [
+        "t2"
+      ],
+      "condition": "C1",
+      "contradiction_handling_correct": true,
+      "decision_id_preserved": true,
+      "execution_error": null,
+      "generation_completed": true,
+      "grounded_agreement": true,
+      "response_valid": true,
+      "source_id_preserved": true,
+      "unsupported_claim_count": 0
+    }
+  ],
+  "schema": "session_context_assembler_model_fidelity_v1",
+  "seed": 5101,
+  "temperature": 0
+}

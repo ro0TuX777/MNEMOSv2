@@ -1,0 +1,41 @@
+{
+  "schema_version": "gatemem-g2-frozen-baseline-manifest-v1",
+  "status": "GATEMEM_G2_OFFLINE_BASELINE_FROZEN",
+  "scope": "MEDICAL_DOMAIN_ONLY",
+  "frozen_at": "2026-06-24",
+  "composite_sha256": "4211bc91e7dbe53f588a8ecb00a04e6e44d2fb775ca1e888d058680acb5ad209",
+  "gatemem_upstream_commit": "603f9f4b4ba4b77f043c20f85687fa016fd720b0",
+  "configuration": {
+    "top_k": 8,
+    "minimum_score": 0.08,
+    "max_disclosed_records": 4,
+    "max_answer_characters": 2200,
+    "deletion_mode": "unsupported"
+  },
+  "source_sha256": {
+    "prototype/gatemem_g1/__init__.py": "18f7481382c92b80480c7f6cd19b2e87501ecfe58ff63460e96fd8407d21aa5f",
+    "prototype/gatemem_g1/canonical.py": "c3e911e730e1bbf45f161686bb0ca3b23d172cecc3bb525a5cc26cdf5c5c50d7",
+    "prototype/gatemem_g1/io.py": "b66f84369f55981626f1334dac97d2541653c2ddbfbe843e984879080d2b823c",
+    "prototype/gatemem_g1/models.py": "f98b8a8781bb770e01563e64d183c4033b7446b7e6cfcba41d664b64c5413715",
+    "prototype/gatemem_g1/normalizer.py": "7e3541b3c5698ff9c11756165f66e8907309914b08786d7fb955a9dfed44f86c",
+    "prototype/gatemem_g1/observer.py": "ac306017a3372c44a36309ad855edd1d88ed878e95720c2d400c3caed60580c3",
+    "prototype/gatemem_g1/projector.py": "d8627e480fe1ddb603c7721e18430c669c2d70f14f94c21e2da255986aac2544",
+    "prototype/gatemem_g2/__init__.py": "78f9ecac16bbf6bb203b5fcf9b6c08822d7e8683d89aabf8f4df9d0d99d897d2",
+    "prototype/gatemem_g2/adapter.py": "22417964629987446b5055d7c7a20569726e13bbc58488a7fa27988ee98a71b1",
+    "prototype/gatemem_g2/harness.py": "c7eae9d9e8d4595a8490dca0734fcdc79724483797044e74a96f0e40b941f9b8",
+    "prototype/gatemem_g2/models.py": "a9c3c1fceef6f620197eaf479102adb41c3181d60cbad585b43ea4aa3a4964ec"
+  },
+  "claims": {
+    "offline_adapter_mechanics_verified": true,
+    "provenance_integrity_verified": true,
+    "disclosure_policy_adequate_for_production": false,
+    "active_forgetting_evaluated": false,
+    "production_role_enforcement_claim": false,
+    "deletion_capability_claim": false
+  },
+  "freeze_rules": [
+    "NO_POLICY_TUNING_ON_MEDICAL_RESULTS",
+    "NO_PRODUCTION_ROLE_ENFORCEMENT_CLAIM",
+    "NO_DELETION_CAPABILITY_CLAIM"
+  ]
+}

@@ -64,6 +64,3 @@ temp_paper*.txt
 # Local EBIR-R2 trial outputs (generated, may contain reviewer responses)
 eval_results/ebir_r2/
 eval_results/ebir_r2_full/
-
-# External application assets (belong outside MNEMOS)
-sam/

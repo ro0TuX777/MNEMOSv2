@@ -23,7 +23,7 @@ MNEMOS
 
 The session-context assembler remains a MNEMOS capability. An adapter only
 transports a bounded, governed package to an authorized consumer; it neither
-owns the assembler nor becomes a memory or authority layer. SAM is one
+owns the assembler nor becomes a memory or authority layer. An external agent is one
 possible future consumer for testing only. It is not part of MNEMOS's core
 architecture or product boundary.
 

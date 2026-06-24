@@ -1,0 +1,33 @@
+{
+  "schema_version": "gatemem-g4-proposal-review-v1",
+  "status": "GATEMEM_G4_OFFLINE_REFERENCE_IMPLEMENTATION_PROPOSAL_COMPLETE",
+  "authorization_state": "NO_IMPLEMENTATION_AUTHORIZED",
+  "review": {
+    "g3_acceptance_recorded": true,
+    "identity_authority_choice_explicit": true,
+    "policy_authority_and_engine_choice_explicit": true,
+    "entitlement_store_source_explicit": true,
+    "trusted_session_registry_explicit": true,
+    "artifact_descriptor_source_explicit": true,
+    "redaction_transform_boundary_explicit": true,
+    "audit_store_and_retention_explicit": true,
+    "deployment_and_rollback_explicit": true,
+    "development_generator_explicit": true,
+    "sealed_evaluation_custodian_blocker_explicit": true,
+    "synthetic_development_only_boundary_explicit": true,
+    "gatemem_historical_data_excluded_from_tuning": true,
+    "production_authorities_deferred": true,
+    "deletion_separate_and_blocked": true
+  },
+  "scope_checks": {
+    "implementation_files_added_for_g4": 0,
+    "runtime_files_changed_for_g4": 0,
+    "synthetic_cases_generated": 0,
+    "policy_tuning_runs": 0,
+    "new_gatemem_prediction_runs": 0,
+    "new_gatemem_score_claims": 0,
+    "deletion_engineering_changes": 0
+  },
+  "all_proposal_gates_passed": true,
+  "advancement_boundary": "Explicit proposal acceptance is required before the bounded offline reference implementation may begin."
+}

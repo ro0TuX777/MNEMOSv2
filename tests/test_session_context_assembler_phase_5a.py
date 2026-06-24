@@ -28,7 +28,7 @@ from tools.run_session_context_assembler_r2_verification import (
     selector_boundary_violations,
 )
 
-R2_SHA256 = "ba990a35d507811105f879003d9c4b9ea8acea3884a8a694046e38f6bcb51ef5"
+R2_SHA256 = "900b4816fe2cc32e18949683de531fba065975edb65745eb875bc698fbe38b91"
 ADAPTER_DESIGN = Path(
     "docs/session_context_assembler_consumer_neutral_shadow_adapter_design.md"
 )
@@ -274,7 +274,7 @@ def test_phase5a_advancement_wording_is_consumer_neutral():
         "benchmarks/results/session_context_assembler_r2_verification.md"
     ).read_text(encoding="utf-8")
     for text in (protocol, notes, report):
-        assert "SAM-facing" not in text
+        assert "consumer-specific routing" not in text
         assert "consumer-neutral" in text
 
 

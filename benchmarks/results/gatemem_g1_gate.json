@@ -1,0 +1,24 @@
+{
+  "advancement_boundary": "This gate validates offline benchmark plumbing only. It authorizes no runtime integration, deletion capability claim, hosted judge, or submission.",
+  "all_passed": true,
+  "authorization": "GATEMEM_G1_CLEAN_INPUT_PROJECTION_AUTHORIZED",
+  "case_count": 3,
+  "gates": {
+    "clean_input_projection": true,
+    "deletion_simulation_is_explicit_refusal": true,
+    "deletion_unsupported_is_explicit_refusal": true,
+    "fixed_input_determinism": true,
+    "future_turn_excluded": true,
+    "gatemem_prediction_schema": true,
+    "invented_disclosure_guard": true,
+    "no_deletion_capability_claim": true,
+    "no_network_imports": true,
+    "no_runtime_or_gatemem_imports": true,
+    "permitted_metadata_guard": true,
+    "retrieval_disclosure_shadow_observation": true,
+    "scoring_fields_absent": true,
+    "strict_observation_schema_guard": true
+  },
+  "mode": "OFFLINE_ONLY",
+  "schema_version": "gatemem-g1-gate-v1"
+}

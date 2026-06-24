@@ -34,5 +34,5 @@ authorized-consumer read-only shadow adapter: MNEMOS would become better at
 supplying the right governed context at the right time to an external
 application, agent, workflow, or operator interface while preserving the
 existing rules for evidence, lineage, contradiction handling, human review,
-and promotion. SAM is one possible future test consumer only; it is not the
+and promotion. Any future external consumer is test-only; it is not the
 architectural owner or product identity of the capability.

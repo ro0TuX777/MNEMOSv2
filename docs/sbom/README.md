@@ -1,8 +1,18 @@
 # MNEMOS SBOM Path
 
-MNEMOS does not yet publish a release SBOM. This directory records the intended
-SBOM workflow so dependency transparency has an explicit home before external
-release packaging.
+MNEMOS now generates a source/Python SPDX 2.3 SBOM and a dependency-hygiene
+report. This is release-preparation evidence, not yet a complete container SBOM.
+
+Run:
+
+```bash
+python tools/generate_release_sbom.py
+```
+
+Outputs:
+
+- `docs/sbom/mnemos-python.spdx.json`
+- `docs/sbom/dependency-hygiene.json`
 
 ## Target Artifacts
 

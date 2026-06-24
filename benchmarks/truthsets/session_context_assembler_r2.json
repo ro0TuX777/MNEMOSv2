@@ -2,7 +2,7 @@
   "version": "session-context-assembler-r2",
   "created": "2026-06-22",
   "description": "Held-out Phase 5A technical verification corpus for Selector S1. Synthetic fixture-local sessions only; not human-review evidence and not production data.",
-  "promotion_rule": "Technical verification only. A pass may support a separate read-only SAM-facing shadow-design proposal; it does not authorize routing, writes, production use, or human-value claims.",
+  "promotion_rule": "Technical verification only. A pass may support a separate consumer-neutral read-only shadow-design proposal; it does not authorize routing, writes, production use, or human-value claims.",
   "cases": [
     {
       "id": "sca_r2_old_decisive_001",

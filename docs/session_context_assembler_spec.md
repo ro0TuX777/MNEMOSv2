@@ -324,7 +324,7 @@ MNEMOS
 -> external application, agent, workflow, or operator interface
 ```
 
-SAM may later serve as one example test consumer. It is not the architectural
+An external agent may later serve as one example test consumer. It is not the architectural
 owner, default runtime, or product identity of the assembler.
 
 Any later production proposal must include:
