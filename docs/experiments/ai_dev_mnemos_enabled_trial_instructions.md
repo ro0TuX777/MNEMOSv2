@@ -28,6 +28,17 @@ MNEMOS REST: http://localhost:8700
 MNEMOS MCP: mcp_servers/mnemos/server.py
 ```
 
+Operational note for local verification:
+
+- Do not treat MNEMOS as unavailable just because the MCP tool interface is not
+  exposed in the current session.
+- First verify the live REST service by checking `http://localhost:8700/health`
+  and by issuing a real retrieval request against the running container.
+- If the REST service is healthy and returns real retrieval output, record that
+  as live evidence and note the MCP-tool fallback in the trial artifacts.
+- Do not write placeholder "service unavailable" results when a live REST check
+  has already succeeded.
+
 Expected MCP tools:
 
 ```text
@@ -44,7 +55,10 @@ explain_memory_provenance
 
 If the MCP tools are unavailable, record that in
 `trial_results/mnemos_enabled/blockers.md` and continue only if the user asks
-you to proceed without MNEMOS.
+you to proceed without MNEMOS. If a live REST health check and a real retrieval
+request succeed, treat that as a verified local MNEMOS service state and record
+that evidence explicitly rather than treating the run as blocked by the missing
+MCP interface.
 
 ## App Task
 
@@ -121,20 +135,49 @@ If exact token counts are unavailable, estimate them and mark them as
 
 ## Required Logging
 
+## Evidence-Grade Instrumentation Requirement
+
+This next lane is `AI_DEV_MEMORY_QUALITY_E1`. The trial must record retrieval
+state at the point of use, not reconstruct it later.
+
+Before implementation begins, freeze `run_manifest.json` with the run identity,
+task identity, repository state, client/tooling state, and configured MNEMOS
+retrieval state. During execution, append one `memory_calls.jsonl` row per
+memory call with the actual retrieval fingerprint and whether the returned
+material affected the next action.
+
 ### `run_manifest.json`
 
 Write at the start:
 
 ```json
 {
+  "trial_id": "string",
   "run_label": "AI_DEV_MEMORY_TRIAL_MNEMOS_ENABLED",
   "memory_condition": "mnemos_enabled",
+  "task_id": "local_issue_tracker_v1",
+  "task_spec_hash": "sha256-or-other-frozen-hash",
   "agent": "unknown",
   "model": "unknown",
+  "client_version": "unknown",
   "started_at": "ISO-8601 timestamp",
   "app_task": "Local Issue Tracker",
+  "repo_root": "absolute or project-relative path",
+  "initial_repo_commit_or_hash": "git commit, tree hash, or not_available",
+  "tool_configuration": {
+    "shell": "powershell|bash|other",
+    "test_command": "npm test",
+    "build_command": "npm run build"
+  },
   "mnemos_base_url": "http://localhost:8700",
   "mcp_server_name": "mnemos",
+  "mnemos_service_revision": "unknown",
+  "mcp_revision": "unknown",
+  "collection_name": "string",
+  "seed_snapshot": "string",
+  "configured_retrieval_profile": "string",
+  "cache_state_at_start": "cold|warm|unknown",
+  "cache_policy_version": "string|unknown",
   "token_counts_available": false,
   "claim_boundary": {
     "local_development_evidence_only": true,
@@ -150,9 +193,15 @@ Update it at the end with:
   "completed_at": "ISO-8601 timestamp",
   "final_status": "completed|partial|blocked",
   "estimated_input_tokens": 0,
-  "estimated_output_tokens": 0
+  "estimated_output_tokens": 0,
+  "acceptance_test_command": "npm test",
+  "acceptance_test_result": "pass|fail|partial",
+  "cache_state_at_end": "cold|warm|mixed|unknown"
 }
 ```
+
+Do not overwrite the frozen starting values. Only append completion fields or
+previously unknown values discovered during the run.
 
 ### `memory_calls.jsonl`
 
@@ -164,14 +213,31 @@ Append one JSON object per MNEMOS call:
   "tool": "search_memory",
   "purpose": "find related project context",
   "query_or_summary": "short string",
+  "query_text": "actual query or request payload summary",
+  "retrieval_fingerprint": "actual executed-route fingerprint or not_available",
+  "cache_state_observed": "cold|warm|cache_hit|cache_miss|unknown",
+  "cache_hit": false,
+  "configured_retrieval_profile": "string",
+  "duplicate_suppression_count": 0,
   "result_count": 0,
+  "returned_source_ids": [],
+  "returned_source_labels": [],
+  "returned_source_types": [],
+  "returned_scores": [],
   "used_result_ids": [],
   "rejected_result_ids": [],
+  "abstention_reason": null,
   "verified_against_primary_evidence": true,
+  "used_in_next_action": true,
+  "next_action_summary": "short string",
   "helpfulness": "useful|neutral|harmful",
   "notes": "short note"
 }
 ```
+
+If scores, cache details, or duplicate-suppression counts are not surfaced by
+the tool, write `null`, `unknown`, or `not_available` explicitly rather than
+silently omitting the field.
 
 ### `agent_route_log.jsonl`
 
@@ -257,6 +323,7 @@ Use MNEMOS in these moments:
    relying on it.
 7. If memory appears stale or contradictory, record it as rejected rather than
    silently using it.
+8. Record whether each memory result changed the next concrete action.
 
 Memory should reduce wandering, not replace evidence.
 
