@@ -1,0 +1,4 @@
+interface:
+  display_name: "MNEMOS Claude Install"
+  short_description: "Set up MNEMOS for Claude Desktop MCP"
+  default_prompt: "Use $mnemos-claude-desktop-install to configure MNEMOS as a Claude Desktop MCP server on this machine."
