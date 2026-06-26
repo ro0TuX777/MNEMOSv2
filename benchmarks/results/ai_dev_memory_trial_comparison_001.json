@@ -1,0 +1,118 @@
+{
+  "schema_version": "ai-dev-memory-trial-comparison-v1",
+  "claim_boundary": {
+    "local_development_evidence_only": true,
+    "general_memory_claim": false
+  },
+  "validations": {
+    "mnemos_enabled": {
+      "path": "D:\\AppWMenmos\\trial_results\\mnemos_enabled",
+      "condition": "mnemos_enabled",
+      "valid": true,
+      "checks": {
+        "folder_exists": true,
+        "required_files_present": true,
+        "manifest_start_fields_present": true,
+        "manifest_completion_fields_present": true,
+        "manifest_condition_matches": true,
+        "route_log_nonempty": true,
+        "repo_activity_nonempty": true,
+        "test_runs_nonempty": true,
+        "final_report_nonempty": true,
+        "memory_calls_nonempty": true,
+        "required_startup_memory_calls_present": true,
+        "required_workflow_memory_calls_present": true
+      },
+      "failed_checks": [],
+      "counts": {
+        "memory_calls": 26,
+        "route_log_rows": 8,
+        "repo_activity_rows": 6,
+        "test_run_rows": 2,
+        "final_report_chars": 2057
+      },
+      "memory_tools_observed": [
+        "get_capabilities",
+        "health_check",
+        "record_decision",
+        "search_memory",
+        "summarize_session_handoff",
+        "write_observation"
+      ]
+    },
+    "no_memory": {
+      "path": "D:\\AppWoutMenmos\\trial_results\\no_memory",
+      "condition": "no_memory",
+      "valid": true,
+      "checks": {
+        "folder_exists": true,
+        "required_files_present": true,
+        "manifest_start_fields_present": true,
+        "manifest_completion_fields_present": true,
+        "manifest_condition_matches": true,
+        "route_log_nonempty": true,
+        "repo_activity_nonempty": true,
+        "test_runs_nonempty": true,
+        "final_report_nonempty": true
+      },
+      "failed_checks": [],
+      "counts": {
+        "memory_calls": 0,
+        "route_log_rows": 12,
+        "repo_activity_rows": 25,
+        "test_run_rows": 3,
+        "final_report_chars": 7708
+      },
+      "memory_tools_observed": []
+    }
+  },
+  "metrics": {
+    "mnemos_enabled": {
+      "estimated_input_tokens": 1800,
+      "estimated_output_tokens": 3200,
+      "total_estimated_tokens": 5000,
+      "memory_calls": 26,
+      "memory_helpfulness": {
+        "harmful": 6,
+        "useful": 13,
+        "neutral": 7
+      },
+      "route_log_rows": 8,
+      "repo_activity_rows": 6,
+      "wrong_turn_rows": 0,
+      "test_summary": {
+        "runs": 2,
+        "passed_runs": 2,
+        "failed_runs": 0,
+        "final_tests_passed": null,
+        "final_tests_failed": 0
+      },
+      "final_status": "completed"
+    },
+    "no_memory": {
+      "estimated_input_tokens": 15000,
+      "estimated_output_tokens": 12000,
+      "total_estimated_tokens": 27000,
+      "memory_calls": 0,
+      "route_log_rows": 12,
+      "repo_activity_rows": 25,
+      "wrong_turn_rows": 4,
+      "test_summary": {
+        "runs": 3,
+        "passed_runs": 1,
+        "failed_runs": 2,
+        "final_tests_passed": 16,
+        "final_tests_failed": 0
+      },
+      "final_status": "completed"
+    }
+  },
+  "observed_pattern": {
+    "both_completed": true,
+    "mnemos_used_required_memory_tools": true,
+    "mnemos_had_recovery_overhead": true,
+    "no_memory_had_more_logged_wrong_turns": true,
+    "no_memory_had_more_repo_activity": true,
+    "token_estimate_delta_mnemos_minus_no_memory": -22000
+  }
+}

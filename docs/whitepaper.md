@@ -25,6 +25,7 @@
 
 | Date | Change |
 |---|---|
+| 2026-06-26 | **AI developer MCP memory trial** - MNEMOS was exposed through an MFS-compatible MCP bridge and tested in one paired local app-building trial against a no-memory control. Both runs completed; the MNEMOS-enabled run used required memory tools and logged lower orientation/rework signals, but also exposed infrastructure-readiness overhead. Local development evidence only; no general memory-performance claim. |
 | 2026-03-30 | Enhancement roadmap closed: CI phase gates, Wave 4 hygiene gate, reflect precision guards, tenant policy profiles, explainability traces, economics counters, SLO reliability gate, operator playbook |
 | 2026-04–05 | Qdrant v1.17 server-side RRF (`qdrant_rrf`), relevance feedback adapter, Cross-Encoder rerank hardening |
 | 2026-05–06 | Graph Tier evaluation track (MG-Test-1→10); read-only `QdrantEngramResolver` with batched prefetch |
@@ -944,6 +945,82 @@ Evidence: `docs/reports/gatemem_governance_reference_baseline.md`, `docs/benchma
 
 ---
 
+### 4.15 AI Developer MCP Memory Trial
+
+MNEMOS was tested as an agentic memory substrate for an AI developer workflow
+through an MFS-compatible MCP bridge. The question was narrow: when a coding
+agent builds the same small local application, does MNEMOS-assisted project
+memory reduce logged orientation and rework signals compared with a no-memory
+control?
+
+The bridge exposes MNEMOS through MCP tools for agent use:
+
+```text
+health_check
+get_capabilities
+search_memory
+write_observation
+record_decision
+find_related_context
+detect_contradictions
+summarize_session_handoff
+explain_memory_provenance
+```
+
+The trial used the same app task in both conditions: a local issue tracker with
+create/edit/delete, status and priority controls, text search, filters,
+local-state persistence, responsive UI behavior, and tests. Each run was
+required to write structured trial artifacts under `trial_results/`, including
+route logs, repo activity, test runs, wrong turns, user interventions, token
+estimates, and a final report. The MNEMOS-enabled condition additionally had to
+call and log memory tools. A verifier rejected incomplete or inconsistent
+folders before comparison.
+
+| Metric | MNEMOS enabled | No memory |
+|---|---:|---:|
+| Total estimated tokens | 5,000 | 27,000 |
+| Memory calls | 26 | 0 |
+| Route log rows | 8 | 12 |
+| Repo activity rows | 6 | 25 |
+| Wrong-turn rows | 0 | 4 |
+| Test runs | 2 | 3 |
+| Failed test runs | 0 | 2 |
+
+Both runs completed the app task. The MNEMOS-enabled run successfully used the
+required memory tools (`health_check`, `get_capabilities`, `search_memory`,
+`record_decision`, `write_observation`, and `summarize_session_handoff`) and
+showed lower logged orientation/rework indicators in this single paired trial.
+The no-memory control also completed, but logged more repo activity, more route
+steps, more wrong turns, and more failed test runs.
+
+The trial also exposed an operational readiness issue. Early MNEMOS calls were
+harmful or unavailable until the backing service and MCP path were correctly
+started and routed. This overhead is separated from the memory-usefulness
+signal: future MNEMOS-enabled trials should run a warm preflight first
+(`verify_mnemos_msf_mcp.py`, `smoke_mnemos_mcp_stdio.py`, and
+`smoke_mnemos_mcp_live.py`) before app work begins.
+
+**Interpretation:** this is promising local development evidence that MNEMOS
+can serve as an AI-developer memory substrate when the MCP bridge and backing
+service are available. It suggests reduced orientation and rework signals in
+one paired app-building task.
+
+**Claim boundary:** this does not establish that MNEMOS generally improves AI
+developer performance, always reduces token usage, caused all observed
+differences, or is production-ready as a universal agent memory store. More
+paired trials are needed, including warm-start repeats, resume tests,
+bug-regression tests, design-constraint retention tests, and stale-memory
+rejection tests.
+
+Evidence: `docs/experiments/ai_dev_mnemos_enabled_trial_instructions.md`,
+`docs/experiments/ai_dev_no_memory_trial_instructions.md`,
+`tools/verify_ai_dev_memory_trial.py`,
+`tools/compare_ai_dev_memory_trials.py`,
+`benchmarks/results/ai_dev_memory_trial_comparison_001.json`, and
+`benchmarks/results/ai_dev_memory_trial_comparison_001.md`.
+
+---
+
 ## 5. API Contract
 
 MNEMOS follows the **MFS Contract Pattern**: every response includes `contract_version`, `status`, `source`, and `error` fields, ensuring the consuming application can always determine the health and trustworthiness of the data it receives.
@@ -1252,6 +1329,7 @@ Detailed trial, certification, and experimental evidence is maintained outside t
 | Human operator trials (DFE) | `docs/reports/dfe_*.md` | Derived-fact selection and value assessment |
 | Graph Tier (MG-Test) | `docs/graph_tier/`, `docs/mg_test_10_experimental_closeout.md` | Experimental graph hybrid |
 | EBIR-R1 shadow refinement | `docs/ebir_r1_acceptance.md`, `benchmarks/truthsets/ebir_r1_adversarial.json`, `benchmarks/results/ebir_refinement_benchmark.json` | RepFusion-inspired evidence-bounded reconciliation; shadow-only, promotion blocked |
+| AI developer MCP memory trial | `docs/experiments/ai_dev_*_trial_instructions.md`, `benchmarks/results/ai_dev_memory_trial_comparison_001.*` | One paired local app-building trial; promising orientation/rework evidence only, no general memory-performance claim |
 | Ops certification | `docs/reports/ops_*.md`, `docs/cert_binder/` | Release governance and red-lines |
 | Validation / shadow (VFR) | `docs/reports/vfr_*` (where present) | Sidecar read-only enforcement |
 | Schema/fact extraction (SMC) | `tools/smc_*.py`, `docs/reports/` | **Blocked** pending separate review |

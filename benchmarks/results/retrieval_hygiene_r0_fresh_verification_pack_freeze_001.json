@@ -1,0 +1,354 @@
+{
+  "verification_pack_id": "retrieval_hygiene_r0_fresh_verification_pack_v1",
+  "pack_path": "docs\\experiments\\retrieval_hygiene_r0_fresh_verification_pack.json",
+  "pack_sha256": "6a94de75906701e4e55b662e599cef63b794ea1a57bd28e9b7f557d9ff56b77f",
+  "seed_manifest_path": "data\\seed_manifests\\repo_seed_manifest.json",
+  "seed_snapshot_id": "2437be792647c500",
+  "collection_snapshot": "mnemos_claude_repo_seed:20",
+  "git_revision": "c69aa2cf3f7a9f05d45ac1548523cd67dfb372c9",
+  "service_build_revision": {
+    "docker_image": "mnemos-mnemos:latest",
+    "docker_image_id": "sha256:b33d1d1f1dbc95a9ba1123fd9406420cf0dabd1d8b79cb75146fdbc0bd343ec8",
+    "retrieval_code_sha256": {
+      "service/app.py": "0920fe410b296a06b60c836ab745b6dc428c60991102b6f2c0073b2a82ee1c47",
+      "mnemos/retrieval/retrieval_router.py": "375c66ec86672d532a358950a98dc92a29f64c85b4b157f6a440654e4b33febf"
+    }
+  },
+  "mcp_build_revision": {
+    "server_path": "mcp_servers/mnemos/server.py",
+    "server_sha256": "2949be03e8a47209b9d28bf100db7043c58229fa7a8e01bf455e3f9b139b4d93",
+    "snapshot": {
+      "server_path": "G:\\MNEMOS\\mcp_servers\\mnemos\\server.py",
+      "base_url": "http://localhost:8700",
+      "timeout_s": 10.0,
+      "tool_defaults": {
+        "search_memory": {
+          "top_k": 5,
+          "filters_json": "{}",
+          "retrieval_mode": "hybrid",
+          "explain": true
+        }
+      },
+      "service_revision": {
+        "module_default_base_url": "http://localhost:8700",
+        "module_default_timeout_s": 10.0
+      }
+    }
+  },
+  "runner_revision": {
+    "freeze_runner_sha256": "ec41cf03ba096d438a6e0016a5138a385a71c82a54c26ac9014c0f69ad599d3b",
+    "verification_runner_path": "tools/run_retrieval_fresh_verification.py",
+    "verification_runner_sha256": "e4a53438695f63cd2b33931fc7d500cb6f34cdff9fa95e964af0cfc741a068d3",
+    "result_scaffold_path": "tools/scaffold_retrieval_fresh_verification_result.py",
+    "result_scaffold_sha256": "12d7d176c430157d3b8efe10038b93d1e9296161736f2bbb397f4d2f03cb984c"
+  },
+  "expected_neighborhood_definitions": {
+    "gatemem_frozen_baseline": {
+      "accepted_sources": [
+        "summary://gatemem/g4_alias_frozen_regression_baseline",
+        "summary://gatemem/g4_frozen_baseline",
+        "benchmarks/results/gatemem_g4_frozen_reference_manifest.md"
+      ],
+      "description": "Frozen G4 regression/reference baseline and manifest."
+    },
+    "gatemem_pause_blocker": {
+      "accepted_sources": [
+        "summary://gatemem/pause_and_blocker",
+        "summary://gatemem/alias_no_further_internal_prototyping",
+        "docs/benchmarks/gatemem_program_status.md"
+      ],
+      "description": "Paused GateMem work and blocked next milestone."
+    },
+    "gatemem_claim_boundary": {
+      "accepted_sources": [
+        "summary://gatemem/g4_claim_boundary",
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md"
+      ],
+      "description": "What G4 does and does not justify claiming."
+    },
+    "gatemem_g5_handoff": {
+      "accepted_sources": [
+        "summary://gatemem/g5_blocked_handoff",
+        "docs/benchmarks/gatemem_g5/README.md"
+      ],
+      "description": "Continuation packet and external-handoff readiness."
+    },
+    "abstain_non_gatemem": {
+      "accepted_sources": [],
+      "description": "Expected no relevant GateMem neighborhood; unrelated results should be flagged."
+    }
+  },
+  "abstention_expectations": {
+    "v01": "abstain_non_gatemem",
+    "v03": "retrieve_gatemem_claim_boundary_or_frozen_baseline"
+  },
+  "service_snapshot": {
+    "base_url": "http://localhost:8700",
+    "health": {
+      "contract_version": "v1",
+      "service": "mnemos-service",
+      "status": "ok"
+    },
+    "capabilities": {
+      "compression": {
+        "bits": 4,
+        "enabled": true
+      },
+      "contract_version": "v1",
+      "error": null,
+      "explain_support": true,
+      "feature": "mnemos_memory",
+      "fusion_policies": [
+        "balanced",
+        "lexical_dominant",
+        "qdrant_rrf",
+        "semantic_dominant"
+      ],
+      "fusion_policy_default": "balanced",
+      "generated_at": "2026-06-26T20:31:39Z",
+      "governance": {
+        "default_mode": "off",
+        "policy_profiles": [
+          "default"
+        ],
+        "supported_modes": [
+          "advisory",
+          "enforced",
+          "off"
+        ]
+      },
+      "gpu_device": "cuda",
+      "lexical_lane_available": true,
+      "memory_over_maps": {
+        "phase1_enabled": false,
+        "phase2_enabled": false,
+        "phase3_enabled": false,
+        "phase4_enabled": false,
+        "phase5_enabled": false,
+        "supported_derived_views": [
+          "contradiction_bundle",
+          "evidence_bundle",
+          "preference_snapshot",
+          "timeline_summary"
+        ]
+      },
+      "pattern_harness": {
+        "enabled": true,
+        "store_configured": false
+      },
+      "pattern_store_candidate_count": 0,
+      "pattern_store_enabled": false,
+      "profile": "core_memory_appliance",
+      "pulse": {
+        "actions_mode": "advisory",
+        "enabled": true,
+        "horizon_minutes": 15,
+        "provider": "timesfm_sidecar_with_linear_fallback",
+        "timesfm_enabled": true,
+        "warmup_cooldown_s": 900
+      },
+      "retrieval_mode_default": "semantic",
+      "retrieval_modes": [
+        "semantic",
+        "hybrid",
+        "graph_hybrid_experimental"
+      ],
+      "source": "mnemos-service",
+      "status": "healthy",
+      "supports": [
+        "index",
+        "search",
+        "warmup",
+        "engrams",
+        "audit",
+        "stats",
+        "pulse"
+      ],
+      "tiers": [
+        "qdrant"
+      ]
+    },
+    "stats": {
+      "contract_version": "v1",
+      "error": null,
+      "generated_at": "2026-06-26T20:31:39Z",
+      "source": "mnemos-service",
+      "stats": {
+        "audit": {
+          "backend": "postgresql",
+          "db_size_mb": 8.66,
+          "event_count": 0,
+          "transaction_count": 563
+        },
+        "compression": {
+          "algorithm": "TurboQuant (arXiv:2504.19874)",
+          "bits": 4,
+          "enabled": true
+        },
+        "derived_lane": {
+          "derived_lane.denied_count": 0,
+          "derived_lane.execution_count": 0,
+          "derived_lane.kill_switch_count": 0,
+          "echoframe.production_prompt.derived_count": 0,
+          "evaluate_derived_shadow.denied_count": 0,
+          "evaluate_derived_shadow.rendered_derived_fact_count": 0,
+          "evaluate_derived_shadow.request_count": 0,
+          "query.default_retrieval.derived_fact_count": 0
+        },
+        "economics": {
+          "avg_estimated_cost_units_per_query": 12.7333,
+          "avg_invalidation_fanout": 0.0,
+          "cache_hit_ratio": 0.0,
+          "cache_hit_total": 0,
+          "cache_miss_total": 0,
+          "envelope_compression_ratio": 1.0,
+          "envelope_final_total": 135,
+          "envelope_initial_total": 135,
+          "invalidation_event_count": 0,
+          "invalidation_fanout_total": 0,
+          "query_count": 45
+        },
+        "memory_over_maps": {
+          "derived_lane.denied_count": 0,
+          "derived_lane.execution_count": 0,
+          "derived_lane.kill_switch_count": 0,
+          "derived_view_cache": {
+            "avg_invalidation_fanout": 0.0,
+            "entry_count": 0,
+            "hit_count": 0,
+            "hit_ratio": 0.0,
+            "invalidated_count": 0,
+            "invalidated_key_total": 0,
+            "invalidation_event_count": 0,
+            "miss_count": 45,
+            "ttl_seconds": 3600
+          },
+          "derived_view_cache_hit_count": 0,
+          "derived_view_cache_miss_count": 0,
+          "derived_view_generated_count": 0,
+          "derived_view_invalidated_count": 0,
+          "derived_view_invalidation_events": 0,
+          "derived_view_invalidation_fanout_total": 0,
+          "echoframe.production_prompt.derived_count": 0,
+          "economics_cost_units_total": 573,
+          "economics_envelope_final_total": 135,
+          "economics_envelope_initial_total": 135,
+          "economics_query_count": 45,
+          "evaluate_derived_shadow.denied_count": 0,
+          "evaluate_derived_shadow.rendered_derived_fact_count": 0,
+          "evaluate_derived_shadow.request_count": 0,
+          "governed_contradiction_bundle_total": 0,
+          "governed_evidence_bundle_total": 0,
+          "governed_source_trace_complete_total": 0,
+          "query.default_retrieval.derived_fact_count": 0
+        },
+        "retrieval": {
+          "active_tiers": [
+            "qdrant"
+          ],
+          "hybrid": {
+            "candidate_duplicate_suppressed_count": 0,
+            "candidate_envelope_avg_compression_ratio": 1.0,
+            "candidate_envelope_total_reduction": 0,
+            "candidate_pool_narrowed_count": 135,
+            "candidate_pool_raw_count": 135,
+            "candidate_source_cap_applied_count": 0,
+            "fusion_policy_counters": {
+              "balanced": 12,
+              "lexical_dominant": 6,
+              "semantic_dominant": 0
+            },
+            "hybrid_available": true,
+            "hybrid_avg_fused_candidate_pool_size": 20.0,
+            "hybrid_dual_hit_overlap_rate": 0.0,
+            "hybrid_last_policy": "balanced",
+            "hybrid_last_telemetry": {
+              "lexical_candidates": 0.0,
+              "lexical_only_candidates": 0.0,
+              "overlap_candidates": 0.0,
+              "semantic_candidates": 20.0,
+              "semantic_only_candidates": 20.0,
+              "union_candidates": 20.0
+            },
+            "hybrid_latency_p50_ms": 134.49,
+            "hybrid_latency_p95_ms": 6284.21,
+            "hybrid_lexical_only_contribution_rate": 0.0,
+            "hybrid_query_count": 18,
+            "hybrid_semantic_only_contribution_rate": 1.0,
+            "retrieval_duplicate_group_count": 0,
+            "retrieval_mode_counters": {
+              "hybrid": 18,
+              "semantic": 30
+            },
+            "semantic_query_count": 30,
+            "supported_fusion_policies": [
+              "balanced",
+              "lexical_dominant",
+              "qdrant_rrf",
+              "semantic_dominant"
+            ],
+            "supported_retrieval_modes": [
+              "semantic",
+              "hybrid",
+              "graph_hybrid_experimental"
+            ]
+          },
+          "lexical_lane": {
+            "available": true,
+            "document_count": 61,
+            "table": "mnemos_lexical",
+            "tier": "lexical"
+          },
+          "tiers": {
+            "qdrant": {
+              "collection": "mnemos_claude_repo_seed",
+              "document_count": 20,
+              "embedding_dim": 768,
+              "embedding_model": "nomic-ai/nomic-embed-text-v1.5",
+              "gpu_device": "cuda",
+              "tier": "qdrant",
+              "url": "http://qdrant:6333"
+            }
+          },
+          "weights": {
+            "qdrant": 1.0
+          }
+        }
+      },
+      "status": "healthy"
+    },
+    "collection": "mnemos_claude_repo_seed",
+    "collection_snapshot": "mnemos_claude_repo_seed:20",
+    "vector_config": {
+      "dense_64": {
+        "size": 64,
+        "distance": "Cosine"
+      },
+      "dense_768": {
+        "size": 768,
+        "distance": "Cosine"
+      }
+    },
+    "embedding_model": "nomic-ai/nomic-embed-text-v1.5",
+    "embedding_dim": 768,
+    "retrieval_mode_default": "semantic",
+    "fusion_policy_default": "balanced",
+    "service_revision": {
+      "source": "mnemos-service",
+      "contract_version": "v1",
+      "generated_at": "2026-06-26T20:31:39Z"
+    },
+    "cache": {
+      "enabled": true,
+      "cache_schema_version": "r0",
+      "query_normalization_version": "v1",
+      "ttl_seconds": 3600,
+      "seed_snapshot": "unknown"
+    }
+  },
+  "disclosure": {
+    "independence_label": "verification_pack_not_held_out",
+    "reason": "Queries and expected behaviors were inspected while defining the fresh verification procedure and false-abstention safeguard."
+  }
+}

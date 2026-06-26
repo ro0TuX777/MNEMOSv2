@@ -1,0 +1,146 @@
+{
+  "benchmark_id": "retrieval_hygiene_r0_frozen_alias_benchmark_v1",
+  "status": "frozen_read_only_after_creation",
+  "created_for": "RETRIEVAL_HYGIENE_AND_REPRODUCIBILITY_R0",
+  "rules": [
+    "Do not tune aliases, retrieval weights, or cache rules against this benchmark and later claim it is fresh evidence.",
+    "Score correct neighborhood, not one exact document rank.",
+    "Record cold-cache and warm-cache runs separately.",
+    "Compare direct-service and MCP-path runs using the same seed snapshot."
+  ],
+  "neighborhoods": {
+    "gatemem_frozen_baseline": {
+      "accepted_sources": [
+        "summary://gatemem/g4_alias_frozen_regression_baseline",
+        "summary://gatemem/g4_frozen_baseline",
+        "benchmarks/results/gatemem_g4_frozen_reference_manifest.md"
+      ],
+      "description": "Frozen G4 regression/reference baseline and manifest."
+    },
+    "gatemem_pause_blocker": {
+      "accepted_sources": [
+        "summary://gatemem/pause_and_blocker",
+        "summary://gatemem/alias_no_further_internal_prototyping",
+        "docs/benchmarks/gatemem_program_status.md"
+      ],
+      "description": "Paused GateMem work and blocked next milestone."
+    },
+    "gatemem_claim_boundary": {
+      "accepted_sources": [
+        "summary://gatemem/g4_claim_boundary",
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md"
+      ],
+      "description": "What G4 does and does not justify claiming."
+    },
+    "gatemem_g5_handoff": {
+      "accepted_sources": [
+        "summary://gatemem/g5_blocked_handoff",
+        "docs/benchmarks/gatemem_g5/README.md"
+      ],
+      "description": "Continuation packet and external-handoff readiness."
+    },
+    "abstain_non_gatemem": {
+      "accepted_sources": [],
+      "description": "Expected no relevant GateMem neighborhood; unrelated results should be flagged."
+    }
+  },
+  "queries": [
+    {
+      "query_id": "q01",
+      "category": "exact_alias_phrase",
+      "query": "GateMem G4 frozen regression baseline",
+      "expected_neighborhood": "gatemem_frozen_baseline"
+    },
+    {
+      "query_id": "q02",
+      "category": "paraphrase",
+      "query": "GateMem G4 frozen reference baseline",
+      "expected_neighborhood": "gatemem_frozen_baseline"
+    },
+    {
+      "query_id": "q03",
+      "category": "status_policy_wording",
+      "query": "Further GateMem policy and implementation work is paused",
+      "expected_neighborhood": "gatemem_pause_blocker"
+    },
+    {
+      "query_id": "q04",
+      "category": "negative_prohibited_action",
+      "query": "no further internal prototyping authorized",
+      "expected_neighborhood": "gatemem_pause_blocker"
+    },
+    {
+      "query_id": "q05",
+      "category": "blocked_milestone",
+      "query": "What blocks the next meaningful GateMem milestone?",
+      "expected_neighborhood": "gatemem_pause_blocker"
+    },
+    {
+      "query_id": "q06",
+      "category": "claim_boundary",
+      "query": "What does GateMem G4 not prove?",
+      "expected_neighborhood": "gatemem_claim_boundary"
+    },
+    {
+      "query_id": "q07",
+      "category": "claim_boundary",
+      "query": "Is GateMem G4 evidence of production readiness?",
+      "expected_neighborhood": "gatemem_claim_boundary"
+    },
+    {
+      "query_id": "q08",
+      "category": "ambiguity_shared_phrase",
+      "query": "synthetic development only sealed evaluation still blocked",
+      "expected_neighborhood": "gatemem_frozen_baseline",
+      "evaluation_mode": "ambiguous_neighborhood",
+      "accepted_neighborhoods": [
+        "gatemem_frozen_baseline",
+        "gatemem_g5_handoff"
+      ],
+      "note": "Shared wording spans G4 closeout and G5 handoff; treat as ambiguity coverage, not single-answer accuracy."
+    },
+    {
+      "query_id": "q09",
+      "category": "full_document_only_wording",
+      "query": "changes require a new development iteration rather than rewriting the frozen result",
+      "expected_neighborhood": "gatemem_frozen_baseline"
+    },
+    {
+      "query_id": "q10",
+      "category": "ambiguous_wording",
+      "query": "What is the frozen result we should not rewrite?",
+      "expected_neighborhood": "gatemem_frozen_baseline"
+    },
+    {
+      "query_id": "q11",
+      "category": "handoff",
+      "query": "Is the GateMem continuation packet ready for external handoff?",
+      "expected_neighborhood": "gatemem_g5_handoff"
+    },
+    {
+      "query_id": "q12",
+      "category": "handoff",
+      "query": "Why is sealed evaluation still blocked after the continuation packet?",
+      "expected_neighborhood": "gatemem_g5_handoff"
+    },
+    {
+      "query_id": "q13",
+      "category": "proposal_context",
+      "query": "offline authorization reference implementation proposal",
+      "expected_neighborhood": "gatemem_claim_boundary"
+    },
+    {
+      "query_id": "q14",
+      "category": "policy_status",
+      "query": "independent sealed-evaluation custodian required",
+      "expected_neighborhood": "gatemem_pause_blocker"
+    },
+    {
+      "query_id": "q15",
+      "category": "negative_control",
+      "query": "GDPR controller disclosure and SOX encryption governance",
+      "expected_neighborhood": "abstain_non_gatemem"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": "mnemos-agent-navigation-trial-log-v1",
+  "study_status": "MNEMOS_AGENT_NAVIGATION_DEVELOPMENT_STUDY_READY",
+  "classification": "LOCAL_REPO_AGENT_ORIENTATION_AND_BOUNDARY_RECALL_DEVELOPMENT_STUDY",
+  "task_id": "nav-g4-evidence-chain",
+  "mode": "baseline_repo_search",
+  "subject": "codex",
+  "date": "2026-06-26",
+  "prompt": "Use repository evidence only to trace the evidence chain for the frozen G4 implementation/corpus composite.",
+  "memory_ids_retrieved": [],
+  "accepted_memory_ids": [],
+  "rejected_memory_ids": [
+    "mem-overbroad-provenance-is-authorization"
+  ],
+  "evidence_paths_used": [
+    "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+    "benchmarks/results/gatemem_g4_frozen_reference_manifest.json",
+    "tools/verify_gatemem_g4_frozen.py"
+  ],
+  "search_queries": [
+    "G4 implementation corpus composite frozen manifest verifier",
+    "verify frozen G4 reference composite source hash"
+  ],
+  "files_opened_count": 3,
+  "searches_count": 2,
+  "wrong_turns_or_corrections": [],
+  "boundary_decision": "regression_reference_contract_only",
+  "final_answer": "The evidence chain is documented by the G4 closeout, encoded in the frozen manifest, and checked by the verifier script. It establishes only frozen reference-contract conformance on synthetic development evidence.",
+  "claim_boundary": {
+    "development_evidence_only": true,
+    "gatemem_reopened": false,
+    "sealed_evaluation_claim": false,
+    "general_memory_claim": false
+  }
+}

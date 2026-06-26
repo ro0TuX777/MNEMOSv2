@@ -8,7 +8,13 @@
       "default_base_url": "http://localhost:8700",
       "health_path": "/health",
       "contract_path": "/v1/mnemos/capabilities",
-      "contract_file": "service/contract.json"
+      "contract_file": "service/contract.json",
+      "mcp_bridge": {
+        "package": "mcp_servers/mnemos",
+        "default_mcp_port": 9700,
+        "openapi_spec": "mcp_servers/mnemos/openapi.json",
+        "server": "mcp_servers/mnemos/server.py"
+      }
     }
   ]
 }

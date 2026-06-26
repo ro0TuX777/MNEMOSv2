@@ -1,6 +1,6 @@
 # GateMem Program Status
 
-Date: 2026-06-24
+Updated: 2026-06-25
 
 ## Closed milestones
 
@@ -89,6 +89,31 @@ policy artifact, and one-shot evaluation under evaluator-only label access.
 
 Without that arrangement, additional policy work is development evidence only
 and cannot support a fresh generalization claim.
+
+## Independent evaluation continuation packet
+
+```text
+GATEMEM_G5_PACKET_READY_FOR_EXTERNAL_HANDOFF
+SEALED_EVALUATION_BLOCKED_EXTERNAL_INPUTS_REQUIRED
+NO_EVALUATION_RUN_AUTHORIZED
+```
+
+The continuation index is `docs/benchmarks/gatemem_g5/README.md`. It identifies
+the files used by the independent custodian, evaluator operator, release
+reviewer, and MNEMOS policy group:
+
+- custodian charter and independence attestation;
+- sealed-evaluation preregistration;
+- custodian-controlled evaluator protocol;
+- one-shot and invalidation rules;
+- ordered handoff checklist;
+- frozen G4 candidate nomination; and
+- machine-readable handoff state and readiness verifier.
+
+The packet nominates the existing frozen G4 composite; it does not modify G4.
+No custodian is appointed, no sealed corpus is present, no preregistration is
+frozen, and no evaluation or performance claim is authorized. Those fields must
+be completed by named external parties before work can advance.
 
 ## MNEMOS roadmap handoff
 

@@ -1,0 +1,3019 @@
+{
+  "verification_pack_id": "retrieval_hygiene_r0_fresh_verification_pack_v1",
+  "run_id": "retrieval_hygiene_r0_fresh_verification_run_001",
+  "seed_snapshot_id": "2437be792647c500",
+  "collection_snapshot": "mnemos_claude_repo_seed:20",
+  "freeze_manifest_path": "benchmarks/results/retrieval_hygiene_r0_fresh_verification_pack_freeze_001.json",
+  "paths_compared": [
+    "direct_service",
+    "mcp_path"
+  ],
+  "cache_state": [
+    "cold",
+    "warm"
+  ],
+  "metrics_recorded": [
+    "top1_behavior_correct",
+    "top3_behavior_present",
+    "abstention_accuracy",
+    "false_abstention_rate",
+    "duplicate_result_rate",
+    "cold_warm_consistency",
+    "direct_mcp_top1_agreement",
+    "executed_route_fingerprint_truthfulness"
+  ],
+  "per_query_results": [
+    {
+      "query_id": "v01",
+      "query": "PCI DSS cardholder segmentation and HIPAA workstation privacy",
+      "expected_behavior": "abstain_non_gatemem",
+      "category": "unrelated_negative_control",
+      "runs": [
+        {
+          "path": "direct_service",
+          "run_label": "cold_run_1",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 0,
+          "latency_class": "cold_start",
+          "errors": [],
+          "abstained": true,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": {
+              "applied": true,
+              "reason_code": "low_relevance_abstention",
+              "retrieval_mode": "semantic",
+              "score_floor": 0.01,
+              "top_scores": [
+                0.0004,
+                0.0004,
+                0.0
+              ]
+            }
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "cold_run_2",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 0,
+          "latency_class": "cold_start",
+          "errors": [],
+          "abstained": true,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": {
+              "applied": true,
+              "reason_code": "low_relevance_abstention",
+              "retrieval_mode": "semantic",
+              "score_floor": 0.01,
+              "top_scores": [
+                0.0004,
+                0.0004,
+                0.0
+              ]
+            }
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "warm_run_1",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 0,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": true,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": {
+              "applied": true,
+              "reason_code": "low_relevance_abstention",
+              "retrieval_mode": "semantic",
+              "score_floor": 0.01,
+              "top_scores": [
+                0.0004,
+                0.0004,
+                0.0
+              ]
+            }
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "warm_run_2",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 0,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": true,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": {
+              "applied": true,
+              "reason_code": "low_relevance_abstention",
+              "retrieval_mode": "semantic",
+              "score_floor": 0.01,
+              "top_scores": [
+                0.0004,
+                0.0004,
+                0.0
+              ]
+            }
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "cold_run_1",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "hybrid|balanced|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 0,
+          "latency_class": "cold_start",
+          "errors": [],
+          "abstained": true,
+          "raw_meta": {
+            "retrieval_mode": "hybrid",
+            "fusion_policy": "balanced",
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": {
+              "applied": true,
+              "reason_code": "low_relevance_abstention",
+              "retrieval_mode": "hybrid",
+              "score_floor": 0.01,
+              "top_scores": [
+                0.0004,
+                0.0004,
+                0.0
+              ]
+            }
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "cold_run_2",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "hybrid|balanced|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 0,
+          "latency_class": "cold_start",
+          "errors": [],
+          "abstained": true,
+          "raw_meta": {
+            "retrieval_mode": "hybrid",
+            "fusion_policy": "balanced",
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": {
+              "applied": true,
+              "reason_code": "low_relevance_abstention",
+              "retrieval_mode": "hybrid",
+              "score_floor": 0.01,
+              "top_scores": [
+                0.0004,
+                0.0004,
+                0.0
+              ]
+            }
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "warm_run_1",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "hybrid|balanced|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 0,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": true,
+          "raw_meta": {
+            "retrieval_mode": "hybrid",
+            "fusion_policy": "balanced",
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": {
+              "applied": true,
+              "reason_code": "low_relevance_abstention",
+              "retrieval_mode": "hybrid",
+              "score_floor": 0.01,
+              "top_scores": [
+                0.0004,
+                0.0004,
+                0.0
+              ]
+            }
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "warm_run_2",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "hybrid|balanced|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 0,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": true,
+          "raw_meta": {
+            "retrieval_mode": "hybrid",
+            "fusion_policy": "balanced",
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": {
+              "applied": true,
+              "reason_code": "low_relevance_abstention",
+              "retrieval_mode": "hybrid",
+              "score_floor": 0.01,
+              "top_scores": [
+                0.0004,
+                0.0004,
+                0.0
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query_id": "v02",
+      "query": "frozen GateMem result should stay read only",
+      "expected_behavior": "retrieve_gatemem_frozen_baseline",
+      "category": "weak_but_relevant_positive",
+      "runs": [
+        {
+          "path": "direct_service",
+          "run_label": "cold_run_1",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.7247,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "cold_run_2",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.7247,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "warm_run_1",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.7247,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "warm_run_2",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.7247,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "cold_run_1",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.7247,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "cold_run_2",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.7247,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "warm_run_1",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.7247,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "warm_run_2",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "summary://gatemem/g4_frozen_baseline",
+              "score": 0.7525,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.7247,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        }
+      ]
+    },
+    {
+      "query_id": "v03",
+      "query": "reference conformance synthetic outcomes exact expected",
+      "expected_behavior": "retrieve_gatemem_claim_boundary_or_frozen_baseline",
+      "category": "relevant_low_score_query_must_not_abstain",
+      "runs": [
+        {
+          "path": "direct_service",
+          "run_label": "cold_run_1",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.6498,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "cold_run_2",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.6498,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "warm_run_1",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.6498,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "warm_run_2",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.6498,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "cold_run_1",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.6498,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "cold_run_2",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.6498,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "warm_run_1",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.6498,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "warm_run_2",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "summary://gatemem/g4_claim_boundary",
+              "score": 0.6865,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "raw_source": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+              "score": 0.6498,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        }
+      ]
+    },
+    {
+      "query_id": "v04",
+      "query": "paused internal work after G4 but before external custodian handoff",
+      "expected_behavior": "retrieve_gatemem_pause_blocker",
+      "category": "g4_g5_disambiguation",
+      "runs": [
+        {
+          "path": "direct_service",
+          "run_label": "cold_run_1",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.6366,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "cold_run_2",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.6366,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "warm_run_1",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.6366,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "warm_run_2",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.6366,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "cold_run_1",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.6366,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "cold_run_2",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.6366,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "warm_run_1",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.6366,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "warm_run_2",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "summary://gatemem/alias_no_further_internal_prototyping",
+              "score": 0.7211,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.6366,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        }
+      ]
+    },
+    {
+      "query_id": "v05",
+      "query": "continuation packet ready but execution still externally blocked",
+      "expected_behavior": "retrieve_gatemem_g5_handoff",
+      "category": "g4_g5_disambiguation",
+      "runs": [
+        {
+          "path": "direct_service",
+          "run_label": "cold_run_1",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "docs/benchmarks/gatemem_program_status.md",
+              "score": 0.0004,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "cold_run_2",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "docs/benchmarks/gatemem_program_status.md",
+              "score": 0.0004,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "warm_run_1",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "docs/benchmarks/gatemem_program_status.md",
+              "score": 0.0004,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "warm_run_2",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "docs/benchmarks/gatemem_program_status.md",
+              "score": 0.0004,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "cold_run_1",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "hybrid|balanced|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "docs/benchmarks/gatemem_program_status.md",
+              "score": 0.0004,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "hybrid",
+            "fusion_policy": "balanced",
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "cold_run_2",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "hybrid|balanced|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "docs/benchmarks/gatemem_program_status.md",
+              "score": 0.0004,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "hybrid",
+            "fusion_policy": "balanced",
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "warm_run_1",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "hybrid|balanced|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "docs/benchmarks/gatemem_program_status.md",
+              "score": 0.0004,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "hybrid",
+            "fusion_policy": "balanced",
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "warm_run_2",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "hybrid|balanced|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/benchmarks/gatemem_g5/README.md",
+              "raw_source": "summary://gatemem/g5_blocked_handoff",
+              "score": 0.9954,
+              "classification": "seeded_summary"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_program_status.md",
+              "raw_source": "docs/benchmarks/gatemem_program_status.md",
+              "score": 0.0004,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 1,
+          "full_document_count_top3": 2,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "hybrid",
+            "fusion_policy": "balanced",
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        }
+      ]
+    },
+    {
+      "query_id": "v06",
+      "query": "what was not proven by the offline authorization reference implementation",
+      "expected_behavior": "retrieve_gatemem_claim_boundary",
+      "category": "weak_but_relevant_positive",
+      "runs": [
+        {
+          "path": "direct_service",
+          "run_label": "cold_run_1",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "score": 0.7095,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 3,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "cold_run_2",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "score": 0.7095,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 3,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "warm_run_1",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "score": 0.7095,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 3,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "direct_service",
+          "run_label": "warm_run_2",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "score": 0.7095,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 3,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "cold_run_1",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "score": 0.7095,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 3,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "cold_run_2",
+          "cache_state_requested": "cold",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "score": 0.7095,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 3,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "warm_run_1",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "score": 0.7095,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 3,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        },
+        {
+          "path": "mcp_path",
+          "run_label": "warm_run_2",
+          "cache_state_requested": "warm",
+          "cache_state_observed": "no_cache_hit_observed",
+          "seed_snapshot_id": "2437be792647c500",
+          "retrieval_fingerprint": {
+            "cache_schema_version": "r0",
+            "collection_snapshot": "mnemos_claude_repo_seed:2437be792647c500",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+          },
+          "top_results": [
+            {
+              "rank": 1,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 2,
+              "source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "raw_source": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+              "score": 0.7338,
+              "classification": "full_document"
+            },
+            {
+              "rank": 3,
+              "source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "raw_source": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+              "score": 0.7095,
+              "classification": "full_document"
+            }
+          ],
+          "top1_behavior_correct": true,
+          "top3_behavior_present": true,
+          "abstention_correct": true,
+          "false_abstention": false,
+          "fingerprint_truthful": true,
+          "duplicate_groups": 0,
+          "suppressed_candidates": 0,
+          "seeded_summary_count_top3": 0,
+          "full_document_count_top3": 3,
+          "latency_class": "steady_state",
+          "errors": [],
+          "abstained": false,
+          "raw_meta": {
+            "retrieval_mode": "semantic",
+            "fusion_policy": null,
+            "duplicate_suppression": {
+              "applied": false,
+              "duplicate_groups": 0,
+              "reason_code": "canonical_source_content_duplicate",
+              "suppressed_count": 0
+            },
+            "abstention_guard": null
+          }
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "direct_service": {
+      "top1_accuracy": 1.0,
+      "top3_recall": 1.0,
+      "abstention_accuracy": 1.0,
+      "false_abstention_rate": 0.0,
+      "duplicate_result_rate": 0.0
+    },
+    "mcp_path": {
+      "top1_accuracy": 1.0,
+      "top3_recall": 1.0,
+      "abstention_accuracy": 1.0,
+      "false_abstention_rate": 0.0,
+      "duplicate_result_rate": 0.0
+    },
+    "direct_mcp_top1_agreement": 1.0,
+    "cold_warm_consistency": 1.0,
+    "notes": []
+  },
+  "verification_pack": {
+    "verification_pack_id": "retrieval_hygiene_r0_fresh_verification_pack_v1",
+    "status": "fresh_verification_read_only_after_creation",
+    "created_for": "RETRIEVAL_HYGIENE_AND_REPRODUCIBILITY_R0_CLOSURE",
+    "rules": [
+      "Never use this pack for repair or tuning decisions before executing it.",
+      "Use it only after the R0 regression rerun artifact is frozen.",
+      "Score current-neighborhood responsiveness and abstention behavior, not exact rank identity.",
+      "Record direct-service and MCP-path runs separately."
+    ],
+    "disclosure": {
+      "independence_label": "verification_pack_not_held_out",
+      "reason": "Queries and expected behaviors were inspected while defining the fresh verification procedure and false-abstention safeguard."
+    },
+    "neighborhoods": {
+      "gatemem_frozen_baseline": {
+        "accepted_sources": [
+          "summary://gatemem/g4_alias_frozen_regression_baseline",
+          "summary://gatemem/g4_frozen_baseline",
+          "benchmarks/results/gatemem_g4_frozen_reference_manifest.md"
+        ],
+        "description": "Frozen G4 regression/reference baseline and manifest."
+      },
+      "gatemem_pause_blocker": {
+        "accepted_sources": [
+          "summary://gatemem/pause_and_blocker",
+          "summary://gatemem/alias_no_further_internal_prototyping",
+          "docs/benchmarks/gatemem_program_status.md"
+        ],
+        "description": "Paused GateMem work and blocked next milestone."
+      },
+      "gatemem_claim_boundary": {
+        "accepted_sources": [
+          "summary://gatemem/g4_claim_boundary",
+          "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+          "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md"
+        ],
+        "description": "What G4 does and does not justify claiming."
+      },
+      "gatemem_g5_handoff": {
+        "accepted_sources": [
+          "summary://gatemem/g5_blocked_handoff",
+          "docs/benchmarks/gatemem_g5/README.md"
+        ],
+        "description": "Continuation packet and external-handoff readiness."
+      },
+      "abstain_non_gatemem": {
+        "accepted_sources": [],
+        "description": "Expected no relevant GateMem neighborhood; unrelated results should be flagged."
+      }
+    },
+    "queries": [
+      {
+        "query_id": "v01",
+        "category": "unrelated_negative_control",
+        "query": "PCI DSS cardholder segmentation and HIPAA workstation privacy",
+        "expected_behavior": "abstain_non_gatemem"
+      },
+      {
+        "query_id": "v02",
+        "category": "weak_but_relevant_positive",
+        "query": "frozen GateMem result should stay read only",
+        "expected_behavior": "retrieve_gatemem_frozen_baseline"
+      },
+      {
+        "query_id": "v03",
+        "category": "relevant_low_score_query_must_not_abstain",
+        "query": "reference conformance synthetic outcomes exact expected",
+        "expected_behavior": "retrieve_gatemem_claim_boundary_or_frozen_baseline"
+      },
+      {
+        "query_id": "v04",
+        "category": "g4_g5_disambiguation",
+        "query": "paused internal work after G4 but before external custodian handoff",
+        "expected_behavior": "retrieve_gatemem_pause_blocker"
+      },
+      {
+        "query_id": "v05",
+        "category": "g4_g5_disambiguation",
+        "query": "continuation packet ready but execution still externally blocked",
+        "expected_behavior": "retrieve_gatemem_g5_handoff"
+      },
+      {
+        "query_id": "v06",
+        "category": "weak_but_relevant_positive",
+        "query": "what was not proven by the offline authorization reference implementation",
+        "expected_behavior": "retrieve_gatemem_claim_boundary"
+      }
+    ]
+  },
+  "seed_manifest": {
+    "manifest_schema_version": "repo_seed_manifest_v1",
+    "generated_at": "2026-06-26T13:05:55.266389Z",
+    "sections": {
+      "repo_summaries": {
+        "seed_schema_version": "summary_seed_v1",
+        "seed_snapshot_id": "e8cee60817b33365",
+        "document_count": 6,
+        "seed_identities": [
+          "benchmarks/results/gatemem_g4_frozen_reference_manifest.md::gatemem_g4_frozen_baseline::summary_seed_v1",
+          "benchmarks/results/gatemem_g4_frozen_reference_manifest.md::gatemem_g4_alias_frozen_regression_baseline::summary_seed_v1",
+          "docs/benchmarks/gatemem_program_status.md::gatemem_pause_and_blocker::summary_seed_v1",
+          "docs/benchmarks/gatemem_program_status.md::gatemem_alias_no_further_internal_prototyping::summary_seed_v1",
+          "docs/benchmarks/gatemem_g4_offline_reference_implementation.md::gatemem_g4_claim_boundary::summary_seed_v1",
+          "docs/benchmarks/gatemem_g5/README.md::gatemem_g5_blocked_handoff::summary_seed_v1"
+        ],
+        "normalized_content_hashes": [
+          "5e5baf6c052f76710233c211d1b2c6f666853dbcc0d74e5a81de5bf5147db185",
+          "3a67218e71571da7d54b6b190301e823b7c83b5a52c13200e11c47769621b161",
+          "4eaa384e056b0a8142046434a7c7f64adebdb1b380d2e49081a54f8c13474b24",
+          "e5e644ad2d7a56d3e8394d858336bb2a9cd11f07cd4ac1af9aab545d1583d61d",
+          "62cec518a562f2e8542224e6c74695cf3085937799c27e6669933ed23c4d6b28",
+          "026dbca34f36e53bc9baa05263c0d9fecd3c0158bbdb69fcefa50733472e05a1"
+        ]
+      },
+      "repo_context": {
+        "seed_schema_version": "repo_context_seed_v1",
+        "seed_snapshot_id": "21c713ed27d9c3e2",
+        "document_count": 4,
+        "seed_identities": [
+          "docs/benchmarks/gatemem_program_status.md::repo_context_document::repo_context_seed_v1",
+          "docs/benchmarks/gatemem_g4_offline_reference_implementation.md::repo_context_document::repo_context_seed_v1",
+          "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md::repo_context_document::repo_context_seed_v1",
+          "benchmarks/results/gatemem_g4_frozen_reference_manifest.md::repo_context_document::repo_context_seed_v1"
+        ],
+        "normalized_content_hashes": [
+          "6158b0bf3f14846bdb2313243c22405a5597b5653c95c2973564f5915df049fd",
+          "7230706c72dfb63b138d92e4108c527e8cebd4377b63579af5073a2f100087a1",
+          "5876081cea9767f3a11b6544dec7ba7f3ca431e3f48ded8517d9a4e148807bc5",
+          "495a2f9a036957a4e389e2534be0f2d9d8b6619fc3dc76922d9b820bbc54362d"
+        ],
+        "canonical_source_uris": [
+          "docs/benchmarks/gatemem_program_status.md",
+          "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+          "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+          "benchmarks/results/gatemem_g4_frozen_reference_manifest.md"
+        ]
+      }
+    },
+    "seed_snapshot_id": "2437be792647c500"
+  }
+}

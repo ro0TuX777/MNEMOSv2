@@ -65,6 +65,28 @@ def qdrant_tier(mock_qdrant_client):
 
 
 class TestQdrantTier:
+    def test_expected_vectors_config_uses_named_vectors_for_nomic(self, qdrant_tier):
+        from mnemos.retrieval.qdrant_tier import NOMIC_FULL_DIM, NOMIC_MRL_DIM
+        from qdrant_client.models import Distance
+
+        qdrant_tier._embedding_model_name = "nomic-ai/nomic-embed-text-v1.5"
+        config = qdrant_tier._expected_vectors_config(Distance.COSINE)
+
+        assert set(config) == {"dense_64", "dense_768"}
+        assert config["dense_64"].size == NOMIC_MRL_DIM
+        assert config["dense_768"].size == NOMIC_FULL_DIM
+
+    def test_collection_schema_compatibility_detects_wrong_nomic_layout(self, qdrant_tier):
+        qdrant_tier._embedding_model_name = "nomic-ai/nomic-embed-text-v1.5"
+
+        wrong = MagicMock()
+        wrong.config.params.vectors = {"dense": MagicMock()}
+        assert qdrant_tier._collection_schema_looks_compatible(wrong) is False
+
+        correct = MagicMock()
+        correct.config.params.vectors = {"dense_64": MagicMock(), "dense_768": MagicMock()}
+        assert qdrant_tier._collection_schema_looks_compatible(correct) is True
+
     def test_tier_name(self, qdrant_tier):
         assert qdrant_tier.tier_name == "qdrant"
 

@@ -1,0 +1,33 @@
+{
+  "schema_version": "mnemos-agent-navigation-trial-log-v1",
+  "study_status": "MNEMOS_AGENT_NAVIGATION_DEVELOPMENT_STUDY_READY",
+  "classification": "LOCAL_REPO_AGENT_ORIENTATION_AND_BOUNDARY_RECALL_DEVELOPMENT_STUDY",
+  "task_id": "nav-stale-memory-rejection",
+  "mode": "baseline_repo_search",
+  "subject": "codex",
+  "date": "2026-06-26",
+  "prompt": "Use repository evidence only and decide whether the claim that internal G4 policy work can continue is current.",
+  "memory_ids_retrieved": [],
+  "accepted_memory_ids": [],
+  "rejected_memory_ids": [
+    "mem-stale-g4-can-advance-internally"
+  ],
+  "evidence_paths_used": [
+    "docs/benchmarks/gatemem_program_status.md",
+    "benchmarks/results/gatemem_g4_frozen_reference_manifest.md"
+  ],
+  "search_queries": [
+    "Further GateMem implementation work is paused|frozen for regression testing only|NO_FURTHER_INTERNAL_PROTOTYPE_AUTHORIZED|SEALED_EVALUATION_STILL_BLOCKED"
+  ],
+  "files_opened_count": 2,
+  "searches_count": 1,
+  "wrong_turns_or_corrections": [],
+  "boundary_decision": "reject_stale_memory_and_preserve_pause",
+  "final_answer": "The claim that internal G4 policy work can continue is not current. Repository evidence says G4 is frozen for regression testing only, further GateMem implementation work is paused, and fresh advancement requires an independent sealed-evaluation custodian, a newly sealed or independent corpus, preregistration, a frozen candidate artifact, and one-shot evaluation.",
+  "claim_boundary": {
+    "development_evidence_only": true,
+    "gatemem_reopened": false,
+    "sealed_evaluation_claim": false,
+    "general_memory_claim": false
+  }
+}
