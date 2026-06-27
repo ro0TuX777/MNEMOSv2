@@ -1,0 +1,445 @@
+{
+  "benchmark_id": "associative_routing_e0",
+  "phase": "E0-SMOKE",
+  "status": "pass",
+  "projection_snapshot": "sha256:a193d9e1d1820c344e4544a2dfbf13301d63ed45400e8efb74d571b4ca0af216",
+  "disclaimer": "semantic_keyword_baseline_proxy is a local deterministic bag-of-words ranker over fixture documents, not MNEMOS's production semantic/hybrid retrieval. This benchmark makes no claim about production retrieval quality.",
+  "summary": {
+    "query_count": 10,
+    "baseline_all_required_recall_top3_mean": 0.8,
+    "routing_all_required_recall_mean": 1.0,
+    "baseline_top1_recall_mean": 0.45,
+    "routing_top1_recall_mean": 0.8,
+    "false_abstention_count": 0,
+    "fallback_correctness_rate": 1.0,
+    "routing_path_provenance_completeness": 1.0
+  },
+  "query_results": [
+    {
+      "query_id": "e0_001",
+      "query": "Why is GateMem work paused?",
+      "note": "Positive routing \u2014 required quoted question.",
+      "required_content_ids": [
+        "doc:gatemem_g5_readme",
+        "doc:gatemem_program_status"
+      ],
+      "expect_abstention": false,
+      "comparators": {
+        "semantic_keyword_baseline_proxy": {
+          "retrieved_content_ids": [
+            "doc:gatemem_program_status",
+            "doc:gatemem_g4_implementation",
+            "doc:gatemem_g5_readme"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 0.5,
+          "latency_ms": 1.5469
+        },
+        "associative_routing_candidates": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g5_readme",
+            "doc:gatemem_program_status"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 0.5,
+          "routing_result": "resolved",
+          "matched_cues": [
+            "cue:gatemem",
+            "cue:gatemem-pause"
+          ],
+          "routing_path_count": 2,
+          "abstention_reason": null,
+          "latency_ms": 0.0579
+        },
+        "associative_routing_then_existing_retrieval": {
+          "note": "Identical to associative_routing_candidates on this fixture corpus: every E0 content item is a plain repository document with no governance gate to apply.",
+          "retrieved_content_ids": [
+            "doc:gatemem_g5_readme",
+            "doc:gatemem_program_status"
+          ]
+        }
+      },
+      "fallback_correct": true
+    },
+    {
+      "query_id": "e0_002",
+      "query": "What is frozen for regression testing only?",
+      "note": "Positive routing \u2014 required quoted question.",
+      "required_content_ids": [
+        "doc:gatemem_g4_implementation"
+      ],
+      "expect_abstention": false,
+      "comparators": {
+        "semantic_keyword_baseline_proxy": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g4_implementation",
+            "doc:gatemem_program_status",
+            "doc:gatemem_g5_readme"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 1.0,
+          "latency_ms": 1.2378
+        },
+        "associative_routing_candidates": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g4_implementation",
+            "doc:gatemem_program_status"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 1.0,
+          "routing_result": "resolved",
+          "matched_cues": [
+            "cue:frozen-regression-baseline",
+            "cue:gatemem-frozen-baseline"
+          ],
+          "routing_path_count": 3,
+          "abstention_reason": null,
+          "latency_ms": 0.0512
+        },
+        "associative_routing_then_existing_retrieval": {
+          "note": "Identical to associative_routing_candidates on this fixture corpus: every E0 content item is a plain repository document with no governance gate to apply.",
+          "retrieved_content_ids": [
+            "doc:gatemem_g4_implementation",
+            "doc:gatemem_program_status"
+          ]
+        }
+      },
+      "fallback_correct": true
+    },
+    {
+      "query_id": "e0_003",
+      "query": "What blocks a fresh GateMem evaluation?",
+      "note": "Positive routing \u2014 required quoted question.",
+      "required_content_ids": [
+        "doc:gatemem_g5_handoff_checklist"
+      ],
+      "expect_abstention": false,
+      "comparators": {
+        "semantic_keyword_baseline_proxy": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g5_readme",
+            "doc:gatemem_g4_implementation_proposal",
+            "doc:gatemem_program_status"
+          ],
+          "all_required_recall": 0.0,
+          "top1_recall": 0.0,
+          "latency_ms": 1.2199
+        },
+        "associative_routing_candidates": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g5_readme",
+            "doc:gatemem_g5_handoff_checklist"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 0.0,
+          "routing_result": "resolved",
+          "matched_cues": [
+            "cue:gatemem",
+            "cue:gatemem-g5"
+          ],
+          "routing_path_count": 2,
+          "abstention_reason": null,
+          "latency_ms": 0.0488
+        },
+        "associative_routing_then_existing_retrieval": {
+          "note": "Identical to associative_routing_candidates on this fixture corpus: every E0 content item is a plain repository document with no governance gate to apply.",
+          "retrieved_content_ids": [
+            "doc:gatemem_g5_readme",
+            "doc:gatemem_g5_handoff_checklist"
+          ]
+        }
+      },
+      "fallback_correct": true
+    },
+    {
+      "query_id": "e0_004",
+      "query": "What superseded the G4 implementation lane?",
+      "note": "Positive routing \u2014 required quoted question; correct answer is abstention (G4 is the frozen latest baseline; nothing supersedes it).",
+      "required_content_ids": [],
+      "expect_abstention": true,
+      "comparators": {
+        "semantic_keyword_baseline_proxy": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g4_implementation_proposal",
+            "doc:gatemem_program_status",
+            "doc:gatemem_g4_implementation"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 1.0,
+          "latency_ms": 1.2209
+        },
+        "associative_routing_candidates": {
+          "retrieved_content_ids": [],
+          "all_required_recall": 1.0,
+          "top1_recall": 1.0,
+          "routing_result": "abstained",
+          "matched_cues": [
+            "cue:gatemem-g4",
+            "cue:gatemem-g4-implementation"
+          ],
+          "routing_path_count": 0,
+          "abstention_reason": "NO_SUPPORTED_ASSOCIATIVE_PATH",
+          "latency_ms": 0.0457
+        },
+        "associative_routing_then_existing_retrieval": {
+          "note": "Identical to associative_routing_candidates on this fixture corpus: every E0 content item is a plain repository document with no governance gate to apply.",
+          "retrieved_content_ids": []
+        }
+      },
+      "fallback_correct": true
+    },
+    {
+      "query_id": "e0_005",
+      "query": "What is the current state of the G5 handoff?",
+      "note": "Positive routing \u2014 required quoted question.",
+      "required_content_ids": [
+        "doc:gatemem_g5_handoff_state"
+      ],
+      "expect_abstention": false,
+      "comparators": {
+        "semantic_keyword_baseline_proxy": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g5_readme",
+            "doc:gatemem_program_status",
+            "doc:gatemem_g4_implementation_proposal"
+          ],
+          "all_required_recall": 0.0,
+          "top1_recall": 0.0,
+          "latency_ms": 1.1907
+        },
+        "associative_routing_candidates": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g5_handoff_state"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 1.0,
+          "routing_result": "resolved",
+          "matched_cues": [
+            "cue:gatemem-g5",
+            "cue:gatemem-g5-handoff"
+          ],
+          "routing_path_count": 1,
+          "abstention_reason": null,
+          "latency_ms": 0.0467
+        },
+        "associative_routing_then_existing_retrieval": {
+          "note": "Identical to associative_routing_candidates on this fixture corpus: every E0 content item is a plain repository document with no governance gate to apply.",
+          "retrieved_content_ids": [
+            "doc:gatemem_g5_handoff_state"
+          ]
+        }
+      },
+      "fallback_correct": true
+    },
+    {
+      "query_id": "e0_006",
+      "query": "What is the current status of GateMem G4?",
+      "note": "Temporal \u2014 current state over historical precursor.",
+      "required_content_ids": [
+        "doc:gatemem_g4_implementation"
+      ],
+      "expect_abstention": false,
+      "comparators": {
+        "semantic_keyword_baseline_proxy": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g5_readme",
+            "doc:gatemem_g4_implementation",
+            "doc:gatemem_g4_implementation_proposal"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 0.0,
+          "latency_ms": 1.1846
+        },
+        "associative_routing_candidates": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g4_implementation"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 1.0,
+          "routing_result": "resolved",
+          "matched_cues": [
+            "cue:gatemem",
+            "cue:gatemem-g4"
+          ],
+          "routing_path_count": 1,
+          "abstention_reason": null,
+          "latency_ms": 0.0441
+        },
+        "associative_routing_then_existing_retrieval": {
+          "note": "Identical to associative_routing_candidates on this fixture corpus: every E0 content item is a plain repository document with no governance gate to apply.",
+          "retrieved_content_ids": [
+            "doc:gatemem_g4_implementation"
+          ]
+        }
+      },
+      "fallback_correct": true
+    },
+    {
+      "query_id": "e0_007",
+      "query": "What superseded the G4 implementation proposal?",
+      "note": "Temporal \u2014 superseded_by resolves in passive direction.",
+      "required_content_ids": [
+        "doc:gatemem_g4_implementation"
+      ],
+      "expect_abstention": false,
+      "comparators": {
+        "semantic_keyword_baseline_proxy": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g4_implementation_proposal",
+            "doc:gatemem_g4_implementation",
+            "doc:gatemem_g5_readme"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 0.0,
+          "latency_ms": 1.2438
+        },
+        "associative_routing_candidates": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g4_implementation"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 1.0,
+          "routing_result": "resolved",
+          "matched_cues": [
+            "cue:gatemem-g4",
+            "cue:gatemem-g4-implementation",
+            "cue:gatemem-g4-implementation-proposal"
+          ],
+          "routing_path_count": 1,
+          "abstention_reason": null,
+          "latency_ms": 0.0484
+        },
+        "associative_routing_then_existing_retrieval": {
+          "note": "Identical to associative_routing_candidates on this fixture corpus: every E0 content item is a plain repository document with no governance gate to apply.",
+          "retrieved_content_ids": [
+            "doc:gatemem_g4_implementation"
+          ]
+        }
+      },
+      "fallback_correct": true
+    },
+    {
+      "query_id": "e0_008",
+      "query": "What did the G4 implementation lane supersede?",
+      "note": "Temporal \u2014 supersedes resolves in active direction.",
+      "required_content_ids": [
+        "doc:gatemem_g4_implementation_proposal"
+      ],
+      "expect_abstention": false,
+      "comparators": {
+        "semantic_keyword_baseline_proxy": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g4_implementation_proposal",
+            "doc:gatemem_program_status",
+            "doc:gatemem_g4_implementation"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 1.0,
+          "latency_ms": 1.2013
+        },
+        "associative_routing_candidates": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g4_implementation_proposal"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 1.0,
+          "routing_result": "resolved",
+          "matched_cues": [
+            "cue:gatemem-g4",
+            "cue:gatemem-g4-implementation"
+          ],
+          "routing_path_count": 1,
+          "abstention_reason": null,
+          "latency_ms": 0.048
+        },
+        "associative_routing_then_existing_retrieval": {
+          "note": "Identical to associative_routing_candidates on this fixture corpus: every E0 content item is a plain repository document with no governance gate to apply.",
+          "retrieved_content_ids": [
+            "doc:gatemem_g4_implementation_proposal"
+          ]
+        }
+      },
+      "fallback_correct": true
+    },
+    {
+      "query_id": "e0_009",
+      "query": "What is the GateMem frozen baseline?",
+      "note": "Ambiguity \u2014 two genuinely distinct frozen baselines must both surface.",
+      "required_content_ids": [
+        "doc:gatemem_program_status",
+        "doc:gatemem_g4_implementation"
+      ],
+      "expect_abstention": false,
+      "comparators": {
+        "semantic_keyword_baseline_proxy": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g5_readme",
+            "doc:gatemem_g4_implementation",
+            "doc:gatemem_program_status"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 0.0,
+          "latency_ms": 1.3981
+        },
+        "associative_routing_candidates": {
+          "retrieved_content_ids": [
+            "doc:gatemem_program_status",
+            "doc:gatemem_g4_implementation"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 0.5,
+          "routing_result": "resolved",
+          "matched_cues": [
+            "cue:gatemem",
+            "cue:gatemem-frozen-baseline"
+          ],
+          "routing_path_count": 2,
+          "abstention_reason": null,
+          "latency_ms": 0.0774
+        },
+        "associative_routing_then_existing_retrieval": {
+          "note": "Identical to associative_routing_candidates on this fixture corpus: every E0 content item is a plain repository document with no governance gate to apply.",
+          "retrieved_content_ids": [
+            "doc:gatemem_program_status",
+            "doc:gatemem_g4_implementation"
+          ]
+        }
+      },
+      "fallback_correct": true
+    },
+    {
+      "query_id": "e0_010",
+      "query": "What is the capital of France?",
+      "note": "Out-of-domain \u2014 no cue should match; must abstain.",
+      "required_content_ids": [],
+      "expect_abstention": true,
+      "comparators": {
+        "semantic_keyword_baseline_proxy": {
+          "retrieved_content_ids": [
+            "doc:gatemem_g5_readme",
+            "doc:gatemem_g4_implementation",
+            "doc:gatemem_g4_implementation_proposal"
+          ],
+          "all_required_recall": 1.0,
+          "top1_recall": 1.0,
+          "latency_ms": 1.8642
+        },
+        "associative_routing_candidates": {
+          "retrieved_content_ids": [],
+          "all_required_recall": 1.0,
+          "top1_recall": 1.0,
+          "routing_result": "abstained",
+          "matched_cues": [],
+          "routing_path_count": 0,
+          "abstention_reason": "NO_SUPPORTED_ASSOCIATIVE_PATH",
+          "latency_ms": 0.0768
+        },
+        "associative_routing_then_existing_retrieval": {
+          "note": "Identical to associative_routing_candidates on this fixture corpus: every E0 content item is a plain repository document with no governance gate to apply.",
+          "retrieved_content_ids": []
+        }
+      },
+      "fallback_correct": true
+    }
+  ]
+}
