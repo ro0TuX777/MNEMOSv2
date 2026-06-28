@@ -1,0 +1,85 @@
+:root {
+  color-scheme: light;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f6f7fb;
+  color: #1f2937;
+}
+
+.app-shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.app-header,
+.toolbar,
+.saved-views-panel,
+.issue-results {
+  background: #ffffff;
+  border: 1px solid #d6dae3;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.issue-form,
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+label span {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+input,
+select,
+button {
+  width: 100%;
+  min-height: 36px;
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+#issue-list,
+#saved-view-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.issue-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.issue-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 12px;
+  }
+}

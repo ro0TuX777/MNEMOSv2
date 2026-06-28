@@ -1,0 +1,4 @@
+services:
+  mnemos:
+    environment:
+      - MNEMOS_QDRANT_COLLECTION=mnemos_ai_dev_e1_task_01
