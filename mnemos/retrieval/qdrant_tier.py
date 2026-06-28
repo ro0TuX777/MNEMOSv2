@@ -81,6 +81,25 @@ class QdrantTier(BaseRetriever):
     def _uses_nomic_mrl(self) -> bool:
         return self._uses_nomic_mrl_model(self._embedding_model_name)
 
+    def _expected_vectors_config(self, distance: Any) -> Any:
+        from qdrant_client.models import VectorParams
+
+        if self._uses_nomic_mrl:
+            return {
+                "dense_64": VectorParams(size=NOMIC_MRL_DIM, distance=distance),
+                "dense_768": VectorParams(size=NOMIC_FULL_DIM, distance=distance),
+            }
+        return VectorParams(size=self._embedding_dim, distance=distance)
+
+    def _collection_schema_looks_compatible(self, collection_info: Any) -> bool:
+        params = getattr(getattr(collection_info, "config", None), "params", None)
+        vectors = getattr(params, "vectors", None)
+        if not self._uses_nomic_mrl:
+            return True
+        if isinstance(vectors, dict):
+            return {"dense_64", "dense_768"}.issubset(set(vectors))
+        return False
+
     def _initialize(self):
         """Initialize Qdrant client and ensure collection exists."""
         try:
@@ -94,12 +113,19 @@ class QdrantTier(BaseRetriever):
             if self._collection_name not in collections:
                 self._client.create_collection(
                     collection_name=self._collection_name,
-                    vectors_config=VectorParams(
-                        size=self._embedding_dim,
-                        distance=Distance.COSINE,
-                    ),
+                    vectors_config=self._expected_vectors_config(Distance.COSINE),
                 )
                 logger.info(f"Created Qdrant collection: {self._collection_name}")
+            else:
+                collection_info = self._client.get_collection(self._collection_name)
+                if not self._collection_schema_looks_compatible(collection_info):
+                    logger.warning(
+                        "Qdrant collection '%s' exists with a schema that is incompatible "
+                        "with the active embedding model '%s'. Expected named vectors "
+                        "dense_64 and dense_768.",
+                        self._collection_name,
+                        self._embedding_model_name,
+                    )
 
             # Ensure full-text index on 'content' for hybrid RRF fusion.
             self._text_index_ready = self._ensure_text_index()

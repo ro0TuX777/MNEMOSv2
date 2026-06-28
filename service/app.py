@@ -8,10 +8,12 @@ Flask-based REST API with MFS contract compliance.
 from __future__ import annotations
 
 import datetime as dt
+import json
 import logging
 import os
 import sys
 import time
+import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -27,8 +29,10 @@ from mnemos.memory_over_maps.view_builder import (
     build_requested_views,
 )
 from mnemos.memory_over_maps.view_cache import (
+    CACHE_SCHEMA_VERSION,
     DerivedViewCache,
     build_cache_key,
+    build_retrieval_cache_context,
     governance_state_hash,
     lineage_inputs,
     query_fingerprint,
@@ -42,6 +46,7 @@ from mnemos.retrieval.pulse import (
     build_pulse_payload,
 )
 from mnemos.retrieval.shadow_search import ShadowSearchRunner
+from tools.mnemos_seed_manifest import DEFAULT_MANIFEST_PATH
 from mnemos.governance.counterfactuals import compute_counterfactuals
 from mnemos.governance.governor import Governor
 from mnemos.governance.hygiene.volatility import VolatilityEngine, family_key_from_engram
@@ -256,6 +261,7 @@ class MnemosRuntime:
             self._shadow_runner = ShadowSearchRunner(
                 search_callable=self._shadow_search_payload,
                 cache=self._view_cache,
+                context_provider=self._pre_cognitive_cache_context,
             )
             self._intent_engine = IntentEngine(
                 harvester=None,
@@ -306,6 +312,112 @@ class MnemosRuntime:
             "generated_at": _utc_now(),
             "error": self._error,
         }
+
+    def _seed_snapshot_id(self) -> str:
+        manifest_path = Path(
+            os.getenv("MNEMOS_SEED_MANIFEST_PATH", str(DEFAULT_MANIFEST_PATH))
+        )
+        try:
+            if manifest_path.exists():
+                payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+                if isinstance(payload, dict):
+                    snapshot_id = str(payload.get("seed_snapshot_id") or "").strip()
+                    if snapshot_id:
+                        return snapshot_id
+        except Exception:
+            logger.debug("Seed manifest unreadable at %s", manifest_path, exc_info=True)
+        return str(os.getenv("MNEMOS_SEED_SNAPSHOT", "unknown"))
+
+    def _collection_snapshot(self) -> str:
+        if not self._config:
+            return "uninitialized"
+        return f"{self._config.qdrant_collection}:{self._seed_snapshot_id()}"
+
+    def _retrieval_profile(self) -> str:
+        if not self._config:
+            return "unknown"
+        return (
+            f"{self._config.retrieval_mode}|{self._config.fusion_policy}|"
+            f"lexical_top_k={self._config.lexical_top_k}|semantic_top_k={self._config.semantic_top_k}"
+        )
+
+    def _executed_retrieval_profile(
+        self,
+        mode_meta: Optional[Dict[str, Any]] = None,
+        *,
+        retrieval_mode_override: Optional[str] = None,
+        fusion_policy_override: Optional[str] = None,
+    ) -> str:
+        if not self._config:
+            return "unknown"
+        effective_mode = (
+            retrieval_mode_override
+            or (mode_meta or {}).get("retrieval_mode")
+            or self._config.retrieval_mode
+        )
+        effective_policy = fusion_policy_override
+        if effective_policy is None:
+            effective_policy = (mode_meta or {}).get("fusion_policy")
+        if effective_policy is None and effective_mode == "hybrid":
+            effective_policy = self._config.fusion_policy
+        if effective_policy is None:
+            effective_policy = "none"
+        return (
+            f"{effective_mode}|{effective_policy}|"
+            f"lexical_top_k={self._config.lexical_top_k}|semantic_top_k={self._config.semantic_top_k}"
+        )
+
+    def _retrieval_fingerprint(
+        self,
+        mode_meta: Optional[Dict[str, Any]] = None,
+        *,
+        retrieval_mode_override: Optional[str] = None,
+        fusion_policy_override: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        return {
+            "collection_snapshot": self._collection_snapshot(),
+            "retrieval_profile": self._executed_retrieval_profile(
+                mode_meta,
+                retrieval_mode_override=retrieval_mode_override,
+                fusion_policy_override=fusion_policy_override,
+            ),
+            "configured_retrieval_profile": self._retrieval_profile(),
+            "embedding_model_name": self._config.embedding_model if self._config else "unknown",
+            "cache_schema_version": CACHE_SCHEMA_VERSION,
+        }
+
+    @staticmethod
+    def _low_relevance_abstention_meta(
+        results: List[Any],
+        *,
+        mode_meta: Optional[Dict[str, Any]] = None,
+        score_floor: float = 0.01,
+    ) -> Optional[Dict[str, Any]]:
+        if not results:
+            return None
+        top_score = float(getattr(results[0], "score", 0.0) or 0.0)
+        if top_score >= score_floor:
+            return None
+        scores = [float(getattr(item, "score", 0.0) or 0.0) for item in results[:3]]
+        if any(score >= score_floor for score in scores):
+            return None
+        return {
+            "applied": True,
+            "reason_code": "low_relevance_abstention",
+            "score_floor": score_floor,
+            "top_scores": [round(score, 4) for score in scores],
+            "retrieval_mode": (mode_meta or {}).get("retrieval_mode", "semantic"),
+        }
+
+    def _pre_cognitive_cache_context(self, session_id: str, query: str) -> Dict[str, Any]:
+        return build_retrieval_cache_context(
+            query=query,
+            authorized_scope=session_id,
+            collection_snapshot=self._collection_snapshot(),
+            retrieval_profile=self._retrieval_profile(),
+            embedding_model_name=self._config.embedding_model if self._config else "unknown",
+            seed_snapshot=self._seed_snapshot_id(),
+        )
 
     @staticmethod
     def _first_metadata_value(metadata: Dict[str, Any], *keys: str) -> Any:
@@ -632,12 +744,16 @@ class MnemosRuntime:
         engrams = []
         for doc in documents:
             engram = Engram(
+                id=str(doc.get("id") or uuid.uuid4()),
                 content=doc.get("content", ""),
                 source=doc.get("source", ""),
                 neuro_tags=doc.get("neuro_tags", []),
                 confidence=doc.get("confidence", 1.0),
                 metadata=doc.get("metadata", {}),
             )
+            created_at = doc.get("created_at")
+            if isinstance(created_at, str) and created_at.strip():
+                engram.created_at = created_at.strip()
             engrams.append(engram)
             if self._volatility_engine is not None:
                 self._volatility_engine.harvester.record_index_update(engram)
@@ -753,6 +869,7 @@ class MnemosRuntime:
         session_id = "default"
         if isinstance(filters, dict):
             session_id = str(filters.get("session_id") or filters.get("tenant_id") or "default")
+        pre_cognitive_cache_context = self._pre_cognitive_cache_context(session_id, query)
 
         if self._view_cache is not None and self._intent_engine is not None:
             try:
@@ -760,6 +877,7 @@ class MnemosRuntime:
                 cached = self._view_cache.fuzzy_pre_cognitive_get(
                     query=query,
                     cluster_id=cluster_id,
+                    cache_context=pre_cognitive_cache_context,
                 )
                 if cached is not None:
                     self._audit(
@@ -771,6 +889,7 @@ class MnemosRuntime:
                             "cache": cached.get("_cache", {}),
                             "cluster_id": cluster_id,
                             "session_id": session_id,
+                            "cache_context": pre_cognitive_cache_context,
                         },
                         latency=0.0,
                     )
@@ -785,6 +904,10 @@ class MnemosRuntime:
                         "fusion_policy": None,
                         "pre_cognitive": True,
                         "cache": cached.get("_cache", {}),
+                        "retrieval_fingerprint": self._retrieval_fingerprint(
+                            retrieval_mode_override="pre_cognitive_cache",
+                            fusion_policy_override="none",
+                        ),
                     }
                     self._intent_engine.harvester.record_query(
                         session_id=session_id,
@@ -923,6 +1046,13 @@ class MnemosRuntime:
                 candidate_count_post_governance=len(results),
             )
 
+        low_relevance_abstention = self._low_relevance_abstention_meta(
+            results,
+            mode_meta=mode_meta,
+        )
+        if low_relevance_abstention:
+            results = []
+
         derived_views_payload: List[Dict[str, Any]] = []
         query_cache_hits = 0
         query_cache_misses = 0
@@ -945,6 +1075,8 @@ class MnemosRuntime:
                     governance_state_hash_value=ghash,
                     synthesis_policy_version="default",
                     embedding_model_name=self._config.embedding_model,
+                    seed_snapshot=self._seed_snapshot_id(),
+                    cache_schema_version=CACHE_SCHEMA_VERSION,
                 )
                 if phase4_cache_enabled:
                     cached = self._view_cache.get(cache_key)
@@ -1082,6 +1214,12 @@ class MnemosRuntime:
                     "filters_applied": r.metadata.get("filters_applied", filters or {}),
                     "fusion_policy": r.metadata.get("fusion_policy", selected_policy),
                 })
+            if r.metadata.get("duplicate_suppression"):
+                entry["duplicate_suppression"] = r.metadata.get("duplicate_suppression")
+                entry["original_score"] = round(
+                    float(r.metadata.get("original_score", r.score)),
+                    4,
+                )
             dec = decision_map.get(r.engram.id)
             if dec is not None and selected_governance != "off":
                 entry["governed_score"] = round(dec.governed_score, 4)
@@ -1106,6 +1244,7 @@ class MnemosRuntime:
             "lexical_lane_available": mode_meta.get("lexical_available", False),
             "explain": selected_explain,
             "evidence_summary": self._build_evidence_summary(result_list),
+            "retrieval_fingerprint": self._retrieval_fingerprint(mode_meta),
         }
         envelope_ratio = round((env_final / env_initial), 4) if env_initial else 0.0
         cost_units = (
@@ -1130,6 +1269,10 @@ class MnemosRuntime:
             payload["meta"]["hybrid_telemetry"] = mode_meta["telemetry"]
         if mode_meta.get("candidate_envelope"):
             payload["meta"]["candidate_envelope"] = mode_meta["candidate_envelope"]
+        if mode_meta.get("duplicate_suppression"):
+            payload["meta"]["duplicate_suppression"] = mode_meta["duplicate_suppression"]
+        if low_relevance_abstention:
+            payload["meta"]["abstention_guard"] = low_relevance_abstention
         if mode_meta.get("forecast_advisory"):
             payload["meta"]["forecast_advisory"] = mode_meta["forecast_advisory"]
         if mode_meta.get("complexity_classification"):

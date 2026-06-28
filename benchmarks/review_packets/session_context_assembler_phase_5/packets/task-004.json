@@ -1,0 +1,110 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Security Directive B-17 requires MFA for Beta access (SRC-SCA-policy-b17, high authority).",
+          "speaker": "agent",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "A helpdesk note claims password-only login works for Beta (SRC-SCA-helpdesk-1, low authority).",
+          "speaker": "user",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Noted as contradicted by the directive; directive wins on authority.",
+          "speaker": "agent",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Let's also draft this week's release notes.",
+          "speaker": "user",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Draft created, separate from the MFA topic.",
+          "speaker": "agent",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Before I document Beta access requirements, what's the current MFA position?",
+          "speaker": "user",
+          "turn_id": "t6"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [
+            "SRC-SCA-helpdesk-1",
+            "SRC-SCA-policy-b17"
+          ],
+          "session_turns": [
+            {
+              "content": "Security Directive B-17 requires MFA for Beta access (SRC-SCA-policy-b17, high authority).",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "A helpdesk note claims password-only login works for Beta (SRC-SCA-helpdesk-1, low authority).",
+              "speaker": "user",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Noted as contradicted by the directive; directive wins on authority.",
+              "speaker": "agent",
+              "turn_id": "t3"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Let's also draft this week's release notes.",
+          "speaker": "user",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Draft created, separate from the MFA topic.",
+          "speaker": "agent",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Before I document Beta access requirements, what's the current MFA position?",
+          "speaker": "user",
+          "turn_id": "t6"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-004",
+  "task_prompt": "Reconfirm the MFA requirement for Beta access before documenting it."
+}

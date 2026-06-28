@@ -16,8 +16,37 @@ def _stable_hash(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
+QUERY_NORMALIZATION_VERSION = "v1"
+CACHE_SCHEMA_VERSION = "r0"
+
+
+def normalize_query(query: str) -> str:
+    return " ".join(str(query).split()).strip().lower()
+
+
 def query_fingerprint(query: str) -> str:
-    return _stable_hash(query.strip().lower())[:16]
+    return _stable_hash(normalize_query(query))[:16]
+
+
+def build_retrieval_cache_context(
+    *,
+    query: str,
+    authorized_scope: str,
+    collection_snapshot: str,
+    retrieval_profile: str,
+    embedding_model_name: str,
+    seed_snapshot: str,
+) -> Dict[str, str]:
+    return {
+        "normalized_query": normalize_query(query),
+        "authorized_scope": str(authorized_scope),
+        "collection_snapshot": str(collection_snapshot),
+        "retrieval_profile": str(retrieval_profile),
+        "embedding_model_name": str(embedding_model_name),
+        "seed_snapshot": str(seed_snapshot),
+        "cache_schema_version": CACHE_SCHEMA_VERSION,
+        "query_normalization_version": QUERY_NORMALIZATION_VERSION,
+    }
 
 
 def governance_state_hash(decisions: Sequence[GovernanceDecision]) -> str:
@@ -59,6 +88,8 @@ def build_cache_key(
     governance_state_hash_value: str,
     synthesis_policy_version: str = "default",
     embedding_model_name: str = "unversioned",
+    seed_snapshot: str = "unknown",
+    cache_schema_version: str = CACHE_SCHEMA_VERSION,
 ) -> str:
     # embedding_model_name isolates cache lanes per embedding space: an
     # embedding-model cutover (e.g. BGE -> Nomic) starts a fresh lane instead
@@ -71,6 +102,8 @@ def build_cache_key(
         governance_state_hash_value,
         synthesis_policy_version,
         embedding_model_name,
+        seed_snapshot,
+        cache_schema_version,
     ]
     return _stable_hash("||".join(parts))
 
@@ -131,6 +164,7 @@ class DerivedViewCache:
         cluster_id: int,
         view: Dict[str, Any],
         dependency_refs: Optional[Dict[str, Any]] = None,
+        cache_context: Optional[Dict[str, Any]] = None,
     ) -> None:
         payload = dict(view)
         payload["pre_cognitive"] = True
@@ -143,6 +177,7 @@ class DerivedViewCache:
         deps["pre_cognitive"] = True
         deps["query"] = query
         deps["cluster_id"] = int(cluster_id)
+        deps["cache_context"] = dict(cache_context or {})
         self.set(key=key, view=payload, dependency_refs=deps)
 
     def fuzzy_pre_cognitive_get(
@@ -151,10 +186,12 @@ class DerivedViewCache:
         query: str,
         cluster_id: Optional[int] = None,
         min_similarity: float = 0.72,
+        cache_context: Optional[Dict[str, Any]] = None,
     ) -> Optional[Dict[str, Any]]:
         best: Optional[Dict[str, Any]] = None
         best_score = 0.0
         now = time.time()
+        expected_context = dict(cache_context or {})
         for entry in self._entries.values():
             if entry.invalidated:
                 continue
@@ -165,10 +202,24 @@ class DerivedViewCache:
             deps = entry.dependency_refs or {}
             if not deps.get("pre_cognitive"):
                 continue
+            entry_context = dict(deps.get("cache_context") or {})
+            if expected_context:
+                mismatch = False
+                for key, value in expected_context.items():
+                    if entry_context.get(key) != value:
+                        mismatch = True
+                        break
+                if mismatch:
+                    continue
             if cluster_id is not None and int(deps.get("cluster_id", -1)) == int(cluster_id):
                 score = 1.0
             else:
                 score = _token_similarity(query, str(deps.get("query", "")))
+            if expected_context:
+                expected_query = expected_context.get("normalized_query")
+                actual_query = entry_context.get("normalized_query")
+                if expected_query and actual_query and expected_query != actual_query:
+                    continue
             if score > best_score:
                 best_score = score
                 best = dict(entry.view)
@@ -177,6 +228,8 @@ class DerivedViewCache:
                     "pre_cognitive": True,
                     "fuzzy_score": round(score, 4),
                     "key": entry.key,
+                    "cache_schema_version": entry_context.get("cache_schema_version"),
+                    "query_normalization_version": entry_context.get("query_normalization_version"),
                 }
         if best is not None and best_score >= min_similarity:
             self._hit_count += 1

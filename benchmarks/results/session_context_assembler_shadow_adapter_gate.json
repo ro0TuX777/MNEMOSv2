@@ -1,0 +1,187 @@
+{
+  "all_gates_passed": true,
+  "case_count": 10,
+  "gates": {
+    "all_cases_assembled": {
+      "passed": true,
+      "required": true,
+      "value": true
+    },
+    "all_mutations_detected": {
+      "passed": true,
+      "required": true,
+      "value": true
+    },
+    "artifact_local_lineage_rate_1_0": {
+      "passed": true,
+      "required": true,
+      "value": true
+    },
+    "budget_compliance_rate_1_0": {
+      "passed": true,
+      "required": true,
+      "value": true
+    },
+    "content_free_telemetry_rate_1_0": {
+      "passed": true,
+      "required": true,
+      "value": true
+    },
+    "digest_verification_rate_1_0": {
+      "passed": true,
+      "required": true,
+      "value": true
+    },
+    "fixed_seed_determinism": {
+      "passed": true,
+      "required": true,
+      "value": true
+    },
+    "no_runtime_or_network_import_path": {
+      "passed": true,
+      "required": true,
+      "value": true
+    },
+    "r1_hash_valid": {
+      "passed": true,
+      "required": true,
+      "value": true
+    },
+    "r2_hash_valid": {
+      "passed": true,
+      "required": true,
+      "value": true
+    },
+    "shadow_only_rate_1_0": {
+      "passed": true,
+      "required": true,
+      "value": true
+    }
+  },
+  "labels": [
+    "ISOLATED_SHADOW_ONLY",
+    "NO_NETWORK_LISTENER",
+    "NO_EXTERNAL_CONSUMER_CONNECTION",
+    "NO_LIVE_ROUTING",
+    "NO_MEMORY_OR_GOVERNANCE_MUTATION"
+  ],
+  "mutation_checks": {
+    "abstention_suppression_detected": {
+      "passed": true
+    },
+    "authorization_bypass_detected": {
+      "passed": true
+    },
+    "digest_tamper_detected": {
+      "passed": true
+    },
+    "kill_switch_bypass_detected": {
+      "passed": true
+    },
+    "lineage_removal_detected": {
+      "passed": true
+    },
+    "policy_pin_bypass_detected": {
+      "passed": true
+    },
+    "redaction_bypass_detected": {
+      "passed": true
+    },
+    "telemetry_escape_detected": {
+      "passed": true
+    }
+  },
+  "records": [
+    {
+      "artifact_local_lineage_complete": true,
+      "budget_compliant": true,
+      "case_id": "sca_r2_old_decisive_001",
+      "digest_valid": true,
+      "ok": true,
+      "shadow_only": true,
+      "telemetry_content_free": true
+    },
+    {
+      "artifact_local_lineage_complete": true,
+      "budget_compliant": true,
+      "case_id": "sca_r2_multi_unresolved_002",
+      "digest_valid": true,
+      "ok": true,
+      "shadow_only": true,
+      "telemetry_content_free": true
+    },
+    {
+      "artifact_local_lineage_complete": true,
+      "budget_compliant": true,
+      "case_id": "sca_r2_mixed_related_003",
+      "digest_valid": true,
+      "ok": true,
+      "shadow_only": true,
+      "telemetry_content_free": true
+    },
+    {
+      "artifact_local_lineage_complete": true,
+      "budget_compliant": true,
+      "case_id": "sca_r2_split_sources_004",
+      "digest_valid": true,
+      "ok": true,
+      "shadow_only": true,
+      "telemetry_content_free": true
+    },
+    {
+      "artifact_local_lineage_complete": true,
+      "budget_compliant": true,
+      "case_id": "sca_r2_incident_interrupt_005",
+      "digest_valid": true,
+      "ok": true,
+      "shadow_only": true,
+      "telemetry_content_free": true
+    },
+    {
+      "artifact_local_lineage_complete": true,
+      "budget_compliant": true,
+      "case_id": "sca_r2_overflow_006",
+      "digest_valid": true,
+      "ok": true,
+      "shadow_only": true,
+      "telemetry_content_free": true
+    },
+    {
+      "artifact_local_lineage_complete": true,
+      "budget_compliant": true,
+      "case_id": "sca_r2_ineligible_source_007",
+      "digest_valid": true,
+      "ok": true,
+      "shadow_only": true,
+      "telemetry_content_free": true
+    },
+    {
+      "artifact_local_lineage_complete": true,
+      "budget_compliant": true,
+      "case_id": "sca_r2_reordered_008",
+      "digest_valid": true,
+      "ok": true,
+      "shadow_only": true,
+      "telemetry_content_free": true
+    },
+    {
+      "artifact_local_lineage_complete": true,
+      "budget_compliant": true,
+      "case_id": "sca_r2_injection_009",
+      "digest_valid": true,
+      "ok": true,
+      "shadow_only": true,
+      "telemetry_content_free": true
+    },
+    {
+      "artifact_local_lineage_complete": true,
+      "budget_compliant": true,
+      "case_id": "sca_r2_paraphrase_010",
+      "digest_valid": true,
+      "ok": true,
+      "shadow_only": true,
+      "telemetry_content_free": true
+    }
+  ],
+  "schema": "session_context_assembler_shadow_adapter_gate_v1"
+}

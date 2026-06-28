@@ -93,6 +93,7 @@ class RetrievalRouter:
             "candidate_pool_raw_count": 0,
             "candidate_pool_narrowed_count": 0,
             "candidate_duplicate_suppressed_count": 0,
+            "retrieval_duplicate_group_count": 0,
             "candidate_source_cap_applied_count": 0,
         }
         self._hybrid_latencies_ms: List[float] = []
@@ -127,6 +128,97 @@ class RetrievalRouter:
         self._stats["candidate_source_cap_applied_count"] += int(
             summary.get("source_cap_exceeded", 0)
         )
+
+    @staticmethod
+    def _normalized_duplicate_hash(text: str) -> str:
+        normalized = " ".join(str(text).split()).strip().lower()
+        return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+    @staticmethod
+    def _provenance_completeness(result: SearchResult) -> int:
+        metadata = getattr(result.engram, "metadata", {}) or {}
+        keys = (
+            "canonical_source_uri",
+            "source_uri",
+            "normalized_content_hash",
+            "seed_identity",
+            "schema_version",
+        )
+        return sum(1 for key in keys if metadata.get(key))
+
+    def _duplicate_group_key(self, result: SearchResult) -> Optional[str]:
+        metadata = getattr(result.engram, "metadata", {}) or {}
+        canonical_source_uri = str(
+            metadata.get("canonical_source_uri")
+            or metadata.get("source_uri")
+            or result.engram.source
+            or ""
+        ).strip()
+        if not canonical_source_uri:
+            return None
+        normalized_hash = str(metadata.get("normalized_content_hash") or "").strip()
+        if not normalized_hash:
+            if metadata.get("is_seeded_summary"):
+                normalized_hash = self._normalized_duplicate_hash(result.engram.content)
+            else:
+                return None
+        return f"{canonical_source_uri}::{normalized_hash}"
+
+    def _deduplicate_retrieval_results(
+        self,
+        results: List[SearchResult],
+    ) -> Tuple[List[SearchResult], Dict[str, Any]]:
+        groups: Dict[str, List[SearchResult]] = {}
+        passthrough: List[SearchResult] = []
+        for result in results:
+            group_key = self._duplicate_group_key(result)
+            if not group_key:
+                passthrough.append(result)
+                continue
+            groups.setdefault(group_key, []).append(result)
+
+        deduped: List[SearchResult] = list(passthrough)
+        suppressed_count = 0
+        group_count = 0
+
+        def _sort_key(item: SearchResult) -> Tuple[float, int, int, str]:
+            metadata = getattr(item.engram, "metadata", {}) or {}
+            active = 1 if not bool(metadata.get("is_superseded", False)) else 0
+            provenance = self._provenance_completeness(item)
+            created_at = str(getattr(item.engram, "created_at", "") or "")
+            return (float(item.score), active, provenance, created_at)
+
+        for group_key, members in groups.items():
+            if len(members) == 1:
+                deduped.append(members[0])
+                continue
+            members_sorted = sorted(members, key=_sort_key, reverse=True)
+            representative = members_sorted[0]
+            duplicate_ids = [member.engram.id for member in members_sorted[1:]]
+            representative.metadata["duplicate_suppression"] = {
+                "applied": True,
+                "reason_code": "canonical_source_content_duplicate",
+                "duplicate_group_key": group_key,
+                "duplicate_count": len(members),
+                "suppressed_count": len(members) - 1,
+                "suppressed_engram_ids": duplicate_ids,
+                "selected_engram_id": representative.engram.id,
+                "selected_score": round(float(representative.score), 6),
+            }
+            representative.metadata.setdefault("original_score", float(representative.score))
+            deduped.append(representative)
+            suppressed_count += len(members) - 1
+            group_count += 1
+
+        deduped.sort(key=lambda item: item.score, reverse=True)
+        self._stats["retrieval_duplicate_group_count"] += group_count
+        diagnostic = {
+            "applied": suppressed_count > 0,
+            "reason_code": "canonical_source_content_duplicate",
+            "duplicate_groups": group_count,
+            "suppressed_count": suppressed_count,
+        }
+        return deduped, diagnostic
 
     def _forecast_advisory(self) -> Dict[str, Any]:
         if self._pulse_engine is None:
@@ -1262,7 +1354,8 @@ class RetrievalRouter:
 
             narrowed, envelope_meta = apply_candidate_envelope(hits, envelope_cfg)
             self._record_candidate_envelope_stats(envelope_meta)
-            final_results = narrowed[:effective_top_k]
+            deduped_results, duplicate_meta = self._deduplicate_retrieval_results(narrowed)
+            final_results = deduped_results[:effective_top_k]
             
             if graph_experiment_telemetry:
                 survived = sum(1 for c in final_results if c.tier == "graph")
@@ -1278,6 +1371,7 @@ class RetrievalRouter:
                 "fusion_policy": None,
                 "lexical_available": self.lexical_available,
                 "candidate_envelope": envelope_meta,
+                "duplicate_suppression": duplicate_meta,
                 "reranker_used": self._reranker is not None,
                 "rerank_telemetry": rr_telemetry,
                 "forecast_advisory": forecast_advisory,
@@ -1362,7 +1456,8 @@ class RetrievalRouter:
 
                 narrowed, envelope_meta = apply_candidate_envelope(fused, envelope_cfg)
                 self._record_candidate_envelope_stats(envelope_meta)
-                final_results = narrowed[:effective_top_k]
+                deduped_results, duplicate_meta = self._deduplicate_retrieval_results(narrowed)
+                final_results = deduped_results[:effective_top_k]
 
                 elapsed_ms = (time.perf_counter() - start) * 1000.0
                 self._record_hybrid_stats(telemetry, elapsed_ms, policy)
@@ -1376,6 +1471,7 @@ class RetrievalRouter:
                     "lexical_available": self.lexical_available,
                     "telemetry": telemetry,
                     "candidate_envelope": envelope_meta,
+                    "duplicate_suppression": duplicate_meta,
                     "reranker_used": self._reranker is not None,
                     "rerank_telemetry": rr_telemetry,
                     "forecast_advisory": forecast_advisory,
@@ -1451,7 +1547,8 @@ class RetrievalRouter:
 
         narrowed, envelope_meta = apply_candidate_envelope(fused, envelope_cfg)
         self._record_candidate_envelope_stats(envelope_meta)
-        final_results = narrowed[:effective_top_k]
+        deduped_results, duplicate_meta = self._deduplicate_retrieval_results(narrowed)
+        final_results = deduped_results[:effective_top_k]
 
         elapsed_ms = (time.perf_counter() - start) * 1000.0
         self._record_hybrid_stats(telemetry, elapsed_ms, policy)
@@ -1464,6 +1561,7 @@ class RetrievalRouter:
             "lexical_available": self.lexical_available,
             "telemetry": telemetry,
             "candidate_envelope": envelope_meta,
+            "duplicate_suppression": duplicate_meta,
             "reranker_used": self._reranker is not None,
             "rerank_telemetry": rr_telemetry,
             "forecast_advisory": forecast_advisory,

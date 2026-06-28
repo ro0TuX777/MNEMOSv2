@@ -1,0 +1,121 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "[3 weeks earlier] Retry policy: 3 attempts, fixed 5s delay.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded (superseded later).",
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "[this week] Update: switch to exponential backoff, 5 attempts max (DEC-SCA-107), this replaces the old fixed-delay policy.",
+          "source_links": [
+            "SRC-SCA-retry-policy-update"
+          ],
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded as current policy; old fixed-delay policy is now stale.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Remind me what the retry policy is right now.",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-107"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-retry-policy-update"
+          ],
+          "session_turns": [
+            {
+              "content": "[this week] Update: switch to exponential backoff, 5 attempts max (DEC-SCA-107), this replaces the old fixed-delay policy.",
+              "source_links": [
+                "SRC-SCA-retry-policy-update"
+              ],
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Recorded as current policy; old fixed-delay policy is now stale.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            },
+            {
+              "content": "Remind me what the retry policy is right now.",
+              "speaker": "user",
+              "turn_id": "t5"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "artifact_context",
+      "warning": {
+        "context_budget_insufficient": true,
+        "omitted_required_artifact_types": [
+          "contradiction_artifact"
+        ],
+        "selection_abstention_reason": "One or more mandatory eligible artifact types could not fit inside the context budget; lower-priority semantic fill was withheld."
+      }
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "[this week] Update: switch to exponential backoff, 5 attempts max (DEC-SCA-107), this replaces the old fixed-delay policy.",
+          "source_links": [
+            "SRC-SCA-retry-policy-update"
+          ],
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded as current policy; old fixed-delay policy is now stale.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Remind me what the retry policy is right now.",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-016",
+  "task_prompt": "What's the current retry policy for the ingestion worker?"
+}

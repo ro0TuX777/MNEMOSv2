@@ -1,0 +1,36 @@
+{
+  "schema_version": "1",
+  "description": "Content references for the Associative Routing View E0 fixture corpus. Each entry points at an existing MNEMOS source document; no content is duplicated here.",
+  "content": [
+    {
+      "content_id": "doc:gatemem_program_status",
+      "source_uri": "docs/benchmarks/gatemem_program_status.md",
+      "title": "GateMem Program Status"
+    },
+    {
+      "content_id": "doc:gatemem_g5_readme",
+      "source_uri": "docs/benchmarks/gatemem_g5/README.md",
+      "title": "GateMem G5 Independent Evaluation Readiness Packet"
+    },
+    {
+      "content_id": "doc:gatemem_g5_handoff_checklist",
+      "source_uri": "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+      "title": "GateMem G5 Independent Evaluation Handoff Checklist"
+    },
+    {
+      "content_id": "doc:gatemem_g5_handoff_state",
+      "source_uri": "benchmarks/evaluation/gatemem_g5_handoff_state.json",
+      "title": "GateMem G5 Handoff State"
+    },
+    {
+      "content_id": "doc:gatemem_g4_implementation",
+      "source_uri": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+      "title": "GateMem G4 Offline Authorization/Disclosure Reference Implementation"
+    },
+    {
+      "content_id": "doc:gatemem_g4_implementation_proposal",
+      "source_uri": "docs/benchmarks/gatemem_g4_offline_reference_implementation_proposal.md",
+      "title": "GateMem G4 Offline Authorization/Disclosure Reference Implementation Proposal"
+    }
+  ]
+}

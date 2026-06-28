@@ -49,7 +49,7 @@ services:
       - MNEMOS_LOG_LEVEL=INFO
       - MNEMOS_GPU_DEVICE=cuda
       - MNEMOS_QDRANT_URL=http://qdrant:6333
-      - MNEMOS_QDRANT_COLLECTION=mnemos_engrams_nomic_mrl
+      - MNEMOS_QDRANT_COLLECTION=mnemos_claude_repo_seed
       - MNEMOS_POSTGRES_DSN=postgresql://mnemos:mnemos@postgres:5432/mnemos
       - NVIDIA_VISIBLE_DEVICES=all
     depends_on:

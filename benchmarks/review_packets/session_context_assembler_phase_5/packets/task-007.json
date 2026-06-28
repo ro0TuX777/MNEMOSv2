@@ -1,0 +1,108 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Looks good, approved.",
+          "speaker": "user",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Remind me exactly what the audit said about timeout length.",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [
+            "SRC-SCA-audit-2026-04"
+          ],
+          "session_turns": [
+            {
+              "content": "Security audit (SRC-SCA-audit-2026-04) recommends a 15-minute idle timeout.",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Also recommends rotating refresh tokens weekly.",
+              "speaker": "user",
+              "turn_id": "t2"
+            }
+          ],
+          "synthetic_context": true
+        },
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "session_turns": [
+            {
+              "content": "Looks good, approved.",
+              "speaker": "user",
+              "turn_id": "t4"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Security audit (SRC-SCA-audit-2026-04) recommends a 15-minute idle timeout.",
+          "speaker": "agent",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Also recommends rotating refresh tokens weekly.",
+          "speaker": "user",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Switching topics, the new logo asset is ready for review.",
+          "speaker": "agent",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Looks good, approved.",
+          "speaker": "user",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Remind me exactly what the audit said about timeout length.",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-007",
+  "task_prompt": "What did the security audit document say about session timeout length?"
+}

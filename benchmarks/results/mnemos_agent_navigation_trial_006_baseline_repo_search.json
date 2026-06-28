@@ -1,0 +1,33 @@
+{
+  "schema_version": "mnemos-agent-navigation-trial-log-v1",
+  "study_status": "MNEMOS_AGENT_NAVIGATION_DEVELOPMENT_STUDY_READY",
+  "classification": "LOCAL_REPO_AGENT_ORIENTATION_AND_BOUNDARY_RECALL_DEVELOPMENT_STUDY",
+  "task_id": "nav-g4-modification-boundary",
+  "mode": "baseline_repo_search",
+  "subject": "codex",
+  "date": "2026-06-26",
+  "prompt": "Use repository evidence only to determine whether the frozen G4 policy/reference logic may be modified to improve the result.",
+  "memory_ids_retrieved": [],
+  "accepted_memory_ids": [],
+  "rejected_memory_ids": [
+    "mem-stale-g4-can-advance-internally"
+  ],
+  "evidence_paths_used": [
+    "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+    "docs/benchmarks/gatemem_program_status.md"
+  ],
+  "search_queries": [
+    "G4 frozen regression baseline source corpus change new development iteration"
+  ],
+  "files_opened_count": 2,
+  "searches_count": 1,
+  "wrong_turns_or_corrections": [],
+  "boundary_decision": "modification_requires_new_development_iteration_not_frozen_rewrite",
+  "final_answer": "The frozen G4 artifact is regression-only. A source or corpus change would create a new development iteration and must not be treated as an update to the existing frozen result.",
+  "claim_boundary": {
+    "development_evidence_only": true,
+    "gatemem_reopened": false,
+    "sealed_evaluation_claim": false,
+    "general_memory_claim": false
+  }
+}

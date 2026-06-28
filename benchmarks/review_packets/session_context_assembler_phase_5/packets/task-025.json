@@ -1,0 +1,175 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Noted, unrelated to storage.",
+          "speaker": "agent",
+          "turn_id": "t6"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Also the dashboard metrics widget is misaligned.",
+          "speaker": "user",
+          "turn_id": "t7"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Fixed the alignment, unrelated to storage.",
+          "speaker": "agent",
+          "turn_id": "t8"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "And the release notes draft needs a second pass.",
+          "speaker": "user",
+          "turn_id": "t9"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Second pass done, unrelated to storage.",
+          "speaker": "agent",
+          "turn_id": "t10"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "After all this time, what storage tier did we land on for those cold logs?",
+          "speaker": "user",
+          "turn_id": "t11"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-201"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-storage-tier-decision"
+          ],
+          "session_turns": [
+            {
+              "content": "Comparing cheap object storage vs warm database storage for logs older than 90 days.",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Go with object storage for anything past 90 days.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Recorded: cold audit logs move to object storage after 90 days (DEC-SCA-201). See SRC-SCA-storage-tier-decision for the comparison writeup.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            }
+          ],
+          "synthetic_context": true
+        },
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "session_turns": [
+            {
+              "content": "We should decide where cold audit logs live long-term.",
+              "speaker": "user",
+              "turn_id": "t1"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "We should decide where cold audit logs live long-term.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Comparing cheap object storage vs warm database storage for logs older than 90 days.",
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Go with object storage for anything past 90 days.",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded: cold audit logs move to object storage after 90 days (DEC-SCA-201). See SRC-SCA-storage-tier-decision for the comparison writeup.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Standup notes for today are posted.",
+          "speaker": "user",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Noted, unrelated to storage.",
+          "speaker": "agent",
+          "turn_id": "t6"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Also the dashboard metrics widget is misaligned.",
+          "speaker": "user",
+          "turn_id": "t7"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Fixed the alignment, unrelated to storage.",
+          "speaker": "agent",
+          "turn_id": "t8"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "And the release notes draft needs a second pass.",
+          "speaker": "user",
+          "turn_id": "t9"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Second pass done, unrelated to storage.",
+          "speaker": "agent",
+          "turn_id": "t10"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "After all this time, what storage tier did we land on for those cold logs?",
+          "speaker": "user",
+          "turn_id": "t11"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-025",
+  "task_prompt": "What storage tier did we land on for cold audit logs, after all this time?"
+}

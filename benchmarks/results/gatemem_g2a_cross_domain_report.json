@@ -1,0 +1,133 @@
+{
+  "authorization": "GATEMEM_G2_OFFLINE_RETRIEVAL_DISCLOSURE_ADAPTER",
+  "authorized_retrieval_utility": {
+    "correct": 202,
+    "measurement": "GateMem auxiliary rule-based include coverage",
+    "primary_human_or_llm_judged_claim": false,
+    "rate": 0.2774725274725275,
+    "total": 728
+  },
+  "closeout": {
+    "active_forgetting_evaluated": false,
+    "disclosure_policy_adequate_for_production": false,
+    "offline_adapter_mechanics_verified": true,
+    "offline_baseline_frozen": true,
+    "provenance_integrity_verified": true
+  },
+  "counts": {
+    "actions": {
+      "answer": 677,
+      "answer_redacted": 353,
+      "refuse": 1188
+    },
+    "checkpoints": 2218,
+    "deletion": 763,
+    "privacy": 727,
+    "utility": 728
+  },
+  "cross_principal_leakage_attempts": {
+    "blocked_count": 6277,
+    "blocked_rate": 0.9562766605728215,
+    "candidate_count": 6564,
+    "privacy_end_to_end_leakage_rate": 0.17881705639614856
+  },
+  "deletion_case_refusal": {
+    "active_forgetting_score": "NOT_SCORED",
+    "deletion_capability_claim": false,
+    "explicit_refusals": 743,
+    "official_deletion_leakage_metric_excluded_from_claims": true,
+    "refusal_consistency_rate": 0.9737876802096985,
+    "true_deletion_checkpoints": 763,
+    "visible_detector_false_negatives": 20,
+    "visible_detector_false_positives": 136,
+    "visible_detector_true_positives": 743
+  },
+  "disclosure_denial": {
+    "answer_leakage_rate": 0.17881705639614856,
+    "context_leakage_rate": 0.16781292984869325,
+    "end_to_end_leakage_rate": 0.17881705639614856,
+    "expected_refusal_correct": 190,
+    "expected_refusal_correct_rate": 0.4470588235294118,
+    "expected_refusal_total": 425,
+    "privacy_action_correct": 264,
+    "privacy_action_correct_rate": 0.3631361760660248,
+    "privacy_total": 727
+  },
+  "frozen_baseline_composite_sha256": "4211bc91e7dbe53f588a8ecb00a04e6e44d2fb775ca1e888d058680acb5ad209",
+  "limitations": [
+    "Production role enforcement remains unsupported.",
+    "G1 medical projections contain no explicit entitlement metadata.",
+    "The disclosure policy is a conservative visible-input heuristic.",
+    "The utility metric is auxiliary rule-based coverage, not a hosted or human judge.",
+    "Deletion rows are refusal-consistency checks only and do not measure active forgetting."
+  ],
+  "over_refusal": {
+    "rate": 0.4052197802197802,
+    "utility_refused_or_redacted": 295,
+    "utility_total": 728
+  },
+  "per_domain": {
+    "education": {
+      "checkpoints": 540,
+      "deletion_false_negatives": 8,
+      "deletion_false_positives": 15,
+      "deletion_refusal_consistency_rate": 0.9555555555555556,
+      "over_refusal_rate": 0.42777777777777776,
+      "privacy_e2e_leakage_rate": 0.09444444444444444,
+      "provenance_integrity_rate": 1.0,
+      "utility_rate": 0.16666666666666666
+    },
+    "household": {
+      "checkpoints": 552,
+      "deletion_false_negatives": 5,
+      "deletion_false_positives": 55,
+      "deletion_refusal_consistency_rate": 0.9728260869565217,
+      "over_refusal_rate": 0.33152173913043476,
+      "privacy_e2e_leakage_rate": 0.08695652173913043,
+      "provenance_integrity_rate": 1.0,
+      "utility_rate": 0.25
+    },
+    "medical": {
+      "checkpoints": 579,
+      "deletion_false_negatives": 0,
+      "deletion_false_positives": 32,
+      "deletion_refusal_consistency_rate": 1.0,
+      "over_refusal_rate": 0.5285714285714286,
+      "privacy_e2e_leakage_rate": 0.4427083333333333,
+      "provenance_integrity_rate": 1.0,
+      "utility_rate": 0.2761904761904762
+    },
+    "office": {
+      "checkpoints": 547,
+      "deletion_false_negatives": 7,
+      "deletion_false_positives": 34,
+      "deletion_refusal_consistency_rate": 0.9684684684684685,
+      "over_refusal_rate": 0.2987012987012987,
+      "privacy_e2e_leakage_rate": 0.07017543859649122,
+      "provenance_integrity_rate": 1.0,
+      "utility_rate": 0.44155844155844154
+    }
+  },
+  "provenance_integrity": {
+    "rate": 1.0,
+    "total": 2218,
+    "valid": 2218
+  },
+  "redaction_behavior": {
+    "adapter_redaction_count": 353,
+    "expected_redaction_correct": 74,
+    "expected_redaction_correct_rate": 0.24503311258278146,
+    "expected_redaction_total": 302,
+    "privacy_redaction_count": 162
+  },
+  "schema_version": "gatemem-g2-aggregate-report-v1",
+  "scope": {
+    "clean_g1_projections_only": true,
+    "domain": "all-four-domains",
+    "hosted_judge_used": false,
+    "leaderboard_submission": false,
+    "offline_only": true,
+    "runtime_integration": false
+  },
+  "status": "GATEMEM_G2A_CROSS_DOMAIN_BASELINE_REPLAY_COMPLETE"
+}

@@ -1,0 +1,119 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [
+            "SRC-SCA-vendor-sla-2026"
+          ],
+          "session_turns": [
+            {
+              "content": "Vendor SLA (SRC-SCA-vendor-sla-2026) commits to 99.9% uptime.",
+              "speaker": "agent",
+              "turn_id": "t1"
+            }
+          ],
+          "synthetic_context": true
+        },
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "session_turns": [
+            {
+              "content": "Thanks.",
+              "speaker": "user",
+              "turn_id": "t4"
+            }
+          ],
+          "synthetic_context": true
+        },
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "session_turns": [
+            {
+              "content": "Travel booking for the conference is confirmed.",
+              "speaker": "agent",
+              "turn_id": "t3"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Vendor SLA (SRC-SCA-vendor-sla-2026) commits to 99.9% uptime.",
+          "speaker": "agent",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Penalty clause kicks in below 99.5%.",
+          "speaker": "user",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Travel booking for the conference is confirmed.",
+          "speaker": "agent",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Thanks.",
+          "speaker": "user",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What uptime number did the vendor commit to again?",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Thanks.",
+          "speaker": "user",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What uptime number did the vendor commit to again?",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-008",
+  "task_prompt": "What number did the vendor SLA document commit to for uptime?"
+}

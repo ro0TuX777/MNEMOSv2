@@ -1,0 +1,92 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Should cache keys be tenant-prefixed or use separate cache instances per tenant?",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Tenant-prefixed keys are cheaper; separate instances are more isolated. No decision yet, flagged open.",
+          "source_links": [
+            "SRC-SCA-cache-isolation-discussion"
+          ],
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Let's revisit after the SLO work lands.",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Did we ever resolve the cache-isolation approach?",
+          "speaker": "user",
+          "turn_id": "t4"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [
+            "SRC-SCA-cache-isolation-discussion"
+          ],
+          "session_turns": [
+            {
+              "content": "Should cache keys be tenant-prefixed or use separate cache instances per tenant?",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Tenant-prefixed keys are cheaper; separate instances are more isolated. No decision yet, flagged open.",
+              "source_links": [
+                "SRC-SCA-cache-isolation-discussion"
+              ],
+              "speaker": "agent",
+              "turn_id": "t2"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Let's revisit after the SLO work lands.",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Did we ever resolve the cache-isolation approach?",
+          "speaker": "user",
+          "turn_id": "t4"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-022",
+  "task_prompt": "Is the multi-tenant cache-isolation question resolved yet?"
+}

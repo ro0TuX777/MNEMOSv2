@@ -1,0 +1,108 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "[update] Person A swapped with Person B starting next week.",
+          "speaker": "user",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded swap (DEC-SCA-109); Person B is now current owner.",
+          "source_links": [
+            "SRC-SCA-oncall-swap"
+          ],
+          "speaker": "agent",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Who's on-call right now?",
+          "speaker": "user",
+          "turn_id": "t4"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "[old] On-call owner for this month is Person A.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "[update] Person A swapped with Person B starting next week.",
+          "speaker": "user",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded swap (DEC-SCA-109); Person B is now current owner.",
+          "source_links": [
+            "SRC-SCA-oncall-swap"
+          ],
+          "speaker": "agent",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Who's on-call right now?",
+          "speaker": "user",
+          "turn_id": "t4"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-109"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-oncall-swap"
+          ],
+          "session_turns": [
+            {
+              "content": "[old] On-call owner for this month is Person A.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "[update] Person A swapped with Person B starting next week.",
+              "speaker": "user",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Recorded swap (DEC-SCA-109); Person B is now current owner.",
+              "source_links": [
+                "SRC-SCA-oncall-swap"
+              ],
+              "speaker": "agent",
+              "turn_id": "t3"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "artifact_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-018",
+  "task_prompt": "What's the team's current on-call rotation owner?"
+}

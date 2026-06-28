@@ -1,0 +1,134 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Separately, the invoicing export job failed last night.",
+          "speaker": "user",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Logged for the ops queue, unrelated to retrieval.",
+          "speaker": "agent",
+          "turn_id": "t6"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Now let's onboard the new tenant onto the retrieval layer.",
+          "speaker": "user",
+          "turn_id": "t7"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-101"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-vector-store-comparison"
+          ],
+          "session_turns": [
+            {
+              "content": "Decision recorded: Qdrant is the retrieval backend (DEC-SCA-101).",
+              "source_links": [
+                "SRC-SCA-vector-store-comparison"
+              ],
+              "speaker": "agent",
+              "turn_id": "t4"
+            }
+          ],
+          "synthetic_context": true
+        },
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "session_turns": [
+            {
+              "content": "Logged for the ops queue, unrelated to retrieval.",
+              "speaker": "agent",
+              "turn_id": "t6"
+            },
+            {
+              "content": "Now let's onboard the new tenant onto the retrieval layer.",
+              "speaker": "user",
+              "turn_id": "t7"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "We need to pick a vector store before the pilot.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Comparing pgvector and Qdrant on latency and ops overhead.",
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Qdrant wins on latency at our scale, go with Qdrant.",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Decision recorded: Qdrant is the retrieval backend (DEC-SCA-101).",
+          "source_links": [
+            "SRC-SCA-vector-store-comparison"
+          ],
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Separately, the invoicing export job failed last night.",
+          "speaker": "user",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Logged for the ops queue, unrelated to retrieval.",
+          "speaker": "agent",
+          "turn_id": "t6"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Now let's onboard the new tenant onto the retrieval layer.",
+          "speaker": "user",
+          "turn_id": "t7"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-001",
+  "task_prompt": "Confirm whether the retrieval layer should use pgvector or Qdrant before adding a new tenant."
+}

@@ -1,0 +1,34 @@
+{
+  "advancement_boundary": "G2A characterizes the frozen offline baseline only. It authorizes no policy tuning, runtime integration, role-enforcement claim, or deletion claim.",
+  "aggregate_characterization": {
+    "active_forgetting": "NOT_SCORED",
+    "auxiliary_utility_rate": 0.2774725274725275,
+    "checkpoints": 2218,
+    "deletion_false_negatives": 20,
+    "deletion_false_positives": 136,
+    "deletion_refusal_consistency_rate": 0.9737876802096985,
+    "over_refusal_rate": 0.4052197802197802,
+    "privacy_e2e_leakage_rate": 0.17881705639614856,
+    "provenance_integrity_rate": 1.0
+  },
+  "all_passed": true,
+  "frozen_baseline_composite_sha256": "4211bc91e7dbe53f588a8ecb00a04e6e44d2fb775ca1e888d058680acb5ad209",
+  "gates": {
+    "active_forgetting_not_scored": true,
+    "aggregate_is_weighted_from_all_domains": true,
+    "all_2218_checkpoints_processed": true,
+    "all_four_domains_present": true,
+    "deletion_false_positives_measured_all_domains": true,
+    "deletion_refusal_measured_all_domains": true,
+    "external_evidence_hashes_valid": true,
+    "frozen_core_hash_valid": true,
+    "no_hosted_judge_artifacts": true,
+    "no_policy_tuning": true,
+    "predictions_contain_no_scoring_fields": true,
+    "production_claims_remain_blocked": true,
+    "projection_prediction_counts_match": true,
+    "provenance_integrity_1_0_all_domains": true
+  },
+  "schema_version": "gatemem-g2a-gate-v1",
+  "status": "GATEMEM_G2A_CROSS_DOMAIN_BASELINE_REPLAY_COMPLETE"
+}

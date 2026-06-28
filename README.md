@@ -92,6 +92,8 @@ Benchmark evidence lives in:
 - [benchmarks/results/coala_baseline_v3.2.json](benchmarks/results/coala_baseline_v3.2.json)
 - [benchmarks/results/latency_slo_burn_in.json](benchmarks/results/latency_slo_burn_in.json) — supplemental illustrative trend series (not harness-measured; per-phase measured evidence is in the three gate artifacts above)
 
+- [benchmarks/results/retrieval_hygiene_r0_closeout.md](benchmarks/results/retrieval_hygiene_r0_closeout.md) - retrieval hygiene and reproducibility closeout for source-linked summary cards, duplicate suppression, executed-route fingerprints, and abstention controls
+
 ## Deployment Profiles
 
 | Profile | Stack | Best for |
@@ -131,6 +133,42 @@ for hit in client.search("gravitational wave detection", top_k=5):
     print(f"[{hit.score:.3f}] {hit.engram['content'][:80]}")
 ```
 
+## Claude Desktop Quick Start
+
+To use MNEMOS as a Claude Desktop MCP tool:
+
+1. Make sure MNEMOS is running locally and the MCP bridge passes its smoke tests:
+
+```powershell
+python tools/verify_mnemos_msf_mcp.py
+python tools/smoke_mnemos_mcp_stdio.py
+python tools/smoke_mnemos_mcp_live.py
+```
+
+2. Merge the example config into:
+
+```text
+%APPDATA%\Claude\claude_desktop_config.json
+```
+
+Use:
+
+```text
+mcp_servers/mnemos/claude_desktop_config.example.json
+```
+
+3. Fully restart Claude Desktop.
+
+4. In Claude, ask it to call:
+
+```text
+mnemos.health_check
+mnemos.get_capabilities
+```
+
+If you want the full setup flow and troubleshooting notes, see
+[docs/integrations/claude_desktop_mnemos_mcp.md](docs/integrations/claude_desktop_mnemos_mcp.md).
+
 ## API Surface
 
 Every response includes contract metadata such as `contract_version`, `status`, `profile`, `tiers`, and `degraded_components`. Adaptive retrieval responses can also include complexity classification and routing posture metadata.
@@ -163,6 +201,7 @@ Every response includes contract metadata such as `contract_version`, `status`, 
 | EBIR-R2 preflight | `python tools/run_ebir_r2_preflight.py --truthset benchmarks/truthsets/ebir_r2_reviewer_tasks.json --reviewers configs/ebir_r2_reviewers.json --blind --output-dir eval_results/ebir_r2 --fail-on-gate` | Validate blinded reviewer packets before human distribution |
 | EBIR-R2 compiler | `python tools/compile_ebir_r2_pilot_report.py --manifest eval_results/ebir_r2/assignment_manifest.json --responses-dir eval_results/ebir_r2/pilot_responses --output eval_results/ebir_r2/ebir_r2_pilot_report.md --fail-on-gate` | Compile completed Markdown responses without exposing gold labels to reviewers |
 | EBIR-R2 gold scoring | `python tools/score_ebir_r2_gold_report.py --truthset benchmarks/truthsets/ebir_r2_full_reviewer_tasks.json --compiled-report eval_results/ebir_r2_full/ebir_r2_full_report.md --output eval_results/ebir_r2_full/ebir_r2_gold_report.json --fail-on-gate` | Restricted post-freeze unblinding and condition-level scoring |
+| EBIR-R2 external trial kit | `python tools/ebir_r2_trial.py prepare --full --output-dir eval_results/ebir_r2_external` | Prepare separated reviewer/admin bundles for independent blinded human review |
 | Benchmark smoke pack | `python tools/benchmark_smoke.py` | Generate compact reproducibility artifacts with environment, versions, corpus/query hashes, and pass/fail notes |
 
 ## Repository Layout
@@ -188,11 +227,13 @@ docs/                Whitepaper, operator playbook, and phase reports
 - [ADR index](docs/adr/README.md): architecture decisions for support and governance boundaries
 - [Whitepaper](docs/whitepaper.md): architecture, governance, benchmarks, deployment model
 - [Phase 7-10 supplement](docs/whitepaperupdates.md): adaptive routing, hierarchy, and consensus governance update
+- [Retrieval Hygiene R0 closeout](benchmarks/results/retrieval_hygiene_r0_closeout.md): bounded evidence bundle and closure notes for summary-card retrieval hygiene
 - [Operator playbook](docs/mnemos_operator_playbook.md): diagnostics, rollout, rollback, and incident procedures
 - [Installation guide](INSTALL.md): installer usage, deployment profiles, and manual setup
 - [Chat integration evidence contract](docs/chat_integration_evidence_contract.md): normalized provenance fields for citation-aware consumers
 - [EBIR-R1 acceptance](docs/ebir_r1_acceptance.md): shadow-only refinement acceptance gates
 - [EBIR-R2 trial protocol](docs/ebir_r2_trial_protocol.md): blinded reviewer-trial protocol and scoring workflow
+- [EBIR-R2 external reviewer trial kit](docs/ebir_r2_external_reviewer_trial.md): package, validate, compile, and score independent blinded reviewer trials
 - [Context Atlas P0 spec](docs/context_atlas_spec.md): deferred exploration API design
 - [Associative retrieval A1 spec](docs/associative_retrieval_a1_spec.md): deferred benchmark-first graph projection design
 

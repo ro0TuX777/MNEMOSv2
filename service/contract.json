@@ -11,5 +11,67 @@
     "supports": "list",
     "error": "nullable_str"
   },
-  "allowed_status": ["healthy", "degraded", "unavailable"]
+  "allowed_status": ["healthy", "degraded", "unavailable"],
+  "agent_memory_tools": [
+    {
+      "name": "health_check",
+      "method": "GET",
+      "path": "/health",
+      "description": "Check MNEMOS service health before an agent relies on memory."
+    },
+    {
+      "name": "get_capabilities",
+      "method": "GET",
+      "path": "/v1/mnemos/capabilities",
+      "description": "Inspect the MNEMOS contract, retrieval modes, governance modes, and feature support."
+    },
+    {
+      "name": "search_memory",
+      "method": "POST",
+      "path": "/v1/mnemos/search",
+      "description": "Retrieve project memory with evidence and optional governance explanation."
+    },
+    {
+      "name": "write_observation",
+      "method": "POST",
+      "path": "/v1/mnemos/index",
+      "description": "Store an agent observation as provenance-bearing memory."
+    },
+    {
+      "name": "record_decision",
+      "method": "POST",
+      "path": "/v1/mnemos/index",
+      "description": "Store an architecture or workflow decision as memory."
+    },
+    {
+      "name": "find_related_context",
+      "method": "POST",
+      "path": "/v1/mnemos/search",
+      "description": "Find related files, prior fixes, constraints, or project context for the current task."
+    },
+    {
+      "name": "detect_contradictions",
+      "method": "POST",
+      "path": "/v1/mnemos/search",
+      "description": "Search for potentially conflicting or stale memories that should be checked against evidence."
+    },
+    {
+      "name": "summarize_session_handoff",
+      "method": "POST",
+      "path": "/v1/mnemos/index",
+      "description": "Store a concise session handoff summary for future agent continuation."
+    },
+    {
+      "name": "explain_memory_provenance",
+      "method": "GET",
+      "path": "/v1/mnemos/engrams/{engram_id}",
+      "description": "Inspect a memory engram and its metadata/provenance."
+    }
+  ],
+  "mcp_bridge": {
+    "package": "mcp_servers/mnemos",
+    "transport": ["stdio", "sse", "streamable-http"],
+    "base_url_env": "MNEMOS_BASE_URL",
+    "token_env": "MNEMOS_TOKEN"
+  }
 }

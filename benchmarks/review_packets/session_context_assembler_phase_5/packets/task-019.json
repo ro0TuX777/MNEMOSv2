@@ -1,0 +1,130 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "On reflection, 45s is the right balance (DEC-SCA-110c), this is final, supersedes 60s.",
+          "source_links": [
+            "SRC-SCA-timeout-v3"
+          ],
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded 45s as current.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "After all that back-and-forth, what's the final timeout value?",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-110a",
+            "DEC-SCA-110b",
+            "DEC-SCA-110c"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-timeout-v1",
+            "SRC-SCA-timeout-v2",
+            "SRC-SCA-timeout-v3"
+          ],
+          "session_turns": [
+            {
+              "content": "Set ingestion timeout to 30s (DEC-SCA-110a).",
+              "source_links": [
+                "SRC-SCA-timeout-v1"
+              ],
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Actually, raise it to 60s for large payloads (DEC-SCA-110b), supersedes 30s.",
+              "source_links": [
+                "SRC-SCA-timeout-v2"
+              ],
+              "speaker": "user",
+              "turn_id": "t2"
+            },
+            {
+              "content": "On reflection, 45s is the right balance (DEC-SCA-110c), this is final, supersedes 60s.",
+              "source_links": [
+                "SRC-SCA-timeout-v3"
+              ],
+              "speaker": "user",
+              "turn_id": "t3"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Set ingestion timeout to 30s (DEC-SCA-110a).",
+          "source_links": [
+            "SRC-SCA-timeout-v1"
+          ],
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Actually, raise it to 60s for large payloads (DEC-SCA-110b), supersedes 30s.",
+          "source_links": [
+            "SRC-SCA-timeout-v2"
+          ],
+          "speaker": "user",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "On reflection, 45s is the right balance (DEC-SCA-110c), this is final, supersedes 60s.",
+          "source_links": [
+            "SRC-SCA-timeout-v3"
+          ],
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded 45s as current.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "After all that back-and-forth, what's the final timeout value?",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-019",
+  "task_prompt": "What's the final agreed timeout value for the ingestion worker, after all the back-and-forth?"
+}

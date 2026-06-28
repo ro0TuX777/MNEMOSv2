@@ -1,0 +1,45 @@
+{
+  "schema_version": "mnemos-agent-navigation-pair-comparison-v1",
+  "study_status": "MNEMOS_AGENT_NAVIGATION_DEVELOPMENT_STUDY_READY",
+  "classification": "LOCAL_REPO_AGENT_ORIENTATION_AND_BOUNDARY_RECALL_DEVELOPMENT_STUDY",
+  "task_id": "nav-stale-memory-rejection",
+  "paired_trials": {
+    "mnemos_memory_assisted": "benchmarks/results/mnemos_agent_navigation_trial_001_memory_assisted.json",
+    "baseline_repo_search": "benchmarks/results/mnemos_agent_navigation_trial_002_baseline_repo_search.json"
+  },
+  "counts": {
+    "mnemos_memory_assisted": {
+      "files_opened_count": 2,
+      "searches_count": 0,
+      "memory_cards_retrieved_count": 3,
+      "rejected_memory_count": 1,
+      "wrong_turns_or_corrections_count": 0
+    },
+    "baseline_repo_search": {
+      "files_opened_count": 2,
+      "searches_count": 1,
+      "memory_cards_retrieved_count": 0,
+      "rejected_memory_count": 1,
+      "wrong_turns_or_corrections_count": 0
+    }
+  },
+  "boundary_behavior": {
+    "mnemos_memory_assisted": {
+      "boundary_decision": "reject_stale_memory_and_preserve_pause",
+      "forbidden_claims_observed": [],
+      "notes": "Memory-assisted mode began with current and stale memory cards, accepted the current cards, rejected the stale internal-continuation card, and confirmed against primary evidence."
+    },
+    "baseline_repo_search": {
+      "boundary_decision": "reject_stale_memory_and_preserve_pause",
+      "forbidden_claims_observed": [],
+      "notes": "Baseline mode reached the same boundary decision from primary evidence, but required one orienting repository search before opening the two evidence files."
+    }
+  },
+  "observed_delta": {
+    "searches_saved_by_memory_assisted": 1,
+    "files_opened_delta": 0,
+    "boundary_decision_changed": false,
+    "overclaim_avoidance_changed": false
+  },
+  "interpretation": "For this first paired development task, MNEMOS memory assistance did not change the final boundary decision, but it reduced explicit repository search by one query while preserving rejection of stale memory and avoiding forbidden claims. This is local development evidence only, not a general memory-performance claim."
+}

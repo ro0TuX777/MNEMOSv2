@@ -1,0 +1,1193 @@
+{
+  "instructions": "First-pass review must not use the coordinator condition key.",
+  "labels": [
+    "PRODUCT_OWNER_REVIEW",
+    "NOT_INDEPENDENT_HUMAN_STUDY",
+    "NOT_GENERALIZABLE"
+  ],
+  "review_not_run": true,
+  "schema": "sca_phase5a_owner_review_pack_v1",
+  "tasks": [
+    {
+      "packages": [
+        {
+          "artifacts": [
+            {
+              "content": "Compliance exports need a durable archival backend.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Approved immutable object storage for compliance exports (DEC-SCA-301).",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Catering needs a vegetarian headcount.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Facilities replaced a broken door hinge.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            },
+            {
+              "content": "The printer toner shipment arrived.",
+              "speaker": "user",
+              "turn_id": "t5"
+            },
+            {
+              "content": "Urgent: the live compliance export dashboard is showing red alerts.",
+              "speaker": "user",
+              "turn_id": "t6"
+            },
+            {
+              "content": "The dashboard export alert was a transient display failure.",
+              "speaker": "agent",
+              "turn_id": "t7"
+            },
+            {
+              "content": "Returning to archival policy, which backend was approved?",
+              "speaker": "user",
+              "turn_id": "t8"
+            }
+          ],
+          "package_code": "PACKAGE-1"
+        },
+        {
+          "artifacts": [
+            {
+              "content": "The dashboard export alert was a transient display failure.",
+              "speaker": "agent",
+              "turn_id": "t7"
+            },
+            {
+              "content": "Returning to archival policy, which backend was approved?",
+              "speaker": "user",
+              "turn_id": "t8"
+            }
+          ],
+          "package_code": "PACKAGE-2"
+        },
+        {
+          "artifacts": [
+            {
+              "content": "Compliance exports need a durable archival backend.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Approved immutable object storage for compliance exports (DEC-SCA-301).",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Returning to archival policy, which backend was approved?",
+              "speaker": "user",
+              "turn_id": "t8"
+            }
+          ],
+          "package_code": "PACKAGE-3",
+          "synthetic_context_labels": [
+            {
+              "episode_id": "ep0",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [
+                "DEC-SCA-301"
+              ],
+              "parent_source_ids": [
+                "SRC-SCA-r2-archive-decision"
+              ],
+              "parent_turn_ids": [
+                "t1",
+                "t2"
+              ]
+            },
+            {
+              "episode_id": "ep5",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [],
+              "parent_source_ids": [],
+              "parent_turn_ids": [
+                "t8"
+              ]
+            }
+          ]
+        }
+      ],
+      "task_code": "OWNER-TASK-01",
+      "task_prompt": "Which archival backend did we approve for compliance exports?"
+    },
+    {
+      "packages": [
+        {
+          "artifacts": [
+            {
+              "content": "Region failover target is either two minutes or five minutes; no agreement reached.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "The failover contradiction remains open pending the resilience test.",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Canary size is either five percent or ten percent; still under debate.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "The canary contradiction is unresolved pending capacity review.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            },
+            {
+              "content": "List the unresolved constraints for the rollout plan.",
+              "speaker": "user",
+              "turn_id": "t5"
+            }
+          ],
+          "package_code": "PACKAGE-1"
+        },
+        {
+          "artifacts": [
+            {
+              "content": "Region failover target is either two minutes or five minutes; no agreement reached.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "The failover contradiction remains open pending the resilience test.",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Canary size is either five percent or ten percent; still under debate.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "The canary contradiction is unresolved pending capacity review.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            },
+            {
+              "content": "List the unresolved constraints for the rollout plan.",
+              "speaker": "user",
+              "turn_id": "t5"
+            }
+          ],
+          "package_code": "PACKAGE-2",
+          "synthetic_context_labels": [
+            {
+              "episode_id": "ep0",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [],
+              "parent_source_ids": [
+                "SRC-SCA-r2-canary-open",
+                "SRC-SCA-r2-failover-open"
+              ],
+              "parent_turn_ids": [
+                "t1",
+                "t2",
+                "t3",
+                "t4",
+                "t5"
+              ]
+            }
+          ]
+        },
+        {
+          "artifacts": [
+            {
+              "content": "Region failover target is either two minutes or five minutes; no agreement reached.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "The failover contradiction remains open pending the resilience test.",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Canary size is either five percent or ten percent; still under debate.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "The canary contradiction is unresolved pending capacity review.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            },
+            {
+              "content": "List the unresolved constraints for the rollout plan.",
+              "speaker": "user",
+              "turn_id": "t5"
+            }
+          ],
+          "package_code": "PACKAGE-3"
+        }
+      ],
+      "task_code": "OWNER-TASK-02",
+      "task_prompt": "What unresolved deployment constraints must the rollout plan mention?"
+    },
+    {
+      "packages": [
+        {
+          "artifacts": [
+            {
+              "content": "Pager delivery is mandatory for severity one alerts.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Recorded pager delivery for severity one (DEC-SCA-302).",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Email timing for severity two is immediate versus hourly digest; no decision yet.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Email timing remains open pending operator feedback.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            },
+            {
+              "content": "Summarize the settled and open notification policy.",
+              "speaker": "user",
+              "turn_id": "t5"
+            }
+          ],
+          "package_code": "PACKAGE-1",
+          "synthetic_context_labels": [
+            {
+              "episode_id": "ep0",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [
+                "DEC-SCA-302"
+              ],
+              "parent_source_ids": [
+                "SRC-SCA-r2-email-open",
+                "SRC-SCA-r2-pager-policy"
+              ],
+              "parent_turn_ids": [
+                "t1",
+                "t2",
+                "t3",
+                "t4"
+              ]
+            },
+            {
+              "episode_id": "ep1",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [],
+              "parent_source_ids": [],
+              "parent_turn_ids": [
+                "t5"
+              ]
+            }
+          ]
+        },
+        {
+          "artifacts": [
+            {
+              "content": "Pager delivery is mandatory for severity one alerts.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Recorded pager delivery for severity one (DEC-SCA-302).",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Email timing for severity two is immediate versus hourly digest; no decision yet.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Email timing remains open pending operator feedback.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            },
+            {
+              "content": "Summarize the settled and open notification policy.",
+              "speaker": "user",
+              "turn_id": "t5"
+            }
+          ],
+          "package_code": "PACKAGE-2"
+        },
+        {
+          "artifacts": [
+            {
+              "content": "Pager delivery is mandatory for severity one alerts.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Recorded pager delivery for severity one (DEC-SCA-302).",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Email timing for severity two is immediate versus hourly digest; no decision yet.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Email timing remains open pending operator feedback.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            },
+            {
+              "content": "Summarize the settled and open notification policy.",
+              "speaker": "user",
+              "turn_id": "t5"
+            }
+          ],
+          "package_code": "PACKAGE-3"
+        }
+      ],
+      "task_code": "OWNER-TASK-03",
+      "task_prompt": "Which notification policy is settled and what remains open?"
+    },
+    {
+      "packages": [
+        {
+          "artifacts": [
+            {
+              "content": "Security audit evidence requires quarterly rotation.",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "The cafeteria menu was posted.",
+              "speaker": "user",
+              "turn_id": "t2"
+            },
+            {
+              "content": "A hallway light was replaced.",
+              "speaker": "agent",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Courier pickup moved to noon.",
+              "speaker": "user",
+              "turn_id": "t4"
+            },
+            {
+              "content": "Cost analysis shows quarterly rotation is operationally affordable.",
+              "speaker": "user",
+              "turn_id": "t5"
+            },
+            {
+              "content": "The parking gate was repaired.",
+              "speaker": "agent",
+              "turn_id": "t6"
+            },
+            {
+              "content": "Office plants were watered.",
+              "speaker": "user",
+              "turn_id": "t7"
+            },
+            {
+              "content": "A meeting room projector was reset.",
+              "speaker": "agent",
+              "turn_id": "t8"
+            },
+            {
+              "content": "Approved quarterly encryption key rotation (DEC-SCA-303).",
+              "speaker": "agent",
+              "turn_id": "t9"
+            },
+            {
+              "content": "Which evidence supports that rotation decision?",
+              "speaker": "user",
+              "turn_id": "t10"
+            }
+          ],
+          "package_code": "PACKAGE-1"
+        },
+        {
+          "artifacts": [
+            {
+              "content": "Security audit evidence requires quarterly rotation.",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Cost analysis shows quarterly rotation is operationally affordable.",
+              "speaker": "user",
+              "turn_id": "t5"
+            },
+            {
+              "content": "Office plants were watered.",
+              "speaker": "user",
+              "turn_id": "t7"
+            },
+            {
+              "content": "Approved quarterly encryption key rotation (DEC-SCA-303).",
+              "speaker": "agent",
+              "turn_id": "t9"
+            },
+            {
+              "content": "Which evidence supports that rotation decision?",
+              "speaker": "user",
+              "turn_id": "t10"
+            }
+          ],
+          "package_code": "PACKAGE-2",
+          "synthetic_context_labels": [
+            {
+              "episode_id": "ep8",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [
+                "DEC-SCA-303"
+              ],
+              "parent_source_ids": [],
+              "parent_turn_ids": [
+                "t9",
+                "t10"
+              ]
+            },
+            {
+              "episode_id": "ep0",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [],
+              "parent_source_ids": [
+                "SRC-SCA-r2-audit-evidence"
+              ],
+              "parent_turn_ids": [
+                "t1"
+              ]
+            },
+            {
+              "episode_id": "ep4",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [],
+              "parent_source_ids": [
+                "SRC-SCA-r2-cost-evidence"
+              ],
+              "parent_turn_ids": [
+                "t5"
+              ]
+            },
+            {
+              "episode_id": "ep6",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [],
+              "parent_source_ids": [],
+              "parent_turn_ids": [
+                "t7"
+              ]
+            }
+          ]
+        },
+        {
+          "artifacts": [
+            {
+              "content": "The parking gate was repaired.",
+              "speaker": "agent",
+              "turn_id": "t6"
+            },
+            {
+              "content": "Office plants were watered.",
+              "speaker": "user",
+              "turn_id": "t7"
+            },
+            {
+              "content": "A meeting room projector was reset.",
+              "speaker": "agent",
+              "turn_id": "t8"
+            },
+            {
+              "content": "Approved quarterly encryption key rotation (DEC-SCA-303).",
+              "speaker": "agent",
+              "turn_id": "t9"
+            },
+            {
+              "content": "Which evidence supports that rotation decision?",
+              "speaker": "user",
+              "turn_id": "t10"
+            }
+          ],
+          "package_code": "PACKAGE-3"
+        }
+      ],
+      "task_code": "OWNER-TASK-04",
+      "task_prompt": "What evidence supports the encryption key rotation decision?"
+    },
+    {
+      "packages": [
+        {
+          "artifacts": [
+            {
+              "content": "Importer batching must balance latency and throughput.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Approved batches of 200 records (DEC-SCA-304).",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Back to the importer: what batching policy was approved?",
+              "speaker": "user",
+              "turn_id": "t5"
+            }
+          ],
+          "package_code": "PACKAGE-1",
+          "synthetic_context_labels": [
+            {
+              "episode_id": "ep1",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [
+                "DEC-SCA-304"
+              ],
+              "parent_source_ids": [
+                "SRC-SCA-r2-batch-benchmark"
+              ],
+              "parent_turn_ids": [
+                "t2"
+              ]
+            },
+            {
+              "episode_id": "ep4",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [],
+              "parent_source_ids": [],
+              "parent_turn_ids": [
+                "t5"
+              ]
+            },
+            {
+              "episode_id": "ep0",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [],
+              "parent_source_ids": [],
+              "parent_turn_ids": [
+                "t1"
+              ]
+            }
+          ]
+        },
+        {
+          "artifacts": [
+            {
+              "content": "URGENT production outage: customer login is completely unavailable.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Incident mitigated after reverting the identity proxy configuration.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            },
+            {
+              "content": "Back to the importer: what batching policy was approved?",
+              "speaker": "user",
+              "turn_id": "t5"
+            }
+          ],
+          "package_code": "PACKAGE-2"
+        },
+        {
+          "artifacts": [
+            {
+              "content": "Importer batching must balance latency and throughput.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Approved batches of 200 records (DEC-SCA-304).",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "URGENT production outage: customer login is completely unavailable.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Incident mitigated after reverting the identity proxy configuration.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            },
+            {
+              "content": "Back to the importer: what batching policy was approved?",
+              "speaker": "user",
+              "turn_id": "t5"
+            }
+          ],
+          "package_code": "PACKAGE-3"
+        }
+      ],
+      "task_code": "OWNER-TASK-05",
+      "task_prompt": "Which batching policy should the importer implement?"
+    },
+    {
+      "packages": [
+        {
+          "artifacts": [
+            {
+              "content": "Outbound webhook retries use the durable queue transport (DEC-SCA-305).",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "The lunch booking was confirmed.",
+              "speaker": "user",
+              "turn_id": "t2"
+            },
+            {
+              "content": "A window blind was repaired.",
+              "speaker": "agent",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Reception received a parcel.",
+              "speaker": "user",
+              "turn_id": "t4"
+            },
+            {
+              "content": "Separately inbound event retries use the stream transport (DEC-SCA-306).",
+              "speaker": "user",
+              "turn_id": "t5"
+            },
+            {
+              "content": "Confirm the outbound webhook retry transport.",
+              "speaker": "user",
+              "turn_id": "t6"
+            }
+          ],
+          "package_code": "PACKAGE-1"
+        },
+        {
+          "artifacts": [
+            {
+              "content": "Outbound webhook retries use the durable queue transport (DEC-SCA-305).",
+              "speaker": "agent",
+              "turn_id": "t1"
+            }
+          ],
+          "package_code": "PACKAGE-2",
+          "synthetic_context_labels": [
+            {
+              "episode_id": "ep0",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [
+                "DEC-SCA-305"
+              ],
+              "parent_source_ids": [
+                "SRC-SCA-r2-webhook-transport"
+              ],
+              "parent_turn_ids": [
+                "t1"
+              ]
+            }
+          ],
+          "warning": {
+            "context_budget_insufficient": true,
+            "omitted_required_artifact_types": [
+              "prior_decision_artifact",
+              "source_linked_evidence"
+            ],
+            "selection_abstention_reason": "Mandatory eligible artifacts exceeded the bounded context budget."
+          }
+        },
+        {
+          "artifacts": [
+            {
+              "content": "Confirm the outbound webhook retry transport.",
+              "speaker": "user",
+              "turn_id": "t6"
+            }
+          ],
+          "package_code": "PACKAGE-3"
+        }
+      ],
+      "task_code": "OWNER-TASK-06",
+      "task_prompt": "Which retry transport decision applies to outbound webhooks?"
+    },
+    {
+      "packages": [
+        {
+          "artifacts": [
+            {
+              "content": "Approved SHA-256 checksums for export bundles (DEC-SCA-307).",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Withdrawn draft claimed MD5 was sufficient.",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "State the approved checksum policy and whether the withdrawn draft counts.",
+              "speaker": "user",
+              "turn_id": "t3"
+            }
+          ],
+          "package_code": "PACKAGE-1",
+          "synthetic_context_labels": [
+            {
+              "episode_id": "ep0",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [
+                "DEC-SCA-307"
+              ],
+              "parent_source_ids": [
+                "SRC-SCA-r2-checksum-approved"
+              ],
+              "parent_turn_ids": [
+                "t1"
+              ]
+            },
+            {
+              "episode_id": "ep1",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [],
+              "parent_source_ids": [],
+              "parent_turn_ids": [
+                "t2",
+                "t3"
+              ]
+            }
+          ]
+        },
+        {
+          "artifacts": [
+            {
+              "content": "Approved SHA-256 checksums for export bundles (DEC-SCA-307).",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Withdrawn draft claimed MD5 was sufficient.",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "State the approved checksum policy and whether the withdrawn draft counts.",
+              "speaker": "user",
+              "turn_id": "t3"
+            }
+          ],
+          "package_code": "PACKAGE-2"
+        },
+        {
+          "artifacts": [
+            {
+              "content": "Approved SHA-256 checksums for export bundles (DEC-SCA-307).",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Withdrawn draft claimed MD5 was sufficient.",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "State the approved checksum policy and whether the withdrawn draft counts.",
+              "speaker": "user",
+              "turn_id": "t3"
+            }
+          ],
+          "package_code": "PACKAGE-3"
+        }
+      ],
+      "task_code": "OWNER-TASK-07",
+      "task_prompt": "What checksum policy was approved, and is its withdrawn draft usable evidence?"
+    },
+    {
+      "packages": [
+        {
+          "artifacts": [
+            {
+              "content": "Recorded final refresh interval of fifteen minutes (DEC-SCA-308).",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Earlier options were five minutes and thirty minutes.",
+              "speaker": "user",
+              "turn_id": "t2"
+            },
+            {
+              "content": "The final value balances freshness against indexing load.",
+              "speaker": "agent",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Remind me of the approved refresh interval.",
+              "speaker": "user",
+              "turn_id": "t4"
+            }
+          ],
+          "package_code": "PACKAGE-1"
+        },
+        {
+          "artifacts": [
+            {
+              "content": "Recorded final refresh interval of fifteen minutes (DEC-SCA-308).",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Earlier options were five minutes and thirty minutes.",
+              "speaker": "user",
+              "turn_id": "t2"
+            },
+            {
+              "content": "The final value balances freshness against indexing load.",
+              "speaker": "agent",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Remind me of the approved refresh interval.",
+              "speaker": "user",
+              "turn_id": "t4"
+            }
+          ],
+          "package_code": "PACKAGE-2",
+          "synthetic_context_labels": [
+            {
+              "episode_id": "ep0",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [
+                "DEC-SCA-308"
+              ],
+              "parent_source_ids": [
+                "SRC-SCA-r2-refresh-final"
+              ],
+              "parent_turn_ids": [
+                "t1",
+                "t2",
+                "t3",
+                "t4"
+              ]
+            }
+          ]
+        },
+        {
+          "artifacts": [
+            {
+              "content": "Recorded final refresh interval of fifteen minutes (DEC-SCA-308).",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Earlier options were five minutes and thirty minutes.",
+              "speaker": "user",
+              "turn_id": "t2"
+            },
+            {
+              "content": "The final value balances freshness against indexing load.",
+              "speaker": "agent",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Remind me of the approved refresh interval.",
+              "speaker": "user",
+              "turn_id": "t4"
+            }
+          ],
+          "package_code": "PACKAGE-3"
+        }
+      ],
+      "task_code": "OWNER-TASK-08",
+      "task_prompt": "What index refresh interval was ultimately approved?"
+    },
+    {
+      "packages": [
+        {
+          "artifacts": [
+            {
+              "content": "Approved expand-contract migrations for tenant upgrades (DEC-SCA-309).",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "The office coffee machine needs descaling.",
+              "speaker": "user",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Facilities scheduled coffee machine maintenance.",
+              "speaker": "agent",
+              "turn_id": "t3"
+            },
+            {
+              "content": "A marketing banner uses the wrong shade of blue.",
+              "speaker": "user",
+              "turn_id": "t4"
+            },
+            {
+              "content": "The banner color ticket was assigned.",
+              "speaker": "agent",
+              "turn_id": "t5"
+            },
+            {
+              "content": "What migration mode should tenant upgrades use?",
+              "speaker": "user",
+              "turn_id": "t6"
+            }
+          ],
+          "package_code": "PACKAGE-1"
+        },
+        {
+          "artifacts": [
+            {
+              "content": "Approved expand-contract migrations for tenant upgrades (DEC-SCA-309).",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "The office coffee machine needs descaling.",
+              "speaker": "user",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Facilities scheduled coffee machine maintenance.",
+              "speaker": "agent",
+              "turn_id": "t3"
+            },
+            {
+              "content": "What migration mode should tenant upgrades use?",
+              "speaker": "user",
+              "turn_id": "t6"
+            }
+          ],
+          "package_code": "PACKAGE-2",
+          "synthetic_context_labels": [
+            {
+              "episode_id": "ep0",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [
+                "DEC-SCA-309"
+              ],
+              "parent_source_ids": [
+                "SRC-SCA-r2-migration-mode"
+              ],
+              "parent_turn_ids": [
+                "t1"
+              ]
+            },
+            {
+              "episode_id": "ep3",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [],
+              "parent_source_ids": [],
+              "parent_turn_ids": [
+                "t6"
+              ]
+            },
+            {
+              "episode_id": "ep1",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [],
+              "parent_source_ids": [],
+              "parent_turn_ids": [
+                "t2",
+                "t3"
+              ]
+            }
+          ]
+        },
+        {
+          "artifacts": [
+            {
+              "content": "A marketing banner uses the wrong shade of blue.",
+              "speaker": "user",
+              "turn_id": "t4"
+            },
+            {
+              "content": "The banner color ticket was assigned.",
+              "speaker": "agent",
+              "turn_id": "t5"
+            },
+            {
+              "content": "What migration mode should tenant upgrades use?",
+              "speaker": "user",
+              "turn_id": "t6"
+            }
+          ],
+          "package_code": "PACKAGE-3"
+        }
+      ],
+      "task_code": "OWNER-TASK-09",
+      "task_prompt": "Which schema migration mode is approved for tenant upgrades?"
+    },
+    {
+      "packages": [
+        {
+          "artifacts": [
+            {
+              "content": "We need a retention window for inactive login audit entries.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Approved keeping inactive login audit entries for eighteen months (DEC-SCA-310).",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "The kitchen inventory needs counting.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "A bicycle rack was installed.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            },
+            {
+              "content": "The weekly weather notice was posted.",
+              "speaker": "user",
+              "turn_id": "t5"
+            },
+            {
+              "content": "A dashboard tooltip for active sessions needs rewriting.",
+              "speaker": "user",
+              "turn_id": "t6"
+            },
+            {
+              "content": "Tooltip copy updated.",
+              "speaker": "agent",
+              "turn_id": "t7"
+            },
+            {
+              "content": "For dormant authentication records, what availability period applies?",
+              "speaker": "user",
+              "turn_id": "t8"
+            }
+          ],
+          "package_code": "PACKAGE-1"
+        },
+        {
+          "artifacts": [
+            {
+              "content": "We need a retention window for inactive login audit entries.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Approved keeping inactive login audit entries for eighteen months (DEC-SCA-310).",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "The weekly weather notice was posted.",
+              "speaker": "user",
+              "turn_id": "t5"
+            }
+          ],
+          "package_code": "PACKAGE-2",
+          "synthetic_context_labels": [
+            {
+              "episode_id": "ep0",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [
+                "DEC-SCA-310"
+              ],
+              "parent_source_ids": [
+                "SRC-SCA-r2-auth-retention"
+              ],
+              "parent_turn_ids": [
+                "t1",
+                "t2"
+              ]
+            },
+            {
+              "episode_id": "ep3",
+              "label": "synthetic_context",
+              "non_authoritative": true,
+              "non_promotable": true,
+              "parent_engram_ids": [],
+              "parent_source_ids": [],
+              "parent_turn_ids": [
+                "t5"
+              ]
+            }
+          ]
+        },
+        {
+          "artifacts": [
+            {
+              "content": "The weekly weather notice was posted.",
+              "speaker": "user",
+              "turn_id": "t5"
+            },
+            {
+              "content": "A dashboard tooltip for active sessions needs rewriting.",
+              "speaker": "user",
+              "turn_id": "t6"
+            },
+            {
+              "content": "Tooltip copy updated.",
+              "speaker": "agent",
+              "turn_id": "t7"
+            },
+            {
+              "content": "For dormant authentication records, what availability period applies?",
+              "speaker": "user",
+              "turn_id": "t8"
+            }
+          ],
+          "package_code": "PACKAGE-3"
+        }
+      ],
+      "task_code": "OWNER-TASK-10",
+      "task_prompt": "How long should dormant authentication records remain available?"
+    }
+  ]
+}

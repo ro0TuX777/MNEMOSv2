@@ -1,0 +1,22 @@
+{
+  "corpus_id": "session-context-assembler-r2",
+  "source_file": "benchmarks/truthsets/session_context_assembler_r2.json",
+  "frozen": true,
+  "frozen_date": "2026-06-22",
+  "file_sha256": "900b4816fe2cc32e18949683de531fba065975edb65745eb875bc698fbe38b91",
+  "case_count": 10,
+  "case_hashes": {
+    "sca_r2_old_decisive_001": "30ddca9d863b28851e418d439785eefd6fe0f65877a61886c367ccc14a537e1c",
+    "sca_r2_multi_unresolved_002": "6ca4ad3cab046916853414b37278c5701298466bb10a9a8d748ade446a875be3",
+    "sca_r2_mixed_related_003": "49dda50d62a1ad767dadd19c7b28bed90e16c61750cb8ae766cd94cd52445865",
+    "sca_r2_split_sources_004": "29476566b7416b807acb6f813b07c1a54de125e5ac1f8329fcec138f8c445acb",
+    "sca_r2_incident_interrupt_005": "c3ba02061ff625d95ef33aa760f053f326e1d769e467623bacbff2cdec850782",
+    "sca_r2_overflow_006": "a2bc3c8193053d93f8a8fd6fa9e6c16623d1c5119f6ff9582208c66df0adf788",
+    "sca_r2_ineligible_source_007": "66633397bcfa3b85a886ef9a3e995788ef7a99827a89b9cdb9fbfbbe7cfd69ec",
+    "sca_r2_reordered_008": "ba911a28013ff0a8bd9326f0203fafd275c300bfe184dac980263a41757d38d8",
+    "sca_r2_injection_009": "d92c9e3b5e16b927afe90d2bc3efb7b2a933c728fba7fb407e1ce6f4c27f7e38",
+    "sca_r2_paraphrase_010": "30790b516596a22182e4532ff7c8f6f0f669a4e20be295fa13462b0d55476340"
+  },
+  "hash_method": "sha256 over UTF-8 JSON with sort_keys=True for case_hashes; sha256 over raw file bytes for file_sha256",
+  "note": "Frozen held-out Phase 5A technical verification corpus. Scoring-only verification_expectations must never enter S1 selection. R0 and R1 remain independently frozen."
+}

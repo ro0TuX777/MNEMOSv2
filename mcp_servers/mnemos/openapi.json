@@ -1,0 +1,114 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MNEMOS Agent Memory MCP Bridge",
+    "version": "v1",
+    "description": "MFS-compatible OpenAPI companion spec for the MNEMOS MCP bridge."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8700"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "health_check",
+        "summary": "Check MNEMOS service health",
+        "responses": {
+          "200": {
+            "description": "Health response"
+          }
+        }
+      }
+    },
+    "/v1/mnemos/capabilities": {
+      "get": {
+        "operationId": "get_capabilities",
+        "summary": "Get MNEMOS capabilities",
+        "responses": {
+          "200": {
+            "description": "Capabilities contract"
+          }
+        }
+      }
+    },
+    "/v1/mnemos/search": {
+      "post": {
+        "operationId": "search_memory",
+        "summary": "Search MNEMOS memory",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {"type": "string"},
+                  "top_k": {"type": "integer", "default": 5},
+                  "filters": {"type": "object"},
+                  "retrieval_mode": {"type": "string"},
+                  "explain": {"type": "boolean"}
+                },
+                "required": ["query"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search results"
+          }
+        }
+      }
+    },
+    "/v1/mnemos/index": {
+      "post": {
+        "operationId": "write_observation",
+        "summary": "Write observation or decision memory",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documents": {
+                    "type": "array",
+                    "items": {"type": "object"}
+                  },
+                  "options": {"type": "object"}
+                },
+                "required": ["documents"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Index result"
+          }
+        }
+      }
+    },
+    "/v1/mnemos/engrams/{engram_id}": {
+      "get": {
+        "operationId": "explain_memory_provenance",
+        "summary": "Inspect memory engram provenance",
+        "parameters": [
+          {
+            "name": "engram_id",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Engram response"
+          }
+        }
+      }
+    }
+  }
+}

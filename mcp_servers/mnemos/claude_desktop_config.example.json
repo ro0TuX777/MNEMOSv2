@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "mnemos": {
+      "command": "C:\\Users\\vin\\anaconda3\\python.exe",
+      "args": [
+        "G:\\MNEMOS\\mcp_servers\\mnemos\\server.py"
+      ],
+      "env": {
+        "MNEMOS_BASE_URL": "http://localhost:8700",
+        "MNEMOS_TIMEOUT_S": "90"
+      }
+    }
+  }
+}

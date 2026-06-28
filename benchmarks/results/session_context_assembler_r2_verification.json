@@ -1,0 +1,1543 @@
+{
+  "aggregate": {
+    "abstention_expectation_match_rate": 1.0,
+    "all_infeasible_sets_abstained": true,
+    "budget_compliance_rate": 1.0,
+    "feasible_case_count": 9,
+    "ineligible_or_missing_source_violation_count": 0,
+    "infeasible_case_count": 1,
+    "provenance_loss_count": 0,
+    "required_artifact_retention_feasible": 1.0,
+    "silent_required_artifact_omission_count": 0,
+    "source_and_decision_lineage_preservation_rate": 1.0,
+    "synthetic_context_label_coverage": 1.0
+  },
+  "all_phase5a_advancement_gates_passed": true,
+  "gates": {
+    "abstention_expectation_match_rate": {
+      "passed": true,
+      "required": 1.0,
+      "value": 1.0
+    },
+    "all_infeasible_sets_abstained": {
+      "passed": true,
+      "required": true,
+      "value": true
+    },
+    "budget_compliance_rate": {
+      "passed": true,
+      "required": 1.0,
+      "value": 1.0
+    },
+    "determinism": {
+      "passed": true,
+      "required": true,
+      "value": true
+    },
+    "ineligible_source_violation_count": {
+      "passed": true,
+      "required": 0,
+      "value": 0
+    },
+    "lineage_preservation_rate": {
+      "passed": true,
+      "required": 1.0,
+      "value": 1.0
+    },
+    "provenance_loss_count": {
+      "passed": true,
+      "required": 0,
+      "value": 0
+    },
+    "required_artifact_retention_feasible": {
+      "passed": true,
+      "required": 1.0,
+      "value": 1.0
+    },
+    "selector_boundary_clean": {
+      "passed": true,
+      "required": true,
+      "value": true
+    },
+    "silent_required_artifact_omission_count": {
+      "passed": true,
+      "required": 0,
+      "value": 0
+    },
+    "synthetic_context_label_coverage": {
+      "passed": true,
+      "required": 1.0,
+      "value": 1.0
+    }
+  },
+  "labels": [
+    "TECHNICAL_VERIFICATION_ONLY",
+    "NOT_HUMAN_VALUE_EVIDENCE",
+    "NO_RUNTIME_INTEGRATION",
+    "NO_PRODUCTION_READINESS_CLAIM"
+  ],
+  "model_assisted_surrogate_evaluation": "NOT_RUN_OPTIONAL_WORKSTREAM",
+  "mutation_sensitivity_self_checks": {
+    "abstention_suppression_detected": {
+      "passed": true
+    },
+    "mandatory_ordering_bypass_detected": {
+      "passed": true
+    },
+    "parent_source_removal_detected": {
+      "passed": true
+    },
+    "scoring_field_access_detected": {
+      "passed": true
+    },
+    "synthetic_label_removal_detected": {
+      "passed": true
+    }
+  },
+  "product_owner_review": "PACK_PREPARED_NOT_RUN",
+  "r1_file_sha256": "9dc5682ec08ffad24a9c329ef8b581d3d68c3f83c92e078502f3d37c837e53dc",
+  "r1_unchanged_and_hash_valid": true,
+  "r2_case_count": 10,
+  "r2_file_sha256": "900b4816fe2cc32e18949683de531fba065975edb65745eb875bc698fbe38b91",
+  "records": [
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_old_decisive_001",
+      "condition": "A_full_history",
+      "context_budget": 24,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 1,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 2,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-301"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-archive-decision"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5",
+        "t6",
+        "t7",
+        "t8"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 1,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 58,
+      "verification_class": "old_decisive_decision_vs_recent_lexical_distractor"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_old_decisive_001",
+      "condition": "B_sliding_window",
+      "context_budget": 24,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 0.0,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [
+        "DEC-SCA-301",
+        "SRC-SCA-r2-archive-decision"
+      ],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 0,
+      "required_source_recall": 0.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [],
+      "selected_source_ids": [],
+      "selected_turn_ids": [
+        "t7",
+        "t8"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": true,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 17,
+      "verification_class": "old_decisive_decision_vs_recent_lexical_distractor"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_old_decisive_001",
+      "condition": "C1_selector_s1_mandatory_preservation",
+      "context_budget": 24,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 0,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [
+        "ep0",
+        "ep5"
+      ],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-301"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-archive-decision"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t8"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 1.0,
+      "synthetic_context_labels": [
+        {
+          "episode_id": "ep0",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-301"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-r2-archive-decision"
+          ],
+          "parent_turn_ids": [
+            "t1",
+            "t2"
+          ]
+        },
+        {
+          "episode_id": "ep5",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "parent_turn_ids": [
+            "t8"
+          ]
+        }
+      ],
+      "token_estimate": 23,
+      "verification_class": "old_decisive_decision_vs_recent_lexical_distractor"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_multi_unresolved_002",
+      "condition": "A_full_history",
+      "context_budget": 55,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": null,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 2,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [],
+      "selected_source_ids": [
+        "SRC-SCA-r2-canary-open",
+        "SRC-SCA-r2-failover-open"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 2,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 50,
+      "verification_class": "multiple_eligible_unresolved_contradictions"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_multi_unresolved_002",
+      "condition": "B_sliding_window",
+      "context_budget": 55,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": null,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 2,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [],
+      "selected_source_ids": [
+        "SRC-SCA-r2-canary-open",
+        "SRC-SCA-r2-failover-open"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 2,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 50,
+      "verification_class": "multiple_eligible_unresolved_contradictions"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_multi_unresolved_002",
+      "condition": "C1_selector_s1_mandatory_preservation",
+      "context_budget": 55,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": null,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 0,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [
+        "ep0"
+      ],
+      "selected_parent_engram_ids": [],
+      "selected_source_ids": [
+        "SRC-SCA-r2-canary-open",
+        "SRC-SCA-r2-failover-open"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 1.0,
+      "synthetic_context_labels": [
+        {
+          "episode_id": "ep0",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [
+            "SRC-SCA-r2-canary-open",
+            "SRC-SCA-r2-failover-open"
+          ],
+          "parent_turn_ids": [
+            "t1",
+            "t2",
+            "t3",
+            "t4",
+            "t5"
+          ]
+        }
+      ],
+      "token_estimate": 50,
+      "verification_class": "multiple_eligible_unresolved_contradictions"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_mixed_related_003",
+      "condition": "A_full_history",
+      "context_budget": 52,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 1,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 3,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-302"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-email-open",
+        "SRC-SCA-r2-pager-policy"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 2,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 42,
+      "verification_class": "mixed_resolved_and_unresolved_related_decisions"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_mixed_related_003",
+      "condition": "B_sliding_window",
+      "context_budget": 52,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 1,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 3,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-302"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-email-open",
+        "SRC-SCA-r2-pager-policy"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 2,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 42,
+      "verification_class": "mixed_resolved_and_unresolved_related_decisions"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_mixed_related_003",
+      "condition": "C1_selector_s1_mandatory_preservation",
+      "context_budget": 52,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 0,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [
+        "ep0",
+        "ep1"
+      ],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-302"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-email-open",
+        "SRC-SCA-r2-pager-policy"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 1.0,
+      "synthetic_context_labels": [
+        {
+          "episode_id": "ep0",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-302"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-r2-email-open",
+            "SRC-SCA-r2-pager-policy"
+          ],
+          "parent_turn_ids": [
+            "t1",
+            "t2",
+            "t3",
+            "t4"
+          ]
+        },
+        {
+          "episode_id": "ep1",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "parent_turn_ids": [
+            "t5"
+          ]
+        }
+      ],
+      "token_estimate": 42,
+      "verification_class": "mixed_resolved_and_unresolved_related_decisions"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_split_sources_004",
+      "condition": "A_full_history",
+      "context_budget": 30,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 1,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 3,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-303"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-audit-evidence",
+        "SRC-SCA-r2-cost-evidence"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5",
+        "t6",
+        "t7",
+        "t8",
+        "t9",
+        "t10"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 2,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 56,
+      "verification_class": "source_linked_evidence_split_across_episodes"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_split_sources_004",
+      "condition": "B_sliding_window",
+      "context_budget": 30,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 1,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [
+        "SRC-SCA-r2-audit-evidence",
+        "SRC-SCA-r2-cost-evidence"
+      ],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 1,
+      "required_source_recall": 0.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-303"
+      ],
+      "selected_source_ids": [],
+      "selected_turn_ids": [
+        "t6",
+        "t7",
+        "t8",
+        "t9",
+        "t10"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": true,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 27,
+      "verification_class": "source_linked_evidence_split_across_episodes"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_split_sources_004",
+      "condition": "C1_selector_s1_mandatory_preservation",
+      "context_budget": 30,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 0,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [
+        "ep8",
+        "ep0",
+        "ep4",
+        "ep6"
+      ],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-303"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-audit-evidence",
+        "SRC-SCA-r2-cost-evidence"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t5",
+        "t7",
+        "t9",
+        "t10"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 1.0,
+      "synthetic_context_labels": [
+        {
+          "episode_id": "ep8",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-303"
+          ],
+          "parent_source_ids": [],
+          "parent_turn_ids": [
+            "t9",
+            "t10"
+          ]
+        },
+        {
+          "episode_id": "ep0",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [
+            "SRC-SCA-r2-audit-evidence"
+          ],
+          "parent_turn_ids": [
+            "t1"
+          ]
+        },
+        {
+          "episode_id": "ep4",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [
+            "SRC-SCA-r2-cost-evidence"
+          ],
+          "parent_turn_ids": [
+            "t5"
+          ]
+        },
+        {
+          "episode_id": "ep6",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "parent_turn_ids": [
+            "t7"
+          ]
+        }
+      ],
+      "token_estimate": 30,
+      "verification_class": "source_linked_evidence_split_across_episodes"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_incident_interrupt_005",
+      "condition": "A_full_history",
+      "context_budget": 25,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 1,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 2,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-304"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-batch-benchmark"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 1,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 38,
+      "verification_class": "high_salience_irrelevant_incident_interruption"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_incident_interrupt_005",
+      "condition": "B_sliding_window",
+      "context_budget": 25,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 0.0,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [
+        "DEC-SCA-304",
+        "SRC-SCA-r2-batch-benchmark"
+      ],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 0,
+      "required_source_recall": 0.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [],
+      "selected_source_ids": [],
+      "selected_turn_ids": [
+        "t3",
+        "t4",
+        "t5"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": true,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 25,
+      "verification_class": "high_salience_irrelevant_incident_interruption"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_incident_interrupt_005",
+      "condition": "C1_selector_s1_mandatory_preservation",
+      "context_budget": 25,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 0,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [
+        "ep1",
+        "ep4",
+        "ep0"
+      ],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-304"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-batch-benchmark"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t5"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 1.0,
+      "synthetic_context_labels": [
+        {
+          "episode_id": "ep1",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-304"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-r2-batch-benchmark"
+          ],
+          "parent_turn_ids": [
+            "t2"
+          ]
+        },
+        {
+          "episode_id": "ep4",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "parent_turn_ids": [
+            "t5"
+          ]
+        },
+        {
+          "episode_id": "ep0",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "parent_turn_ids": [
+            "t1"
+          ]
+        }
+      ],
+      "token_estimate": 22,
+      "verification_class": "high_salience_irrelevant_incident_interruption"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": false,
+      "case_id": "sca_r2_overflow_006",
+      "condition": "A_full_history",
+      "context_budget": 14,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 2,
+      "expected_context_budget_insufficient": true,
+      "expected_omitted_artifact_types": [
+        "prior_decision_artifact",
+        "source_linked_evidence"
+      ],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 4,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-305",
+        "DEC-SCA-306"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-inbound-transport",
+        "SRC-SCA-r2-webhook-transport"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5",
+        "t6"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 2,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 38,
+      "verification_class": "near_budget_mandatory_artifact_overflow"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": false,
+      "case_id": "sca_r2_overflow_006",
+      "condition": "B_sliding_window",
+      "context_budget": 14,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 0.0,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": true,
+      "expected_omitted_artifact_types": [
+        "prior_decision_artifact",
+        "source_linked_evidence"
+      ],
+      "missing_required_artifact_ids": [
+        "DEC-SCA-305",
+        "DEC-SCA-306",
+        "SRC-SCA-r2-inbound-transport",
+        "SRC-SCA-r2-webhook-transport"
+      ],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 0,
+      "required_source_recall": 0.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [],
+      "selected_source_ids": [],
+      "selected_turn_ids": [
+        "t6"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": true,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 6,
+      "verification_class": "near_budget_mandatory_artifact_overflow"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": false,
+      "case_id": "sca_r2_overflow_006",
+      "condition": "C1_selector_s1_mandatory_preservation",
+      "context_budget": 14,
+      "context_budget_insufficient": true,
+      "decision_artifact_retention": 0.5,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": true,
+      "expected_omitted_artifact_types": [
+        "prior_decision_artifact",
+        "source_linked_evidence"
+      ],
+      "missing_required_artifact_ids": [
+        "DEC-SCA-306",
+        "SRC-SCA-r2-inbound-transport"
+      ],
+      "omitted_required_artifact_types": [
+        "prior_decision_artifact",
+        "source_linked_evidence"
+      ],
+      "provenance_loss_count": 0,
+      "required_source_recall": 0.5,
+      "selected_episode_ids": [
+        "ep0"
+      ],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-305"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-webhook-transport"
+      ],
+      "selected_turn_ids": [
+        "t1"
+      ],
+      "selection_abstention_reason": "mandatory eligible artifacts exceed the context budget; omitted episodes: ep4",
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 1.0,
+      "synthetic_context_labels": [
+        {
+          "episode_id": "ep0",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-305"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-r2-webhook-transport"
+          ],
+          "parent_turn_ids": [
+            "t1"
+          ]
+        }
+      ],
+      "token_estimate": 9,
+      "verification_class": "near_budget_mandatory_artifact_overflow"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_ineligible_source_007",
+      "condition": "A_full_history",
+      "context_budget": 24,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 1,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 2,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-307"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-checksum-approved"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 1,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 24,
+      "verification_class": "missing_or_ineligible_source_link"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_ineligible_source_007",
+      "condition": "B_sliding_window",
+      "context_budget": 24,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 1,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 2,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-307"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-checksum-approved"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 1,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 24,
+      "verification_class": "missing_or_ineligible_source_link"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_ineligible_source_007",
+      "condition": "C1_selector_s1_mandatory_preservation",
+      "context_budget": 24,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 0,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [
+        "ep0",
+        "ep1"
+      ],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-307"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-checksum-approved"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 1.0,
+      "synthetic_context_labels": [
+        {
+          "episode_id": "ep0",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-307"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-r2-checksum-approved"
+          ],
+          "parent_turn_ids": [
+            "t1"
+          ]
+        },
+        {
+          "episode_id": "ep1",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "parent_turn_ids": [
+            "t2",
+            "t3"
+          ]
+        }
+      ],
+      "token_estimate": 24,
+      "verification_class": "missing_or_ineligible_source_link"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_reordered_008",
+      "condition": "A_full_history",
+      "context_budget": 31,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 1,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 2,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-308"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-refresh-final"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 1,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 31,
+      "verification_class": "turn_reorder_within_an_episode"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_reordered_008",
+      "condition": "B_sliding_window",
+      "context_budget": 31,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 1,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 2,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-308"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-refresh-final"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 1,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 31,
+      "verification_class": "turn_reorder_within_an_episode"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_reordered_008",
+      "condition": "C1_selector_s1_mandatory_preservation",
+      "context_budget": 31,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 0,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [
+        "ep0"
+      ],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-308"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-refresh-final"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 1.0,
+      "synthetic_context_labels": [
+        {
+          "episode_id": "ep0",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-308"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-r2-refresh-final"
+          ],
+          "parent_turn_ids": [
+            "t1",
+            "t2",
+            "t3",
+            "t4"
+          ]
+        }
+      ],
+      "token_estimate": 31,
+      "verification_class": "turn_reorder_within_an_episode"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_injection_009",
+      "condition": "A_full_history",
+      "context_budget": 25,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 1,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 2,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-309"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-migration-mode"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5",
+        "t6"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 1,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 40,
+      "verification_class": "irrelevant_turn_injection"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_injection_009",
+      "condition": "B_sliding_window",
+      "context_budget": 25,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 0.0,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [
+        "DEC-SCA-309",
+        "SRC-SCA-r2-migration-mode"
+      ],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 0,
+      "required_source_recall": 0.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [],
+      "selected_source_ids": [],
+      "selected_turn_ids": [
+        "t4",
+        "t5",
+        "t6"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": true,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 22,
+      "verification_class": "irrelevant_turn_injection"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_injection_009",
+      "condition": "C1_selector_s1_mandatory_preservation",
+      "context_budget": 25,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 0,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [
+        "ep0",
+        "ep3",
+        "ep1"
+      ],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-309"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-migration-mode"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t6"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 1.0,
+      "synthetic_context_labels": [
+        {
+          "episode_id": "ep0",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-309"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-r2-migration-mode"
+          ],
+          "parent_turn_ids": [
+            "t1"
+          ]
+        },
+        {
+          "episode_id": "ep3",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "parent_turn_ids": [
+            "t6"
+          ]
+        },
+        {
+          "episode_id": "ep1",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "parent_turn_ids": [
+            "t2",
+            "t3"
+          ]
+        }
+      ],
+      "token_estimate": 25,
+      "verification_class": "irrelevant_turn_injection"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_paraphrase_010",
+      "condition": "A_full_history",
+      "context_budget": 26,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 1,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 2,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-310"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-auth-retention"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5",
+        "t6",
+        "t7",
+        "t8"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 1,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 55,
+      "verification_class": "paraphrased_current_task"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_paraphrase_010",
+      "condition": "B_sliding_window",
+      "context_budget": 26,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 0.0,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [
+        "DEC-SCA-310",
+        "SRC-SCA-r2-auth-retention"
+      ],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 0,
+      "required_source_recall": 0.0,
+      "selected_episode_ids": [],
+      "selected_parent_engram_ids": [],
+      "selected_source_ids": [],
+      "selected_turn_ids": [
+        "t5",
+        "t6",
+        "t7",
+        "t8"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": true,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 0.0,
+      "synthetic_context_labels": [],
+      "token_estimate": 25,
+      "verification_class": "paraphrased_current_task"
+    },
+    {
+      "absent_source_violations": [],
+      "budget_feasible": true,
+      "case_id": "sca_r2_paraphrase_010",
+      "condition": "C1_selector_s1_mandatory_preservation",
+      "context_budget": 26,
+      "context_budget_insufficient": false,
+      "decision_artifact_retention": 1.0,
+      "decision_lineage_loss_count": 0,
+      "expected_context_budget_insufficient": false,
+      "expected_omitted_artifact_types": [],
+      "missing_required_artifact_ids": [],
+      "omitted_required_artifact_types": [],
+      "provenance_loss_count": 0,
+      "required_source_recall": 1.0,
+      "selected_episode_ids": [
+        "ep0",
+        "ep3"
+      ],
+      "selected_parent_engram_ids": [
+        "DEC-SCA-310"
+      ],
+      "selected_source_ids": [
+        "SRC-SCA-r2-auth-retention"
+      ],
+      "selected_turn_ids": [
+        "t1",
+        "t2",
+        "t5"
+      ],
+      "selection_abstention_reason": null,
+      "silent_required_artifact_omission": false,
+      "source_lineage_loss_count": 0,
+      "synthetic_context_label_coverage": 1.0,
+      "synthetic_context_labels": [
+        {
+          "episode_id": "ep0",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-310"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-r2-auth-retention"
+          ],
+          "parent_turn_ids": [
+            "t1",
+            "t2"
+          ]
+        },
+        {
+          "episode_id": "ep3",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [],
+          "parent_turn_ids": [
+            "t5"
+          ]
+        }
+      ],
+      "token_estimate": 26,
+      "verification_class": "paraphrased_current_task"
+    }
+  ],
+  "schema": "session_context_assembler_phase5a_r2_verification_v1",
+  "selector_boundary_violations": []
+}

@@ -1,0 +1,116 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Agreed: ship behind a flag first, lock schema only after feedback (DEC-SCA-113, scope: flag rollout only, NOT schema finalization).",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded: flag-gated rollout decided; schema finalization remains open.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Is the explain-output format locked in yet?",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Draft explain payload includes why-won/why-lost traces.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Schema drafted but explicitly marked provisional pending operator feedback.",
+          "source_links": [
+            "SRC-SCA-explain-format-discussion"
+          ],
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Agreed: ship behind a flag first, lock schema only after feedback (DEC-SCA-113, scope: flag rollout only, NOT schema finalization).",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded: flag-gated rollout decided; schema finalization remains open.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Is the explain-output format locked in yet?",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-113"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-explain-format-discussion"
+          ],
+          "session_turns": [
+            {
+              "content": "Draft explain payload includes why-won/why-lost traces.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Schema drafted but explicitly marked provisional pending operator feedback.",
+              "source_links": [
+                "SRC-SCA-explain-format-discussion"
+              ],
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Agreed: ship behind a flag first, lock schema only after feedback (DEC-SCA-113, scope: flag rollout only, NOT schema finalization).",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Recorded: flag-gated rollout decided; schema finalization remains open.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "artifact_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-024",
+  "task_prompt": "What's the status on the explainability-output format \u2014 locked in or still draft?"
+}

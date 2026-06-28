@@ -1,0 +1,63 @@
+name: Focused Research Gates
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "prototype/gatemem_g4/**"
+      - "tools/run_gatemem_g4_*.py"
+      - "tools/verify_gatemem_g4_frozen.py"
+      - "tests/test_gatemem_g4.py"
+      - "benchmarks/results/gatemem_g4_frozen_reference_manifest.json"
+      - "prototype/session_context_assembler/**"
+      - "tools/run_session_context_assembler_*.py"
+      - "tests/test_session_context_assembler_*.py"
+      - "benchmarks/truthsets/session_context_assembler_*.json"
+      - ".github/workflows/focused-research-gates.yml"
+  push:
+    branches: [main]
+    paths:
+      - "prototype/gatemem_g4/**"
+      - "tools/run_gatemem_g4_*.py"
+      - "tools/verify_gatemem_g4_frozen.py"
+      - "tests/test_gatemem_g4.py"
+      - "benchmarks/results/gatemem_g4_frozen_reference_manifest.json"
+      - "prototype/session_context_assembler/**"
+      - "tools/run_session_context_assembler_*.py"
+      - "tests/test_session_context_assembler_*.py"
+      - "benchmarks/truthsets/session_context_assembler_*.json"
+      - ".github/workflows/focused-research-gates.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-gatemem-reference:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pytest
+      - name: Verify frozen G4 reference before tests
+        run: python tools/verify_gatemem_g4_frozen.py
+      - name: Run G4 regression tests
+        run: python -m pytest -q tests/test_gatemem_g4.py
+
+  session-context-assembler:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pytest
+      - name: Generate deterministic R2 verification artifacts
+        run: python tools/run_session_context_assembler_r2_verification.py
+      - name: Run deterministic assembler gates
+        run: >-
+          python -m pytest -q
+          tests/test_session_context_assembler_phase_5a.py
+          tests/test_session_context_assembler_selector_s1.py
+          tests/test_session_context_assembler_shadow_adapter.py
