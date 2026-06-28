@@ -224,6 +224,8 @@ docs/                Whitepaper, operator playbook, and phase reports
 - [Whitepaper](docs/whitepaper.md): architecture, governance, benchmarks, deployment model
 - [Phase 7-10 supplement](docs/whitepaperupdates.md): adaptive routing, hierarchy, and consensus governance update
 - [Retrieval Hygiene R0 closeout](benchmarks/results/retrieval_hygiene_r0_closeout.md): bounded evidence bundle and closure notes for summary-card retrieval hygiene
+- [MNEMOS quality lane evaluation framework](docs/experiments/mnemos_quality_lane_evaluation_framework.md): canonical scorecard for future agent-memory quality lanes
+- [AI developer quality-lane result template](benchmarks/results/ai_dev_memory_quality_lane_result_template.json): runner output contract for paired MNEMOS-vs-control app-building trials
 - [Operator playbook](docs/mnemos_operator_playbook.md): diagnostics, rollout, rollback, and incident procedures
 - [Installation guide](INSTALL.md): installer usage, deployment profiles, and manual setup
 - [Chat integration evidence contract](docs/chat_integration_evidence_contract.md): normalized provenance fields for citation-aware consumers

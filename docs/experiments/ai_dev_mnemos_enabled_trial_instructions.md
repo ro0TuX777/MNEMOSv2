@@ -146,6 +146,16 @@ retrieval state. During execution, append one `memory_calls.jsonl` row per
 memory call with the actual retrieval fingerprint and whether the returned
 material affected the next action.
 
+Timestamp and token-accounting rules:
+
+- `started_at` must record the real run start, not a placeholder midnight or
+  copied value.
+- `completed_at` must record the real completion time for the same run.
+- Every JSONL `timestamp` must fall within the manifest start/end window.
+- If exact token counts are unavailable, do not write fake zeros. Use `null`
+  or omit the exact count and provide an explicit accounting method.
+- Record whether the run used native MCP tools or a verified REST fallback.
+
 ### `run_manifest.json`
 
 Write at the start:
@@ -176,9 +186,11 @@ Write at the start:
   "collection_name": "string",
   "seed_snapshot": "string",
   "configured_retrieval_profile": "string",
+  "execution_path": "mcp|rest_fallback",
   "cache_state_at_start": "cold|warm|unknown",
   "cache_policy_version": "string|unknown",
   "token_counts_available": false,
+  "token_accounting_method": "exact|estimated|unavailable",
   "claim_boundary": {
     "local_development_evidence_only": true,
     "general_memory_claim": false
@@ -192,8 +204,8 @@ Update it at the end with:
 {
   "completed_at": "ISO-8601 timestamp",
   "final_status": "completed|partial|blocked",
-  "estimated_input_tokens": 0,
-  "estimated_output_tokens": 0,
+  "estimated_input_tokens": null,
+  "estimated_output_tokens": null,
   "acceptance_test_command": "npm test",
   "acceptance_test_result": "pass|fail|partial",
   "cache_state_at_end": "cold|warm|mixed|unknown"
@@ -215,6 +227,7 @@ Append one JSON object per MNEMOS call:
   "query_or_summary": "short string",
   "query_text": "actual query or request payload summary",
   "retrieval_fingerprint": "actual executed-route fingerprint or not_available",
+  "execution_path": "mcp|rest_fallback",
   "cache_state_observed": "cold|warm|cache_hit|cache_miss|unknown",
   "cache_hit": false,
   "configured_retrieval_profile": "string",
@@ -324,6 +337,9 @@ Use MNEMOS in these moments:
 7. If memory appears stale or contradictory, record it as rejected rather than
    silently using it.
 8. Record whether each memory result changed the next concrete action.
+9. If MCP tools are not exposed but the live REST service is used instead,
+   record `execution_path: rest_fallback` in both the manifest and each memory
+   call row.
 
 Memory should reduce wandering, not replace evidence.
 

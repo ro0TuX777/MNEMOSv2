@@ -39,6 +39,49 @@ REQUIRED_MANIFEST_COMPLETION_FIELDS = {
     "estimated_output_tokens",
 }
 
+E1_MANIFEST_START_FIELDS = {
+    "trial_id",
+    "task_id",
+    "task_spec_hash",
+    "client_version",
+    "repo_root",
+    "initial_repo_commit_or_hash",
+    "tool_configuration",
+    "execution_path",
+    "token_accounting_method",
+}
+
+E1_MANIFEST_COMPLETION_FIELDS = {
+    "acceptance_test_command",
+    "acceptance_test_result",
+    "cache_state_at_end",
+}
+
+MNEMOS_REQUIRED_MANIFEST_FIELDS = {
+    "mnemos_base_url",
+    "mcp_server_name",
+    "mnemos_service_revision",
+    "mcp_revision",
+    "collection_name",
+    "seed_snapshot",
+    "configured_retrieval_profile",
+    "cache_state_at_start",
+    "cache_policy_version",
+}
+
+BASELINE_REQUIRED_MANIFEST_FIELDS = {
+    "mnemos_or_memory_tools_allowed",
+    "mnemos_base_url",
+    "mcp_server_name",
+    "mnemos_service_revision",
+    "mcp_revision",
+    "collection_name",
+    "seed_snapshot",
+    "configured_retrieval_profile",
+    "cache_state_at_start",
+    "cache_policy_version",
+}
+
 REQUIRED_MNEMOS_TOOLS = {
     "health_check",
     "get_capabilities",
@@ -47,6 +90,33 @@ REQUIRED_MNEMOS_TOOLS = {
     "record_decision",
     "write_observation",
     "summarize_session_handoff",
+}
+
+REQUIRED_MEMORY_CALL_FIELDS = {
+    "timestamp",
+    "tool",
+    "purpose",
+    "query_or_summary",
+    "query_text",
+    "retrieval_fingerprint",
+    "execution_path",
+    "cache_state_observed",
+    "cache_hit",
+    "configured_retrieval_profile",
+    "duplicate_suppression_count",
+    "result_count",
+    "returned_source_ids",
+    "returned_source_labels",
+    "returned_source_types",
+    "returned_scores",
+    "used_result_ids",
+    "rejected_result_ids",
+    "abstention_reason",
+    "verified_against_primary_evidence",
+    "used_in_next_action",
+    "next_action_summary",
+    "helpfulness",
+    "notes",
 }
 
 
@@ -79,6 +149,17 @@ def verify_trial_folder(path: str | Path, *, condition: str) -> dict[str, Any]:
     final_report_text = (root / "final_report.md").read_text(encoding="utf-8") if (root / "final_report.md").exists() else ""
 
     memory_tools = {str(row.get("tool")) for row in memory_calls if row.get("tool")}
+    condition_manifest_fields = MNEMOS_REQUIRED_MANIFEST_FIELDS if condition == "mnemos_enabled" else BASELINE_REQUIRED_MANIFEST_FIELDS
+    e1_manifest_present = (
+        REQUIRED_MANIFEST_START_FIELDS.issubset(manifest)
+        and REQUIRED_MANIFEST_COMPLETION_FIELDS.issubset(manifest)
+        and E1_MANIFEST_START_FIELDS.issubset(manifest)
+        and E1_MANIFEST_COMPLETION_FIELDS.issubset(manifest)
+        and condition_manifest_fields.issubset(manifest)
+    )
+    e1_memory_rows_complete = condition != "mnemos_enabled" or (
+        len(memory_calls) > 0 and all(REQUIRED_MEMORY_CALL_FIELDS.issubset(row) for row in memory_calls)
+    )
     checks = {
         "folder_exists": root.is_dir(),
         "required_files_present": all((root / name).is_file() for name in required_files),
@@ -89,6 +170,7 @@ def verify_trial_folder(path: str | Path, *, condition: str) -> dict[str, Any]:
         "repo_activity_nonempty": len(repo_rows) > 0,
         "test_runs_nonempty": len(test_rows) > 0,
         "final_report_nonempty": bool(final_report_text.strip()),
+        "e1_manifest_fields_present": e1_manifest_present,
     }
     if condition == "mnemos_enabled":
         checks.update(
@@ -100,14 +182,39 @@ def verify_trial_folder(path: str | Path, *, condition: str) -> dict[str, Any]:
                 )
                 and bool(memory_tools & {"record_decision", "write_observation"})
                 and "summarize_session_handoff" in memory_tools,
+                "e1_memory_call_fields_present": e1_memory_rows_complete,
+                "execution_path_declared": manifest.get("execution_path") in {"mcp", "rest_fallback"},
+            }
+        )
+    else:
+        checks.update(
+            {
+                "baseline_memory_calls_absent": not (root / "memory_calls.jsonl").exists(),
+                "execution_path_declared": manifest.get("execution_path") == "no_memory_control",
             }
         )
 
-    failed = [name for name, passed in checks.items() if not passed]
+    validity_checks = {
+        name: passed
+        for name, passed in checks.items()
+        if name
+        not in {
+            "e1_manifest_fields_present",
+            "e1_memory_call_fields_present",
+            "execution_path_declared",
+        }
+    }
+    failed = [name for name, passed in validity_checks.items() if not passed]
+    e1_ready = (
+        checks["e1_manifest_fields_present"]
+        and checks.get("e1_memory_call_fields_present", True)
+        and checks.get("execution_path_declared", True)
+    )
     return {
         "path": str(root),
         "condition": condition,
         "valid": not failed,
+        "e1_ready": e1_ready,
         "checks": checks,
         "failed_checks": failed,
         "counts": {
@@ -125,10 +232,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("path", type=Path)
     parser.add_argument("--condition", choices=["mnemos_enabled", "no_memory"], required=True)
+    parser.add_argument("--require-e1", action="store_true")
     args = parser.parse_args()
     result = verify_trial_folder(args.path, condition=args.condition)
     print(json.dumps(result, indent=2))
-    if not result["valid"]:
+    if not result["valid"] or (args.require_e1 and not result["e1_ready"]):
         raise SystemExit(1)
 
 

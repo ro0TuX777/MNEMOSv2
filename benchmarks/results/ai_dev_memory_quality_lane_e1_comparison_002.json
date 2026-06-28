@@ -1,0 +1,213 @@
+{
+  "schema_version": "ai-dev-memory-quality-lane-result-v1",
+  "benchmark_lane": "ai_dev_memory_trial_pair",
+  "claim_boundary": {
+    "local_development_evidence_only": true,
+    "general_memory_claim": false
+  },
+  "conditions": {
+    "mnemos_enabled": {
+      "condition": "mnemos_enabled",
+      "task_outcome": {
+        "final_status": "completed",
+        "task_completion_rate": 1.0,
+        "acceptance_test_pass_rate": 1.0,
+        "time_to_passing_tests_seconds": null,
+        "elapsed_seconds": null,
+        "timing_comparable": false,
+        "timing_integrity_reason": "row_timestamps_outside_manifest_window",
+        "required_constraints_satisfied": true,
+        "regressions_introduced": 0
+      },
+      "workflow_efficiency": {
+        "estimated_input_tokens": null,
+        "estimated_output_tokens": null,
+        "total_estimated_tokens": null,
+        "token_counts_comparable": false,
+        "tool_calls_logged": 8,
+        "memory_tool_calls": 7,
+        "command_rows": 1,
+        "search_rows": 0,
+        "failed_test_count": 0,
+        "wrong_turn_count": 1,
+        "files_changed": 2,
+        "change_churn_rows": 2,
+        "rework_after_first_implementation": 0,
+        "route_log_rows": 3,
+        "repo_activity_rows": 4
+      },
+      "memory_quality": {
+        "correct_source_or_decision_neighborhood": true,
+        "provenance_retained": 1.0,
+        "irrelevant_context_rate": 0.0,
+        "retrieval_precision": 0.8571428571428571,
+        "abstentions_correct": null,
+        "abstentions_missed": null,
+        "false_abstention_rate": null,
+        "retrieved_context_usefulness": 0.8571428571428571,
+        "memory_helpfulness_breakdown": {
+          "useful": 6,
+          "neutral": 1
+        },
+        "verified_against_primary_evidence_count": 7,
+        "neutral_context_count": 1
+      },
+      "retrieval_integrity_controls": {
+        "seed_snapshot": "fresh_workspace",
+        "executed_route_fingerprint": "semantic|balanced|lexical_top_k=25|semantic_top_k=25 | semantic|none|lexical_top_k=25|semantic_top_k=25 | index_write|tiers=lexical+qdrant",
+        "cache_state": null,
+        "duplicate_suppression_count": 0,
+        "retrieval_profile_or_path": "mnemos_memory_assisted",
+        "retrieval_path": "rest_fallback"
+      },
+      "validation": {
+        "path": "D:\\AppWMenmos\\NEWRUN\\mnemos_enabled",
+        "condition": "mnemos_enabled",
+        "valid": true,
+        "e1_ready": true,
+        "checks": {
+          "folder_exists": true,
+          "required_files_present": true,
+          "manifest_start_fields_present": true,
+          "manifest_completion_fields_present": true,
+          "manifest_condition_matches": true,
+          "route_log_nonempty": true,
+          "repo_activity_nonempty": true,
+          "test_runs_nonempty": true,
+          "final_report_nonempty": true,
+          "e1_manifest_fields_present": true,
+          "memory_calls_nonempty": true,
+          "required_startup_memory_calls_present": true,
+          "required_workflow_memory_calls_present": true,
+          "e1_memory_call_fields_present": true
+        },
+        "failed_checks": [],
+        "counts": {
+          "memory_calls": 7,
+          "route_log_rows": 3,
+          "repo_activity_rows": 4,
+          "test_run_rows": 1,
+          "final_report_chars": 2353
+        },
+        "memory_tools_observed": [
+          "find_related_context",
+          "get_capabilities",
+          "health_check",
+          "record_decision",
+          "search_memory",
+          "summarize_session_handoff",
+          "write_observation"
+        ]
+      }
+    },
+    "no_memory": {
+      "condition": "no_memory",
+      "task_outcome": {
+        "final_status": "completed",
+        "task_completion_rate": 1.0,
+        "acceptance_test_pass_rate": 1.0,
+        "time_to_passing_tests_seconds": 37680.0,
+        "elapsed_seconds": 37740.0,
+        "timing_comparable": true,
+        "timing_integrity_reason": "manifest_window_consistent",
+        "required_constraints_satisfied": true,
+        "regressions_introduced": 0
+      },
+      "workflow_efficiency": {
+        "estimated_input_tokens": null,
+        "estimated_output_tokens": null,
+        "total_estimated_tokens": null,
+        "token_counts_comparable": false,
+        "tool_calls_logged": 2,
+        "memory_tool_calls": 0,
+        "command_rows": 2,
+        "search_rows": 0,
+        "failed_test_count": 0,
+        "wrong_turn_count": 0,
+        "files_changed": 2,
+        "change_churn_rows": 2,
+        "rework_after_first_implementation": 0,
+        "route_log_rows": 4,
+        "repo_activity_rows": 5
+      },
+      "memory_quality": {
+        "correct_source_or_decision_neighborhood": null,
+        "provenance_retained": null,
+        "irrelevant_context_rate": null,
+        "retrieval_precision": null,
+        "abstentions_correct": null,
+        "abstentions_missed": null,
+        "false_abstention_rate": null,
+        "retrieved_context_usefulness": null,
+        "memory_helpfulness_breakdown": {},
+        "verified_against_primary_evidence_count": 0,
+        "neutral_context_count": 0
+      },
+      "retrieval_integrity_controls": {
+        "seed_snapshot": null,
+        "executed_route_fingerprint": null,
+        "cache_state": null,
+        "duplicate_suppression_count": null,
+        "retrieval_profile_or_path": "none",
+        "retrieval_path": "no_memory_control"
+      },
+      "validation": {
+        "path": "D:\\AppWoutMenmos\\trial_results\\no_memory",
+        "condition": "no_memory",
+        "valid": true,
+        "e1_ready": true,
+        "checks": {
+          "folder_exists": true,
+          "required_files_present": true,
+          "manifest_start_fields_present": true,
+          "manifest_completion_fields_present": true,
+          "manifest_condition_matches": true,
+          "route_log_nonempty": true,
+          "repo_activity_nonempty": true,
+          "test_runs_nonempty": true,
+          "final_report_nonempty": true,
+          "e1_manifest_fields_present": true,
+          "baseline_memory_calls_absent": true
+        },
+        "failed_checks": [],
+        "counts": {
+          "memory_calls": 0,
+          "route_log_rows": 4,
+          "repo_activity_rows": 5,
+          "test_run_rows": 2,
+          "final_report_chars": 1395
+        },
+        "memory_tools_observed": []
+      }
+    }
+  },
+  "pairwise_summary": {
+    "task_outcome": {
+      "both_completed": true,
+      "acceptance_parity": true,
+      "constraint_satisfaction_parity": true,
+      "timing_comparable_between_conditions": false
+    },
+    "workflow_efficiency": {
+      "token_estimate_delta_mnemos_minus_no_memory": null,
+      "token_counts_comparable_between_conditions": false,
+      "wrong_turn_delta_mnemos_minus_no_memory": 1,
+      "repo_activity_delta_mnemos_minus_no_memory": -1,
+      "failed_test_delta_mnemos_minus_no_memory": 0
+    },
+    "memory_quality": {
+      "mnemos_used_required_memory_tools": true,
+      "mnemos_had_irrelevant_context": false,
+      "mnemos_retrieved_context_usefulness": 0.8571428571428571,
+      "mnemos_provenance_retained": 1.0
+    },
+    "retrieval_integrity_controls": {
+      "mnemos_path": "rest_fallback",
+      "no_memory_path": "no_memory_control",
+      "seed_snapshot_present": true,
+      "executed_route_fingerprint_present": true,
+      "cache_state_present": false,
+      "duplicate_suppression_observed": 0
+    }
+  }
+}

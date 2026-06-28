@@ -11,7 +11,8 @@ def test_external_ai_dev_trials_compare_when_available():
     if not MNEMOS.exists() or not NO_MEMORY.exists():
         return
     summary = compare_trials(MNEMOS, NO_MEMORY)
-    assert summary["observed_pattern"]["both_completed"] is True
-    assert summary["observed_pattern"]["mnemos_used_required_memory_tools"] is True
-    assert summary["metrics"]["mnemos_enabled"]["memory_calls"] > 0
-    assert summary["metrics"]["no_memory"]["memory_calls"] == 0
+    assert summary["schema_version"] == "ai-dev-memory-quality-lane-result-v1"
+    assert summary["pairwise_summary"]["task_outcome"]["both_completed"] is True
+    assert summary["pairwise_summary"]["memory_quality"]["mnemos_used_required_memory_tools"] is True
+    assert summary["conditions"]["mnemos_enabled"]["workflow_efficiency"]["memory_tool_calls"] > 0
+    assert summary["conditions"]["no_memory"]["workflow_efficiency"]["memory_tool_calls"] == 0

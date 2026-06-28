@@ -92,6 +92,23 @@ Metrics:
 The scorer does not decide whether MNEMOS generally improves agent memory. It
 only records development evidence for these repo-local tasks.
 
+## Next Quality Lane
+
+The next MNEMOS quality lane should use the canonical evaluation structure in:
+
+`docs/experiments/mnemos_quality_lane_evaluation_framework.md`
+
+That framework extends the original navigation-study metrics with:
+
+- task-outcome measures;
+- workflow-efficiency measures;
+- memory-quality measures, including false abstention and retrieved-context
+  usefulness; and
+- retrieval-integrity controls such as seed snapshot, executed-route
+  fingerprint, cache state, duplicate suppression, and retrieval path.
+
+This keeps the measured outcomes separate from the run-interpretability record.
+
 ## Claim Boundary
 
 This study may support narrow development observations about agent orientation

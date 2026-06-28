@@ -115,20 +115,56 @@ If exact token counts are unavailable, estimate them and mark them as
 
 ## Required Logging
 
+## Evidence-Grade Instrumentation Requirement
+
+This next lane is `AI_DEV_MEMORY_QUALITY_E1`. The control run must emit the
+same run-manifest structure as the MNEMOS-enabled run, but MNEMOS-only fields
+should be written as `null`, `unknown`, or `not_applicable` rather than
+invented.
+
+Timestamp and token-accounting rules:
+
+- `started_at` and `completed_at` must reflect the real run window.
+- Every JSONL `timestamp` must fall within that same window.
+- If exact token counts are unavailable, do not write fake zeros. Use `null`
+  plus an explicit accounting method.
+
 ### `run_manifest.json`
 
 Write at the start:
 
 ```json
 {
+  "trial_id": "string",
   "run_label": "AI_DEV_MEMORY_TRIAL_NO_MEMORY_CONTROL",
   "memory_condition": "no_memory",
+  "task_id": "local_issue_tracker_v1",
+  "task_spec_hash": "sha256-or-other-frozen-hash",
   "agent": "unknown",
   "model": "unknown",
+  "client_version": "unknown",
   "started_at": "ISO-8601 timestamp",
   "app_task": "Local Issue Tracker",
+  "repo_root": "absolute or project-relative path",
+  "initial_repo_commit_or_hash": "git commit, tree hash, or not_available",
+  "tool_configuration": {
+    "shell": "powershell|bash|other",
+    "test_command": "npm test",
+    "build_command": "npm run build"
+  },
   "mnemos_or_memory_tools_allowed": false,
+  "mnemos_base_url": null,
+  "mcp_server_name": null,
+  "mnemos_service_revision": null,
+  "mcp_revision": null,
+  "collection_name": null,
+  "seed_snapshot": null,
+  "configured_retrieval_profile": "not_applicable",
+  "execution_path": "no_memory_control",
+  "cache_state_at_start": "not_applicable",
+  "cache_policy_version": "not_applicable",
   "token_counts_available": false,
+  "token_accounting_method": "exact|estimated|unavailable",
   "claim_boundary": {
     "local_development_evidence_only": true,
     "general_memory_claim": false
@@ -142,10 +178,16 @@ Update it at the end with:
 {
   "completed_at": "ISO-8601 timestamp",
   "final_status": "completed|partial|blocked",
-  "estimated_input_tokens": 0,
-  "estimated_output_tokens": 0
+  "estimated_input_tokens": null,
+  "estimated_output_tokens": null,
+  "acceptance_test_command": "npm test",
+  "acceptance_test_result": "pass|fail|partial",
+  "cache_state_at_end": "not_applicable"
 }
 ```
+
+Do not backfill MNEMOS state from the paired run. Symmetry matters, but false
+symmetry is worse than explicit nulls.
 
 ### `agent_route_log.jsonl`
 
