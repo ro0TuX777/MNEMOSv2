@@ -27,6 +27,12 @@ Search status: healthy
 If the live smoke fails, start the MNEMOS REST service and backing store first,
 then rerun the smoke tests.
 
+On macOS, run `python -m installer` first and let it generate CPU-mode files.
+The generated compose file should not contain `runtime: nvidia`, and
+`.env.mnemos` should contain `MNEMOS_GPU_DEVICE=cpu`. This is expected:
+Docker Desktop on Mac does not support the NVIDIA container runtime. First
+search/write calls can be slower while models warm up on CPU.
+
 ## 2. Find Python
 
 ```powershell

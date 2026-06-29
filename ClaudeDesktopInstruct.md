@@ -31,6 +31,17 @@ cd <MNEMOS_REPO>
 docker compose up -d
 ```
 
+On macOS, install with:
+
+```bash
+python -m installer
+docker compose -f docker-compose.generated.yml up -d --build
+```
+
+The installer should report CPU mode, omit `runtime: nvidia` from the generated
+compose file, and set `MNEMOS_GPU_DEVICE=cpu` in `.env.mnemos`. That is the
+expected path for Mac; first-query latency may be higher than CUDA.
+
 For the E1 task collection specifically, run this from the same repo root:
 
 ```powershell

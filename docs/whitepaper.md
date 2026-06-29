@@ -25,7 +25,7 @@
 
 | Date | Change |
 |---|---|
-| 2026-06-26 | **AI developer MCP memory trial** - MNEMOS was exposed through an MFS-compatible MCP bridge and tested in one paired local app-building trial against a no-memory control. Both runs completed; the MNEMOS-enabled run used required memory tools and logged lower orientation/rework signals, but also exposed infrastructure-readiness overhead. Local development evidence only; no general memory-performance claim. |
+| 2026-06-26 | **AI developer MCP memory trial** - MNEMOS was exposed through an MFS-compatible MCP bridge and tested in local paired app-building trials against no-memory controls. The first pilot exposed infrastructure-readiness and measurement gaps; the refreshed E1 paired run used a dedicated seeded collection and structured telemetry. Both conditions completed and passed acceptance. MNEMOS retrieved useful task context with provenance and no observed quality degradation, but added memory/tool-call overhead and did not establish a speed or token-efficiency claim. Local development evidence only; no general memory-performance claim. |
 | 2026-03-30 | Enhancement roadmap closed: CI phase gates, Wave 4 hygiene gate, reflect precision guards, tenant policy profiles, explainability traces, economics counters, SLO reliability gate, operator playbook |
 | 2026-04–05 | Qdrant v1.17 server-side RRF (`qdrant_rrf`), relevance feedback adapter, Cross-Encoder rerank hardening |
 | 2026-05–06 | Graph Tier evaluation track (MG-Test-1→10); read-only `QdrantEngramResolver` with batched prefetch |
@@ -63,7 +63,7 @@ Today, each project re-implements these capabilities from scratch — writing cu
 - **Custom Manual** — Operator-defined configuration for advanced multi-backend setups.
 - **Hybrid Retrieval Mode (Gate C)** - optional lexical + semantic fusion mode inside existing profiles (not a separate profile).
 
-A guided Python installer (`python -m installer`) probes the host, asks 5 questions, recommends a profile, and generates all deployment files. The service exposes a versioned REST API governed by an MFS contract.
+A guided Python installer (`python -m installer`) probes the host, resolves platform-safe compute mode, asks deployment questions, recommends a profile, and generates all deployment files. The service exposes a versioned REST API governed by an MFS contract.
 
 MNEMOS is **application-agnostic** — it knows nothing about the domain of the consuming application. It stores, enriches, compresses, retrieves, and audits knowledge. That’s it.
 
@@ -967,57 +967,106 @@ summarize_session_handoff
 explain_memory_provenance
 ```
 
-The trial used the same app task in both conditions: a local issue tracker with
-create/edit/delete, status and priority controls, text search, filters,
-local-state persistence, responsive UI behavior, and tests. Each run was
-required to write structured trial artifacts under `trial_results/`, including
-route logs, repo activity, test runs, wrong turns, user interventions, token
-estimates, and a final report. The MNEMOS-enabled condition additionally had to
-call and log memory tools. A verifier rejected incomplete or inconsistent
-folders before comparison.
+The evaluation progressed in two steps. The first pilot proved that the MCP
+bridge could be used from an AI developer session, but also exposed
+infrastructure-readiness and measurement gaps: the backing service had to be
+started correctly, early calls could miss or route to the wrong corpus, and the
+original logs did not contain enough retrieval-integrity fields to support a
+retrieval-conditioned comparison.
+
+The refreshed E1 trial fixed those gaps before rerunning the paired task. The
+same starter repository was reset into both workspaces. The MNEMOS condition
+used a dedicated Qdrant collection (`mnemos_ai_dev_e1_task_01`) seeded with the
+task documents and identified by seed snapshot `0a578569ef136afa`. Both
+conditions were required to write structured trial artifacts under
+`trial_results/`, including route logs, repo activity, test runs, wrong turns,
+user interventions, token estimates, and a final report. The MNEMOS-enabled
+condition additionally had to log per-call retrieval telemetry: execution path,
+retrieval fingerprint, returned source labels, provenance, usefulness,
+abstention behavior, and whether retrieved material influenced the next action.
+A verifier rejected incomplete or inconsistent folders before comparison.
+
+The refreshed task was a local issue tracker completion task: saved views,
+deterministic sorting, schema migration/default handling, repair of a seeded
+`priority_desc` sorting defect, responsive/focus-safe UI polish, and a
+Windows-compatible acceptance-test script without modifying the frozen
+acceptance suite.
 
 | Metric | MNEMOS enabled | No memory |
 |---|---:|---:|
-| Total estimated tokens | 5,000 | 27,000 |
-| Memory calls | 26 | 0 |
-| Route log rows | 8 | 12 |
-| Repo activity rows | 6 | 25 |
-| Wrong-turn rows | 0 | 4 |
-| Test runs | 2 | 3 |
-| Failed test runs | 0 | 2 |
+| Task completion | 1.0 | 1.0 |
+| Acceptance-test pass rate | 1.0 | 1.0 |
+| Build result | Pass | Pass |
+| Total estimated tokens | 57,000 | 51,000 |
+| Logged tool calls | 14 | 5 |
+| Memory calls | 7 | 0 |
+| Route log rows | 7 | 7 |
+| Repo activity rows | 16 | 29 |
+| Raw failed-test count | 5 | 0 |
+| Failed-test metric status | not comparable due to harness failures | not comparable due to harness failures |
+| Harness/environment failures | 1 | 1 |
+| Expected RED acceptance failures | 4 | 0 |
+| Agent-caused test failures | 0 | 0 |
+| Wrong-turn rows | 2 | 2 |
+| Files changed | 7 | 8 |
+| User interventions | 0 | 0 |
+| Seed snapshot recorded | `0a578569ef136afa` | n/a |
+| Seed snapshot layer | task seed manifest hash | n/a |
+| Collection snapshot from executed route | `mnemos_ai_dev_e1_task_01:2437be792647c500` | n/a |
+| Collection snapshot layer | retrieval index snapshot | n/a |
+| Executed-route fingerprint recorded | Yes | n/a |
+| Retrieved-context usefulness | 0.857 | n/a |
+| Provenance retained | 1.0 | n/a |
+| Irrelevant-context rate | 0.0 | n/a |
 
-Both runs completed the app task. The MNEMOS-enabled run successfully used the
-required memory tools (`health_check`, `get_capabilities`, `search_memory`,
-`record_decision`, `write_observation`, and `summarize_session_handoff`) and
-showed lower logged orientation/rework indicators in this single paired trial.
-The no-memory control also completed, but logged more repo activity, more route
-steps, more wrong turns, and more failed test runs.
+Both runs completed and passed the same acceptance/build checks. The
+MNEMOS-enabled run used the required memory tools (`health_check`,
+`get_capabilities`, `find_related_context`, `search_memory`, `record_decision`,
+`write_observation`, and `summarize_session_handoff`). Its useful
+`search_memory` call returned the seeded task-doc neighborhood, including
+`docs/product_scope.md`, `docs/architecture_decisions.md`, and
+`docs/data_contract.md`; the agent then verified those results against local
+project files before relying on them. Prior-run memory appeared in the result
+set but was rejected for direct reliance rather than used as authority.
 
-The trial also exposed an operational readiness issue. Early MNEMOS calls were
-harmful or unavailable until the backing service and MCP path were correctly
-started and routed. This overhead is separated from the memory-usefulness
-signal: future MNEMOS-enabled trials should run a warm preflight first
-(`verify_mnemos_msf_mcp.py`, `smoke_mnemos_mcp_stdio.py`, and
-`smoke_mnemos_mcp_live.py`) before app work begins.
+The no-memory control also completed successfully without memory calls. It
+required no user intervention and reached the same final quality bar, but logged
+more repo-activity rows. The MNEMOS condition logged fewer repo-activity rows
+but more tool calls and a higher estimated token count. In this run, MNEMOS
+showed useful retrieval and no observed quality degradation; it did not show a
+token or speed advantage. The raw failed-test count is retained for audit, but
+is not used as a workflow-quality comparison because both legs encountered the
+same Windows glob/script harness issue. The normalized agent-caused test
+failure count was `0` in both conditions.
 
-**Interpretation:** this is promising local development evidence that MNEMOS
-can serve as an AI-developer memory substrate when the MCP bridge and backing
-service are available. It suggests reduced orientation and rework signals in
-one paired app-building task.
+**Interpretation:** MNEMOS can operate as a useful AI-developer orientation and
+continuity layer when the collection is correctly seeded and the MCP path is
+healthy. The strongest evidence from E1 is retrieval quality and auditability:
+correct source neighborhood, source labels retained, retrieval fingerprints
+recorded, and stale/prior-run context rejected rather than used. The evidence
+does not support a broad claim that MNEMOS makes agents faster or cheaper. The
+reported seed snapshot and executed-route collection snapshot are different
+lineage layers: `0a578569ef136afa` identifies the task seed manifest, while
+`mnemos_ai_dev_e1_task_01:2437be792647c500` identifies the retrieval index
+snapshot observed in the executed route.
 
-**Claim boundary:** this does not establish that MNEMOS generally improves AI
-developer performance, always reduces token usage, caused all observed
-differences, or is production-ready as a universal agent memory store. More
-paired trials are needed, including warm-start repeats, resume tests,
-bug-regression tests, design-constraint retention tests, and stale-memory
-rejection tests.
+**Claim boundary:** this is local development evidence for one paired task, one
+seed snapshot, one dedicated collection, and the tested MCP configuration. It
+does not establish general AI-developer performance improvement, universal
+token reduction, broad retrieval quality, production readiness as a universal
+agent memory store, or causality for all observed differences. More paired
+trials are needed, including warm-start repeats, resume tests, bug-regression
+tests, design-constraint retention tests, stale-memory rejection tests, and
+multi-task comparisons with exact token/latency instrumentation.
 
 Evidence: `docs/experiments/ai_dev_mnemos_enabled_trial_instructions.md`,
 `docs/experiments/ai_dev_no_memory_trial_instructions.md`,
 `tools/verify_ai_dev_memory_trial.py`,
 `tools/compare_ai_dev_memory_trials.py`,
-`benchmarks/results/ai_dev_memory_trial_comparison_001.json`, and
-`benchmarks/results/ai_dev_memory_trial_comparison_001.md`.
+`benchmarks/results/ai_dev_memory_trial_comparison_001.json`,
+`benchmarks/results/ai_dev_memory_trial_comparison_001.md`,
+`benchmarks/results/ai_dev_memory_quality_e1_task_01_comparison_004.json`, and
+`benchmarks/results/ai_dev_memory_quality_e1_task_01_comparison_004.md`.
 
 ---
 
@@ -1329,7 +1378,7 @@ Detailed trial, certification, and experimental evidence is maintained outside t
 | Human operator trials (DFE) | `docs/reports/dfe_*.md` | Derived-fact selection and value assessment |
 | Graph Tier (MG-Test) | `docs/graph_tier/`, `docs/mg_test_10_experimental_closeout.md` | Experimental graph hybrid |
 | EBIR-R1 shadow refinement | `docs/ebir_r1_acceptance.md`, `benchmarks/truthsets/ebir_r1_adversarial.json`, `benchmarks/results/ebir_refinement_benchmark.json` | RepFusion-inspired evidence-bounded reconciliation; shadow-only, promotion blocked |
-| AI developer MCP memory trial | `docs/experiments/ai_dev_*_trial_instructions.md`, `benchmarks/results/ai_dev_memory_trial_comparison_001.*` | One paired local app-building trial; promising orientation/rework evidence only, no general memory-performance claim |
+| AI developer MCP memory trial | `docs/experiments/ai_dev_*_trial_instructions.md`, `benchmarks/results/ai_dev_memory_trial_comparison_001.*`, `benchmarks/results/ai_dev_memory_quality_e1_task_01_comparison_004.*` | Pilot plus refreshed E1 paired local app-building trial; useful retrieval/provenance evidence and no observed quality degradation, but no speed or token-efficiency claim |
 | Ops certification | `docs/reports/ops_*.md`, `docs/cert_binder/` | Release governance and red-lines |
 | Validation / shadow (VFR) | `docs/reports/vfr_*` (where present) | Sidecar read-only enforcement |
 | Schema/fact extraction (SMC) | `tools/smc_*.py`, `docs/reports/` | **Blocked** pending separate review |
@@ -1338,7 +1387,7 @@ Detailed trial, certification, and experimental evidence is maintained outside t
 
 ## 8. Deployment Profiles
 
-MNEMOS ships with named deployment profiles that determine the retrieval backend, container topology, and operational posture. The guided installer (`python -m installer`) recommends a profile based on use case, priorities, and host capabilities.
+MNEMOS ships with named deployment profiles that determine the retrieval backend, container topology, and operational posture. The guided installer (`python -m installer`) recommends a profile based on use case, priorities, host capabilities, and platform-safe compute mode.
 
 ### Profile A: Core Memory Appliance *(default)*
 
@@ -1346,9 +1395,9 @@ MNEMOS ships with named deployment profiles that determine the retrieval backend
 
 | Component | Service | Container |
 |---|---|---|
-| Vector store | Qdrant (HNSW, CUDA embeddings) | `mnemos-qdrant` |
+| Vector store | Qdrant (HNSW, CUDA or CPU embeddings) | `mnemos-qdrant` |
 | Audit ledger | PostgreSQL | `mnemos-postgres` |
-| Service | MNEMOS (nvidia runtime) | `mnemos-service` |
+| Service | MNEMOS (CUDA or CPU mode) | `mnemos-service` |
 
 3 containers. Qdrant provides fast semantic ANN with payload filtering. Recommended when retrieval is primarily semantic and the corpus exceeds 100K documents.
 
@@ -1360,7 +1409,7 @@ MNEMOS ships with named deployment profiles that determine the retrieval backend
 |---|---|---|
 | Vector store | pgvector (inside PostgreSQL) | `mnemos-postgres` (shared) |
 | Audit ledger | PostgreSQL | `mnemos-postgres` (shared) |
-| Service | MNEMOS (nvidia runtime) | `mnemos-service` |
+| Service | MNEMOS (CUDA or CPU mode) | `mnemos-service` |
 
 2 containers. Vectors and audit share one Postgres instance. ANN retrieval can be combined with SQL `WHERE` clauses on tenant, provenance, or security markings — in a single query. Recommended when metadata filtering matters more than raw ANN throughput.
 
@@ -1378,7 +1427,9 @@ Hybrid retrieval is not a separate deployment profile. It is a retrieval mode av
 
 ## 9. Deployment
 
-The installer generates a profile-specific `docker-compose.generated.yml` and `.env.mnemos`. Example stacks:
+The installer generates a profile-specific `docker-compose.generated.yml` and `.env.mnemos`. It resolves compute mode first: Linux hosts with an NVIDIA GPU and NVIDIA Container Toolkit use CUDA, while macOS and hosts without the NVIDIA runtime generate CPU-safe files with no `runtime: nvidia` stanza and `MNEMOS_GPU_DEVICE=cpu`. Operators can override with `--compute-mode cpu` or `--compute-mode cuda`.
+
+CUDA-mode example stacks:
 
 ### Core Memory Appliance
 
@@ -1451,10 +1502,10 @@ volumes:
 
 | Profile | Containers | RAM | Disk | GPU |
 |---|---|---|---|---|
-| Core Memory Appliance | 3 | ~2 GB | ~200 MB base | Required (CUDA) |
-| Core + Cross-Encoder reranking | 3 | ~4 GB | ~400 MB base | Required (CUDA) |
-| Governance Native | 2 | ~1.5 GB | ~150 MB base | Required (CUDA) |
-| Governance + Cross-Encoder | 2 | ~3.5 GB | ~350 MB base | Required (CUDA, ≥8 GB VRAM) |
+| Core Memory Appliance | 3 | ~2 GB | ~200 MB base | CUDA recommended; CPU supported for local/macOS evaluation |
+| Core + Cross-Encoder reranking | 3 | ~4 GB | ~400 MB base | CUDA recommended; CPU slower |
+| Governance Native | 2 | ~1.5 GB | ~150 MB base | CUDA recommended; CPU supported for local/macOS evaluation |
+| Governance + Cross-Encoder | 2 | ~3.5 GB | ~350 MB base | CUDA recommended; CPU slower |
 
 ---
 
@@ -1544,7 +1595,7 @@ Any application that stores, enriches, retrieves, and audits knowledge — and n
 ## 11. Design Principles
 
 1. **Application-agnostic** — The service has zero knowledge of what domain it serves. It stores vectors, enriches engrams, and answers queries. Period.
-2. **GPU-native** — Embedding inference runs on CUDA by default. The service is built on `nvidia/cuda` and requires GPU hardware — CPU fallback exists for resilience, not as a primary mode.
+2. **Compute-mode aware** — Embedding inference uses CUDA when an NVIDIA GPU and container runtime are available, while CPU mode is generated automatically for macOS and other non-NVIDIA hosts.
 3. **Profile-composable** — Named deployment profiles (Core Memory Appliance, Governance Native) determine the retrieval backend and container topology. The installer recommends, the operator confirms.
 4. **Contract-governed** — Every API response follows a strict MFS contract schema, enabling reliable integration without tight coupling.
 5. **Compression by default** — TurboQuant is on at 4-bit out of the box. Storage scales sublinearly with document count.
@@ -1682,7 +1733,7 @@ MNEMOS/
 ├── service/                   Flask REST API + MFS contract
 ├── installer/                 Guided deployment installer
 │   ├── __main__.py            Entry point (python -m installer)
-│   ├── questions.py           5-question Q/A
+│   ├── questions.py           Deployment Q/A
 │   ├── probes.py              Host capability detection
 │   ├── profiles.py            Profile definitions
 │   ├── recommend.py           Decision tree recommendation

@@ -115,6 +115,15 @@ docker compose -f docker-compose.generated.yml up -d --build
 python tools/mnemos_health_audit.py
 ```
 
+The installer is platform-aware. On macOS, including Apple Silicon, it
+automatically generates a CPU-safe compose file without `runtime: nvidia` and
+sets `MNEMOS_GPU_DEVICE=cpu` in `.env.mnemos`. Linux hosts with an NVIDIA GPU
+and NVIDIA Container Toolkit use CUDA by default. You can override detection
+with `--compute-mode cpu` or `--compute-mode cuda`.
+
+CPU mode is suitable for local evaluation and smaller corpora, but first-query
+latency may be higher while embedding models warm up.
+
 ```python
 from mnemos_sdk import MnemosClient, MnemosConfig
 
