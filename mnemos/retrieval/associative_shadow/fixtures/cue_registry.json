@@ -1,0 +1,150 @@
+{
+  "schema_version": "1",
+  "description": "Manually curated Cue records for the E1 shadow fixture corpus. Superset of the frozen E0 cue registry plus R0 retrieval-hygiene, AI-developer memory trial, and ADR cues. Every source_record_ids entry must resolve in fixtures/source_index.json.",
+  "cues": [
+    {
+      "cue_id": "cue:gatemem",
+      "canonical_value": "GateMem",
+      "cue_type": "project",
+      "normalized_value": "gatemem",
+      "aliases": ["gatemem program", "gatemem work"],
+      "source_record_ids": ["doc:gatemem_program_status"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-pause",
+      "canonical_value": "GateMem pause",
+      "cue_type": "state",
+      "normalized_value": "gatemem pause",
+      "aliases": ["gatemem paused", "gatemem work paused", "why is gatemem work paused"],
+      "source_record_ids": ["doc:gatemem_program_status"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-g4",
+      "canonical_value": "GateMem G4",
+      "cue_type": "milestone",
+      "normalized_value": "gatemem g4",
+      "aliases": ["g4"],
+      "source_record_ids": ["doc:gatemem_program_status", "doc:gatemem_g4_implementation"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-g5",
+      "canonical_value": "GateMem G5",
+      "cue_type": "milestone",
+      "normalized_value": "gatemem g5",
+      "aliases": ["g5", "fresh gatemem evaluation", "gatemem evaluation"],
+      "source_record_ids": ["doc:gatemem_program_status", "doc:gatemem_g5_readme"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-g5-handoff",
+      "canonical_value": "GateMem G5 handoff",
+      "cue_type": "artifact",
+      "normalized_value": "gatemem g5 handoff",
+      "aliases": ["g5 handoff", "g5 handoff state"],
+      "source_record_ids": ["doc:gatemem_g5_handoff_state", "doc:gatemem_g5_readme"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:frozen-regression-baseline",
+      "canonical_value": "frozen for regression testing only",
+      "cue_type": "status_label",
+      "normalized_value": "frozen for regression testing only",
+      "aliases": ["frozen regression baseline", "regression testing only"],
+      "source_record_ids": ["doc:gatemem_program_status"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-frozen-baseline",
+      "canonical_value": "GateMem frozen baseline",
+      "cue_type": "status_label",
+      "normalized_value": "gatemem frozen baseline",
+      "aliases": ["what is frozen", "frozen baseline"],
+      "source_record_ids": ["doc:gatemem_program_status"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-g4-implementation",
+      "canonical_value": "GateMem G4 implementation lane",
+      "cue_type": "artifact",
+      "normalized_value": "gatemem g4 implementation lane",
+      "aliases": ["g4 implementation", "g4 implementation lane"],
+      "source_record_ids": ["doc:gatemem_g4_implementation"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-g4-implementation-proposal",
+      "canonical_value": "GateMem G4 implementation proposal",
+      "cue_type": "artifact",
+      "normalized_value": "gatemem g4 implementation proposal",
+      "aliases": ["g4 proposal", "g4 implementation proposal"],
+      "source_record_ids": ["doc:gatemem_g4_implementation_proposal"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-g4-adr",
+      "canonical_value": "ADR 0013 GateMem G4 proposal",
+      "cue_type": "artifact",
+      "normalized_value": "adr 0013 gatemem g4 proposal",
+      "aliases": ["adr 0013", "g4 adr", "which artifact governs the g4 implementation lane", "what governs the g4 implementation"],
+      "source_record_ids": ["doc:adr_0013_gatemem_g4_proposal"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:retrieval-hygiene-r0",
+      "canonical_value": "Retrieval Hygiene R0",
+      "cue_type": "project",
+      "normalized_value": "retrieval hygiene r0",
+      "aliases": ["r0", "retrieval hygiene and reproducibility r0", "r0 retrieval hygiene"],
+      "source_record_ids": ["doc:retrieval_hygiene_r0_closeout"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:r0-frozen-benchmark",
+      "canonical_value": "R0 frozen alias benchmark",
+      "cue_type": "artifact",
+      "normalized_value": "r0 frozen alias benchmark",
+      "aliases": ["r0 benchmark pack", "frozen alias benchmark", "r0 frozen benchmark"],
+      "source_record_ids": ["doc:retrieval_hygiene_r0_frozen_alias_benchmark"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:r0-fresh-verification-pack",
+      "canonical_value": "R0 fresh verification pack",
+      "cue_type": "artifact",
+      "normalized_value": "r0 fresh verification pack",
+      "aliases": ["r0 fresh verification", "r0 verification pack"],
+      "source_record_ids": ["doc:retrieval_hygiene_r0_fresh_verification_pack"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:ai-dev-memory-trial",
+      "canonical_value": "AI developer memory trial",
+      "cue_type": "project",
+      "normalized_value": "ai developer memory trial",
+      "aliases": ["ai dev memory trial", "mnemos ai dev trial", "ai dev memory quality lane"],
+      "source_record_ids": ["doc:ai_dev_memory_trial_comparison_002"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:ai-dev-trial-comparison-001",
+      "canonical_value": "AI developer memory trial comparison 001",
+      "cue_type": "artifact",
+      "normalized_value": "ai developer memory trial comparison 001",
+      "aliases": ["trial comparison 001", "first ai dev trial comparison"],
+      "source_record_ids": ["doc:ai_dev_memory_trial_comparison_001"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:ai-dev-trial-comparison-002",
+      "canonical_value": "AI developer memory trial comparison 002",
+      "cue_type": "artifact",
+      "normalized_value": "ai developer memory trial comparison 002",
+      "aliases": ["trial comparison 002", "second ai dev trial comparison", "latest ai dev trial comparison"],
+      "source_record_ids": ["doc:ai_dev_memory_trial_comparison_002"],
+      "status": "active"
+    }
+  ]
+}

@@ -46,6 +46,8 @@ from mnemos.retrieval.pulse import (
     build_pulse_payload,
 )
 from mnemos.retrieval.shadow_search import ShadowSearchRunner
+from mnemos.retrieval.associative_shadow import default_adapter as _associative_shadow_adapter
+from mnemos.retrieval.associative_expansion import default_engine as _candidate_expansion_engine
 from tools.mnemos_seed_manifest import DEFAULT_MANIFEST_PATH
 from mnemos.governance.counterfactuals import compute_counterfactuals
 from mnemos.governance.governor import Governor
@@ -862,6 +864,8 @@ class MnemosRuntime:
         latency_budget_ms: Optional[float] = None,
         complexity_shadow: bool = False,
         cognitive_cycle: Optional[bool] = None,
+        associative_routing_shadow: bool = False,
+        associative_candidate_expansion: bool = False,
     ) -> Dict[str, Any]:
         """Search across tiers and return fused results."""
         import time
@@ -909,6 +913,8 @@ class MnemosRuntime:
                             fusion_policy_override="none",
                         ),
                     }
+                    if associative_routing_shadow:
+                        payload["meta"]["associative_routing_shadow"] = _associative_shadow_adapter.run(query)
                     self._intent_engine.harvester.record_query(
                         session_id=session_id,
                         query=query,
@@ -962,6 +968,8 @@ class MnemosRuntime:
             complexity_shadow=complexity_shadow,
             adaptive_routing=bool(getattr(self._config, "adaptive_routing", True)),
         )
+        if associative_routing_shadow:
+            mode_meta["associative_routing_shadow"] = _associative_shadow_adapter.run(query)
         raw_rank_by_id = {r.engram.id: idx + 1 for idx, r in enumerate(results)}
 
         if _assembler is not None:
@@ -1052,6 +1060,52 @@ class MnemosRuntime:
         )
         if low_relevance_abstention:
             results = []
+
+        # ── Associative Routing E2: opt-in, bounded candidate expansion ─────
+        # Runs only after the normal-results governance and abstention
+        # decisions above are final, so expansion can never mask a deserved
+        # abstention or be entangled with normal-candidate suppression.
+        candidate_expansion_block: Optional[Dict[str, Any]] = None
+        expansion_decisions: List[Any] = []
+        if associative_candidate_expansion and not low_relevance_abstention:
+            injected, candidate_expansion_block = _candidate_expansion_engine.expand(
+                query,
+                existing_results=results,
+                retrieval_router=self._router,
+                filters=filters,
+                retrieval_mode=mode_meta.get("retrieval_mode", selected_mode),
+            )
+            if injected:
+                if selected_governance != "off" and self._governor:
+                    governed_injected, expansion_decisions, _ = self._governor.govern(
+                        results=injected,
+                        query=query,
+                        governance_mode=selected_governance,
+                        top_k=len(injected),
+                        governance_profile=selected_profile or None,
+                    )
+                else:
+                    governed_injected = injected
+                rejected_by_governance = len(injected) - len(governed_injected)
+                if rejected_by_governance:
+                    candidate_expansion_block["candidates_added"] -= rejected_by_governance
+                    candidate_expansion_block["candidates_rejected_by_policy"] += rejected_by_governance
+                    if candidate_expansion_block["candidates_added"] <= 0:
+                        candidate_expansion_block["status"] = "resolved_no_new_candidates"
+                results = results + governed_injected
+        elif associative_candidate_expansion and low_relevance_abstention:
+            candidate_expansion_block = {
+                "status": "resolved_no_new_candidates",
+                "projection_snapshot": None,
+                "candidate_paths_considered": 0,
+                "candidate_paths_used": 0,
+                "candidates_added": 0,
+                "candidates_deduplicated": 0,
+                "candidates_rejected_by_policy": 0,
+                "latency_ms": 0.0,
+                "reason_codes": ["normal_retrieval_abstained"],
+                "non_authoritative": True,
+            }
 
         derived_views_payload: List[Dict[str, Any]] = []
         query_cache_hits = 0
@@ -1195,6 +1249,7 @@ class MnemosRuntime:
 
         # ── Build per-result payload ───────────────────────────────────────
         decision_map = {d.engram_id: d for d in decisions}
+        decision_map.update({d.engram_id: d for d in expansion_decisions})
         result_list = []
         include_lineage = bool(getattr(self._config, "memory_over_maps_phase1", False)) and selected_explain
         for idx, r in enumerate(results):
@@ -1206,6 +1261,15 @@ class MnemosRuntime:
                 "tier": r.tier,
                 "tiers": r.metadata.get("tiers", [r.tier]),
             }
+            if associative_candidate_expansion:
+                # Only added to the response contract when expansion was
+                # explicitly requested, so the default (flag-off) response
+                # shape is byte-for-byte unchanged from pre-E2 behavior.
+                entry["candidate_origin"] = r.metadata.get("candidate_origin", "normal_retrieval_candidate")
+                if entry["candidate_origin"] == "associative_expansion":
+                    entry["associative_routing_path"] = r.metadata.get("associative_routing_path")
+                    entry["associative_projection_snapshot"] = r.metadata.get("associative_projection_snapshot")
+                    entry["non_authoritative"] = True
             entry["evidence"] = self._build_evidence_packet(r, rank=rank)
             if selected_explain and mode_meta.get("retrieval_mode") == "hybrid":
                 entry.update({
@@ -1281,6 +1345,10 @@ class MnemosRuntime:
             payload["meta"]["routing_posture"] = mode_meta["routing_posture"]
         if mode_meta.get("complexity_shadow"):
             payload["meta"]["complexity_shadow"] = mode_meta["complexity_shadow"]
+        if mode_meta.get("associative_routing_shadow") is not None:
+            payload["meta"]["associative_routing_shadow"] = mode_meta["associative_routing_shadow"]
+        if candidate_expansion_block is not None:
+            payload["meta"]["associative_candidate_expansion"] = candidate_expansion_block
         if selected_governance != "off":
             payload["meta"]["governance_mode"] = selected_governance
             payload["meta"]["governance_profile"] = selected_profile or "default"
@@ -1893,6 +1961,8 @@ def search():
     latency_budget_ms = body.get("latency_budget_ms")
     complexity_shadow = body.get("complexity_shadow", False)
     cognitive_cycle = body.get("cognitive_cycle")
+    associative_routing_shadow = body.get("associative_routing_shadow", False)
+    associative_candidate_expansion = body.get("associative_candidate_expansion", False)
 
     if not query:
         return jsonify({"error": "No query provided"}), 400
@@ -1914,6 +1984,12 @@ def search():
 
     if not isinstance(complexity_shadow, bool):
         return jsonify({"error": "complexity_shadow must be a boolean"}), 400
+
+    if not isinstance(associative_routing_shadow, bool):
+        return jsonify({"error": "associative_routing_shadow must be a boolean"}), 400
+
+    if not isinstance(associative_candidate_expansion, bool):
+        return jsonify({"error": "associative_candidate_expansion must be a boolean"}), 400
 
     if governance is not None and governance not in GOVERNANCE_MODES:
         return jsonify({
@@ -1998,6 +2074,8 @@ def search():
             latency_budget_ms,
             complexity_shadow,
             cognitive_cycle,
+            associative_routing_shadow,
+            associative_candidate_expansion,
         )
 
     derived_cnt = len(res.get("derived_results", []))

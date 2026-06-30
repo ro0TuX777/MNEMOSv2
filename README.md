@@ -164,7 +164,7 @@ Its current evidence supports limited usefulness for selected query classes, inc
 - EBIR refinement
 - Session Context Assembler local shadow adapter
 - GateMem reference baseline
-- Associative Routing E0/E1 unless repository evidence shows a separately enabled runtime path
+- Associative Routing E0 prototype and E1 opt-in shadow behavior; E1 is observational and does not change delivered results
 - Derived-facts work unless and until a specific deployment artifact authorizes a narrower posture
 - TimesFM predictive pulse and related advisory predictive lanes
 
@@ -208,7 +208,9 @@ E2 remains disabled by default. The available evidence supports evaluation for s
 
 See:
 
+- [E2 closeout record](docs/associative_routing_e2_closeout.md)
 - [E2 design note and limitations](docs/associative_routing_e2_design_note.md)
+- [E2 commit manifest](docs/associative_routing_e2_commit_manifest.md)
 - [Recorded E2 comparison artifact](benchmarks/results/associative_routing_e2_live_comparison_run_001.json)
 - [Benchmark methodology](docs/benchmark.md)
 - [Support matrix](docs/support_matrix.md)

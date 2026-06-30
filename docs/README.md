@@ -58,6 +58,8 @@ Use this index to find the implementation, deployment, evaluation, governance, a
 | [Context Atlas spec](context_atlas_spec.md) | Deferred exploration API design. |
 | [Associative Retrieval A1 spec](associative_retrieval_a1_spec.md) | Deferred benchmark-first graph projection design. |
 | [Associative Routing E0 design note](associative_routing_e0_design_note.md) | Prototype routing design note. |
+| [Associative Routing E2 closeout](associative_routing_e2_closeout.md) | Experimental opt-in candidate-expansion closeout and claim boundary. |
+| [Associative Routing E2 manifest](associative_routing_e2_commit_manifest.md) | Exact included-file manifest for E2 reproducibility. |
 | [Session Context Assembler spec](session_context_assembler_spec.md) | Research-lane context assembly design. |
 | [Future research candidates](future_research_candidates.md) | Candidate follow-on work. |
 

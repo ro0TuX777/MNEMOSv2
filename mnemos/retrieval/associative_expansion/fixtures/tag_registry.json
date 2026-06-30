@@ -1,0 +1,406 @@
+{
+  "schema_version": "1",
+  "description": "Manually curated Tag records for the E2 candidate-expansion fixture corpus. Superset of the E1 shadow tag registry plus PIT-8/PIT-9B/PIT-10 tags. Every tag must cite source_record_ids resolvable in fixtures/source_index.json and a from_cue_id resolvable in fixtures/cue_registry.json.",
+  "tags": [
+    {
+      "tag_id": "tag:gatemem-blocked-by-g5-packet",
+      "tag_type": "blocked_by",
+      "from_cue_id": "cue:gatemem",
+      "to_content_id": "doc:gatemem_g5_readme",
+      "source_record_ids": ["doc:gatemem_program_status", "doc:gatemem_g5_readme"],
+      "evidence_locator": {
+        "source_uri": "docs/benchmarks/gatemem_program_status.md",
+        "section_or_line_reference": "## GateMem pause and external blocker (lines 76-91): 'Further GateMem policy and implementation work is paused... requires an independent sealed-evaluation custodian'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:gatemem-pause-evidence",
+      "tag_type": "evidence_for",
+      "from_cue_id": "cue:gatemem-pause",
+      "to_content_id": "doc:gatemem_program_status",
+      "source_record_ids": ["doc:gatemem_program_status"],
+      "evidence_locator": {
+        "source_uri": "docs/benchmarks/gatemem_program_status.md",
+        "section_or_line_reference": "## GateMem pause and external blocker (lines 76-91): 'Further GateMem policy and implementation work is paused.'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:g4-frozen-regression-baseline",
+      "tag_type": "frozen_baseline_of",
+      "from_cue_id": "cue:frozen-regression-baseline",
+      "to_content_id": "doc:gatemem_g4_implementation",
+      "source_record_ids": ["doc:gatemem_program_status", "doc:gatemem_g4_implementation"],
+      "evidence_locator": {
+        "source_uri": "docs/benchmarks/gatemem_program_status.md",
+        "section_or_line_reference": "lines 76-83: 'GATEMEM_G4_FROZEN_REFERENCE_CONTRACT_BASELINE / REGRESSION_TESTING_ONLY'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:g5-blocked-by-checklist",
+      "tag_type": "blocked_by",
+      "from_cue_id": "cue:gatemem-g5",
+      "to_content_id": "doc:gatemem_g5_handoff_checklist",
+      "source_record_ids": ["doc:gatemem_g5_handoff_checklist", "doc:gatemem_g5_handoff_state"],
+      "evidence_locator": {
+        "source_uri": "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+        "section_or_line_reference": "Sections B/C/D: unchecked external-party items (custodian appointment, sealed corpus, preregistration, one-shot authorization)"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:g5-blocked-by-handoff-state",
+      "tag_type": "evidence_for",
+      "from_cue_id": "cue:gatemem-g5",
+      "to_content_id": "doc:gatemem_g5_handoff_state",
+      "source_record_ids": ["doc:gatemem_g5_handoff_state"],
+      "evidence_locator": {
+        "source_uri": "benchmarks/evaluation/gatemem_g5_handoff_state.json",
+        "section_or_line_reference": "external_requirements: all false; evaluation_state: 'SEALED_EVALUATION_BLOCKED_EXTERNAL_INPUTS_REQUIRED'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:g5-handoff-current-state",
+      "tag_type": "current_state_of",
+      "from_cue_id": "cue:gatemem-g5-handoff",
+      "to_content_id": "doc:gatemem_g5_handoff_state",
+      "source_record_ids": ["doc:gatemem_g5_handoff_state"],
+      "evidence_locator": {
+        "source_uri": "benchmarks/evaluation/gatemem_g5_handoff_state.json",
+        "section_or_line_reference": "status: 'GATEMEM_G5_PACKET_READY_FOR_EXTERNAL_HANDOFF'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:g4-implementation-supersedes-proposal",
+      "tag_type": "supersedes",
+      "from_cue_id": "cue:gatemem-g4-implementation",
+      "to_content_id": "doc:gatemem_g4_implementation_proposal",
+      "source_record_ids": ["doc:gatemem_g4_implementation", "doc:gatemem_g4_implementation_proposal"],
+      "evidence_locator": {
+        "source_uri": "docs/benchmarks/gatemem_g4_offline_reference_implementation_proposal.md",
+        "section_or_line_reference": "Status line: 'accepted and implemented within the local offline reference boundary'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:g4-proposal-superseded-by-implementation",
+      "tag_type": "superseded_by",
+      "from_cue_id": "cue:gatemem-g4-implementation-proposal",
+      "to_content_id": "doc:gatemem_g4_implementation",
+      "source_record_ids": ["doc:gatemem_g4_implementation_proposal", "doc:gatemem_g4_implementation"],
+      "evidence_locator": {
+        "source_uri": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "section_or_line_reference": "Status: 'GATEMEM_G4_OFFLINE_REFERENCE_IMPLEMENTATION_COMPLETE'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:g4-current-state",
+      "tag_type": "current_state_of",
+      "from_cue_id": "cue:gatemem-g4",
+      "to_content_id": "doc:gatemem_g4_implementation",
+      "source_record_ids": ["doc:gatemem_g4_implementation"],
+      "evidence_locator": {
+        "source_uri": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "section_or_line_reference": "Freeze status: 'GATEMEM_G4_FROZEN_REFERENCE_CONTRACT_BASELINE'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:gatemem-frozen-baseline-g2",
+      "tag_type": "frozen_baseline_of",
+      "from_cue_id": "cue:gatemem-frozen-baseline",
+      "to_content_id": "doc:gatemem_program_status",
+      "source_record_ids": ["doc:gatemem_program_status"],
+      "evidence_locator": {
+        "source_uri": "docs/benchmarks/gatemem_program_status.md",
+        "section_or_line_reference": "G2 row: 'Medical offline baseline frozen under composite SHA-256 4211bc91e7dbe53f588a8ecb00a04e6e44d2fb775ca1e888d058680acb5ad209'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:gatemem-frozen-baseline-g4",
+      "tag_type": "frozen_baseline_of",
+      "from_cue_id": "cue:gatemem-frozen-baseline",
+      "to_content_id": "doc:gatemem_g4_implementation",
+      "source_record_ids": ["doc:gatemem_program_status", "doc:gatemem_g4_implementation"],
+      "evidence_locator": {
+        "source_uri": "docs/benchmarks/gatemem_program_status.md",
+        "section_or_line_reference": "lines 76-83: 'GATEMEM_G4_FROZEN_REFERENCE_CONTRACT_BASELINE' block"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:g4-adr-evidence-for-implementation",
+      "tag_type": "evidence_for",
+      "from_cue_id": "cue:gatemem-g4-implementation",
+      "to_content_id": "doc:adr_0013_gatemem_g4_proposal",
+      "source_record_ids": ["doc:gatemem_g4_implementation", "doc:adr_0013_gatemem_g4_proposal"],
+      "evidence_locator": {
+        "source_uri": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+        "section_or_line_reference": "Accepted authorization block: 'GATEMEM_G4_OFFLINE_REFERENCE_IMPLEMENTATION_AUTHORIZED / LOCAL_OFFLINE_ONLY / ...'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:g4-adr-current-state",
+      "tag_type": "current_state_of",
+      "from_cue_id": "cue:gatemem-g4-adr",
+      "to_content_id": "doc:adr_0013_gatemem_g4_proposal",
+      "source_record_ids": ["doc:adr_0013_gatemem_g4_proposal"],
+      "evidence_locator": {
+        "source_uri": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+        "section_or_line_reference": "Status line: 'Accepted — local offline reference implementation complete'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:r0-current-state",
+      "tag_type": "current_state_of",
+      "from_cue_id": "cue:retrieval-hygiene-r0",
+      "to_content_id": "doc:retrieval_hygiene_r0_closeout",
+      "source_record_ids": ["doc:retrieval_hygiene_r0_closeout"],
+      "evidence_locator": {
+        "source_uri": "benchmarks/results/retrieval_hygiene_r0_closeout.md",
+        "section_or_line_reference": "Status block (lines 5-14): 'RETRIEVAL_HYGIENE_AND_REPRODUCIBILITY_R0_COMPLETE / R0_REGRESSION_EVIDENCE_COMPLETE / FRESH_VERIFICATION_EVIDENCE_COMPLETE'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:r0-evidence-run-003",
+      "tag_type": "evidence_for",
+      "from_cue_id": "cue:retrieval-hygiene-r0",
+      "to_content_id": "doc:retrieval_hygiene_r0_run_003",
+      "source_record_ids": ["doc:retrieval_hygiene_r0_closeout", "doc:retrieval_hygiene_r0_run_003"],
+      "evidence_locator": {
+        "source_uri": "benchmarks/results/retrieval_hygiene_r0_closeout.md",
+        "section_or_line_reference": "## Regression result: 'direct-service top-1 accuracy: 1.0 / MCP-path top-1 accuracy: 1.0 / cold/warm consistency: 1.0'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:r0-benchmark-current-state",
+      "tag_type": "current_state_of",
+      "from_cue_id": "cue:r0-frozen-benchmark",
+      "to_content_id": "doc:retrieval_hygiene_r0_frozen_alias_benchmark",
+      "source_record_ids": ["doc:retrieval_hygiene_r0_frozen_alias_benchmark"],
+      "evidence_locator": {
+        "source_uri": "docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json",
+        "section_or_line_reference": "status: 'frozen_read_only_after_creation'; created_for: 'RETRIEVAL_HYGIENE_AND_REPRODUCIBILITY_R0'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:r0-fresh-verification-current-state",
+      "tag_type": "current_state_of",
+      "from_cue_id": "cue:r0-fresh-verification-pack",
+      "to_content_id": "doc:retrieval_hygiene_r0_fresh_verification_pack",
+      "source_record_ids": ["doc:retrieval_hygiene_r0_fresh_verification_pack"],
+      "evidence_locator": {
+        "source_uri": "docs/experiments/retrieval_hygiene_r0_fresh_verification_pack.json",
+        "section_or_line_reference": "status: 'fresh_verification_read_only_after_creation'; disclosure.independence_label: 'verification_pack_not_held_out'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:ai-dev-trial-current-state",
+      "tag_type": "current_state_of",
+      "from_cue_id": "cue:ai-dev-memory-trial",
+      "to_content_id": "doc:ai_dev_memory_trial_comparison_002",
+      "source_record_ids": ["doc:ai_dev_memory_trial_comparison_002"],
+      "evidence_locator": {
+        "source_uri": "benchmarks/results/ai_dev_memory_trial_comparison_002.md",
+        "section_or_line_reference": "Header block: 'LOCAL_DEVELOPMENT_EVIDENCE_ONLY / NO_GENERAL_MEMORY_CLAIM'; adds Memory Quality and Retrieval-Integrity Controls sections not present in 001"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:ai-dev-trial-002-supersedes-001",
+      "tag_type": "supersedes",
+      "from_cue_id": "cue:ai-dev-trial-comparison-002",
+      "to_content_id": "doc:ai_dev_memory_trial_comparison_001",
+      "source_record_ids": ["doc:ai_dev_memory_trial_comparison_001", "doc:ai_dev_memory_trial_comparison_002"],
+      "evidence_locator": {
+        "source_uri": "benchmarks/results/ai_dev_memory_trial_comparison_002.md",
+        "section_or_line_reference": "Same benchmark lane as 001, ordinal suffix _002 succeeding _001, with an expanded Memory Quality / Retrieval-Integrity Controls schema absent from 001"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:ai-dev-trial-001-superseded-by-002",
+      "tag_type": "superseded_by",
+      "from_cue_id": "cue:ai-dev-trial-comparison-001",
+      "to_content_id": "doc:ai_dev_memory_trial_comparison_002",
+      "source_record_ids": ["doc:ai_dev_memory_trial_comparison_001", "doc:ai_dev_memory_trial_comparison_002"],
+      "evidence_locator": {
+        "source_uri": "benchmarks/results/ai_dev_memory_trial_comparison_001.md",
+        "section_or_line_reference": "Same benchmark lane as 002, ordinal suffix _001 preceding _002, with a narrower metrics schema than 002"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:pit-lane-current-state",
+      "tag_type": "current_state_of",
+      "from_cue_id": "cue:pit-lane",
+      "to_content_id": "doc:pit_10_closeout",
+      "source_record_ids": ["doc:pit_10_closeout"],
+      "evidence_locator": {
+        "source_uri": "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+        "section_or_line_reference": "Status: 'PIT_10_PRODUCTION_ADJACENT_EVALUATION_LANE_READY_FOR_LIMITED_PILOT'; 'formal closeout report for the Memory Over Maps (MOM) Derived Facts capability development track (PIT-0 through PIT-9B)'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:pit-lane-evidence-pit8",
+      "tag_type": "evidence_for",
+      "from_cue_id": "cue:pit-lane",
+      "to_content_id": "doc:pit_8_release_evidence",
+      "source_record_ids": ["doc:pit_10_closeout", "doc:pit_8_release_evidence"],
+      "evidence_locator": {
+        "source_uri": "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+        "section_or_line_reference": "Phase table: 'PIT-8 | Controlled Live Route Trial | PASS'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:pit-lane-evidence-pit9b",
+      "tag_type": "evidence_for",
+      "from_cue_id": "cue:pit-lane",
+      "to_content_id": "doc:pit_9b_release_evidence",
+      "source_record_ids": ["doc:pit_10_closeout", "doc:pit_9b_release_evidence"],
+      "evidence_locator": {
+        "source_uri": "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+        "section_or_line_reference": "Phase table: 'PIT-9B | Tail Latency Investigation & Stabilization | PASS'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:pit8-current-state",
+      "tag_type": "current_state_of",
+      "from_cue_id": "cue:pit-8",
+      "to_content_id": "doc:pit_8_release_evidence",
+      "source_record_ids": ["doc:pit_8_release_evidence"],
+      "evidence_locator": {
+        "source_uri": "docs/reports/pit_8_release_evidence_record.md",
+        "section_or_line_reference": "Status: 'GO_FOR_OPERATOR_REVIEW'; Phase: PIT-8 (Controlled Evaluation Route Live Trial)"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "tag_id": "tag:pit9b-current-state",
+      "tag_type": "current_state_of",
+      "from_cue_id": "cue:pit-9b",
+      "to_content_id": "doc:pit_9b_release_evidence",
+      "source_record_ids": ["doc:pit_9b_release_evidence"],
+      "evidence_locator": {
+        "source_uri": "docs/reports/pit_9b_release_evidence_record.md",
+        "section_or_line_reference": "Status: 'TAIL_LATENCY_RESOLVED'; 'p95 latency across the derived evaluation lane averages ~4.04ms under load'"
+      },
+      "derivation_method": "manually_curated_fixture",
+      "schema_version": "1",
+      "tag_owner": "associative_routing_e2_fixture_author",
+      "created_at": "2026-06-30T00:00:00Z",
+      "status": "active"
+    }
+  ]
+}

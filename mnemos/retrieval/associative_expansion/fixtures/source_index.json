@@ -1,0 +1,86 @@
+{
+  "schema_version": "1",
+  "description": "Content references for the Associative Routing E2 candidate-expansion fixture corpus. Superset of the E1 shadow fixture corpus plus a third, genuinely unrelated documentation family (the PIT-8/PIT-9B/PIT-10 Memory-Over-Maps production-adjacent evaluation lane) required for E2 corpus fairness. Each entry points at an existing MNEMOS source document; no content is duplicated here.",
+  "content": [
+    {
+      "content_id": "doc:gatemem_program_status",
+      "source_uri": "docs/benchmarks/gatemem_program_status.md",
+      "title": "GateMem Program Status"
+    },
+    {
+      "content_id": "doc:gatemem_g5_readme",
+      "source_uri": "docs/benchmarks/gatemem_g5/README.md",
+      "title": "GateMem G5 Independent Evaluation Readiness Packet"
+    },
+    {
+      "content_id": "doc:gatemem_g5_handoff_checklist",
+      "source_uri": "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+      "title": "GateMem G5 Independent Evaluation Handoff Checklist"
+    },
+    {
+      "content_id": "doc:gatemem_g5_handoff_state",
+      "source_uri": "benchmarks/evaluation/gatemem_g5_handoff_state.json",
+      "title": "GateMem G5 Handoff State"
+    },
+    {
+      "content_id": "doc:gatemem_g4_implementation",
+      "source_uri": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+      "title": "GateMem G4 Offline Authorization/Disclosure Reference Implementation"
+    },
+    {
+      "content_id": "doc:gatemem_g4_implementation_proposal",
+      "source_uri": "docs/benchmarks/gatemem_g4_offline_reference_implementation_proposal.md",
+      "title": "GateMem G4 Offline Authorization/Disclosure Reference Implementation Proposal"
+    },
+    {
+      "content_id": "doc:adr_0013_gatemem_g4_proposal",
+      "source_uri": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+      "title": "ADR 0013: GateMem G4 Proposes an Offline Authorization Reference Implementation"
+    },
+    {
+      "content_id": "doc:retrieval_hygiene_r0_closeout",
+      "source_uri": "benchmarks/results/retrieval_hygiene_r0_closeout.md",
+      "title": "Retrieval Hygiene R0 Closeout"
+    },
+    {
+      "content_id": "doc:retrieval_hygiene_r0_run_003",
+      "source_uri": "benchmarks/results/retrieval_hygiene_r0_run_003.json",
+      "title": "Retrieval Hygiene R0 Regression Rerun (run_003)"
+    },
+    {
+      "content_id": "doc:retrieval_hygiene_r0_frozen_alias_benchmark",
+      "source_uri": "docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json",
+      "title": "Retrieval Hygiene R0 Frozen Alias Benchmark Pack"
+    },
+    {
+      "content_id": "doc:retrieval_hygiene_r0_fresh_verification_pack",
+      "source_uri": "docs/experiments/retrieval_hygiene_r0_fresh_verification_pack.json",
+      "title": "Retrieval Hygiene R0 Fresh Verification Pack"
+    },
+    {
+      "content_id": "doc:ai_dev_memory_trial_comparison_001",
+      "source_uri": "benchmarks/results/ai_dev_memory_trial_comparison_001.md",
+      "title": "AI Developer Memory Trial Comparison (001)"
+    },
+    {
+      "content_id": "doc:ai_dev_memory_trial_comparison_002",
+      "source_uri": "benchmarks/results/ai_dev_memory_trial_comparison_002.md",
+      "title": "AI Developer Memory Quality Lane Result (002)"
+    },
+    {
+      "content_id": "doc:pit_8_release_evidence",
+      "source_uri": "docs/reports/pit_8_release_evidence_record.md",
+      "title": "PIT-8 Release Evidence Record: Controlled Evaluation Route Live Trial"
+    },
+    {
+      "content_id": "doc:pit_9b_release_evidence",
+      "source_uri": "docs/reports/pit_9b_release_evidence_record.md",
+      "title": "PIT-9B Release Evidence Record: Tail Latency Investigation"
+    },
+    {
+      "content_id": "doc:pit_10_closeout",
+      "source_uri": "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+      "title": "PIT-10: Production-Adjacent Evaluation Lane Closeout and Limited Pilot Readiness"
+    }
+  ]
+}

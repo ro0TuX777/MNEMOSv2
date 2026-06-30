@@ -1,0 +1,1056 @@
+[
+  {
+    "query_id": "v01",
+    "query": "Why is GateMem work paused?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "docs/benchmarks/gatemem_g5/README.md",
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+      "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+      "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+      "docs/benchmarks/gatemem_program_status.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/benchmarks/gatemem_g5/README.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_program_status.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "resolved_no_new_candidates",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 2,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 2,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 1.105,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v02",
+    "query": "What is the current state of Retrieval Hygiene R0?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "benchmarks/results/retrieval_hygiene_r0_closeout.md",
+      "docs/experiments/retrieval_hygiene_r0_fresh_verification_pack.json",
+      "docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json",
+      "docs/benchmarks/gatemem_program_status.md",
+      "docs/adr/0007-local-review-queue.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "benchmarks/results/retrieval_hygiene_r0_closeout.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/experiments/retrieval_hygiene_r0_fresh_verification_pack.json",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_program_status.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/adr/0007-local-review-queue.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "resolved_no_new_candidates",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 1,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 1,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.233,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v03",
+    "query": "What is the current state of the AI developer memory trial?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "benchmarks/results/ai_dev_memory_trial_comparison_001.md",
+      "benchmarks/results/ai_dev_memory_trial_comparison_002.md",
+      "docs/reports/pit_8_release_evidence_record.md",
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+      "docs/benchmarks/gatemem_program_status.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "benchmarks/results/ai_dev_memory_trial_comparison_001.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "benchmarks/results/ai_dev_memory_trial_comparison_002.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/reports/pit_8_release_evidence_record.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_program_status.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "resolved_no_new_candidates",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 1,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 1,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.206,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v04",
+    "query": "What governs the G4 implementation lane?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation_proposal.md",
+      "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+      "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+      "docs/benchmarks/gatemem_g5/README.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation_proposal.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/README.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "resolved_no_new_candidates",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 4,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 3,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.223,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v05",
+    "query": "What is the current state of the PIT production-adjacent evaluation lane?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+      "docs/reports/pit_8_release_evidence_record.md",
+      "docs/reports/pit_9b_release_evidence_record.md",
+      "docs/current_release_contract.md",
+      "docs/adr/0007-local-review-queue.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/reports/pit_8_release_evidence_record.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/reports/pit_9b_release_evidence_record.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/current_release_contract.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/adr/0007-local-review-queue.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "resolved_no_new_candidates",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 1,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 1,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.211,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v06",
+    "query": "What blocks a fresh GateMem evaluation?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "docs/benchmarks/gatemem_g5/README.md",
+      "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+      "docs/benchmarks/gatemem_program_status.md",
+      "docs/experiments/retrieval_hygiene_r0_fresh_verification_pack.json",
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/benchmarks/gatemem_g5/README.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_program_status.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/experiments/retrieval_hygiene_r0_fresh_verification_pack.json",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "resolved_no_new_candidates",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 2,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 2,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.207,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v07",
+    "query": "What blocks GateMem?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "docs/benchmarks/gatemem_program_status.md",
+      "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+      "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+      "docs/benchmarks/gatemem_g5/README.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/benchmarks/gatemem_program_status.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/README.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "resolved_no_new_candidates",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 1,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 1,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.16,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v08",
+    "query": "What depends on the G5 handoff?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "benchmarks/evaluation/gatemem_g5_handoff_state.json",
+      "docs/benchmarks/gatemem_g5/README.md",
+      "docs/handoff_notes.md",
+      "docs/archive/superseded_queue_policy_2025.md",
+      "docs/adr/0007-local-review-queue.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "benchmarks/evaluation/gatemem_g5_handoff_state.json",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/README.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/handoff_notes.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/archive/superseded_queue_policy_2025.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/adr/0007-local-review-queue.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "abstained",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 0,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 0,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.153,
+      "reason_codes": [
+        "NO_SUPPORTED_ASSOCIATIVE_PATH"
+      ],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v09",
+    "query": "What blocks the R0 retrieval hygiene closure?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "benchmarks/results/retrieval_hygiene_r0_closeout.md",
+      "docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json",
+      "docs/experiments/retrieval_hygiene_r0_fresh_verification_pack.json",
+      "docs/benchmarks/gatemem_g5/README.md",
+      "docs/benchmarks/gatemem_program_status.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "benchmarks/results/retrieval_hygiene_r0_closeout.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/experiments/retrieval_hygiene_r0_fresh_verification_pack.json",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/README.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_program_status.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "abstained",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 0,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 0,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.218,
+      "reason_codes": [
+        "NO_SUPPORTED_ASSOCIATIVE_PATH"
+      ],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v10",
+    "query": "What superseded the G4 implementation proposal?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation_proposal.md",
+      "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+      "docs/benchmarks/gatemem_program_status.md",
+      "docs/benchmarks/gatemem_g5/handoff_checklist.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation_proposal.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_program_status.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "resolved_no_new_candidates",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 1,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 1,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.199,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v11",
+    "query": "What did the G4 implementation lane supersede?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation_proposal.md",
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+      "docs/benchmarks/gatemem_program_status.md",
+      "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+      "docs/archive/superseded_queue_policy_2025.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation_proposal.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_program_status.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/archive/superseded_queue_policy_2025.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "resolved_no_new_candidates",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 1,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 1,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.171,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v12",
+    "query": "What did the latest AI dev trial comparison supersede?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "benchmarks/results/ai_dev_memory_trial_comparison_001.md",
+      "benchmarks/results/ai_dev_memory_trial_comparison_002.md",
+      "docs/known_regression.md",
+      "docs/reports/pit_8_release_evidence_record.md",
+      "docs/reports/pit_10_closeout_and_pilot_readiness.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "benchmarks/results/ai_dev_memory_trial_comparison_001.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "benchmarks/results/ai_dev_memory_trial_comparison_002.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/known_regression.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/reports/pit_8_release_evidence_record.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "resolved_no_new_candidates",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 1,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 1,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.169,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v13",
+    "query": "What superseded trial comparison 001?",
+    "baseline_count": 5,
+    "expanded_count": 6,
+    "baseline_top_sources": [
+      "docs/known_regression.md",
+      "benchmarks/results/ai_dev_memory_trial_comparison_001.md",
+      "docs/reports/pit_8_release_evidence_record.md",
+      "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+      "docs/adr/0007-local-review-queue.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/known_regression.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "benchmarks/results/ai_dev_memory_trial_comparison_001.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/reports/pit_8_release_evidence_record.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/adr/0007-local-review-queue.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "benchmarks/results/ai_dev_memory_trial_comparison_002.md",
+        "associative_expansion"
+      ]
+    ],
+    "expansion_block": {
+      "status": "expanded",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 1,
+      "candidate_paths_used": 1,
+      "candidates_added": 1,
+      "candidates_deduplicated": 0,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 48.471,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v14",
+    "query": "What is the GateMem frozen baseline?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "docs/benchmarks/gatemem_program_status.md",
+      "docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json",
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+      "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+      "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/benchmarks/gatemem_program_status.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "resolved_no_new_candidates",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 2,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 2,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.162,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v15",
+    "query": "Tell me about Retrieval Hygiene R0.",
+    "baseline_count": 5,
+    "expanded_count": 6,
+    "baseline_top_sources": [
+      "benchmarks/results/retrieval_hygiene_r0_closeout.md",
+      "docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json",
+      "docs/experiments/retrieval_hygiene_r0_fresh_verification_pack.json",
+      "benchmarks/results/ai_dev_memory_trial_comparison_002.md",
+      "docs/known_regression.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "benchmarks/results/retrieval_hygiene_r0_closeout.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/experiments/retrieval_hygiene_r0_fresh_verification_pack.json",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "benchmarks/results/ai_dev_memory_trial_comparison_002.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/known_regression.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "benchmarks/results/retrieval_hygiene_r0_run_003.json",
+        "associative_expansion"
+      ]
+    ],
+    "expansion_block": {
+      "status": "expanded",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 2,
+      "candidate_paths_used": 1,
+      "candidates_added": 1,
+      "candidates_deduplicated": 1,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 58.011,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v16",
+    "query": "Tell me about the PIT production-adjacent evaluation lane.",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+      "docs/reports/pit_8_release_evidence_record.md",
+      "docs/reports/pit_9b_release_evidence_record.md",
+      "docs/current_release_contract.md",
+      "docs/handoff_notes.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/reports/pit_8_release_evidence_record.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/reports/pit_9b_release_evidence_record.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/current_release_contract.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/handoff_notes.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "resolved_no_new_candidates",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 3,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 3,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.208,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v17",
+    "query": "What is the capital of France?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation_proposal.md",
+      "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+      "docs/archive/superseded_queue_policy_2025.md",
+      "docs/handoff_notes.md",
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation_proposal.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/archive/superseded_queue_policy_2025.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/handoff_notes.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "abstained",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 0,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 0,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.151,
+      "reason_codes": [
+        "NO_SUPPORTED_ASSOCIATIVE_PATH"
+      ],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v18",
+    "query": "How do I configure a Kubernetes ingress controller?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "benchmarks/evaluation/gatemem_g5_handoff_state.json",
+      "docs/benchmarks/gatemem_g5/README.md",
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+      "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+      "docs/reports/pit_10_closeout_and_pilot_readiness.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "benchmarks/evaluation/gatemem_g5_handoff_state.json",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/README.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "abstained",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 0,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 0,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.195,
+      "reason_codes": [
+        "NO_SUPPORTED_ASSOCIATIVE_PATH"
+      ],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v19",
+    "query": "What is the boiling point of water at sea level?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "docs/reports/pit_9b_release_evidence_record.md",
+      "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+      "docs/adr/0007-local-review-queue.md",
+      "benchmarks/results/retrieval_hygiene_r0_closeout.md",
+      "docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/reports/pit_9b_release_evidence_record.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/adr/0007-local-review-queue.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "benchmarks/results/retrieval_hygiene_r0_closeout.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "abstained",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 0,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 0,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.152,
+      "reason_codes": [
+        "NO_SUPPORTED_ASSOCIATIVE_PATH"
+      ],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v20",
+    "query": "What is the current status of GateMem G4?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "docs/benchmarks/gatemem_program_status.md",
+      "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+      "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+      "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+      "docs/benchmarks/gatemem_g5/README.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/benchmarks/gatemem_program_status.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_g5/README.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "resolved_no_new_candidates",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 1,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 1,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.224,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v21",
+    "query": "What is the current state of trial comparison 001?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "docs/reports/pit_8_release_evidence_record.md",
+      "benchmarks/results/ai_dev_memory_trial_comparison_001.md",
+      "docs/known_regression.md",
+      "docs/adr/0007-local-review-queue.md",
+      "docs/reports/pit_9b_release_evidence_record.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/reports/pit_8_release_evidence_record.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "benchmarks/results/ai_dev_memory_trial_comparison_001.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/known_regression.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/adr/0007-local-review-queue.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/reports/pit_9b_release_evidence_record.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "abstained",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 0,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 0,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.141,
+      "reason_codes": [
+        "NO_SUPPORTED_ASSOCIATIVE_PATH"
+      ],
+      "non_authoritative": true
+    }
+  },
+  {
+    "query_id": "v22",
+    "query": "What is the current state of PIT-8?",
+    "baseline_count": 5,
+    "expanded_count": 5,
+    "baseline_top_sources": [
+      "docs/reports/pit_8_release_evidence_record.md",
+      "docs/reports/pit_9b_release_evidence_record.md",
+      "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+      "docs/current_release_contract.md",
+      "docs/benchmarks/gatemem_program_status.md"
+    ],
+    "expanded_sources_with_origin": [
+      [
+        "docs/reports/pit_8_release_evidence_record.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/reports/pit_9b_release_evidence_record.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/reports/pit_10_closeout_and_pilot_readiness.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/current_release_contract.md",
+        "normal_retrieval_candidate"
+      ],
+      [
+        "docs/benchmarks/gatemem_program_status.md",
+        "normal_retrieval_candidate"
+      ]
+    ],
+    "expansion_block": {
+      "status": "resolved_no_new_candidates",
+      "projection_snapshot": "sha256:a56b6cf543236e077b4c68604ab68dbfe8c0a196484bd3abc7ec43dc6572a94d",
+      "candidate_paths_considered": 1,
+      "candidate_paths_used": 0,
+      "candidates_added": 0,
+      "candidates_deduplicated": 1,
+      "candidates_rejected_by_policy": 0,
+      "latency_ms": 0.208,
+      "reason_codes": [],
+      "non_authoritative": true
+    }
+  }
+]
