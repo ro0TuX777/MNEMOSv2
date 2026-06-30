@@ -237,6 +237,45 @@ class DerivedViewCache:
         self._miss_count += 1
         return None
 
+    def peek_pre_cognitive(
+        self,
+        *,
+        query: str,
+        cluster_id: Optional[int] = None,
+        min_similarity: float = 0.72,
+        cache_context: Optional[Dict[str, Any]] = None,
+    ) -> bool:
+        """
+        Side-effect-free freshness/scope check for the pre-cognitive cache.
+
+        Mirrors ``fuzzy_pre_cognitive_get``'s matching logic but never
+        mutates ``_hit_count``/``_miss_count`` and never sets
+        ``invalidated`` on ttl-expired entries — callers that only need to
+        know "is there a fresh, scope-matched entry" (e.g. read-only
+        evaluation/shadow tooling) must not perturb real cache telemetry.
+        """
+        now = time.time()
+        expected_context = dict(cache_context or {})
+        for entry in self._entries.values():
+            if entry.invalidated:
+                continue
+            if (now - entry.created_at) > self._ttl_seconds:
+                continue
+            deps = entry.dependency_refs or {}
+            if not deps.get("pre_cognitive"):
+                continue
+            entry_context = dict(deps.get("cache_context") or {})
+            if expected_context:
+                mismatch = any(entry_context.get(k) != v for k, v in expected_context.items())
+                if mismatch:
+                    continue
+            if cluster_id is not None and int(deps.get("cluster_id", -1)) == int(cluster_id):
+                return True
+            score = _token_similarity(query, str(deps.get("query", "")))
+            if score >= min_similarity:
+                return True
+        return False
+
     def invalidate(
         self,
         *,

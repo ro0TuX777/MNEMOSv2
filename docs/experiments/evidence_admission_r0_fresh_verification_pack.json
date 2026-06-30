@@ -1,0 +1,58 @@
+{
+  "pack_id": "evidence_admission_r0_fresh_verification_pack_v1",
+  "pack_type": "fresh_verification",
+  "status": "frozen_read_only_after_creation",
+  "intended_execution_mode": "http_service",
+  "created_for": "EVIDENCE_ADMISSION_AND_BUDGETING_R0_FRESH_HTTP_SERVICE_VERIFICATION",
+  "rules": [
+    "Use http_service mode only.",
+    "Fail closed if service revision or image identity cannot be established.",
+    "Do not permit a formal R0 claim from a run marked SERVICE_REVISION_UNVERIFIED.",
+    "Report pre-retrieval recommendations separately from post-retrieval sufficiency assessments.",
+    "Do not aggregate direct_runtime and http_service results into one metric."
+  ],
+  "disclosure": {
+    "independence_label": "fresh_pack_for_post_implementation_verification",
+    "reason": "Pack is separate from the development pack and is reserved for final HTTP-service verification."
+  },
+  "queries": [
+    {
+      "query_id": "fresh01",
+      "category": "explicit_scope",
+      "query": "Using the provided source filter, summarize the requested MNEMOS artifact.",
+      "request_flag_state": "true",
+      "global_gate_state": "enabled",
+      "filters": {
+        "source_uri": "docs/benchmarks/gatemem_program_status.md"
+      }
+    },
+    {
+      "query_id": "fresh02",
+      "category": "short_ambiguous",
+      "query": "status",
+      "request_flag_state": "true",
+      "global_gate_state": "enabled"
+    },
+    {
+      "query_id": "fresh03",
+      "category": "relationship_question",
+      "query": "What blocks a fresh GateMem evaluation?",
+      "request_flag_state": "true",
+      "global_gate_state": "enabled"
+    },
+    {
+      "query_id": "fresh04",
+      "category": "supersession_question",
+      "query": "What superseded the G4 implementation proposal?",
+      "request_flag_state": "true",
+      "global_gate_state": "enabled"
+    },
+    {
+      "query_id": "fresh05",
+      "category": "unrelated_negative_control",
+      "query": "How do I configure a Kubernetes ingress controller?",
+      "request_flag_state": "true",
+      "global_gate_state": "enabled"
+    }
+  ]
+}

@@ -11,11 +11,12 @@ import datetime as dt
 import json
 import logging
 import os
+import subprocess
 import sys
 import time
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from flask import Flask, jsonify, request
 
@@ -48,6 +49,16 @@ from mnemos.retrieval.pulse import (
 from mnemos.retrieval.shadow_search import ShadowSearchRunner
 from mnemos.retrieval.associative_shadow import default_adapter as _associative_shadow_adapter
 from mnemos.retrieval.associative_expansion import default_engine as _candidate_expansion_engine
+from mnemos.retrieval.associative_expansion.config import (
+    CANDIDATE_EXPANSION_ENABLE_ENV as _CANDIDATE_EXPANSION_ENABLE_ENV,
+)
+from mnemos.retrieval.evidence_admission import (
+    AdmissionRequestContext,
+    CacheLookupResult,
+    EVIDENCE_ADMISSION_SHADOW_ENABLE_ENV,
+    assess_sufficiency as _evidence_admission_assess_sufficiency,
+    recommend_admission as _evidence_admission_recommend,
+)
 from tools.mnemos_seed_manifest import DEFAULT_MANIFEST_PATH
 from mnemos.governance.counterfactuals import compute_counterfactuals
 from mnemos.governance.governor import Governor
@@ -68,6 +79,31 @@ SUPPORTED_RETRIEVAL_MODES = {"semantic", "hybrid"}
 RESERVED_FILTER_KEYS = {"__mrl_oversample__", "__hnsw_ef__", "__prefetch_only__"}
 
 
+def _service_revision_identity() -> Dict[str, Any]:
+    env_revision = str(os.getenv("MNEMOS_SERVICE_REVISION", "")).strip()
+    env_image = str(os.getenv("MNEMOS_SERVICE_IMAGE_ID", "")).strip()
+    if env_revision:
+        return {"source": "env", "git_revision": env_revision, "image_id": env_image or None}
+    try:
+        git_revision = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            cwd=Path(__file__).resolve().parents[1],
+            text=True,
+            stderr=subprocess.DEVNULL,
+            timeout=2,
+        ).strip()
+        dirty = subprocess.run(
+            ["git", "diff", "--quiet"],
+            cwd=Path(__file__).resolve().parents[1],
+            text=True,
+            stderr=subprocess.DEVNULL,
+            timeout=2,
+        ).returncode != 0
+        return {"source": "git", "git_revision": git_revision, "git_dirty": dirty, "image_id": env_image or None}
+    except Exception:
+        return {"source": "unverified", "git_revision": None, "image_id": env_image or None}
+
+
 def _retrieval_action_name(mode_meta: Dict[str, Any]) -> str:
     mode = mode_meta.get("retrieval_mode", "semantic")
     if mode == "hybrid":
@@ -84,6 +120,54 @@ def _determine_route(governance_mode: str, decisions: list, forecast_advisory: d
     if forecast_advisory and forecast_advisory.get("suggested_plan") == "conservative":
         return "advise"
     return "return"
+
+
+#: Filter keys whose value names an explicit, already-known artifact/source
+#: target. Detected from caller-supplied ``filters`` only — Evidence
+#: Admission R0 deliberately does not consult the E0/E1/E2 fixture cue/tag
+#: registries here, since those are a small, frozen, evaluation-only corpus
+#: (see docs/associative_routing_e2_closeout.md "Known Limitations") and
+#: using them to classify arbitrary live requests would misrepresent their
+#: scope. See the R0 checkpoint report for this boundary.
+_EXPLICIT_ARTIFACT_FILTER_KEY_MARKERS = ("artifact_id", "canonical_source_uri", "source_uri", "engram_id")
+
+
+def _explicit_artifact_ids_from_filters(filters: Optional[Dict[str, Any]]) -> List[str]:
+    if not isinstance(filters, dict):
+        return []
+    ids: List[str] = []
+    for key, value in filters.items():
+        if not isinstance(value, str) or not value:
+            continue
+        key_lower = str(key).lower()
+        if any(marker in key_lower for marker in _EXPLICIT_ARTIFACT_FILTER_KEY_MARKERS):
+            ids.append(value)
+    return ids
+
+
+def _evidence_admission_shadow_globally_enabled() -> bool:
+    return os.environ.get(EVIDENCE_ADMISSION_SHADOW_ENABLE_ENV, "false").lower() == "true"
+
+
+def _evidence_admission_disabled_block() -> Dict[str, Any]:
+    """Bounded, neutral block returned when the request flag is set but the
+    global operational gate is off. Distinguishes "R0 not requested" (no
+    key at all) from "R0 requested but operationally disabled"."""
+    return {
+        "status": "unavailable",
+        "recommended_route": None,
+        "candidate_budget": 0,
+        "context_token_budget": 0,
+        "expansion_budget": 0,
+        "latency_budget_ms": None,
+        "stop_condition": None,
+        "reason_codes": ["ADMISSION_SHADOW_GLOBALLY_DISABLED"],
+        "sufficiency": None,
+        "sufficiency_reason_codes": [],
+        "input_snapshot": None,
+        "latency_ms": 0.0,
+        "non_authoritative": True,
+    }
 
 
 app = Flask(__name__)
@@ -311,6 +395,7 @@ class MnemosRuntime:
             "contract_version": CONTRACT_VERSION,
             "status": self._status,
             "source": "mnemos-service",
+            "service_revision": _service_revision_identity(),
             "generated_at": _utc_now(),
             "error": self._error,
         }
@@ -420,6 +505,70 @@ class MnemosRuntime:
             embedding_model_name=self._config.embedding_model if self._config else "unknown",
             seed_snapshot=self._seed_snapshot_id(),
         )
+
+    def _evidence_admission_cache_lookup(
+        self,
+        query: str,
+        cache_context: Dict[str, Any],
+    ) -> Optional[CacheLookupResult]:
+        """Read-only freshness/scope peek for Evidence Admission R0.
+
+        Uses ``DerivedViewCache.peek_pre_cognitive`` (no hit/miss-counter
+        mutation) so the shadow evaluation never perturbs real cache
+        telemetry. Returns ``None`` when no cache is configured.
+        """
+        if self._view_cache is None:
+            return None
+        cluster_id: Optional[int] = None
+        if self._intent_engine is not None:
+            try:
+                cluster_id = self._intent_engine.harvester.map_query(query)
+            except Exception:
+                cluster_id = None
+        try:
+            fresh = self._view_cache.peek_pre_cognitive(
+                query=query,
+                cluster_id=cluster_id,
+                cache_context=cache_context,
+            )
+        except Exception:
+            return None
+        return CacheLookupResult(cache_name="pre_cognitive", fresh_and_scope_matched=fresh)
+
+    def _build_admission_request_context(
+        self,
+        *,
+        top_k: int,
+        latency_budget_ms: Optional[float],
+        filters: Optional[Dict[str, Any]],
+        cache_lookup: Optional[CacheLookupResult],
+        complexity_label: Optional[str] = None,
+        complexity_confidence: Optional[float] = None,
+    ) -> AdmissionRequestContext:
+        collection_scope = self._collection_snapshot()
+        known_scope = collection_scope if collection_scope and collection_scope != "unknown" else None
+        return AdmissionRequestContext(
+            top_k=top_k,
+            latency_budget_ms=latency_budget_ms,
+            known_collection_scope=known_scope,
+            cache_lookup=cache_lookup,
+            complexity_label=complexity_label,
+            complexity_confidence=complexity_confidence,
+            cue_terms_matched=[],
+            tag_terms_matched=[],
+            explicit_artifact_ids=_explicit_artifact_ids_from_filters(filters),
+            associative_expansion_globally_enabled=(
+                os.environ.get(_CANDIDATE_EXPANSION_ENABLE_ENV, "false").lower() == "true"
+            ),
+            prior_verified_context_supplied=False,
+        )
+
+    @staticmethod
+    def _complexity_for_admission(mode_meta: Dict[str, Any]) -> Tuple[Optional[str], Optional[float]]:
+        block = mode_meta.get("complexity_classification") or mode_meta.get("complexity_shadow") or {}
+        if block.get("status") != "ok":
+            return None, None
+        return block.get("label"), block.get("confidence")
 
     @staticmethod
     def _first_metadata_value(metadata: Dict[str, Any], *keys: str) -> Any:
@@ -866,6 +1015,7 @@ class MnemosRuntime:
         cognitive_cycle: Optional[bool] = None,
         associative_routing_shadow: bool = False,
         associative_candidate_expansion: bool = False,
+        evidence_admission_shadow: bool = False,
     ) -> Dict[str, Any]:
         """Search across tiers and return fused results."""
         import time
@@ -970,6 +1120,36 @@ class MnemosRuntime:
         )
         if associative_routing_shadow:
             mode_meta["associative_routing_shadow"] = _associative_shadow_adapter.run(query)
+
+        # ── Evidence Admission and Budgeting R0: pre-retrieval-input-only
+        # shadow recommendation ──────────────────────────────────────────
+        # Computed here (right after the search call returns) for the same
+        # reason E1's shadow block is computed at this point: by
+        # construction it cannot have influenced what already executed.
+        # Its inputs are restricted to query/context/cache/complexity
+        # features only — never `results` (scores, diversity, lineage of
+        # actual hits), which is reserved for assess_sufficiency() below.
+        # Flag-absent requests never enter this branch, so the response is
+        # behaviorally identical for stable retrieval and response-contract
+        # fields when evidence_admission_shadow is not set.
+        evidence_admission_block: Optional[Dict[str, Any]] = None
+        evidence_admission_gate_enabled = False
+        if evidence_admission_shadow:
+            evidence_admission_gate_enabled = _evidence_admission_shadow_globally_enabled()
+            if evidence_admission_gate_enabled:
+                _complexity_label, _complexity_confidence = self._complexity_for_admission(mode_meta)
+                _admission_context = self._build_admission_request_context(
+                    top_k=top_k,
+                    latency_budget_ms=latency_budget_ms,
+                    filters=filters,
+                    cache_lookup=self._evidence_admission_cache_lookup(query, pre_cognitive_cache_context),
+                    complexity_label=_complexity_label,
+                    complexity_confidence=_complexity_confidence,
+                )
+                evidence_admission_block = _evidence_admission_recommend(query, _admission_context).to_dict()
+            else:
+                evidence_admission_block = _evidence_admission_disabled_block()
+
         raw_rank_by_id = {r.engram.id: idx + 1 for idx, r in enumerate(results)}
 
         if _assembler is not None:
@@ -1058,6 +1238,25 @@ class MnemosRuntime:
             results,
             mode_meta=mode_meta,
         )
+
+        # ── Evidence Admission and Budgeting R0: post-retrieval-only
+        # sufficiency assessment ──────────────────────────────────────────
+        # Strictly separate inputs/outputs from recommend_admission() above:
+        # consumes the real post-governance `results` and `mode_meta`
+        # (scores, candidate diversity, duplicate state, abstention
+        # outcome) — never the pre-retrieval feature snapshot or admission
+        # reason codes. Only runs when the gate was actually on, so a
+        # caller never sees post-retrieval reason codes attached to a
+        # bounded "globally disabled" block.
+        if evidence_admission_block is not None and evidence_admission_gate_enabled:
+            _sufficiency = _evidence_admission_assess_sufficiency(
+                results,
+                mode_meta,
+                low_relevance_abstention=low_relevance_abstention,
+            )
+            evidence_admission_block["sufficiency"] = _sufficiency.sufficiency
+            evidence_admission_block["sufficiency_reason_codes"] = _sufficiency.reason_codes
+
         if low_relevance_abstention:
             results = []
 
@@ -1349,6 +1548,8 @@ class MnemosRuntime:
             payload["meta"]["associative_routing_shadow"] = mode_meta["associative_routing_shadow"]
         if candidate_expansion_block is not None:
             payload["meta"]["associative_candidate_expansion"] = candidate_expansion_block
+        if evidence_admission_block is not None:
+            payload["meta"]["evidence_admission_shadow"] = evidence_admission_block
         if selected_governance != "off":
             payload["meta"]["governance_mode"] = selected_governance
             payload["meta"]["governance_profile"] = selected_profile or "default"
@@ -1861,8 +2062,17 @@ def _ensure_runtime():
 def health():
     err = _ensure_runtime()
     if err:
-        return jsonify({"status": "degraded", "service": "mnemos-service"}), 200
-    return jsonify({"status": "ok", "service": "mnemos-service", "contract_version": CONTRACT_VERSION}), 200
+        return jsonify({
+            "status": "degraded",
+            "service": "mnemos-service",
+            "service_revision": _service_revision_identity(),
+        }), 200
+    return jsonify({
+        "status": "ok",
+        "service": "mnemos-service",
+        "contract_version": CONTRACT_VERSION,
+        "service_revision": _service_revision_identity(),
+    }), 200
 
 
 @app.get("/")
@@ -1963,6 +2173,7 @@ def search():
     cognitive_cycle = body.get("cognitive_cycle")
     associative_routing_shadow = body.get("associative_routing_shadow", False)
     associative_candidate_expansion = body.get("associative_candidate_expansion", False)
+    evidence_admission_shadow = body.get("evidence_admission_shadow", False)
 
     if not query:
         return jsonify({"error": "No query provided"}), 400
@@ -1990,6 +2201,9 @@ def search():
 
     if not isinstance(associative_candidate_expansion, bool):
         return jsonify({"error": "associative_candidate_expansion must be a boolean"}), 400
+
+    if not isinstance(evidence_admission_shadow, bool):
+        return jsonify({"error": "evidence_admission_shadow must be a boolean"}), 400
 
     if governance is not None and governance not in GOVERNANCE_MODES:
         return jsonify({
@@ -2076,6 +2290,7 @@ def search():
             cognitive_cycle,
             associative_routing_shadow,
             associative_candidate_expansion,
+            evidence_admission_shadow,
         )
 
     derived_cnt = len(res.get("derived_results", []))

@@ -1,0 +1,60 @@
+{
+  "pack_id": "evidence_admission_r0_formal_evaluation_pack_v1",
+  "pack_type": "formal_evaluation",
+  "status": "frozen_read_only_after_creation",
+  "intended_execution_mode": "http_service",
+  "created_for": "EVIDENCE_ADMISSION_AND_BUDGETING_R0_FORMAL_HTTP_SERVICE_EVALUATION",
+  "rules": [
+    "Use http_service mode only.",
+    "Fail closed if service revision or image identity cannot be established.",
+    "Do not permit a formal R0 claim from a run marked SERVICE_REVISION_UNVERIFIED.",
+    "Report pre-retrieval recommendations separately from post-retrieval sufficiency assessments.",
+    "Do not aggregate direct_runtime and http_service results into one metric."
+  ],
+  "disclosure": {
+    "independence_label": "formal_pack_frozen_after_r0_design",
+    "reason": "Pack is frozen before formal HTTP evaluation and is used to validate service-level shadow integration, not retrieval quality superiority."
+  },
+  "queries": [
+    {
+      "query_id": "formal01",
+      "category": "service_flag_on_standard_lookup",
+      "query": "What is the current status of GateMem G4?",
+      "request_flag_state": "true",
+      "global_gate_state": "enabled",
+      "expected_shadow_presence": "present"
+    },
+    {
+      "query_id": "formal02",
+      "category": "service_flag_off_contract",
+      "query": "What is the current state of Retrieval Hygiene R0?",
+      "request_flag_state": "false",
+      "global_gate_state": "enabled",
+      "expected_shadow_presence": "absent"
+    },
+    {
+      "query_id": "formal03",
+      "category": "service_gate_disabled_contract",
+      "query": "What is evidence for the R0 closure?",
+      "request_flag_state": "true",
+      "global_gate_state": "disabled",
+      "expected_shadow_presence": "disabled_status_only"
+    },
+    {
+      "query_id": "formal04",
+      "category": "negative_control",
+      "query": "What is the capital of France?",
+      "request_flag_state": "true",
+      "global_gate_state": "enabled",
+      "expected_shadow_presence": "present"
+    },
+    {
+      "query_id": "formal05",
+      "category": "multi_source_synthesis",
+      "query": "Compare the current GateMem G4 state with the G5 handoff blocker.",
+      "request_flag_state": "true",
+      "global_gate_state": "enabled",
+      "expected_shadow_presence": "present"
+    }
+  ]
+}
