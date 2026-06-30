@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="520" viewBox="0 0 920 520" role="img" aria-labelledby="title desc">
+  <title id="title">MNEMOS architecture overview</title>
+  <desc id="desc">A restrained layered diagram showing sources flowing through engrams, retrieval, governance, bounded context, and consumers.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .box { fill: #ffffff; stroke: #334155; stroke-width: 2; rx: 8; }
+      .accent { fill: #eef6f2; stroke: #0f766e; stroke-width: 2; rx: 8; }
+      .text { fill: #0f172a; font-family: Arial, Helvetica, sans-serif; font-size: 22px; font-weight: 700; }
+      .sub { fill: #475569; font-family: Arial, Helvetica, sans-serif; font-size: 15px; }
+      .arrow { stroke: #475569; stroke-width: 3; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L12,4 L0,8 Z" fill="#475569" />
+    </marker>
+  </defs>
+  <rect class="bg" x="0" y="0" width="920" height="520" />
+  <rect class="box" x="270" y="32" width="380" height="58" />
+  <text class="text" x="460" y="67" text-anchor="middle">Sources and project artifacts</text>
+  <path class="arrow" d="M460 92 V126" />
+  <rect class="accent" x="270" y="128" width="380" height="62" />
+  <text class="text" x="460" y="158" text-anchor="middle">Engrams + source lineage</text>
+  <text class="sub" x="460" y="178" text-anchor="middle">content, metadata, provenance, lineage</text>
+  <path class="arrow" d="M460 192 V226" />
+  <rect class="box" x="270" y="228" width="380" height="62" />
+  <text class="text" x="460" y="258" text-anchor="middle">Semantic / hybrid retrieval</text>
+  <text class="sub" x="460" y="278" text-anchor="middle">Qdrant, pgvector, lexical fusion where enabled</text>
+  <path class="arrow" d="M460 292 V326" />
+  <rect class="accent" x="270" y="328" width="380" height="62" />
+  <text class="text" x="460" y="358" text-anchor="middle">Governance and evidence checks</text>
+  <text class="sub" x="460" y="378" text-anchor="middle">candidate controls, contradictions, audit trail</text>
+  <path class="arrow" d="M460 392 V426" />
+  <rect class="box" x="270" y="428" width="380" height="58" />
+  <text class="text" x="460" y="463" text-anchor="middle">Bounded context or retrieval result</text>
+  <path class="arrow" d="M652 457 H770" />
+  <rect class="box" x="772" y="428" width="118" height="58" />
+  <text class="sub" x="831" y="452" text-anchor="middle">AI app</text>
+  <text class="sub" x="831" y="472" text-anchor="middle">operator</text>
+  <path class="arrow" d="M268 457 H150" />
+  <rect class="box" x="30" y="428" width="118" height="58" />
+  <text class="sub" x="89" y="452" text-anchor="middle">agent</text>
+  <text class="sub" x="89" y="472" text-anchor="middle">consumer</text>
+</svg>

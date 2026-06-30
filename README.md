@@ -1,250 +1,185 @@
+<div align="center">
+
 # MNEMOS
 
-**Multi-tier Neuro-tagged Engram Memory with Optimal Near-lossless Index Compression**
+**Governed, source-grounded memory and retrieval for AI systems.**
 
-MNEMOS is a containerized, contract-governed memory service for AI-native applications. It gives agents and RAG systems a reusable memory layer that can ingest knowledge, retrieve it under latency budgets, explain why results won or lost, and reconcile contradictions without deleting the original evidence.
+Retrieve context with lineage, boundaries, and evidence for why it should influence the next action.
 
-## Maturity And Support Boundaries
+[![MNEMOS CI Gates](https://github.com/ro0TuX777/MNEMOSv2/actions/workflows/mnemos-gates.yml/badge.svg)](https://github.com/ro0TuX777/MNEMOSv2/actions/workflows/mnemos-gates.yml)
 
-MNEMOS is no longer just a prototype, but not every capability in the repository
-has the same production status. Treat the following documents as the public
-trust boundary before making deployment or product claims:
+[Quickstart](#quickstart) |
+[Architecture](docs/architecture.md) |
+[Deployment](docs/deployment_profiles.md) |
+[Benchmarks](docs/benchmark.md) |
+[Documentation](docs/README.md) |
+[Research Status](#capability-status)
 
-- [Support matrix](docs/support_matrix.md): supported, beta, experimental,
-  blocked, and spec-only capabilities.
-- [Deployment profiles](docs/deployment_profiles.md): smallest safe stack,
-  supported profiles, optional components, and promotion rules.
-- [Dependency map](docs/dependency_map.md): runtime dependencies, fork policy,
-  storage/network requirements, and SBOM posture.
-- [ADR 0001](docs/adr/0001-deployment-profiles.md): why deployment profiles are
-  the public support boundary.
+</div>
 
-Short version:
+## What MNEMOS Is
 
-- **Supported:** Core Memory Appliance, Governance Native, REST API/SDK, audit
-  ledger, evidence contract, summary isolation, and governed Resolution Engrams.
-- **Beta / pilot:** governance modes, hybrid retrieval, and the EBIR-R2 reviewer
-  harness.
-- **Experimental / shadow-only:** TimesFM predictive pulse, Graph Tier, derived
-  facts, and EBIR-R1 refinement.
-- **Research / spec only:** Context Atlas P0, Associative Retrieval A1, and
-  future multimodal evidence extensions.
-- **Blocked for production:** ColBERT/reranker promotion and EBIR authoritative
-  promotion until their gates and human-value evidence pass.
+MNEMOS is a containerised, source-grounded memory and retrieval service for AI-native applications.
 
-## Why MNEMOS Exists
+It helps systems retrieve durable context with provenance, bounded candidate selection, audit trails, and explicit controls around what retrieved or derived information may influence.
 
-Every AI application that persists and retrieves knowledge ends up rebuilding the same infrastructure: embedding pipelines, vector databases, rerankers, metadata filters, compression, audit trails, and governance logic. MNEMOS packages those concerns as an application-agnostic memory appliance with a versioned REST contract and a Python boundary SDK.
+## Why MNEMOS
 
-The current MNEMOSv2 workstream moves the system beyond static retrieval. It now supports adaptive routing, hierarchy-aware synthesis, additive consensus behavior, and a TimesFM-backed predictive layer so memory can be routed, governed, reconciled, audited, and pre-warmed before demand arrives.
+Many retrieval systems can return something related. MNEMOS is designed for systems that also need to know:
 
-## Capability Map
+- What source supports this result?
+- Is it current, superseded, contradictory, or derived?
+- What route selected it?
+- What is it allowed to influence?
+- Can the result be inspected, replayed, or rolled back?
 
-Status values are summarized here for scanability. The authoritative status
-rules live in the [support matrix](docs/support_matrix.md).
+## Core Capabilities
 
-| Capability | Status | What it provides |
-|---|---|---|
-| **Deployment profiles** | Supported | Core Memory Appliance (Qdrant), Governance Native (pgvector), or Custom Manual profiles with generated Compose/env/manifest files |
-| **Tiered vector search** | Supported | Nomic Matryoshka embeddings with 64-dimensional coarse prefetch and 768-dimensional rescore |
-| **TurboQuant compression** | Supported | 4-bit embedding compression with an 8x storage reduction target while preserving full-vector rescore fidelity |
-| **Adaptive routing** | Supported | Embedded query-complexity classification routes simple, multi-hop, and global synthesis queries to different retrieval postures |
-| **Budget-aware retrieval** | Supported | EWMA cost model and degradation ladder for latency-budgeted responses, with degraded components surfaced in the API contract |
-| **Hierarchical summaries** | Supported | RAPTOR-lite summary engrams for global/theme queries, isolated from default factoid search by reserved server-side sentinels |
-| **Consensus governance** | Supported | Resolution Engrams structure factual collisions, preserve parent lineage, and receive governed read-path priority |
-| **Citation-ready evidence contract** | Supported | Search responses expose per-result provenance and grouped source summaries for downstream chat, RAG, and agent UIs |
-| **Forensic auditability** | Supported | PostgreSQL-backed audit trail, immutable lineage edges, and explainable governance modifiers |
-| **Boundary SDK** | Supported | Python client with readiness polling, retry, timeout, and graceful degradation helpers |
-| **Reflect precision** | Beta / pilot | Lexical or NLI-backed usage detection for safer post-answer reinforcement |
-| **EBIR-R2 reviewer harness** | Beta / pilot | Frozen truthsets, blinded Markdown packets, deterministic assignment, compiler validation, and gold-label scoring for human evaluation |
-| **Predictive pulse** | Experimental | TimesFM-backed operational forecasts for query volume, p95 latency, cache pressure, and degradation risk |
-| **Predictive hygiene** | Experimental | Semantic volatility signals accelerate decay and reconciliation for high-change engram families |
-| **Pre-cognitive retrieval** | Experimental | Intent trajectories can populate pre-cognitive cache entries through low-priority shadow search |
-| **EBIR shadow refinement** | Experimental / shadow-only | Offline evidence-based refinement benchmarks reconcile conflicting parent evidence without promoting derived claims into live memory |
-| **Context Atlas / associative retrieval specs** | Research / spec only | Deferred design lanes for context exploration and projection-based associative retrieval, kept separate from live runtime behavior |
+| Capability | What it provides | Status |
+| --- | --- | --- |
+| Source-grounded Engrams | Content, metadata, provenance, and lineage-ready records | Core |
+| Semantic and hybrid retrieval | Qdrant/pgvector profile options with bounded retrieval controls | Core / configurable |
+| Forensic ledger | Auditable index, search, and mutation events | Core |
+| Governance controls | Candidate evaluation, contradiction handling, lifecycle controls | Core / configurable |
+| Deployment profiles | Docker Compose deployment postures for different operating needs | Core |
+| Experimental research lanes | Shadow, read-only, or opt-in evaluation tracks | Experimental / research |
 
-## Current Phase Highlights
+## Architecture Overview
 
-MNEMOSv2 Phase 7-10 advances are documented in [docs/whitepaperupdates.md](docs/whitepaperupdates.md) and incorporated into the main [whitepaper](docs/whitepaper.md).
+```text
+Sources and project artifacts
+            |
+            v
+   Engrams + source lineage
+            |
+            v
+ Semantic / hybrid retrieval
+            |
+            v
+ Governance and evidence checks
+            |
+            v
+ Bounded context or retrieval result
+            |
+            v
+ AI application, operator, or agent
+```
 
-| Phase | Result |
-|---|---|
-| **Phase 7: Matryoshka migration** | Nomic MRL runtime promoted with coarse prefetch/full-vector rescore and warmup readiness |
-| **Phase 8: Adaptive routing** | Embedded complexity classifier reached `1.0` hold-out accuracy |
-| **Phase 9: Hierarchical retrieval** | Summary isolation validated with `0.7342` mean hierarchy similarity |
-| **Phase 10: Knowledge reconciliation** | Consensus gate passed `5/5`; Resolution Engrams ranked first while preserving conflicting parents for audit |
-| **Phase 11: Pulse** | Observed and forecasted operational telemetry exposed for self-awareness |
-| **Phase 12: Autonomous pre-warm** | High-confidence forecast spikes can trigger governed warmup with cooldown and audit logs |
-| **Phase 13: Predictive hygiene** | Volatility forecasts bias freshness decay and proactive reconciliation |
-| **Phase 14: Shadow search** | Forecasted intent trajectories populate pre-cognitive cache entries |
-| **Phase 15: Cognitive-cycle transparency** | CoALA-aligned cycle records expose bounded, redacted, adapter-compatible evidence paths |
-| **EBIR-R1/R2: Evidence refinement evaluation** | Shadow-only refinement and reviewer-trial harness validate contradiction handling without changing live retrieval or authority |
-| **Evidence contract** | `/search` results carry normalized provenance packets and `meta.evidence_summary` for citation-aware integrations |
+MNEMOS keeps source evidence, retrieval, governance, and consumer context assembly as separate concerns. Research lanes do not alter default retrieval or authority surfaces unless explicitly enabled and independently evaluated.
 
-Benchmark evidence lives in:
+See the concise [architecture guide](docs/architecture.md), the detailed [whitepaper](docs/whitepaper.md), and the [ADR index](docs/adr/README.md).
 
-- [benchmarks/results/phase_8_complexity_accuracy.json](benchmarks/results/phase_8_complexity_accuracy.json)
-- [benchmarks/results/phase_9_hierarchy_sim.json](benchmarks/results/phase_9_hierarchy_sim.json)
-- [benchmarks/results/phase_10_consensus_gate.json](benchmarks/results/phase_10_consensus_gate.json)
-- [benchmarks/results/coala_baseline_v3.2.json](benchmarks/results/coala_baseline_v3.2.json)
-- [benchmarks/results/latency_slo_burn_in.json](benchmarks/results/latency_slo_burn_in.json) — supplemental illustrative trend series (not harness-measured; per-phase measured evidence is in the three gate artifacts above)
+## Quickstart
 
-- [benchmarks/results/retrieval_hygiene_r0_closeout.md](benchmarks/results/retrieval_hygiene_r0_closeout.md) - retrieval hygiene and reproducibility closeout for source-linked summary cards, duplicate suppression, executed-route fingerprints, and abstention controls
+Prerequisites:
 
-## Deployment Profiles
+- Docker and Docker Compose
+- NVIDIA container runtime for the checked-in GPU-oriented service image
+- Python 3.11+ for local tools and SDK examples
 
-| Profile | Stack | Best for |
-|---|---|---|
-| **Core Memory Appliance** | Qdrant + PostgreSQL + MNEMOS | Semantic memory, agent systems, general-purpose RAG |
-| **Governance Native** | PostgreSQL/pgvector + MNEMOS | Provenance-heavy, metadata-filtered, compliance-aware retrieval |
-| **Custom Manual** | Operator-defined | Advanced multi-tier setups and experiments |
-
-## Quick Start
+Clone and enter the repository:
 
 ```bash
-# Install with guided profile selection
-python -m installer
-
-# Start the generated stack
-docker compose -f docker-compose.generated.yml up -d --build
-
-# Validate health, capabilities, and contract fields
-python tools/mnemos_health_audit.py
+git clone https://github.com/ro0TuX777/MNEMOSv2.git
+cd MNEMOSv2
 ```
 
-```python
-from mnemos_sdk import MnemosClient, MnemosConfig
+Prepare the local Python environment:
 
-client = MnemosClient(MnemosConfig.from_env())
-client.wait_until_ready(warmup=True)
-
-client.index([
-    {
-        "content": "Gravity waves detected by LIGO in 2015",
-        "source": "arxiv:1602.03837",
-        "neuro_tags": ["physics", "gravitational-waves"],
-    }
-])
-
-for hit in client.search("gravitational wave detection", top_k=5):
-    print(f"[{hit.score:.3f}] {hit.engram['content'][:80]}")
+```bash
+python -m pip install -r requirements.txt
 ```
 
-## Claude Desktop Quick Start
+Start the default local Compose stack:
 
-To use MNEMOS as a Claude Desktop MCP tool:
-
-1. Make sure MNEMOS is running locally and the MCP bridge passes its smoke tests:
-
-```powershell
-python tools/verify_mnemos_msf_mcp.py
-python tools/smoke_mnemos_mcp_stdio.py
-python tools/smoke_mnemos_mcp_live.py
+```bash
+docker compose up -d --build
 ```
 
-2. Merge the example config into:
+Check service health:
 
-```text
-%APPDATA%\Claude\claude_desktop_config.json
+```bash
+curl http://localhost:8700/health
 ```
 
-Use:
+Minimal index/search example:
 
-```text
-mcp_servers/mnemos/claude_desktop_config.example.json
+```bash
+curl -X POST http://localhost:8700/v1/mnemos/index \
+  -H "Content-Type: application/json" \
+  -d '{"documents":[{"content":"MNEMOS quickstart verification record","source":"docs:quickstart","neuro_tags":["docs","quickstart"]}]}'
+
+curl -X POST http://localhost:8700/v1/mnemos/search \
+  -H "Content-Type: application/json" \
+  -d '{"query":"quickstart verification record","top_k":1}'
 ```
 
-3. Fully restart Claude Desktop.
+For profile selection, generated Compose files, and operational promotion rules, see [deployment profiles](docs/deployment_profiles.md) and the [operator playbook](docs/mnemos_operator_playbook.md).
 
-4. In Claude, ask it to call:
+## Capability Status
 
-```text
-mnemos.health_check
-mnemos.get_capabilities
-```
+| Status | Meaning |
+| --- | --- |
+| Core | Supported in the primary runtime and covered by maintained tests |
+| Experimental | Available only through explicit opt-in or controlled operator evaluation |
+| Research / shadow | Implemented for evidence gathering; does not change default runtime delivery or authority |
+| Planned | Documented direction; not implemented or not authorized for runtime use |
 
-If you want the full setup flow and troubleshooting notes, see
-[docs/integrations/claude_desktop_mnemos_mcp.md](docs/integrations/claude_desktop_mnemos_mcp.md).
+### Core
 
-## API Surface
+- Engram storage and retrieval
+- Supported deployment profiles
+- Forensic ledger
+- Semantic retrieval and configurable hybrid retrieval
+- Configurable governance behavior
+- Source-grounded evidence summaries in search responses
 
-Every response includes contract metadata such as `contract_version`, `status`, `profile`, `tiers`, and `degraded_components`. Adaptive retrieval responses can also include complexity classification and routing posture metadata.
+### Experimental
 
-| Endpoint | Method | Purpose |
-|---|---|---|
-| `/health` | GET | Container health check |
-| `/v1/mnemos/capabilities` | GET | Active profile, backends, degraded components, compression config |
-| `/v1/mnemos/index` | POST | Ingest documents into engrams |
-| `/v1/mnemos/search` | POST | Query active backends with optional metadata filters and governance explanation |
-| `/v1/mnemos/engrams/{id}` | GET | Retrieve an engram by ID |
-| `/v1/mnemos/engrams/{id}` | DELETE | Remove an engram from all backends |
-| `/v1/mnemos/audit` | GET | Query the forensic ledger |
-| `/v1/mnemos/stats` | GET | Backend sizes, profile info, and compression stats |
-| `/v1/mnemos/warmup` | POST | Preload models and reduce first-query latency |
-| `/v1/mnemos/pulse` | GET | Return observed pulse telemetry and predictive trend signals when enabled |
+- `graph_hybrid_experimental`, read-only and outside the public default retrieval surface
+- Hybrid retrieval as a targeted evaluation/configuration mode, not a broad default
+- Derived-facts evaluation lane when explicitly enabled and bounded by its documented gates
+- Associative candidate expansion only where explicitly requested and gated
 
-## Operational Tooling
+### Research / Shadow
 
-| Tool | Command | Purpose |
-|---|---|---|
-| Installer | `python -m installer` | Guided profile selection and config generation |
-| Health audit | `python tools/mnemos_health_audit.py` | Validate health, contract fields, and version drift |
-| Reconciliation dry run | `python tools/run_phase10_reconciliation_dry_run.py --mode dry-run --fail-on-conflict` | Detect unresolved contradiction clusters |
-| Reconciliation apply | `python tools/run_phase10_reconciliation_dry_run.py --apply` | Persist Resolution Engrams when an indexer is available |
-| Resolution gate | `python tools/validate_phase10_resolution_gate.py` | Verify Resolution Engram priority and parent suppression |
-| Contract diff | `python tools/contract_diff.py --old v1.json --new v2.json` | Backward/forward compatibility checks |
-| CI gates | `python tools/mnemos_ci_gates.py --run-health-audit` | Pipeline gate runner |
-| EBIR-R1 refinement benchmark | `python tools/run_ebir_refinement_benchmark.py --truthset benchmarks/truthsets/ebir_r1_adversarial.json --fail-on-gate` | Shadow-only refinement validation over adversarial contradiction fixtures |
-| EBIR-R2 preflight | `python tools/run_ebir_r2_preflight.py --truthset benchmarks/truthsets/ebir_r2_reviewer_tasks.json --reviewers configs/ebir_r2_reviewers.json --blind --output-dir eval_results/ebir_r2 --fail-on-gate` | Validate blinded reviewer packets before human distribution |
-| EBIR-R2 compiler | `python tools/compile_ebir_r2_pilot_report.py --manifest eval_results/ebir_r2/assignment_manifest.json --responses-dir eval_results/ebir_r2/pilot_responses --output eval_results/ebir_r2/ebir_r2_pilot_report.md --fail-on-gate` | Compile completed Markdown responses without exposing gold labels to reviewers |
-| EBIR-R2 gold scoring | `python tools/score_ebir_r2_gold_report.py --truthset benchmarks/truthsets/ebir_r2_full_reviewer_tasks.json --compiled-report eval_results/ebir_r2_full/ebir_r2_full_report.md --output eval_results/ebir_r2_full/ebir_r2_gold_report.json --fail-on-gate` | Restricted post-freeze unblinding and condition-level scoring |
-| EBIR-R2 external trial kit | `python tools/ebir_r2_trial.py prepare --full --output-dir eval_results/ebir_r2_external` | Prepare separated reviewer/admin bundles for independent blinded human review |
-| Benchmark smoke pack | `python tools/benchmark_smoke.py` | Generate compact reproducibility artifacts with environment, versions, corpus/query hashes, and pass/fail notes |
+- EBIR refinement
+- Session Context Assembler local shadow adapter
+- GateMem reference baseline
+- Associative Routing E0/E1 shadow work
+- Derived-facts work unless and until a specific deployment artifact authorizes a narrower posture
+- TimesFM predictive pulse and related advisory predictive lanes
 
-## Repository Layout
+### Planned Or Blocked
 
-```text
-mnemos/              Core library: retrieval, governance, engrams, compression, audit
-mnemos_sdk/          Boundary SDK for consumer apps
-service/             Flask REST API and MFS contract surface
-installer/           Guided installer, probes, profiles, renderer
-tools/               Operational and validation tooling
-benchmarks/          Truthsets, simulations, and result artifacts
-tests/               Unit and regression tests
-docs/                Whitepaper, operator playbook, and phase reports
-```
+- Context Atlas P0 and Associative Retrieval A1 beyond their current specs
+- ColBERT/reranker production promotion
+- Any production authorization-security or broad performance claim not backed by a current evidence artifact
 
-## Documentation
+The [support matrix](docs/support_matrix.md) is the public boundary for status claims.
 
-- [Support matrix](docs/support_matrix.md): public status of supported, beta, experimental, blocked, and spec-only capabilities
-- [Deployment profiles](docs/deployment_profiles.md): tiered deployment guidance and minimal safe start
-- [Dependency map](docs/dependency_map.md): dependency, fork, network, storage, and SBOM posture
-- [ADR 0001](docs/adr/0001-deployment-profiles.md): deployment profiles as support boundaries
-- [ADR index](docs/adr/README.md): architecture decisions for support and governance boundaries
-- [Whitepaper](docs/whitepaper.md): architecture, governance, benchmarks, deployment model
-- [Phase 7-10 supplement](docs/whitepaperupdates.md): adaptive routing, hierarchy, and consensus governance update
-- [Retrieval Hygiene R0 closeout](benchmarks/results/retrieval_hygiene_r0_closeout.md): bounded evidence bundle and closure notes for summary-card retrieval hygiene
-- [MNEMOS quality lane evaluation framework](docs/experiments/mnemos_quality_lane_evaluation_framework.md): canonical scorecard for future agent-memory quality lanes
-- [AI developer quality-lane result template](benchmarks/results/ai_dev_memory_quality_lane_result_template.json): runner output contract for paired MNEMOS-vs-control app-building trials
-- [Operator playbook](docs/mnemos_operator_playbook.md): diagnostics, rollout, rollback, and incident procedures
-- [Installation guide](INSTALL.md): installer usage, deployment profiles, and manual setup
-- [Chat integration evidence contract](docs/chat_integration_evidence_contract.md): normalized provenance fields for citation-aware consumers
-- [EBIR-R1 acceptance](docs/ebir_r1_acceptance.md): shadow-only refinement acceptance gates
-- [EBIR-R2 trial protocol](docs/ebir_r2_trial_protocol.md): blinded reviewer-trial protocol and scoring workflow
-- [EBIR-R2 external reviewer trial kit](docs/ebir_r2_external_reviewer_trial.md): package, validate, compile, and score independent blinded reviewer trials
-- [Context Atlas P0 spec](docs/context_atlas_spec.md): deferred exploration API design
-- [Associative retrieval A1 spec](docs/associative_retrieval_a1_spec.md): deferred benchmark-first graph projection design
+## Evidence And Benchmarks
 
-## Status Notes
+MNEMOS maintains benchmark and evaluation artifacts alongside implementation work. Results are scoped to their recorded corpus, configuration, and date.
 
-- `graph_hybrid_experimental` remains experimental and read-only; it is not exposed on the public retrieval-mode surface by default.
-- Summary and Resolution Engrams are synthetic governed artifacts with lineage back to raw parents.
-- EBIR refinement and EBIR-R2 scoring are offline, shadow-only evaluation paths; they do not write memory, alter ranking, or promote authority.
-- EBIR-R2 human-value claims remain blocked until independent blinded reviewers complete the full R2 protocol and scoring analysis.
-- Context Atlas P0 and A1 associative retrieval remain specifications until their prerequisite gates are complete.
-- Reserved sentinels such as `__exclude_derived__` and `__exclude_summaries__` are server-managed and rejected when supplied directly by clients.
-- Predictive features are controlled by `MNEMOS_TIMESFM_ENABLED` and `MNEMOS_PULSE_ACTIONS`; advisory mode is the default production posture.
+See:
 
-## License
+- [Benchmark methodology and current results](docs/benchmark.md)
+- [Support matrix](docs/support_matrix.md)
+- [Deployment profiles](docs/deployment_profiles.md)
+- [Architecture guide](docs/architecture.md) and [ADR index](docs/adr/README.md)
+- [Operator playbook](docs/mnemos_operator_playbook.md)
 
-Proprietary.
+Research and local evaluation results are not general performance, security, or production-readiness claims unless explicitly stated by their evidence artifact.
+
+## Documentation Index
+
+Start with [docs/README.md](docs/README.md) for grouped links to getting started, architecture, deployment, evidence, governance boundaries, research lanes, and ADRs.
+
+## Contributing And Project Boundaries
+
+Contributions are welcome, particularly around reproducible benchmarks, deployment reliability, documentation, and source-grounded retrieval evaluation.
+
+Changes that affect retrieval ranking, governance, authority, disclosure, promotion, or deletion must include explicit tests and evidence artifacts.
+
+This repository currently declares a proprietary license posture.
