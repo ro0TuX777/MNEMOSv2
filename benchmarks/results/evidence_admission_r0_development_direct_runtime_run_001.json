@@ -1,0 +1,363 @@
+{
+  "pack_id": "evidence_admission_r0_development_pack_v1",
+  "pack_type": "development",
+  "run_manifest": {
+    "execution_mode": "direct_runtime",
+    "service_base_url": null,
+    "service_revision_or_image_identity": "direct_runtime:bef472112a751436c7af35cf472e13ccfa3a2329",
+    "runner_commit": "bef472112a751436c7af35cf472e13ccfa3a2329",
+    "collection_or_corpus_snapshot": "mnemos_engrams:ea4ffa2db72d2cc9",
+    "request_flag_state": "true",
+    "global_gate_state": "enabled"
+  },
+  "mode_boundaries": {
+    "direct_runtime": "development and diagnostic mode; not sufficient for deployed-service or HTTP-path claims",
+    "http_service": "integration and formal evaluation mode; required for service-level shadow integration claims"
+  },
+  "formal_claim_permitted": false,
+  "claim_status": "DIRECT_RUNTIME_ONLY_EVIDENCE",
+  "http_service_identity": null,
+  "per_query_results": [
+    {
+      "query_id": "dev01",
+      "query": {
+        "redacted": true,
+        "length": 41,
+        "normalized_length": 41
+      },
+      "normal_retrieval": {
+        "result_count": 0,
+        "top_results": [],
+        "meta": {
+          "retrieval_mode": "semantic",
+          "fusion_policy": null,
+          "retrieval_fingerprint": {
+            "collection_snapshot": "mnemos_engrams:ea4ffa2db72d2cc9",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "BAAI/bge-base-en-v1.5",
+            "cache_schema_version": "r0"
+          },
+          "abstention_guard": null,
+          "governance_summary": null
+        }
+      },
+      "pre_retrieval_recommendation": {
+        "latency_ms": 0.06,
+        "expansion_budget": 0,
+        "context_token_budget": 1200,
+        "input_snapshot": "sha256:582edf991b88633db913eacb6cca55e71af3e980361ea5991d18b658a7f2baed",
+        "reason_codes": [
+          "ADMISSION_DIRECT_FACTOID_NO_CUE_MATCH"
+        ],
+        "recommended_route": "SEMANTIC_RETRIEVAL",
+        "stop_condition": "minimum_evidence_satisfied",
+        "candidate_budget": 8,
+        "status": "recommended",
+        "latency_budget_ms": null,
+        "non_authoritative": true
+      },
+      "post_retrieval_sufficiency": {
+        "sufficiency": "INSUFFICIENT_MORE_EVIDENCE_NEEDED",
+        "sufficiency_reason_codes": [
+          "SUFFICIENCY_NO_CANDIDATES_RETURNED"
+        ],
+        "non_authoritative": true
+      },
+      "raw_shadow_block_redacted": {
+        "status": "recommended",
+        "recommended_route": "SEMANTIC_RETRIEVAL",
+        "candidate_budget": 8,
+        "context_token_budget": 1200,
+        "expansion_budget": 0,
+        "latency_budget_ms": null,
+        "stop_condition": "minimum_evidence_satisfied",
+        "reason_codes": [
+          "ADMISSION_DIRECT_FACTOID_NO_CUE_MATCH"
+        ],
+        "sufficiency": "INSUFFICIENT_MORE_EVIDENCE_NEEDED",
+        "sufficiency_reason_codes": [
+          "SUFFICIENCY_NO_CANDIDATES_RETURNED"
+        ],
+        "input_snapshot": "sha256:582edf991b88633db913eacb6cca55e71af3e980361ea5991d18b658a7f2baed",
+        "latency_ms": 0.06,
+        "non_authoritative": true
+      },
+      "request_flag_state": "true",
+      "global_gate_state": "enabled"
+    },
+    {
+      "query_id": "dev02",
+      "query": {
+        "redacted": true,
+        "length": 2,
+        "normalized_length": 2
+      },
+      "normal_retrieval": {
+        "result_count": 0,
+        "top_results": [],
+        "meta": {
+          "retrieval_mode": "semantic",
+          "fusion_policy": null,
+          "retrieval_fingerprint": {
+            "collection_snapshot": "mnemos_engrams:ea4ffa2db72d2cc9",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "BAAI/bge-base-en-v1.5",
+            "cache_schema_version": "r0"
+          },
+          "abstention_guard": null,
+          "governance_summary": null
+        }
+      },
+      "pre_retrieval_recommendation": {
+        "latency_ms": 0.098,
+        "expansion_budget": 0,
+        "context_token_budget": 1200,
+        "input_snapshot": "sha256:2e8fd5f5a0d8d42c30a0b90a0e25c35258f7d297a099bdd180722ac194604a64",
+        "reason_codes": [
+          "ADMISSION_DIRECT_FACTOID_NO_CUE_MATCH"
+        ],
+        "recommended_route": "SEMANTIC_RETRIEVAL",
+        "stop_condition": "minimum_evidence_satisfied",
+        "candidate_budget": 8,
+        "status": "recommended",
+        "latency_budget_ms": null,
+        "non_authoritative": true
+      },
+      "post_retrieval_sufficiency": {
+        "sufficiency": "INSUFFICIENT_MORE_EVIDENCE_NEEDED",
+        "sufficiency_reason_codes": [
+          "SUFFICIENCY_NO_CANDIDATES_RETURNED"
+        ],
+        "non_authoritative": true
+      },
+      "raw_shadow_block_redacted": {
+        "status": "recommended",
+        "recommended_route": "SEMANTIC_RETRIEVAL",
+        "candidate_budget": 8,
+        "context_token_budget": 1200,
+        "expansion_budget": 0,
+        "latency_budget_ms": null,
+        "stop_condition": "minimum_evidence_satisfied",
+        "reason_codes": [
+          "ADMISSION_DIRECT_FACTOID_NO_CUE_MATCH"
+        ],
+        "sufficiency": "INSUFFICIENT_MORE_EVIDENCE_NEEDED",
+        "sufficiency_reason_codes": [
+          "SUFFICIENCY_NO_CANDIDATES_RETURNED"
+        ],
+        "input_snapshot": "sha256:2e8fd5f5a0d8d42c30a0b90a0e25c35258f7d297a099bdd180722ac194604a64",
+        "latency_ms": 0.098,
+        "non_authoritative": true
+      },
+      "request_flag_state": "true",
+      "global_gate_state": "enabled"
+    },
+    {
+      "query_id": "dev03",
+      "query": {
+        "redacted": true,
+        "length": 65,
+        "normalized_length": 65
+      },
+      "normal_retrieval": {
+        "result_count": 0,
+        "top_results": [],
+        "meta": {
+          "retrieval_mode": "semantic",
+          "fusion_policy": null,
+          "retrieval_fingerprint": {
+            "collection_snapshot": "mnemos_engrams:ea4ffa2db72d2cc9",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "BAAI/bge-base-en-v1.5",
+            "cache_schema_version": "r0"
+          },
+          "abstention_guard": null,
+          "governance_summary": null
+        }
+      },
+      "pre_retrieval_recommendation": {
+        "latency_ms": 0.049,
+        "expansion_budget": 0,
+        "context_token_budget": 1200,
+        "input_snapshot": "sha256:27447932f764d76d166708b322eca9c6f883ffbf7aed168db00cd1c1b7d99491",
+        "reason_codes": [
+          "ADMISSION_DIRECT_FACTOID_NO_CUE_MATCH"
+        ],
+        "recommended_route": "SEMANTIC_RETRIEVAL",
+        "stop_condition": "minimum_evidence_satisfied",
+        "candidate_budget": 8,
+        "status": "recommended",
+        "latency_budget_ms": null,
+        "non_authoritative": true
+      },
+      "post_retrieval_sufficiency": {
+        "sufficiency": "INSUFFICIENT_MORE_EVIDENCE_NEEDED",
+        "sufficiency_reason_codes": [
+          "SUFFICIENCY_NO_CANDIDATES_RETURNED"
+        ],
+        "non_authoritative": true
+      },
+      "raw_shadow_block_redacted": {
+        "status": "recommended",
+        "recommended_route": "SEMANTIC_RETRIEVAL",
+        "candidate_budget": 8,
+        "context_token_budget": 1200,
+        "expansion_budget": 0,
+        "latency_budget_ms": null,
+        "stop_condition": "minimum_evidence_satisfied",
+        "reason_codes": [
+          "ADMISSION_DIRECT_FACTOID_NO_CUE_MATCH"
+        ],
+        "sufficiency": "INSUFFICIENT_MORE_EVIDENCE_NEEDED",
+        "sufficiency_reason_codes": [
+          "SUFFICIENCY_NO_CANDIDATES_RETURNED"
+        ],
+        "input_snapshot": "sha256:27447932f764d76d166708b322eca9c6f883ffbf7aed168db00cd1c1b7d99491",
+        "latency_ms": 0.049,
+        "non_authoritative": true
+      },
+      "request_flag_state": "true",
+      "global_gate_state": "enabled"
+    },
+    {
+      "query_id": "dev04",
+      "query": {
+        "redacted": true,
+        "length": 49,
+        "normalized_length": 49
+      },
+      "normal_retrieval": {
+        "result_count": 0,
+        "top_results": [],
+        "meta": {
+          "retrieval_mode": "semantic",
+          "fusion_policy": null,
+          "retrieval_fingerprint": {
+            "collection_snapshot": "mnemos_engrams:ea4ffa2db72d2cc9",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "BAAI/bge-base-en-v1.5",
+            "cache_schema_version": "r0"
+          },
+          "abstention_guard": null,
+          "governance_summary": null
+        }
+      },
+      "pre_retrieval_recommendation": {
+        "latency_ms": 0.054,
+        "expansion_budget": 0,
+        "context_token_budget": 600,
+        "input_snapshot": "sha256:f1eb3d4a1cf885f04a6e4070790575314f445d3e3ef134d999786ea967ce1909",
+        "reason_codes": [
+          "ADMISSION_EXPLICIT_ARTIFACT_ID_RESOLVED_LOCALLY"
+        ],
+        "recommended_route": "CUE_ONLY_LOOKUP",
+        "stop_condition": "minimum_evidence_satisfied",
+        "candidate_budget": 2,
+        "status": "recommended",
+        "latency_budget_ms": null,
+        "non_authoritative": true
+      },
+      "post_retrieval_sufficiency": {
+        "sufficiency": "INSUFFICIENT_MORE_EVIDENCE_NEEDED",
+        "sufficiency_reason_codes": [
+          "SUFFICIENCY_NO_CANDIDATES_RETURNED"
+        ],
+        "non_authoritative": true
+      },
+      "raw_shadow_block_redacted": {
+        "status": "recommended",
+        "recommended_route": "CUE_ONLY_LOOKUP",
+        "candidate_budget": 2,
+        "context_token_budget": 600,
+        "expansion_budget": 0,
+        "latency_budget_ms": null,
+        "stop_condition": "minimum_evidence_satisfied",
+        "reason_codes": [
+          "ADMISSION_EXPLICIT_ARTIFACT_ID_RESOLVED_LOCALLY"
+        ],
+        "sufficiency": "INSUFFICIENT_MORE_EVIDENCE_NEEDED",
+        "sufficiency_reason_codes": [
+          "SUFFICIENCY_NO_CANDIDATES_RETURNED"
+        ],
+        "input_snapshot": "sha256:f1eb3d4a1cf885f04a6e4070790575314f445d3e3ef134d999786ea967ce1909",
+        "latency_ms": 0.054,
+        "non_authoritative": true
+      },
+      "request_flag_state": "true",
+      "global_gate_state": "enabled"
+    },
+    {
+      "query_id": "dev05",
+      "query": {
+        "redacted": true,
+        "length": 48,
+        "normalized_length": 48
+      },
+      "normal_retrieval": {
+        "result_count": 0,
+        "top_results": [],
+        "meta": {
+          "retrieval_mode": "semantic",
+          "fusion_policy": null,
+          "retrieval_fingerprint": {
+            "collection_snapshot": "mnemos_engrams:ea4ffa2db72d2cc9",
+            "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25",
+            "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+            "embedding_model_name": "BAAI/bge-base-en-v1.5",
+            "cache_schema_version": "r0"
+          },
+          "abstention_guard": null,
+          "governance_summary": null
+        }
+      },
+      "pre_retrieval_recommendation": {
+        "latency_ms": 0.11,
+        "expansion_budget": 0,
+        "context_token_budget": 1200,
+        "input_snapshot": "sha256:7274229170ca86570ead3edb60c7ccf7a6faf7631f4b2901a1dce6cba6fdbf59",
+        "reason_codes": [
+          "ADMISSION_DIRECT_FACTOID_NO_CUE_MATCH"
+        ],
+        "recommended_route": "SEMANTIC_RETRIEVAL",
+        "stop_condition": "minimum_evidence_satisfied",
+        "candidate_budget": 8,
+        "status": "recommended",
+        "latency_budget_ms": null,
+        "non_authoritative": true
+      },
+      "post_retrieval_sufficiency": {
+        "sufficiency": "INSUFFICIENT_MORE_EVIDENCE_NEEDED",
+        "sufficiency_reason_codes": [
+          "SUFFICIENCY_NO_CANDIDATES_RETURNED"
+        ],
+        "non_authoritative": true
+      },
+      "raw_shadow_block_redacted": {
+        "status": "recommended",
+        "recommended_route": "SEMANTIC_RETRIEVAL",
+        "candidate_budget": 8,
+        "context_token_budget": 1200,
+        "expansion_budget": 0,
+        "latency_budget_ms": null,
+        "stop_condition": "minimum_evidence_satisfied",
+        "reason_codes": [
+          "ADMISSION_DIRECT_FACTOID_NO_CUE_MATCH"
+        ],
+        "sufficiency": "INSUFFICIENT_MORE_EVIDENCE_NEEDED",
+        "sufficiency_reason_codes": [
+          "SUFFICIENCY_NO_CANDIDATES_RETURNED"
+        ],
+        "input_snapshot": "sha256:7274229170ca86570ead3edb60c7ccf7a6faf7631f4b2901a1dce6cba6fdbf59",
+        "latency_ms": 0.11,
+        "non_authoritative": true
+      },
+      "request_flag_state": "true",
+      "global_gate_state": "enabled"
+    }
+  ],
+  "aggregation_policy": "Results from direct_runtime and http_service runs must not be aggregated into one metric."
+}

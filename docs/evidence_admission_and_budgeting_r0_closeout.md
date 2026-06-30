@@ -57,11 +57,11 @@ HTTP artifacts were generated against a locally launched service from the
 current checked-out revision:
 
 ```text
-git:6cea9067043dc6bb00e26e79fd42fc0165132d15:dirty
+git:bef472112a751436c7af35cf472e13ccfa3a2329
 ```
 
-The `:dirty` suffix is expected for this closeout because the service instance
-included the current uncommitted R0 implementation under review.
+The local service reported this clean committed source revision during formal
+HTTP evaluation.
 
 ## Observed Behavior
 
