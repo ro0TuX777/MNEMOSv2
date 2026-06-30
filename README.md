@@ -2,70 +2,75 @@
 
 # MNEMOS
 
-**Governed, source-grounded memory and retrieval for AI systems.**
+**Governed context operations for AI systems.**
 
-Retrieve context with lineage, boundaries, and evidence for why it should influence the next action.
+Source-grounded memory, bounded retrieval, and evidence for what AI may know,
+what it may influence, and why.
 
-[![MNEMOS CI Gates](https://github.com/ro0TuX777/MNEMOSv2/actions/workflows/mnemos-gates.yml/badge.svg)](https://github.com/ro0TuX777/MNEMOSv2/actions/workflows/mnemos-gates.yml)
-
-[Quickstart](#quickstart) |
-[Architecture](docs/architecture.md) |
-[Deployment](docs/deployment_profiles.md) |
-[Benchmarks](docs/benchmark.md) |
-[Documentation](docs/README.md) |
-[Research Status](#capability-status)
+[Quickstart](#quickstart) ·
+[Architecture](docs/architecture.md) ·
+[Deployment](docs/deployment_profiles.md) ·
+[Benchmarks](docs/benchmark.md) ·
+[Documentation](docs/README.md) ·
+[Capability Status](#capability-status)
 
 </div>
 
 ## What MNEMOS Is
 
-MNEMOS is a containerised, source-grounded memory and retrieval service for AI-native applications.
+MNEMOS is a containerised, source-grounded context service for AI-native applications.
 
-It helps systems retrieve durable context with provenance, bounded candidate selection, audit trails, and explicit controls around what retrieved or derived information may influence.
+It helps AI systems retrieve and assemble durable working context with provenance, bounded candidate selection, audit trails, and explicit controls around what retrieved or derived information may influence.
+
+MNEMOS is designed for the operational layer around AI: maintaining useful context, preserving source lineage, constraining reach, and producing evidence that supports review, replay, and correction.
 
 ## Why MNEMOS
 
-Many retrieval systems can return something related. MNEMOS is designed for systems that also need to know:
+Model capability alone is not enough to make AI reliable in real work.
 
-- What source supports this result?
-- Is it current, superseded, contradictory, or derived?
-- What route selected it?
-- What is it allowed to influence?
-- Can the result be inspected, replayed, or rolled back?
+Many retrieval systems can return something related. MNEMOS is designed for systems that also need to know whether context is current, supported, permitted, bounded, and suitable to influence the next step.
+
+- What source supports this result, and what is its lineage?
+- Is it current, superseded, contradictory, provisional, or derived?
+- Why was it selected, and what route or evaluation influenced that selection?
+- What may this context influence, and what remains outside its scope?
+- Can the result, evidence, and decision path be inspected, replayed, corrected, or rolled back?
+
+The goal is not simply more memory. It is maintained, inspectable context that can be used safely inside a bounded AI workflow.
 
 ## Core Capabilities
 
 | Capability | What it provides | Status |
 | --- | --- | --- |
-| Source-grounded Engrams | Content, metadata, provenance, and lineage-ready records | Core |
-| Semantic and hybrid retrieval | Qdrant/pgvector profile options with bounded retrieval controls | Core / configurable |
-| Forensic ledger | Auditable index, search, and mutation events | Core |
-| Governance controls | Candidate evaluation, contradiction handling, lifecycle controls | Core / configurable |
+| Source-grounded Engrams | Content, metadata, provenance, and lineage-ready context records | Core |
+| Semantic and hybrid retrieval | Qdrant/pgvector profile options with bounded candidate selection | Core |
+| Forensic ledger | Auditable index, search, retrieval, and mutation events | Core |
+| Context governance controls | Candidate evaluation, contradiction handling, lifecycle controls, and explicit influence boundaries | Core / configurable |
+| Context assembly boundary | Separation between source evidence, retrieval, governance, and downstream consumer context | Core |
 | Deployment profiles | Docker Compose deployment postures for different operating needs | Core |
-| Experimental research lanes | Shadow, read-only, or opt-in evaluation tracks | Experimental / research |
+| Experimental research lanes | Shadow, read-only, or opt-in evaluation tracks that do not alter default authority surfaces | Experimental / research |
 
 ## Architecture Overview
 
 ```text
-Sources and project artifacts
-            |
-            v
-   Engrams + source lineage
-            |
-            v
- Semantic / hybrid retrieval
-            |
-            v
- Governance and evidence checks
-            |
-            v
- Bounded context or retrieval result
-            |
-            v
- AI application, operator, or agent
+Sources, records, and project artifacts
+                  ↓
+      Engrams + source lineage
+                  ↓
+ Semantic / hybrid candidate retrieval
+                  ↓
+ Governance, lifecycle, and evidence checks
+                  ↓
+ Bounded, inspectable working context
+                  ↓
+ AI application, operator, or agent workflow
 ```
 
-MNEMOS keeps source evidence, retrieval, governance, and consumer context assembly as separate concerns. Research lanes do not alter default retrieval or authority surfaces unless explicitly enabled and independently evaluated.
+MNEMOS separates source evidence, retrieval, governance, and consumer context assembly.
+
+This separation is intentional. A retrieved item is not automatically authoritative, current, permitted, or suitable to influence an action. MNEMOS preserves the evidence and boundaries needed for an application, operator, or workflow to make that decision.
+
+Research lanes do not alter default retrieval, delivery, or authority surfaces unless explicitly enabled and independently evaluated.
 
 See the concise [architecture guide](docs/architecture.md), the detailed [whitepaper](docs/whitepaper.md), and the [ADR index](docs/adr/README.md).
 
@@ -118,6 +123,10 @@ For profile selection, generated Compose files, and operational promotion rules,
 
 ## Capability Status
 
+MNEMOS distinguishes supported runtime capabilities from experimental and research work.
+
+A documented concept, ADR, prototype, benchmark baseline, or shadow adapter is not automatically a supported runtime capability. Status reflects the current repository implementation, explicit enablement path, tests, and operational evidence.
+
 | Status | Meaning |
 | --- | --- |
 | Core | Supported in the primary runtime and covered by maintained tests |
@@ -156,11 +165,15 @@ For profile selection, generated Compose files, and operational promotion rules,
 - ColBERT/reranker production promotion
 - Any production authorization-security or broad performance claim not backed by a current evidence artifact
 
+This boundary is deliberate: research may inform future context and harness operations, but it does not silently change default retrieval behavior, authority, or delivery.
+
 The [support matrix](docs/support_matrix.md) is the public boundary for status claims.
 
 ## Evidence And Benchmarks
 
-MNEMOS maintains benchmark and evaluation artifacts alongside implementation work. Results are scoped to their recorded corpus, configuration, and date.
+MNEMOS maintains benchmark, evaluation, and operational evidence artifacts alongside implementation work.
+
+Results are scoped to their recorded corpus, configuration, deployment profile, and date. They are intended to make behavior inspectable and to support repeatable evaluation as context sources, retrieval paths, governance rules, and research lanes evolve.
 
 See:
 
@@ -170,7 +183,9 @@ See:
 - [Architecture guide](docs/architecture.md) and [ADR index](docs/adr/README.md)
 - [Operator playbook](docs/mnemos_operator_playbook.md)
 
-Research and local evaluation results are not general performance, security, or production-readiness claims unless explicitly stated by their evidence artifact.
+Research, local evaluation, and shadow-mode results are not general performance, security, reliability, or production-readiness claims unless explicitly stated and supported by their corresponding evidence artifact.
+
+MNEMOS treats evidence as part of the operating surface: context should be traceable not only when it is retrieved, but when it is reviewed, challenged, refreshed, or retired.
 
 ## Documentation Index
 
@@ -178,8 +193,10 @@ Start with [docs/README.md](docs/README.md) for grouped links to getting started
 
 ## Contributing And Project Boundaries
 
-Contributions are welcome, particularly around reproducible benchmarks, deployment reliability, documentation, and source-grounded retrieval evaluation.
+Contributions are welcome, particularly around reproducible benchmarks, deployment reliability, documentation, source-grounded retrieval evaluation, provenance, lifecycle management, and evidence-backed context operations.
 
-Changes that affect retrieval ranking, governance, authority, disclosure, promotion, or deletion must include explicit tests and evidence artifacts.
+Changes that affect retrieval ranking, candidate selection, governance, authority, disclosure, promotion, deletion, or downstream influence boundaries must include explicit tests and evidence artifacts.
+
+MNEMOS is intended to support bounded AI workflows. Contributions should preserve the separation between context retrieval, governance evaluation, consumer decision-making, and action execution.
 
 This repository currently declares a proprietary license posture.

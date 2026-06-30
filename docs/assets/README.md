@@ -1,24 +1,19 @@
-# MNEMOS Assets
+# MNEMOS Demonstration Media Guidance
 
-This directory contains lightweight source-controlled documentation assets.
+Future media should demonstrate real, local MNEMOS behavior rather than promotional claims.
 
-## Current Assets
+Recommended demonstrations should show:
 
-| Asset | Purpose |
-| --- | --- |
-| [mnemos-architecture-overview.svg](mnemos-architecture-overview.svg) | Restrained architecture illustration matching the README flow. |
+- a real source entering the system;
+- visible provenance or lineage;
+- the retrieval route or evaluation path;
+- the bounded context or result returned to the consumer;
+- any relevant operator review, evidence, correction, refresh, or rollback step.
 
-## Future Demo Media
+Recommended constraints:
 
-Future demo media should be user-supplied or captured from a real local MNEMOS run. Recommended constraints:
-
-- 30-60 seconds
-- Real local demonstration
-- No hidden context or fabricated results
-- Visible source lineage and retrieval route
-- No broad performance claim
-
-Suggested future filenames:
-
-- `demo-retrieval-lineage.gif`
-- `demo-agent-context.gif`
+- 30-60 seconds;
+- real local demonstration;
+- no hidden context or fabricated result;
+- no broad performance, security, or production-readiness claim;
+- clearly distinguish core behavior from experimental or research lanes.

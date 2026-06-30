@@ -1,28 +1,33 @@
-# MNEMOS Architecture
+# MNEMOS Architecture Overview
 
-MNEMOS is a containerised memory and retrieval service that separates source evidence, retrieval, governance, audit, and consumer context assembly.
+MNEMOS provides a governed context layer for AI-native applications.
+
+Its purpose is not merely to store memories or return semantically related records. It preserves the separation between source evidence, candidate retrieval, governance evaluation, and the bounded context that a downstream application, operator, or agent may consume.
+
+This architecture supports a maintainable operating environment around AI systems: context can be traced to sources, evaluated against boundaries, inspected after use, and refreshed or retired as underlying information changes.
+
+## Architectural Principle
+
+A retrieved result is not automatically a decision, authorization, or action.
+
+MNEMOS can provide source-grounded candidates, provenance, evaluation signals, and audit evidence. The downstream consumer remains responsible for applying its own workflow, permissions, review gates, and execution controls.
 
 The whitepaper remains the detailed technical reference: [docs/whitepaper.md](whitepaper.md).
 
 ## System Flow
 
 ```text
-Sources and project artifacts
-            |
-            v
-   Engrams + source lineage
-            |
-            v
- Semantic / hybrid retrieval
-            |
-            v
- Governance and evidence checks
-            |
-            v
- Bounded context or retrieval result
-            |
-            v
- AI application, operator, or agent
+Sources, records, and project artifacts
+                  ↓
+      Engrams + source lineage
+                  ↓
+ Semantic / hybrid candidate retrieval
+                  ↓
+ Governance, lifecycle, and evidence checks
+                  ↓
+ Bounded, inspectable working context
+                  ↓
+ AI application, operator, or agent workflow
 ```
 
 ![MNEMOS architecture overview](assets/mnemos-architecture-overview.svg)
@@ -50,7 +55,7 @@ Named deployment profiles and optional components are documented in [deployment 
 
 ## Boundary Rules
 
-- Source evidence, retrieval ranking, governance decisions, and context assembly are separate concerns.
+- Source evidence, candidate retrieval, governance evaluation, and context assembly are separate concerns.
 - Research lanes do not change default retrieval, governance, authority, disclosure, promotion, or deletion behavior unless explicitly enabled and independently evaluated.
 - Experimental or shadow results are not production-readiness, security, or broad performance claims unless the linked evidence artifact says so.
 

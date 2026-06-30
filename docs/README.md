@@ -1,6 +1,10 @@
 # MNEMOS Documentation
 
-This index routes readers to the maintained source documents without duplicating the detailed technical record.
+MNEMOS documentation is organised around a simple operating principle:
+
+AI systems are more dependable when the context they receive is source-grounded, bounded, inspectable, and maintained over time.
+
+Use this index to find the implementation, deployment, evaluation, governance, and research material relevant to that operating layer.
 
 ## Getting Started
 
