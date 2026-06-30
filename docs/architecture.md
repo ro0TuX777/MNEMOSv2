@@ -59,4 +59,10 @@ Named deployment profiles and optional components are documented in [deployment 
 - Research lanes do not change default retrieval, governance, authority, disclosure, promotion, or deletion behavior unless explicitly enabled and independently evaluated.
 - Experimental or shadow results are not production-readiness, security, or broad performance claims unless the linked evidence artifact says so.
 
+### Deployment Verification Boundary
+
+MNEMOS distinguishes repository code, locally instantiated runtime code, and deployed container image code.
+
+A healthy deployed service does not by itself prove that the container image contains the current repository implementation. Deployment verification should therefore confirm the running image revision or build timestamp before interpreting an HTTP-level test as evidence for a newly implemented capability.
+
 For the public status boundary, see the [support matrix](support_matrix.md). For decision history, see the [ADR index](adr/README.md).

@@ -48,7 +48,7 @@ The goal is not simply more memory. It is maintained, inspectable context that c
 | Context governance controls | Candidate evaluation, contradiction handling, lifecycle controls, and explicit influence boundaries | Core / configurable |
 | Context assembly boundary | Separation between source evidence, retrieval, governance, and downstream consumer context | Core |
 | Deployment profiles | Docker Compose deployment postures for different operating needs | Core |
-| Experimental research lanes | Shadow, read-only, or opt-in evaluation tracks that do not alter default authority surfaces | Experimental / research |
+| Research and shadow lanes | Read-only, evaluation, or observational tracks that do not alter default delivery or authority surfaces | Research / experimental |
 
 ## Architecture Overview
 
@@ -148,14 +148,23 @@ A documented concept, ADR, prototype, benchmark baseline, or shadow adapter is n
 - `graph_hybrid_experimental`, read-only and outside the public default retrieval surface
 - Hybrid retrieval as a targeted evaluation/configuration mode, not a broad default
 - Derived-facts evaluation lane when explicitly enabled and bounded by its documented gates
-- Associative candidate expansion only where explicitly requested and gated
+- Associative Routing E2: opt-in candidate expansion behind an explicit request flag and a global kill switch (disabled by default). Normal retrieval remains primary.
+  - candidate-addition only
+  - normal retrieval remains primary
+  - expansion candidates are governed independently, source-linked, origin-labeled, bounded, and appended without suppressing or re-ranking normal results
+
+Associative Routing E2 is an opt-in experimental candidate-expansion path.
+
+It can append a small number of governed, source-linked candidates after normal retrieval and governance have completed. It does not alter default retrieval, suppress normal results, inject authority fields, or make durable writes.
+
+Its current evidence supports limited usefulness for selected query classes, including supersession and evidence-completeness questions. It does not support a general retrieval quality, production-readiness, or broad superiority claim.
 
 ### Research / Shadow
 
 - EBIR refinement
 - Session Context Assembler local shadow adapter
 - GateMem reference baseline
-- Associative Routing E0/E1 shadow work
+- Associative Routing E0/E1 unless repository evidence shows a separately enabled runtime path
 - Derived-facts work unless and until a specific deployment artifact authorizes a narrower posture
 - TimesFM predictive pulse and related advisory predictive lanes
 
@@ -186,6 +195,27 @@ See:
 Research, local evaluation, and shadow-mode results are not general performance, security, reliability, or production-readiness claims unless explicitly stated and supported by their corresponding evidence artifact.
 
 MNEMOS treats evidence as part of the operating surface: context should be traceable not only when it is retrieved, but when it is reviewed, challenged, refreshed, or retired.
+
+### Associative Routing E2
+
+Associative Routing E2 is retained as an opt-in experimental candidate-expansion mechanism.
+
+In its recorded 22-query comparison, expansion triggered on two queries and added two source-linked candidates classified as correct and needed: one supersession answer that normal semantic retrieval missed, and one missing evidence item that completed an otherwise incomplete result set.
+
+The comparison used current local code against the live Qdrant and PostgreSQL backends. It did not exercise the deployed service container's HTTP path because the container image was confirmed to predate the E1 and E2 implementation.
+
+E2 remains disabled by default. The available evidence supports evaluation for selected query classes only; it is not a broad claim of retrieval superiority, production quality, or authorization safety.
+
+See:
+
+- [E2 design note and limitations](docs/associative_routing_e2_design_note.md)
+- [Recorded E2 comparison artifact](benchmarks/results/associative_routing_e2_live_comparison_run_001.json)
+- [Benchmark methodology](docs/benchmark.md)
+- [Support matrix](docs/support_matrix.md)
+
+"Live backend" evaluation and "deployed service" evaluation are not interchangeable.
+
+Where an evidence artifact used local in-process execution against live data stores rather than the deployed HTTP service, MNEMOS documentation must describe that distinction plainly.
 
 ## Documentation Index
 

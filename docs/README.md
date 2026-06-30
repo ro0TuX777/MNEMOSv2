@@ -48,6 +48,7 @@ Use this index to find the implementation, deployment, evaluation, governance, a
 | [Support matrix](support_matrix.md) | Public status boundary for supported, beta, experimental, blocked, and spec-only work. |
 | [ADR index](adr/README.md) | Architecture decisions for support and authority boundaries. |
 | [Operator playbook](mnemos_operator_playbook.md) | Operational controls for promotion, rollback, and incidents. |
+| [Release / documentation review checklist](release_review_checklist.md) | Required review, change-note, validation, and public-claims steps for capability-claim changes. |
 
 ## Research And Experimental Lanes
 
