@@ -10,9 +10,16 @@ From the MNEMOS repo:
 
 ```powershell
 cd G:\MNEMOS
+python tools/setup_mnemos_mcp_env.py
+python tools/run_mnemos_mcp_isolation_check.py
+```
+
+For a quick bridge-only smoke:
+
+```powershell
 python tools/verify_mnemos_msf_mcp.py
-python tools/smoke_mnemos_mcp_stdio.py
-python tools/smoke_mnemos_mcp_live.py
+.\mcp_servers\mnemos\.venv\Scripts\python.exe tools/smoke_mnemos_mcp_stdio.py
+.\mcp_servers\mnemos\.venv\Scripts\python.exe tools/smoke_mnemos_mcp_live.py
 ```
 
 Expected signals:
@@ -30,10 +37,12 @@ then rerun the smoke tests.
 ## 2. Find Python
 
 ```powershell
-python -c "import sys; print(sys.executable)"
+.\mcp_servers\mnemos\.venv\Scripts\python.exe -c "import sys; print(sys.executable)"
 ```
 
-Use that path as the `command` value in Claude Desktop config.
+Use the isolated MCP venv Python path as the `command` value in Claude Desktop
+config. Do not point Claude Desktop at MNEMOS's normal runtime or Anaconda
+environment for this bridge.
 
 ## 3. Configure Claude Desktop
 
@@ -49,7 +58,7 @@ Add or merge:
 {
   "mcpServers": {
     "mnemos": {
-      "command": "C:\\Users\\vin\\anaconda3\\python.exe",
+      "command": "G:\\MNEMOS\\mcp_servers\\mnemos\\.venv\\Scripts\\python.exe",
       "args": [
         "G:\\MNEMOS\\mcp_servers\\mnemos\\server.py"
       ],
@@ -107,7 +116,8 @@ python tools/seed_mnemos_repo_context.py
 
 - If Claude does not list MNEMOS tools, verify the config JSON is valid and
   restart Claude Desktop.
-- If tools list but calls fail, run `python tools/smoke_mnemos_mcp_live.py`.
+- If tools list but calls fail, run
+  `.\mcp_servers\mnemos\.venv\Scripts\python.exe tools/smoke_mnemos_mcp_live.py`.
 - If `health_check` returns `unavailable`, MNEMOS REST is not reachable at
   `MNEMOS_BASE_URL`.
 - If first write/search calls time out, keep `MNEMOS_TIMEOUT_S=90` for cold

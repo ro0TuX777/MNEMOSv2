@@ -24,13 +24,13 @@ VSCode/Antigravity MCP clients, and custom orchestrators.
 Install optional MCP bridge dependencies:
 
 ```bash
-pip install -r mcp_servers/mnemos/requirements.txt
+python tools/setup_mnemos_mcp_env.py
 ```
 
 Start MNEMOS, then run the MCP server:
 
 ```bash
-python mcp_servers/mnemos/server.py
+mcp_servers/mnemos/.venv/Scripts/python.exe mcp_servers/mnemos/server.py
 ```
 
 For Claude Desktop-style stdio config in `claude_desktop_config.json`:
@@ -39,8 +39,8 @@ For Claude Desktop-style stdio config in `claude_desktop_config.json`:
 {
   "mcpServers": {
     "mnemos": {
-      "command": "python",
-      "args": ["mcp_servers/mnemos/server.py"],
+      "command": "G:\\MNEMOS\\mcp_servers\\mnemos\\.venv\\Scripts\\python.exe",
+      "args": ["G:\\MNEMOS\\mcp_servers\\mnemos\\server.py"],
       "env": {
         "MNEMOS_BASE_URL": "http://localhost:8700"
       }
@@ -64,11 +64,13 @@ docs/integrations/claude_desktop_mnemos_mcp.md
 For SSE or streamable HTTP:
 
 ```bash
-python mcp_servers/mnemos/server.py --transport sse --port 9700
-python mcp_servers/mnemos/server.py --transport streamable-http --port 9700
+mcp_servers/mnemos/.venv/Scripts/python.exe mcp_servers/mnemos/server.py --transport sse --port 9700
+mcp_servers/mnemos/.venv/Scripts/python.exe mcp_servers/mnemos/server.py --transport streamable-http --port 9700
 ```
 
 ## Boundary
 
-This bridge does not change MNEMOS runtime behavior. It wraps existing REST
-routes as MCP tools and keeps provenance-bearing memory operations explicit.
+This bridge uses its own virtual environment and pinned dependency lockfile in
+`mcp_servers/mnemos`. It does not change MNEMOS runtime behavior. It wraps
+existing REST routes as MCP tools and keeps provenance-bearing memory operations
+explicit.

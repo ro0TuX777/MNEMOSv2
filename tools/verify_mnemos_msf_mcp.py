@@ -15,6 +15,7 @@ SERVER = MCP_DIR / "server.py"
 OPENAPI = MCP_DIR / "openapi.json"
 README = MCP_DIR / "README.md"
 REQUIREMENTS = MCP_DIR / "requirements.txt"
+LOCKFILE = MCP_DIR / "requirements.lock.txt"
 DOCKERFILE = MCP_DIR / "Dockerfile"
 
 EXPECTED_TOOLS = {
@@ -41,6 +42,7 @@ def verify_mnemos_msf_mcp() -> dict[str, Any]:
     server_text = SERVER.read_text(encoding="utf-8")
     readme_text = README.read_text(encoding="utf-8")
     requirements_text = REQUIREMENTS.read_text(encoding="utf-8")
+    lockfile_text = LOCKFILE.read_text(encoding="utf-8")
     dockerfile_text = DOCKERFILE.read_text(encoding="utf-8")
 
     services = {service["name"]: service for service in registry.get("services", [])}
@@ -75,6 +77,8 @@ def verify_mnemos_msf_mcp() -> dict[str, Any]:
         }.issubset(operation_ids),
         "readme_mentions_claude_config": "claude_desktop_config" in readme_text,
         "requirements_include_mcp": "mcp" in requirements_text,
+        "lockfile_pins_mcp": "mcp==" in lockfile_text,
+        "lockfile_pins_requests": "requests==" in lockfile_text,
         "dockerfile_runs_server": "server.py" in dockerfile_text,
     }
     if not all(checks.values()):

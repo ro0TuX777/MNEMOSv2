@@ -1,12 +1,18 @@
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
-from tools.verify_mnemos_msf_mcp import EXPECTED_TOOLS, OPENAPI, SERVER, verify_mnemos_msf_mcp
+import pytest
+
+from tools.verify_mnemos_msf_mcp import EXPECTED_TOOLS, LOCKFILE, OPENAPI, SERVER, verify_mnemos_msf_mcp
 
 
 ROOT = Path(__file__).resolve().parents[1]
+MCP_PYTHON = ROOT / "mcp_servers" / "mnemos" / ".venv" / (
+    "Scripts/python.exe" if os.name == "nt" else "bin/python"
+)
 
 
 def test_mnemos_msf_mcp_bridge_verifies():
@@ -53,9 +59,23 @@ def test_msf_mcp_verifier_command_runs_from_repository_root():
     assert "Checks passed" in completed.stdout
 
 
-def test_mcp_stdio_smoke_lists_tools_from_repository_root():
+def test_mcp_dependencies_are_pinned_outside_root_requirements():
+    lockfile = LOCKFILE.read_text(encoding="utf-8")
+    root_requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8").splitlines()
+    root_requirement_names = {
+        line.strip().lower().split("==", 1)[0].split(">=", 1)[0].split("<", 1)[0]
+        for line in root_requirements
+        if line.strip() and not line.strip().startswith("#")
+    }
+    assert "mcp==" in lockfile
+    assert "requests==" in lockfile
+    assert "mcp" not in root_requirement_names
+
+
+@pytest.mark.skipif(not MCP_PYTHON.is_file(), reason="isolated MCP venv has not been created")
+def test_mcp_stdio_smoke_lists_tools_from_isolated_venv():
     completed = subprocess.run(
-        [sys.executable, "tools/smoke_mnemos_mcp_stdio.py"],
+        [str(MCP_PYTHON), "tools/smoke_mnemos_mcp_stdio.py"],
         cwd=ROOT,
         capture_output=True,
         text=True,

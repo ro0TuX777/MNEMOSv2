@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "mnemos": {
-      "command": "C:\\Users\\vin\\anaconda3\\python.exe",
+      "command": "G:\\MNEMOS\\mcp_servers\\mnemos\\.venv\\Scripts\\python.exe",
       "args": [
         "G:\\MNEMOS\\mcp_servers\\mnemos\\server.py"
       ],
