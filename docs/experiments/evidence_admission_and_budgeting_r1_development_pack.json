@@ -1,0 +1,69 @@
+{
+  "pack_id": "evidence_admission_and_budgeting_r1_development_pack_v1",
+  "pack_type": "development_diagnostic",
+  "evidence_status": [
+    "DEVELOPMENT_ONLY",
+    "NOT_FORMAL_EVIDENCE",
+    "NOT_FRESH_VERIFICATION",
+    "NOT_INDEPENDENTLY_AUTHORED"
+  ],
+  "purpose": "Diagnostic prompts for local policy inspection before formal R1 evaluation content exists.",
+  "queries": [
+    {
+      "query_id": "dev_r1_001",
+      "query": "What is the recorded R0 closeout posture for evidence admission and budgeting?",
+      "expected_diagnostic_focus": "exact current-state lookup",
+      "candidate_route": "CUE_ONLY_LOOKUP",
+      "scored_for_formal_claim": false
+    },
+    {
+      "query_id": "dev_r1_002",
+      "query": "Which R1 controls prevent default enforcement and hybrid enforcement?",
+      "expected_diagnostic_focus": "design note control lookup",
+      "candidate_route": "BOUNDED_SEMANTIC_RETRIEVAL",
+      "scored_for_formal_claim": false
+    },
+    {
+      "query_id": "dev_r1_003",
+      "query": "Find current GATEMEM program status without relying only on superseded proposals.",
+      "expected_diagnostic_focus": "current versus superseded lineage",
+      "candidate_route": "BOUNDED_SEMANTIC_RETRIEVAL",
+      "scored_for_formal_claim": false
+    },
+    {
+      "query_id": "dev_r1_004",
+      "query": "What does the R1 preregistration require before formal evaluation starts?",
+      "expected_diagnostic_focus": "preregistration gate lookup",
+      "candidate_route": "CUE_ONLY_LOOKUP",
+      "scored_for_formal_claim": false
+    },
+    {
+      "query_id": "dev_r1_005",
+      "query": "Which unrelated MNEMOS operator document should not answer evidence admission policy questions?",
+      "expected_diagnostic_focus": "negative control filtering",
+      "candidate_route": "NORMAL_RETRIEVAL_FALLBACK",
+      "scored_for_formal_claim": false
+    },
+    {
+      "query_id": "dev_r1_006",
+      "query": "Can R1 claim service latency improvement from these packs?",
+      "expected_diagnostic_focus": "abstention and claim boundary",
+      "candidate_route": "ABSTAIN_OR_REQUEST_SCOPE",
+      "scored_for_formal_claim": false
+    },
+    {
+      "query_id": "dev_r1_007",
+      "query": "Identify evidence that R0 separated HTTP-service and direct-runtime results.",
+      "expected_diagnostic_focus": "mode separation lineage",
+      "candidate_route": "BOUNDED_SEMANTIC_RETRIEVAL",
+      "scored_for_formal_claim": false
+    },
+    {
+      "query_id": "dev_r1_008",
+      "query": "When should normal retrieval fallback be used in R1?",
+      "expected_diagnostic_focus": "fallback expectation lookup",
+      "candidate_route": "BOUNDED_SEMANTIC_RETRIEVAL",
+      "scored_for_formal_claim": false
+    }
+  ]
+}
