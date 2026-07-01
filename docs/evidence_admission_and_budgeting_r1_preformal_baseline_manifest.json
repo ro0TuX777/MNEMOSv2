@@ -1,0 +1,64 @@
+{
+  "manifest_id": "evidence_admission_and_budgeting_r1_preformal_baseline_manifest_v1",
+  "status": [
+    "R1_DEVELOPMENT_ENFORCEMENT_IMPLEMENTED",
+    "R1_REGRESSION_COVERAGE_PRESENT",
+    "DEVELOPMENT_ONLY_EVIDENCE",
+    "INDEPENDENT_FORMAL_PACK_STILL_REQUIRED",
+    "FORMAL_R1_EVALUATION_NOT_RUN",
+    "NO_R1_POSITIVE_CLAIM"
+  ],
+  "recorded_at": "2026-07-02T10:22:04.2400490+12:00",
+  "source_revision_at_manifest_creation": "475be22910716bc6894a2ce1bd4a4ca1f3797700",
+  "post_commit_baseline_record": "Record the commit containing this manifest in the separate 14-failure baseline artifact after commit.",
+  "environment": {
+    "os": "Microsoft Windows 10.0.22631",
+    "python": "Python 3.12.7",
+    "shell": "powershell",
+    "cwd": "G:\\MNEMOS"
+  },
+  "preformal_policy_baseline_artifacts": [
+    "mnemos/retrieval/evidence_admission/r1_enforcement.py",
+    "mnemos/retrieval/evidence_admission/__init__.py",
+    "service/app.py",
+    "tests/test_evidence_admission_and_budgeting_r1.py",
+    "docs/evidence_admission_and_budgeting_r1_development_checkpoint.md",
+    "docs/evidence_admission_and_budgeting_r1_preformal_baseline_manifest.json",
+    "docs/evidence_admission_and_budgeting_r1_corpus_manifest.json",
+    "docs/experiments/evidence_admission_and_budgeting_r1_formal_pack_template.json"
+  ],
+  "scoped_r1_regression": {
+    "command": "pytest tests/test_evidence_admission_and_budgeting_r1.py -q",
+    "result": "27 passed, 15 warnings in 0.99s",
+    "interpretation": "Supports only local development wiring coverage for bounded opt-in R1 enforcement."
+  },
+  "repo_local_suite_observation": {
+    "command": "pytest -q tests",
+    "result": "14 failed, 1288 passed, 1 skipped, 952 warnings in 61.55s",
+    "attribution": "14 non-R1 suite failures observed; excluded from the scoped R1 result pending baseline attribution.",
+    "failure_ids": [
+      "tests/test_gatemem_g5_readiness.py::test_packet_contains_no_sealed_corpus_or_labels",
+      "tests/test_governance_explainability.py::test_search_explain_governance_includes_trace_and_suppressed_summary",
+      "tests/test_hierarchy_lineage.py::test_summary_edges_resolve_to_leaf_engrams_via_api",
+      "tests/test_hierarchy_lineage.py::test_root_summary_recursive_lineage",
+      "tests/test_hybrid_runtime_response.py::test_runtime_hybrid_explain_fields_are_typed_and_present",
+      "tests/test_hybrid_runtime_response.py::test_runtime_hybrid_explain_false_omits_explain_fields",
+      "tests/test_hybrid_runtime_response.py::test_runtime_exposes_complexity_and_routing_metadata",
+      "tests/test_hybrid_runtime_response.py::test_runtime_phase2_candidate_envelope_meta_exposed_when_enabled",
+      "tests/test_hybrid_runtime_response.py::test_runtime_phase3_derived_views_generated_when_enabled",
+      "tests/test_hybrid_runtime_response.py::test_runtime_phase4_derived_view_cache_hit_and_invalidate",
+      "tests/test_memory_over_maps_phase1.py::test_search_explain_includes_lineage_when_phase1_enabled",
+      "tests/test_memory_over_maps_phase1.py::test_search_explain_omits_lineage_when_phase1_disabled",
+      "tests/test_retrieval_router_telemetry.py::test_telemetry_emission_and_health",
+      "tests/test_vfr7_api.py::test_gate_5_audit_log_integrity"
+    ]
+  },
+  "formal_evaluation_required_before_positive_claim": true,
+  "formal_conditions_required": [
+    "normal retrieval baseline",
+    "R0 shadow",
+    "R1 enforcement enabled",
+    "R1 global gate disabled"
+  ],
+  "policy_freeze_instruction": "After this baseline is committed and the formal-pack template is handed to the independent author, do not alter enforcement logic, thresholds, fallback rules, policy fixtures, development fixtures, or route-label mappings in response to formal-pack content."
+}
