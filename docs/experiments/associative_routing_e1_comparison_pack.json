@@ -1,0 +1,398 @@
+{
+  "pack_id": "associative_routing_e1_comparison_pack_v1",
+  "status": "frozen_read_only_after_creation",
+  "created_for": "ASSOCIATIVE_ROUTING_E1_SHADOW_VS_PRODUCTION_RETRIEVAL_COMPARISON",
+  "rules": [
+    "Do not tune the associative projection, cue/tag registries, retrieval profile, or scoring rules against this pack and later claim the result is fresh evidence.",
+    "Score correct evidence neighborhood and abstention behavior, not exact document rank.",
+    "Record cold-cache and warm-cache runs separately for the live-retrieval conditions (A/B/D).",
+    "Condition C (associative shadow) is deterministic and offline; it has no cache state."
+  ],
+  "disclosure": {
+    "independence_label": "comparison_pack_not_held_out",
+    "reason": "Queries and expected behaviors were authored with knowledge of the E1 fixture corpus (cue/tag registries). A separate fresh verification pack (associative_routing_e1_fresh_verification_pack.json) is required before any improvement claim."
+  },
+  "neighborhoods": {
+    "gatemem_pause_blocker": {
+      "accepted_sources": [
+        "docs/benchmarks/gatemem_program_status.md",
+        "docs/benchmarks/gatemem_g5/README.md"
+      ],
+      "description": "GateMem pause and the G5 readiness packet that blocks it."
+    },
+    "gatemem_g4_current_state": {
+      "accepted_sources": ["docs/benchmarks/gatemem_g4_offline_reference_implementation.md"],
+      "description": "Current state of the GateMem G4 implementation lane."
+    },
+    "gatemem_g4_proposal_precursor": {
+      "accepted_sources": ["docs/benchmarks/gatemem_g4_offline_reference_implementation_proposal.md"],
+      "description": "Obsolete G4 implementation proposal, superseded by the implementation."
+    },
+    "gatemem_g4_adr_governance": {
+      "accepted_sources": ["docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md"],
+      "description": "ADR governing/authorizing the G4 implementation lane."
+    },
+    "gatemem_frozen_baseline": {
+      "accepted_sources": [
+        "docs/benchmarks/gatemem_program_status.md",
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md"
+      ],
+      "description": "Genuinely ambiguous: two independently documented frozen GateMem artifacts (G2 and G4)."
+    },
+    "gatemem_g5_handoff_current_state": {
+      "accepted_sources": ["benchmarks/evaluation/gatemem_g5_handoff_state.json"],
+      "description": "Current state record of the GateMem G5 handoff."
+    },
+    "gatemem_g5_blocked_checklist": {
+      "accepted_sources": ["docs/benchmarks/gatemem_g5/handoff_checklist.md"],
+      "description": "Checklist blocking a fresh GateMem G5 evaluation."
+    },
+    "gatemem_g5_readiness": {
+      "accepted_sources": ["docs/benchmarks/gatemem_g5/README.md"],
+      "description": "GateMem G5 independent evaluation readiness packet."
+    },
+    "r0_current_state": {
+      "accepted_sources": ["benchmarks/results/retrieval_hygiene_r0_closeout.md"],
+      "description": "Current state of Retrieval Hygiene R0."
+    },
+    "r0_evidence": {
+      "accepted_sources": ["benchmarks/results/retrieval_hygiene_r0_run_003.json"],
+      "description": "Regression evidence supporting the R0 closure."
+    },
+    "r0_frozen_benchmark": {
+      "accepted_sources": ["docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json"],
+      "description": "R0 frozen alias benchmark pack."
+    },
+    "r0_fresh_verification_pack": {
+      "accepted_sources": ["docs/experiments/retrieval_hygiene_r0_fresh_verification_pack.json"],
+      "description": "R0 fresh verification pack."
+    },
+    "ai_dev_trial_current_state": {
+      "accepted_sources": ["benchmarks/results/ai_dev_memory_trial_comparison_002.md"],
+      "description": "Current (latest) AI developer memory trial comparison."
+    },
+    "ai_dev_trial_precursor": {
+      "accepted_sources": ["benchmarks/results/ai_dev_memory_trial_comparison_001.md"],
+      "description": "Superseded, earlier AI developer memory trial comparison."
+    },
+    "abstain_unrelated": {
+      "accepted_sources": [],
+      "description": "No relevant E1 corpus neighborhood; unrelated results should be flagged."
+    }
+  },
+  "queries": [
+    {
+      "query_id": "d01",
+      "category": "direct_state_status",
+      "query": "Why is GateMem work paused?",
+      "expected_behavior": "gatemem_pause_blocker",
+      "accepted_neighborhoods": ["gatemem_pause_blocker"],
+      "current_state_required": true,
+      "ambiguity_acceptable": false,
+      "abstention_expected": false
+    },
+    {
+      "query_id": "d02",
+      "category": "direct_state_status",
+      "query": "What is the current status of GateMem G4?",
+      "expected_behavior": "gatemem_g4_current_state",
+      "accepted_neighborhoods": ["gatemem_g4_current_state"],
+      "current_state_required": true,
+      "ambiguity_acceptable": false,
+      "abstention_expected": false
+    },
+    {
+      "query_id": "d03",
+      "category": "direct_state_status",
+      "query": "What is the current state of the G5 handoff?",
+      "expected_behavior": "gatemem_g5_handoff_current_state",
+      "accepted_neighborhoods": ["gatemem_g5_handoff_current_state"],
+      "current_state_required": true,
+      "ambiguity_acceptable": false,
+      "abstention_expected": false
+    },
+    {
+      "query_id": "d04",
+      "category": "direct_state_status",
+      "query": "What is the current state of Retrieval Hygiene R0?",
+      "expected_behavior": "r0_current_state",
+      "accepted_neighborhoods": ["r0_current_state"],
+      "current_state_required": true,
+      "ambiguity_acceptable": false,
+      "abstention_expected": false
+    },
+    {
+      "query_id": "d05",
+      "category": "direct_state_status",
+      "query": "What is the current state of the AI developer memory trial?",
+      "expected_behavior": "ai_dev_trial_current_state",
+      "accepted_neighborhoods": ["ai_dev_trial_current_state"],
+      "current_state_required": true,
+      "ambiguity_acceptable": false,
+      "abstention_expected": false
+    },
+    {
+      "query_id": "d06",
+      "category": "direct_state_status",
+      "query": "What is frozen for regression testing only?",
+      "expected_behavior": "multi",
+      "accepted_neighborhoods": ["gatemem_g4_current_state", "gatemem_frozen_baseline"],
+      "current_state_required": false,
+      "ambiguity_acceptable": true,
+      "abstention_expected": false,
+      "note": "cue:gatemem-frozen-baseline's alias 'what is frozen' token-subset-matches this query in addition to the intended frozen-regression cue, surfacing both G2 and G4 frozen artifacts. Retained as an ambiguity-aware case (same precedent as R0's q08) rather than forced to a single neighborhood."
+    },
+    {
+      "query_id": "d07",
+      "category": "direct_state_status",
+      "query": "What governs the G4 implementation lane?",
+      "expected_behavior": "multi",
+      "accepted_neighborhoods": ["gatemem_g4_adr_governance", "gatemem_g4_proposal_precursor", "gatemem_g4_current_state"],
+      "current_state_required": false,
+      "ambiguity_acceptable": true,
+      "abstention_expected": false,
+      "note": "Bare single-token cue aliases ('g4') also match this query, surfacing the G4 current-state and proposal docs alongside the intended ADR governance answer. Retained as an ambiguity-aware case; the ADR must be present among the candidates."
+    },
+    {
+      "query_id": "d08",
+      "category": "direct_state_status",
+      "query": "What is the current state of the R0 frozen alias benchmark?",
+      "expected_behavior": "multi",
+      "accepted_neighborhoods": ["r0_frozen_benchmark", "r0_current_state"],
+      "current_state_required": true,
+      "ambiguity_acceptable": true,
+      "abstention_expected": false,
+      "note": "cue:retrieval-hygiene-r0's bare 'r0' alias also matches, surfacing the R0 closeout doc alongside the intended benchmark-pack doc. Ambiguity-aware case."
+    },
+    {
+      "query_id": "d09",
+      "category": "direct_state_status",
+      "query": "What is the current state of the R0 fresh verification pack?",
+      "expected_behavior": "multi",
+      "accepted_neighborhoods": ["r0_fresh_verification_pack", "r0_current_state"],
+      "current_state_required": true,
+      "ambiguity_acceptable": true,
+      "abstention_expected": false,
+      "note": "cue:retrieval-hygiene-r0's bare 'r0' alias also matches, surfacing the R0 closeout doc alongside the intended verification-pack doc. Ambiguity-aware case."
+    },
+    {
+      "query_id": "d10",
+      "category": "direct_state_status",
+      "query": "What is evidence for the R0 closure?",
+      "expected_behavior": "r0_evidence",
+      "accepted_neighborhoods": ["r0_evidence"],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": false
+    },
+    {
+      "query_id": "t01",
+      "category": "temporal_supersession",
+      "query": "What superseded the G4 implementation proposal?",
+      "expected_behavior": "gatemem_g4_current_state",
+      "accepted_neighborhoods": ["gatemem_g4_current_state"],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": false
+    },
+    {
+      "query_id": "t02",
+      "category": "temporal_supersession",
+      "query": "What did the G4 implementation lane supersede?",
+      "expected_behavior": "gatemem_g4_proposal_precursor",
+      "accepted_neighborhoods": ["gatemem_g4_proposal_precursor"],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": false
+    },
+    {
+      "query_id": "t03",
+      "category": "temporal_supersession",
+      "query": "What superseded the G4 implementation lane?",
+      "expected_behavior": "abstain_unrelated",
+      "accepted_neighborhoods": [],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": true,
+      "note": "G4 is the frozen, paused, latest baseline; nothing supersedes it. Deliberate correct-abstention case."
+    },
+    {
+      "query_id": "t04",
+      "category": "temporal_supersession",
+      "query": "What did the latest AI dev trial comparison supersede?",
+      "expected_behavior": "ai_dev_trial_precursor",
+      "accepted_neighborhoods": ["ai_dev_trial_precursor"],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": false
+    },
+    {
+      "query_id": "t05",
+      "category": "temporal_supersession",
+      "query": "What superseded trial comparison 001?",
+      "expected_behavior": "ai_dev_trial_current_state",
+      "accepted_neighborhoods": ["ai_dev_trial_current_state"],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": false
+    },
+    {
+      "query_id": "t06",
+      "category": "temporal_supersession",
+      "query": "What is the G4 implementation lane preceded by?",
+      "expected_behavior": "abstain_unrelated",
+      "accepted_neighborhoods": [],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": true,
+      "note": "No preceded_by tag exists for the G4 implementation lane cue. Deliberate correct-abstention case."
+    },
+    {
+      "query_id": "b01",
+      "category": "dependency_blocker",
+      "query": "What blocks a fresh GateMem evaluation?",
+      "expected_behavior": "multi",
+      "accepted_neighborhoods": ["gatemem_g5_blocked_checklist", "gatemem_g5_readiness"],
+      "current_state_required": false,
+      "ambiguity_acceptable": true,
+      "abstention_expected": false,
+      "note": "Both cue:gatemem (project-level blocked_by) and cue:gatemem-g5 (milestone-level blocked_by) match this phrasing; both blocking artifacts are legitimate. Ambiguity-aware case."
+    },
+    {
+      "query_id": "b02",
+      "category": "dependency_blocker",
+      "query": "What blocks GateMem?",
+      "expected_behavior": "gatemem_g5_readiness",
+      "accepted_neighborhoods": ["gatemem_g5_readiness"],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": false
+    },
+    {
+      "query_id": "b03",
+      "category": "dependency_blocker",
+      "query": "What depends on the G5 handoff?",
+      "expected_behavior": "abstain_unrelated",
+      "accepted_neighborhoods": [],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": true,
+      "note": "No depends_on tag exists for the G5 handoff cue. Deliberate correct-abstention case."
+    },
+    {
+      "query_id": "b04",
+      "category": "dependency_blocker",
+      "query": "What blocks GateMem G5?",
+      "expected_behavior": "multi",
+      "accepted_neighborhoods": ["gatemem_g5_blocked_checklist", "gatemem_g5_readiness"],
+      "current_state_required": false,
+      "ambiguity_acceptable": true,
+      "abstention_expected": false,
+      "note": "Same project/milestone cue collision as b01 (cue:gatemem also matches via the bare 'gatemem' token). Ambiguity-aware case."
+    },
+    {
+      "query_id": "b05",
+      "category": "dependency_blocker",
+      "query": "What is evidence for GateMem G5?",
+      "expected_behavior": "gatemem_g5_handoff_current_state",
+      "accepted_neighborhoods": ["gatemem_g5_handoff_current_state"],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": false
+    },
+    {
+      "query_id": "b06",
+      "category": "dependency_blocker",
+      "query": "What blocks the R0 retrieval hygiene closure?",
+      "expected_behavior": "abstain_unrelated",
+      "accepted_neighborhoods": [],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": true,
+      "note": "R0 is complete and not blocked, unlike GateMem; true negative for blocked_by. Deliberate correct-abstention case."
+    },
+    {
+      "query_id": "a01",
+      "category": "ambiguity_multi_path",
+      "query": "What is the GateMem frozen baseline?",
+      "expected_behavior": "gatemem_frozen_baseline",
+      "accepted_neighborhoods": ["gatemem_frozen_baseline"],
+      "current_state_required": false,
+      "ambiguity_acceptable": true,
+      "abstention_expected": false,
+      "note": "Two independently documented frozen artifacts (G2 row in program status, G4 implementation). Both paths must surface, not one silently chosen."
+    },
+    {
+      "query_id": "a02",
+      "category": "ambiguity_multi_path",
+      "query": "What is frozen?",
+      "expected_behavior": "gatemem_frozen_baseline",
+      "accepted_neighborhoods": ["gatemem_frozen_baseline"],
+      "current_state_required": false,
+      "ambiguity_acceptable": true,
+      "abstention_expected": false
+    },
+    {
+      "query_id": "a03",
+      "category": "ambiguity_multi_path",
+      "query": "Tell me about Retrieval Hygiene R0.",
+      "expected_behavior": "multi",
+      "accepted_neighborhoods": ["r0_current_state", "r0_evidence"],
+      "current_state_required": false,
+      "ambiguity_acceptable": true,
+      "abstention_expected": false,
+      "note": "No relationship phrase is detected, so both outgoing tags from the R0 cue (current_state_of and evidence_for) should surface as separate paths."
+    },
+    {
+      "query_id": "a04",
+      "category": "ambiguity_multi_path",
+      "query": "Tell me about the G4 implementation lane.",
+      "expected_behavior": "multi",
+      "accepted_neighborhoods": ["gatemem_g4_proposal_precursor", "gatemem_g4_adr_governance", "gatemem_g4_current_state"],
+      "current_state_required": false,
+      "ambiguity_acceptable": true,
+      "abstention_expected": false,
+      "note": "No relationship phrase is detected, so both outgoing tags from the G4 implementation cue (supersedes and evidence_for) should surface as separate paths."
+    },
+    {
+      "query_id": "n01",
+      "category": "unrelated_negative_control",
+      "query": "What is the capital of France?",
+      "expected_behavior": "abstain_unrelated",
+      "accepted_neighborhoods": [],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": true
+    },
+    {
+      "query_id": "n02",
+      "category": "unrelated_negative_control",
+      "query": "How do I configure a Kubernetes ingress controller?",
+      "expected_behavior": "abstain_unrelated",
+      "accepted_neighborhoods": [],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": true
+    },
+    {
+      "query_id": "n03",
+      "category": "unrelated_negative_control",
+      "query": "What is the boiling point of water at sea level?",
+      "expected_behavior": "abstain_unrelated",
+      "accepted_neighborhoods": [],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": true
+    },
+    {
+      "query_id": "n04",
+      "category": "unrelated_negative_control",
+      "query": "Summarize the plot of Hamlet.",
+      "expected_behavior": "abstain_unrelated",
+      "accepted_neighborhoods": [],
+      "current_state_required": false,
+      "ambiguity_acceptable": false,
+      "abstention_expected": true
+    }
+  ]
+}

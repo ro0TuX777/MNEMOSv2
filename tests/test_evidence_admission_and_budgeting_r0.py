@@ -290,9 +290,10 @@ def _fake_search_documents_factory(captured: Dict[str, Any]):
         bounded_envelope=None, derive_views=None, latency_budget_ms=None,
         complexity_shadow=False, cognitive_cycle=None,
         associative_routing_shadow=False, associative_candidate_expansion=False,
-        evidence_admission_shadow=False,
+        evidence_admission_shadow=False, evidence_admission_enforce=False,
     ):
         captured["evidence_admission_shadow"] = evidence_admission_shadow
+        captured["evidence_admission_enforce"] = evidence_admission_enforce
         return {
             "status": "healthy",
             "results": [],

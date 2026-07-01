@@ -130,6 +130,7 @@ def _fake_search_documents_factory(captured: Dict[str, Any]):
         associative_routing_shadow=False,
         associative_candidate_expansion=False,
         evidence_admission_shadow=False,
+        evidence_admission_enforce=False,
     ):
         captured["associative_routing_shadow"] = associative_routing_shadow
         return {

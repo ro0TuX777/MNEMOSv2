@@ -36,6 +36,16 @@ from .models import (
     SufficiencyAssessment,
 )
 from .policy import classify_route
+from .r1_enforcement import (
+    ALLOWED_ENFORCED_ROUTE_LABELS,
+    FORBIDDEN_ENFORCED_ROUTE_LABELS,
+    R1_ENFORCEMENT_ENABLE_ENV,
+    R1_ENFORCEMENT_REQUEST_FLAG,
+    EnforcementDecision,
+    bounded_retrieval_overrides,
+    decide_enforcement,
+    fallback_required,
+)
 from .sufficiency import assess_sufficiency
 from .telemetry import redact_for_telemetry
 
@@ -52,6 +62,15 @@ __all__ = [
     "EVIDENCE_ADMISSION_SHADOW_FLAG",
     "EVIDENCE_ADMISSION_SHADOW_ENABLE_ENV",
     "redact_for_telemetry",
+    # R1 — bounded, opt-in enforcement (additive to the R0 names above).
+    "ALLOWED_ENFORCED_ROUTE_LABELS",
+    "FORBIDDEN_ENFORCED_ROUTE_LABELS",
+    "R1_ENFORCEMENT_ENABLE_ENV",
+    "R1_ENFORCEMENT_REQUEST_FLAG",
+    "EnforcementDecision",
+    "bounded_retrieval_overrides",
+    "decide_enforcement",
+    "fallback_required",
 ]
 
 

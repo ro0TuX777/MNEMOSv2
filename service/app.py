@@ -56,7 +56,11 @@ from mnemos.retrieval.evidence_admission import (
     AdmissionRequestContext,
     CacheLookupResult,
     EVIDENCE_ADMISSION_SHADOW_ENABLE_ENV,
+    R1_ENFORCEMENT_ENABLE_ENV,
     assess_sufficiency as _evidence_admission_assess_sufficiency,
+    bounded_retrieval_overrides as _r1_bounded_retrieval_overrides,
+    decide_enforcement as _r1_decide_enforcement,
+    fallback_required as _r1_fallback_required,
     recommend_admission as _evidence_admission_recommend,
 )
 from tools.mnemos_seed_manifest import DEFAULT_MANIFEST_PATH
@@ -147,6 +151,15 @@ def _explicit_artifact_ids_from_filters(filters: Optional[Dict[str, Any]]) -> Li
 
 def _evidence_admission_shadow_globally_enabled() -> bool:
     return os.environ.get(EVIDENCE_ADMISSION_SHADOW_ENABLE_ENV, "false").lower() == "true"
+
+
+def _evidence_admission_r1_enforcement_globally_enabled() -> bool:
+    """R1's global kill switch. Distinct from R0's shadow gate above: R0 stays
+    on unless this repo operator explicitly opts a deployment into R1's
+    bounded, behavior-changing enforcement. Any value other than exactly
+    "true" (case-insensitive) — absent, empty, malformed, or unsupported —
+    is treated as off, per OPT_IN_KILL_SWITCH_ONLY."""
+    return os.environ.get(R1_ENFORCEMENT_ENABLE_ENV, "false").lower() == "true"
 
 
 def _evidence_admission_disabled_block() -> Dict[str, Any]:
@@ -1016,6 +1029,7 @@ class MnemosRuntime:
         associative_routing_shadow: bool = False,
         associative_candidate_expansion: bool = False,
         evidence_admission_shadow: bool = False,
+        evidence_admission_enforce: bool = False,
     ) -> Dict[str, Any]:
         """Search across tiers and return fused results."""
         import time
@@ -1024,6 +1038,62 @@ class MnemosRuntime:
         if isinstance(filters, dict):
             session_id = str(filters.get("session_id") or filters.get("tenant_id") or "default")
         pre_cognitive_cache_context = self._pre_cognitive_cache_context(session_id, query)
+
+        # ── Evidence Admission and Budgeting R1: pre-retrieval enforcement
+        # decision ───────────────────────────────────────────────────────
+        # Computed before any retrieval call (including the pre-cognitive
+        # cache check below) using only pre-retrieval-available inputs —
+        # complexity_label is deliberately left unset here (it is only known
+        # after a search call runs), which keeps every route this can
+        # produce inside R0's own pre-retrieval-safe rules. Absent request
+        # flag or disabled global gate => this block never runs and
+        # `r1_decision` stays None, so every branch below that reads it is
+        # unreachable and behavior is unchanged, per OPT_IN_KILL_SWITCH_ONLY.
+        r1_enforcement_requested = bool(evidence_admission_enforce)
+        r1_globally_enabled = False
+        r1_decision = None
+        if r1_enforcement_requested:
+            r1_globally_enabled = _evidence_admission_r1_enforcement_globally_enabled()
+            if r1_globally_enabled:
+                _r1_cache_lookup = self._evidence_admission_cache_lookup(query, pre_cognitive_cache_context)
+                _r1_context = self._build_admission_request_context(
+                    top_k=top_k,
+                    latency_budget_ms=latency_budget_ms,
+                    filters=filters,
+                    cache_lookup=_r1_cache_lookup,
+                    complexity_label=None,
+                    complexity_confidence=None,
+                )
+                r1_decision = _r1_decide_enforcement(_evidence_admission_recommend(query, _r1_context))
+
+        if r1_decision is not None and r1_decision.enforced_route == "ABSTAIN_OR_REQUEST_SCOPE":
+            payload = self._base_payload()
+            payload["results"] = []
+            payload["meta"] = {
+                "query": query,
+                "top_k": top_k,
+                "result_count": 0,
+                "latency_s": round(time.time() - t0, 4),
+                "retrieval_mode": "abstained",
+                "fusion_policy": None,
+                "abstention_guard": {
+                    "applied": True,
+                    "reason_code": "evidence_admission_r1_enforced_abstention",
+                    "enforcement_reason_codes": list(r1_decision.enforcement_reason_codes),
+                },
+                "retrieval_fingerprint": self._retrieval_fingerprint(
+                    retrieval_mode_override="abstained",
+                    fusion_policy_override="none",
+                ),
+                "evidence_admission_r1_enforcement": {
+                    "requested": True,
+                    "globally_enabled": True,
+                    "decision": r1_decision.to_dict(),
+                    "fallback_triggered": False,
+                    "final_route_served": "ABSTAIN_OR_REQUEST_SCOPE",
+                },
+            }
+            return payload
 
         if self._view_cache is not None and self._intent_engine is not None:
             try:
@@ -1103,7 +1173,16 @@ class MnemosRuntime:
                 pre_cognitive_cache_hit=False,
             )
 
-        results, mode_meta = self._router.search(
+        _r1_retrieval_overrides: Dict[str, Any] = (
+            _r1_bounded_retrieval_overrides(
+                r1_decision,
+                requested_top_k=top_k,
+                configured_semantic_top_k=self._config.semantic_top_k,
+            )
+            if r1_decision is not None
+            else {}
+        )
+        _default_retrieval_kwargs: Dict[str, Any] = dict(
             query=query,
             top_k=top_k,
             filters=filters,
@@ -1118,8 +1197,33 @@ class MnemosRuntime:
             complexity_shadow=complexity_shadow,
             adaptive_routing=bool(getattr(self._config, "adaptive_routing", True)),
         )
+        results, mode_meta = self._router.search(**{**_default_retrieval_kwargs, **_r1_retrieval_overrides})
         if associative_routing_shadow:
             mode_meta["associative_routing_shadow"] = _associative_shadow_adapter.run(query)
+
+        # ── Evidence Admission and Budgeting R1: post-attempt fallback ────
+        # Only reachable when r1_decision enforced a bounded retrieval call
+        # above (CUE_ONLY_LOOKUP / BOUNDED_SEMANTIC_RETRIEVAL). Reuses R0's
+        # unmodified assess_sufficiency() against the bounded attempt's own
+        # raw results — deliberately *before* governance runs, so if a
+        # fallback is required the unbounded re-run below fully replaces
+        # `results`/`mode_meta` before any downstream code (governance,
+        # abstention, assembler, response assembly) ever sees the bounded
+        # attempt. This is what makes NORMAL_RETRIEVAL_FALLBACK mandatory-
+        # not-optional: every consumer past this point sees one final,
+        # consistent result set, exactly as if R1 had chosen that route from
+        # the start.
+        r1_fallback_triggered = False
+        if r1_decision is not None and r1_decision.enforced_route in (
+            "CUE_ONLY_LOOKUP",
+            "BOUNDED_SEMANTIC_RETRIEVAL",
+        ):
+            _r1_preliminary_sufficiency = _evidence_admission_assess_sufficiency(results, mode_meta)
+            if _r1_fallback_required(r1_decision.enforced_route, _r1_preliminary_sufficiency.sufficiency):
+                r1_fallback_triggered = True
+                results, mode_meta = self._router.search(**_default_retrieval_kwargs)
+                if associative_routing_shadow:
+                    mode_meta["associative_routing_shadow"] = _associative_shadow_adapter.run(query)
 
         # ── Evidence Admission and Budgeting R0: pre-retrieval-input-only
         # shadow recommendation ──────────────────────────────────────────
@@ -1550,6 +1654,18 @@ class MnemosRuntime:
             payload["meta"]["associative_candidate_expansion"] = candidate_expansion_block
         if evidence_admission_block is not None:
             payload["meta"]["evidence_admission_shadow"] = evidence_admission_block
+        if r1_enforcement_requested:
+            payload["meta"]["evidence_admission_r1_enforcement"] = {
+                "requested": True,
+                "globally_enabled": r1_globally_enabled,
+                "decision": r1_decision.to_dict() if r1_decision is not None else None,
+                "fallback_triggered": r1_fallback_triggered,
+                "final_route_served": (
+                    ("NORMAL_RETRIEVAL_FALLBACK" if r1_fallback_triggered else r1_decision.enforced_route)
+                    if r1_decision is not None
+                    else None
+                ),
+            }
         if selected_governance != "off":
             payload["meta"]["governance_mode"] = selected_governance
             payload["meta"]["governance_profile"] = selected_profile or "default"
@@ -2174,6 +2290,7 @@ def search():
     associative_routing_shadow = body.get("associative_routing_shadow", False)
     associative_candidate_expansion = body.get("associative_candidate_expansion", False)
     evidence_admission_shadow = body.get("evidence_admission_shadow", False)
+    evidence_admission_enforce = body.get("evidence_admission_enforce", False)
 
     if not query:
         return jsonify({"error": "No query provided"}), 400
@@ -2204,6 +2321,9 @@ def search():
 
     if not isinstance(evidence_admission_shadow, bool):
         return jsonify({"error": "evidence_admission_shadow must be a boolean"}), 400
+
+    if not isinstance(evidence_admission_enforce, bool):
+        return jsonify({"error": "evidence_admission_enforce must be a boolean"}), 400
 
     if governance is not None and governance not in GOVERNANCE_MODES:
         return jsonify({
@@ -2291,6 +2411,7 @@ def search():
             associative_routing_shadow,
             associative_candidate_expansion,
             evidence_admission_shadow,
+            evidence_admission_enforce,
         )
 
     derived_cnt = len(res.get("derived_results", []))

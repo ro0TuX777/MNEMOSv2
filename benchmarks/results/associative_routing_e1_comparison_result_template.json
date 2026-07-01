@@ -1,0 +1,30 @@
+{
+  "pack_id": "associative_routing_e1_comparison_pack_v1",
+  "paths_compared": ["direct_service", "mcp_path"],
+  "seed_snapshot_id": "replace_with_seed_snapshot",
+  "collection_snapshot": "replace_with_collection_snapshot",
+  "per_query_results": [
+    {
+      "query_id": "d01",
+      "query": "Why is GateMem work paused?",
+      "runs": []
+    }
+  ],
+  "condition_c": {
+    "d01": {
+      "block": {},
+      "score": {}
+    }
+  },
+  "gates": {
+    "ASSOCIATIVE_PROJECTION_DETERMINISTIC": false,
+    "ALL_CUES_AND_TAGS_SOURCE_LINKED": false,
+    "NO_AUTHORITY_FIELD_OR_GOVERNANCE_LEAK": false,
+    "DEFAULT_RETRIEVAL_UNCHANGED_WITH_FLAG_OFF": false,
+    "SHADOW_RESPONSE_ISOLATED": false,
+    "NO_DUPLICATE_CANDIDATE_DELIVERY": false,
+    "COMPARISON_PACK_COMPLETE": false,
+    "NO_FALSE_ABSTENTION_IN_CONDITION_C": false,
+    "LIVE_RUN_EXECUTED": false
+  }
+}

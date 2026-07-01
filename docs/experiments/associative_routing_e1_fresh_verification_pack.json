@@ -1,0 +1,83 @@
+{
+  "pack_id": "associative_routing_e1_fresh_verification_pack_v1",
+  "status": "fresh_verification_read_only_after_creation",
+  "created_for": "ASSOCIATIVE_ROUTING_E1_IMPROVEMENT_CLAIM_INDEPENDENCE",
+  "rules": [
+    "Never use this pack for any registry, traversal, projection, or scoring change before executing it.",
+    "Use it only after the E1 comparison-pack run is frozen and the safety gates have already passed.",
+    "Score correct evidence neighborhood and abstention behavior, not exact document rank.",
+    "Record direct-service and MCP-path runs separately, and cold/warm cache passes separately.",
+    "A claim of improvement (not just non-inferiority) requires this pack to pass; the comparison pack alone is not held out."
+  ],
+  "disclosure": {
+    "independence_label": "fresh_verification_pack_not_held_out",
+    "reason": "Queries were authored with knowledge of the E1 fixture corpus used to build the comparison pack, but were not used to tune the projection, cue/tag registries, or router. Mirrors the disclosure boundary already accepted for docs/experiments/retrieval_hygiene_r0_fresh_verification_pack.json."
+  },
+  "neighborhoods": {
+    "gatemem_pause_blocker": {
+      "accepted_sources": [
+        "docs/benchmarks/gatemem_program_status.md",
+        "docs/benchmarks/gatemem_g5/README.md"
+      ]
+    },
+    "gatemem_g4_current_state": {
+      "accepted_sources": ["docs/benchmarks/gatemem_g4_offline_reference_implementation.md"]
+    },
+    "gatemem_g5_blocked_checklist": {
+      "accepted_sources": ["docs/benchmarks/gatemem_g5/handoff_checklist.md"]
+    },
+    "r0_current_state": {
+      "accepted_sources": ["benchmarks/results/retrieval_hygiene_r0_closeout.md"]
+    },
+    "ai_dev_trial_current_state": {
+      "accepted_sources": ["benchmarks/results/ai_dev_memory_trial_comparison_002.md"]
+    },
+    "abstain_unrelated": {
+      "accepted_sources": []
+    }
+  },
+  "queries": [
+    {
+      "query_id": "v01",
+      "category": "unrelated_negative_control",
+      "query": "How does TLS certificate pinning work?",
+      "expected_behavior": "abstain_unrelated",
+      "accepted_neighborhoods": []
+    },
+    {
+      "query_id": "v02",
+      "category": "weak_but_relevant_positive",
+      "query": "paused GateMem effort waiting on an external party",
+      "expected_behavior": "gatemem_pause_blocker",
+      "accepted_neighborhoods": ["gatemem_pause_blocker"]
+    },
+    {
+      "query_id": "v03",
+      "category": "g4_g5_disambiguation",
+      "query": "What is currently blocking the G5 evaluation from proceeding?",
+      "expected_behavior": "gatemem_g5_blocked_checklist",
+      "accepted_neighborhoods": ["gatemem_g5_blocked_checklist"]
+    },
+    {
+      "query_id": "v04",
+      "category": "current_state_probe",
+      "query": "What is the current state of GateMem G4 today?",
+      "expected_behavior": "gatemem_g4_current_state",
+      "accepted_neighborhoods": ["gatemem_g4_current_state"]
+    },
+    {
+      "query_id": "v05",
+      "category": "current_state_probe",
+      "query": "What is the current state of Retrieval Hygiene R0 today?",
+      "expected_behavior": "r0_current_state",
+      "accepted_neighborhoods": ["r0_current_state"]
+    },
+    {
+      "query_id": "v06",
+      "category": "current_state_probe",
+      "query": "What is the latest record of the AI developer memory trial?",
+      "expected_behavior": "ai_dev_trial_current_state",
+      "accepted_neighborhoods": ["ai_dev_trial_current_state"]
+    }
+  ]
+}
