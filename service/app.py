@@ -284,6 +284,7 @@ class MnemosRuntime:
                     url=self._config.qdrant_url,
                     collection_name=self._config.qdrant_collection,
                     embedding_model=self._config.embedding_model,
+                    embedding_dim=self._config.embedding_dim,
                     gpu_device=self._config.gpu_device,
                 ))
 

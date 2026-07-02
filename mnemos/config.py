@@ -25,6 +25,10 @@ class MnemosConfig:
     # Retrieval tiers
     tiers: List[str] = field(default_factory=lambda: ["qdrant"])
     embedding_model: str = "BAAI/bge-base-en-v1.5"
+    # Optional explicit vector dimension. None (default) => derived from the
+    # embedding model itself by the vector tier; set MNEMOS_EMBEDDING_DIM only
+    # to pin/validate a specific dimension.
+    embedding_dim: Optional[int] = None
     long_context_model: str = "nomic-ai/nomic-embed-text-v1"
 
     # Reranking
@@ -213,6 +217,10 @@ class MnemosConfig:
             profile=os.getenv("MNEMOS_PROFILE", "core_memory_appliance"),
             tiers=tiers,
             embedding_model=os.getenv("MNEMOS_EMBEDDING_MODEL", "BAAI/bge-base-en-v1.5"),
+            embedding_dim=(
+                cls._parse_int("MNEMOS_EMBEDDING_DIM", "1", min_value=1)
+                if os.getenv("MNEMOS_EMBEDDING_DIM", "").strip() else None
+            ),
             long_context_model=os.getenv("MNEMOS_LONG_CONTEXT_MODEL", "nomic-ai/nomic-embed-text-v1"),
             use_reranker=cls._parse_bool("MNEMOS_USE_RERANKER", "true"),
             reranker_model=os.getenv("MNEMOS_RERANKER_MODEL", "BAAI/bge-reranker-base"),
