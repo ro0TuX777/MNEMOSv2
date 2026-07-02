@@ -100,6 +100,11 @@ def build_seed_documents(manifest: Dict[str, Any]) -> List[Dict[str, Any]]:
         path = s["path"]
         text = (ROOT / path).read_text(encoding="utf-8")
         stem = Path(path).name
+        # ID must be keyed by the FULL source path, not the basename:
+        # several corpus sources share a basename (e.g. four README.md files),
+        # and basename-keyed IDs silently overwrite one another on upsert
+        # (684 units -> 673 points). Seeding must be collision-free.
+        path_key = path.replace("/", "__")
         for idx, chunk in enumerate(chunk_text(text, ch["max_words"], ch["overlap_words"])):
             meta = {
                 "source_path": path,
@@ -110,7 +115,7 @@ def build_seed_documents(manifest: Dict[str, Any]) -> List[Dict[str, Any]]:
                 "source_uri": path,
             }
             docs.append({
-                "id": f"r1diag::{stem}::chunk{idx:03d}",
+                "id": f"r1seed::{path_key}::chunk{idx:03d}",
                 "content": chunk,
                 "source": path,
                 "metadata": meta,

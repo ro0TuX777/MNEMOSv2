@@ -1,5 +1,28 @@
 # Evidence Admission R1 — Direct-Runtime Diagnostic Note (run 001)
 
+## ERRATUM (seeding fidelity defect, discovered during formal provisioning)
+
+Run 001 was seeded with document IDs keyed by source **basename**, and four
+corpus sources share the basename `README.md`. Upserts therefore overwrote 11
+of the 684 retrieval units (collection held 673 points): in the diagnostic
+collection, `docs/benchmarks/gatemem_g5/README.md` was entirely absent,
+`docs/README.md` retained 3/5 units, and the root `README.md` retained 10/15.
+
+Impact: 5 non-abstention queries had degraded drivers (`r1f-009`, `r1f-034`,
+`r1f-035`, `r1f-038`, `r1f-039`); 3 of them scored "not covered" in every
+condition (`r1f-009`, `r1f-034`, `r1f-039`) and those misses are plausibly
+seeding artifacts, not retrieval failures — normal-baseline coverage may be
+understated by up to 3 (31/42 → up to 34/42). The defect was identical across
+all four conditions, so **cross-condition findings remain valid**: kill-switch
+identity 54/54, shadow read-only equivalence, zero forbidden routes, the
+abstention gap, and the route-collapse finding are unaffected. The absolute
+coverage rates and the −4.76 pp delta should be treated as additionally
+uncertain (they were already diagnostic-only due to the embedder divergence).
+
+The runner's ID scheme is fixed (full-path-keyed, collision-free, verified
+684/684) in the same commit as this erratum. Run 001's JSON artifact is left
+as-committed for the record.
+
 ## Evidence class
 
 - DIRECT_RUNTIME_ONLY_EVIDENCE
