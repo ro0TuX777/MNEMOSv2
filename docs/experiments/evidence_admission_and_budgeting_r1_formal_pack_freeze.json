@@ -1,0 +1,21 @@
+{
+  "freeze_record_id": "evidence_admission_and_budgeting_r1_formal_pack_freeze_v1",
+  "frozen_artifact": "docs/experiments/evidence_admission_and_budgeting_r1_formal_pack.json",
+  "pack_id": "evidence_admission_and_budgeting_r1_formal_pack_v1",
+  "status": "FROZEN_BEFORE_R1_ENFORCEMENT_IMPLEMENTATION",
+  "scored_query_count": 54,
+  "pack_sha256": "f09651f3fc67b0bddf73b3981a0f635e21c58ff3d4ed50bc717d2886377c14cc",
+  "byte_count": 74770,
+  "frozen_at_utc": "2026-07-02T02:47:09Z",
+  "author_role": "independent_non_implementation_author",
+  "repository_branch": "codex/gatemem-governance-reference-baseline",
+  "committed_baseline": "e7b86c65d3fd0298f915efc00cc8cf6fd7fb7f7e",
+  "input_sha256": {
+    "corpus_manifest": "d1a8ad9c9f282b0ef5b427a22eb499014a17440de2a9e4215a04832fa5bd095a",
+    "formal_pack_template": "b4e557ed7a416412ef9a52089f244eaeb6f9c2c6ae0f8be51e400ab5d1a83751",
+    "preregistration": "31af4ee1cac064df983cd173d87e77bfc6448b6935df06f47ff79b1135579c39",
+    "design_note": "7ebd79bfc2da060f242bd8477880e75af41551ba7f28e288febba4f5cd83e00b"
+  },
+  "hash_scope": "sha256 over the full UTF-8 bytes of the frozen formal pack JSON file (self-hash not embedded in the pack).",
+  "downstream_rule": "AI Dev may begin R1 enforcement implementation only after this pack is validated, frozen, and hashed. Any change to the pack invalidates this freeze record and prior formal evidence."
+}
