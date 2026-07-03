@@ -260,6 +260,24 @@ def _write_packet(
     )
 
 
+def _index_documents_in_batches(
+    mnemos: MnemosIndexClient,
+    documents: list[dict[str, Any]],
+    *,
+    batch_size: int,
+) -> tuple[bool, int, str | None]:
+    indexed = 0
+    size = max(1, int(batch_size))
+    for start in range(0, len(documents), size):
+        batch = documents[start:start + size]
+        response = mnemos.index(batch)
+        if not bool(getattr(response, "ok", False)):
+            return False, indexed, getattr(response, "error", "unknown_error")
+        result = getattr(response, "data", {}).get("result", {})
+        indexed += int(result.get("indexed", len(batch)))
+    return True, indexed, None
+
+
 def run_intake(
     *,
     files: list[Path | str],
@@ -274,6 +292,7 @@ def run_intake(
     mnemos_client: MnemosIndexClient | None = None,
     ollama_client: OllamaChatClient | None = None,
     ollama_model: str = DEFAULT_MODEL,
+    batch_size: int = 25,
 ) -> dict[str, Any]:
     documents = build_documents(
         files,
@@ -293,18 +312,19 @@ def run_intake(
         }
 
     mnemos = mnemos_client or MnemosClient(MnemosConfig.from_env())
-    response = mnemos.index(documents)
-    ok = bool(getattr(response, "ok", False))
+    ok, indexed, error = _index_documents_in_batches(
+        mnemos,
+        documents,
+        batch_size=batch_size,
+    )
     if not ok:
         return {
             "status": "index_failed",
-            "indexed": 0,
-            "error": getattr(response, "error", "unknown_error"),
+            "indexed": indexed,
+            "error": error,
             "claim_boundary": CLAIM_BOUNDARY,
         }
 
-    result = getattr(response, "data", {}).get("result", {})
-    indexed = int(result.get("indexed", len(documents)))
     summary = None
     if summarize:
         ollama = ollama_client or OllamaChatClient(
@@ -346,6 +366,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--tag", action="append", default=[], help="Repeatable tag metadata.")
     parser.add_argument("--max-words", type=int, default=350)
     parser.add_argument("--overlap-words", type=int, default=50)
+    parser.add_argument("--batch-size", type=int, default=25)
     parser.add_argument("--summarize-with-ollama", action="store_true")
     parser.add_argument("--ollama-model", default=DEFAULT_MODEL)
     parser.add_argument("--output", type=Path)
@@ -363,6 +384,7 @@ def main(argv: list[str] | None = None) -> int:
         tags=args.tag,
         max_words=args.max_words,
         overlap_words=args.overlap_words,
+        batch_size=args.batch_size,
         summarize=args.summarize_with_ollama,
         output_path=args.output,
         ollama_model=args.ollama_model,

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import os
 from pathlib import Path
 
 from tools.mnemos_research_ui import create_app, default_ollama_base_url
@@ -33,6 +34,8 @@ def test_index_page_contains_upload_fields_and_controls(tmp_path):
     assert "Test Connection" in text
     assert "Run Intake" in text
     assert "ollamaModel" in text
+    assert "MNEMOS timeout seconds" in text
+    assert "Index batch size" in text
 
 
 def test_index_page_uses_detected_ollama_default(tmp_path, monkeypatch):
@@ -114,6 +117,8 @@ def test_intake_endpoint_saves_uploaded_files_and_calls_runner(tmp_path):
             "tags": "workflow, pdf",
             "summarize": "true",
             "ollama_model": "llama3.1",
+            "mnemos_timeout_s": "180",
+            "batch_size": "12",
             "output": "docs/research/packet.md",
         },
         content_type="multipart/form-data",
@@ -132,4 +137,6 @@ def test_intake_endpoint_saves_uploaded_files_and_calls_runner(tmp_path):
     assert calls["tags"] == ["workflow", "pdf"]
     assert calls["summarize"] is True
     assert calls["ollama_model"] == "llama3.1"
+    assert calls["batch_size"] == 12
     assert calls["output_path"] == Path("docs/research/packet.md")
+    assert os.environ["MNEMOS_TIMEOUT_S"] == "180"

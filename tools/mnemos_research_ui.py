@@ -66,6 +66,13 @@ def _split_tags(raw: str) -> list[str]:
     return [part.strip() for part in (raw or "").split(",") if part.strip()]
 
 
+def _positive_int(raw: str, default: int) -> int:
+    try:
+        return max(1, int(str(raw).strip()))
+    except (TypeError, ValueError):
+        return default
+
+
 def _save_uploads(files: list[Any], upload_dir: Path) -> list[Path]:
     upload_dir.mkdir(parents=True, exist_ok=True)
     saved: list[Path] = []
@@ -145,6 +152,7 @@ def create_app(
 
         os.environ["MNEMOS_BASE_URL"] = mnemos_base_url
         os.environ["OLLAMA_BASE_URL"] = ollama_base_url
+        os.environ["MNEMOS_TIMEOUT_S"] = str(_positive_int(request.form.get("mnemos_timeout_s", "180"), 180))
 
         output_raw = request.form.get("output", "").strip()
         output_path = Path(output_raw) if output_raw else None
@@ -157,6 +165,7 @@ def create_app(
             summarize=request.form.get("summarize", "").lower() in {"1", "true", "on", "yes"},
             output_path=output_path,
             ollama_model=request.form.get("ollama_model", "").strip() or "llama3.1",
+            batch_size=_positive_int(request.form.get("batch_size", "25"), 25),
         )
         return jsonify({"ok": result.get("status") == "ok", "result": result, "uploaded_files": [str(p) for p in uploads]})
 
@@ -208,6 +217,10 @@ INDEX_HTML = """<!doctype html>
         <label>MNEMOS base URL
           <input name="mnemos_base_url" id="mnemosBaseUrl" value="http://127.0.0.1:8700">
         </label>
+        <label>MNEMOS timeout seconds
+          <input name="mnemos_timeout_s" id="mnemosTimeoutS" type="number" min="1" value="180">
+          <span class="hint">PDF embedding/indexing can exceed the SDK default 5 seconds.</span>
+        </label>
         <label>Ollama base URL
           <input name="ollama_base_url" id="ollamaBaseUrl" value="__DEFAULT_OLLAMA_BASE_URL__">
           <span class="hint">Detected from OLLAMA_BASE_URL or OLLAMA_HOST when available. You can type a different local URL.</span>
@@ -254,6 +267,10 @@ INDEX_HTML = """<!doctype html>
           <select id="ollamaModelSelect"></select>
           <input name="ollama_model" id="ollamaModel" placeholder="type model name if not listed">
           <span class="hint">Only needed when "Summarize with Ollama" is checked; you can type a model manually.</span>
+        </label>
+        <label>Index batch size
+          <input name="batch_size" type="number" min="1" value="25">
+          <span class="hint">Smaller batches are slower but less likely to time out on large PDFs.</span>
         </label>
         <label>Output packet path
           <input name="output" placeholder="docs/research/my_packet.md">

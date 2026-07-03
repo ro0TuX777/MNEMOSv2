@@ -108,6 +108,43 @@ def test_run_intake_indexes_documents_and_writes_summary_packet(tmp_path):
     assert "Useful for MNEMOS" in output.read_text(encoding="utf-8")
 
 
+def test_run_intake_indexes_documents_in_batches(tmp_path):
+    source = tmp_path / "many_chunks.md"
+    source.write_text(" ".join(f"word{i}" for i in range(45)), encoding="utf-8")
+
+    class RecordingMnemos:
+        def __init__(self):
+            self.batch_sizes = []
+
+        def index(self, documents, *, tiers=None):
+            self.batch_sizes.append(len(documents))
+            return type(
+                "Resp",
+                (),
+                {
+                    "ok": True,
+                    "status": "healthy",
+                    "error": None,
+                    "data": {"result": {"indexed": len(documents), "tiers": {"qdrant": len(documents)}}},
+                },
+            )()
+
+    mnemos = RecordingMnemos()
+    result = intake.run_intake(
+        files=[source],
+        project="MNEMOS",
+        capability="batch indexing",
+        mnemos_client=mnemos,
+        max_words=10,
+        overlap_words=0,
+        batch_size=2,
+    )
+
+    assert result["status"] == "ok"
+    assert result["indexed"] == 5
+    assert mnemos.batch_sizes == [2, 2, 1]
+
+
 def test_run_intake_reports_no_documents_for_empty_file(tmp_path):
     source = tmp_path / "empty.md"
     source.write_text("   ", encoding="utf-8")
