@@ -74,16 +74,40 @@ def _test_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     tests_passed = None
     tests_failed = None
     failure_total = 0
+    harness_environment_failures = 0
+    expected_red_acceptance_failures = 0
+    agent_caused_test_failures = 0
     first_passing_timestamp = None
     for row in rows:
         result = str(row.get("result", "")).lower()
         passed = row.get("passed")
+        summary = str(row.get("summary", "")).lower()
         if passed is True or result == "pass":
             passed_runs += 1
             if first_passing_timestamp is None:
                 first_passing_timestamp = row.get("timestamp")
         if passed is False or result == "fail":
             failed_runs += 1
+            failure_count_for_category = row.get("failure_count")
+            if failure_count_for_category is None:
+                failure_count_for_category = 1
+            failure_count_for_category = int(failure_count_for_category)
+            if any(
+                marker in summary
+                for marker in (
+                    "windows",
+                    "powershell",
+                    "glob",
+                    "did not expand",
+                    "could not find",
+                    "command portability",
+                )
+            ):
+                harness_environment_failures += failure_count_for_category
+            elif any(marker in summary for marker in ("red", "before implementation", "missing saved views")):
+                expected_red_acceptance_failures += failure_count_for_category
+            else:
+                agent_caused_test_failures += failure_count_for_category
         if row.get("tests_passed") is not None:
             tests_passed = row.get("tests_passed")
         if row.get("tests_failed") is not None:
@@ -99,6 +123,14 @@ def _test_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "final_tests_passed": tests_passed,
         "final_tests_failed": tests_failed,
         "failure_total": failure_total,
+        "harness_environment_failure_count": harness_environment_failures,
+        "expected_red_acceptance_failure_count": expected_red_acceptance_failures,
+        "agent_caused_test_failure_count": agent_caused_test_failures,
+        "failed_test_metric_status": (
+            "not_comparable_due_to_harness_failures"
+            if harness_environment_failures > 0
+            else "comparable"
+        ),
         "first_passing_timestamp": first_passing_timestamp,
     }
 
@@ -184,6 +216,22 @@ def _observed_route_fingerprint(memory_rows: list[dict[str, Any]]) -> str | None
     if not fingerprints:
         return None
     return " | ".join(fingerprints)
+
+
+def _collection_snapshots_from_fingerprint(memory_rows: list[dict[str, Any]]) -> list[str]:
+    snapshots: list[str] = []
+    for row in memory_rows:
+        fp = row.get("retrieval_fingerprint")
+        if not isinstance(fp, str):
+            continue
+        for part in fp.replace("|", ";").split(";"):
+            normalized = part.strip()
+            if ":" not in normalized:
+                continue
+            collection, snapshot = normalized.split(":", 1)
+            if collection.startswith("mnemos_") and snapshot and normalized not in snapshots:
+                snapshots.append(normalized)
+    return snapshots
 
 
 def _observed_cache_state(memory_rows: list[dict[str, Any]], manifest: dict[str, Any]) -> str | None:
@@ -329,6 +377,10 @@ def _condition_summary(
             "command_rows": activity["command_rows"],
             "search_rows": activity["search_rows"],
             "failed_test_count": test_summary["failure_total"],
+            "failed_test_metric_status": test_summary["failed_test_metric_status"],
+            "harness_environment_failure_count": test_summary["harness_environment_failure_count"],
+            "expected_red_acceptance_failure_count": test_summary["expected_red_acceptance_failure_count"],
+            "agent_caused_test_failure_count": test_summary["agent_caused_test_failure_count"],
             "wrong_turn_count": len(wrong_turn_rows),
             "files_changed": activity["unique_files_changed"],
             "change_churn_rows": activity["changed_rows"],
@@ -372,6 +424,15 @@ def _condition_summary(
         },
         "retrieval_integrity_controls": {
             "seed_snapshot": manifest.get("seed_snapshot"),
+            "seed_snapshot_layer": (
+                "task_seed_manifest_hash" if condition == "mnemos_enabled" and manifest.get("seed_snapshot") else None
+            ),
+            "collection_snapshots_from_executed_route": _collection_snapshots_from_fingerprint(memory_rows),
+            "collection_snapshot_layer": (
+                "retrieval_index_snapshot"
+                if condition == "mnemos_enabled" and _collection_snapshots_from_fingerprint(memory_rows)
+                else None
+            ),
             "executed_route_fingerprint": _observed_route_fingerprint(memory_rows),
             "cache_state": _observed_cache_state(memory_rows, manifest),
             "duplicate_suppression_count": _duplicate_suppression_total(memory_rows),
@@ -423,6 +484,20 @@ def _pairwise_summary(mnemos: dict[str, Any], no_memory: dict[str, Any]) -> dict
             "failed_test_delta_mnemos_minus_no_memory": (
                 mnemos["workflow_efficiency"]["failed_test_count"]
                 - no_memory["workflow_efficiency"]["failed_test_count"]
+            ),
+            "agent_caused_test_failure_delta_mnemos_minus_no_memory": (
+                mnemos["workflow_efficiency"]["agent_caused_test_failure_count"]
+                - no_memory["workflow_efficiency"]["agent_caused_test_failure_count"]
+            ),
+            "failed_test_metric_status": (
+                "not_comparable_due_to_harness_failures"
+                if (
+                    mnemos["workflow_efficiency"]["failed_test_metric_status"]
+                    == "not_comparable_due_to_harness_failures"
+                    or no_memory["workflow_efficiency"]["failed_test_metric_status"]
+                    == "not_comparable_due_to_harness_failures"
+                )
+                else "comparable"
             ),
         },
         "memory_quality": {
@@ -535,7 +610,11 @@ def write_markdown(summary: dict[str, Any], path: str | Path) -> None:
         f"| Total estimated tokens | {_md_cell(m['workflow_efficiency']['total_estimated_tokens'])} | {_md_cell(n['workflow_efficiency']['total_estimated_tokens'])} |",
         f"| Token counts comparable | {_md_cell(m['workflow_efficiency']['token_counts_comparable'])} | {_md_cell(n['workflow_efficiency']['token_counts_comparable'])} |",
         f"| Logged tool calls | {_md_cell(m['workflow_efficiency']['tool_calls_logged'])} | {_md_cell(n['workflow_efficiency']['tool_calls_logged'])} |",
-        f"| Failed-test count | {_md_cell(m['workflow_efficiency']['failed_test_count'])} | {_md_cell(n['workflow_efficiency']['failed_test_count'])} |",
+        f"| Raw failed-test count | {_md_cell(m['workflow_efficiency']['failed_test_count'])} | {_md_cell(n['workflow_efficiency']['failed_test_count'])} |",
+        f"| Failed-test metric status | {_md_cell(m['workflow_efficiency']['failed_test_metric_status'])} | {_md_cell(n['workflow_efficiency']['failed_test_metric_status'])} |",
+        f"| Harness/environment failures | {_md_cell(m['workflow_efficiency']['harness_environment_failure_count'])} | {_md_cell(n['workflow_efficiency']['harness_environment_failure_count'])} |",
+        f"| Expected RED acceptance failures | {_md_cell(m['workflow_efficiency']['expected_red_acceptance_failure_count'])} | {_md_cell(n['workflow_efficiency']['expected_red_acceptance_failure_count'])} |",
+        f"| Agent-caused test failures | {_md_cell(m['workflow_efficiency']['agent_caused_test_failure_count'])} | {_md_cell(n['workflow_efficiency']['agent_caused_test_failure_count'])} |",
         f"| Wrong-turn count | {_md_cell(m['workflow_efficiency']['wrong_turn_count'])} | {_md_cell(n['workflow_efficiency']['wrong_turn_count'])} |",
         f"| Files changed | {_md_cell(m['workflow_efficiency']['files_changed'])} | {_md_cell(n['workflow_efficiency']['files_changed'])} |",
         f"| Rework after first implementation | {_md_cell(m['workflow_efficiency']['rework_after_first_implementation'])} | {_md_cell(n['workflow_efficiency']['rework_after_first_implementation'])} |",
@@ -556,6 +635,9 @@ def write_markdown(summary: dict[str, Any], path: str | Path) -> None:
         "| Control | MNEMOS enabled | No memory |",
         "|---|---|---|",
         f"| Seed snapshot | {_md_cell(m['retrieval_integrity_controls']['seed_snapshot'])} | {_md_cell(n['retrieval_integrity_controls']['seed_snapshot'])} |",
+        f"| Seed snapshot layer | {_md_cell(m['retrieval_integrity_controls']['seed_snapshot_layer'])} | {_md_cell(n['retrieval_integrity_controls']['seed_snapshot_layer'])} |",
+        f"| Collection snapshots from executed route | {_md_cell(', '.join(m['retrieval_integrity_controls']['collection_snapshots_from_executed_route']))} | {_md_cell(', '.join(n['retrieval_integrity_controls']['collection_snapshots_from_executed_route']))} |",
+        f"| Collection snapshot layer | {_md_cell(m['retrieval_integrity_controls']['collection_snapshot_layer'])} | {_md_cell(n['retrieval_integrity_controls']['collection_snapshot_layer'])} |",
         f"| Executed-route fingerprint | {_md_cell(m['retrieval_integrity_controls']['executed_route_fingerprint'])} | {_md_cell(n['retrieval_integrity_controls']['executed_route_fingerprint'])} |",
         f"| Cache state | {_md_cell(m['retrieval_integrity_controls']['cache_state'])} | {_md_cell(n['retrieval_integrity_controls']['cache_state'])} |",
         f"| Duplicate suppression count | {_md_cell(m['retrieval_integrity_controls']['duplicate_suppression_count'])} | {_md_cell(n['retrieval_integrity_controls']['duplicate_suppression_count'])} |",
@@ -572,6 +654,8 @@ def write_markdown(summary: dict[str, Any], path: str | Path) -> None:
         f"- Token counts comparable between conditions: {pairwise['workflow_efficiency']['token_counts_comparable_between_conditions']}",
         f"- Wrong-turn delta, MNEMOS minus no-memory: {pairwise['workflow_efficiency']['wrong_turn_delta_mnemos_minus_no_memory']}",
         f"- Repo-activity delta, MNEMOS minus no-memory: {pairwise['workflow_efficiency']['repo_activity_delta_mnemos_minus_no_memory']}",
+        f"- Failed-test metric status: {pairwise['workflow_efficiency']['failed_test_metric_status']}",
+        f"- Agent-caused test failure delta, MNEMOS minus no-memory: {pairwise['workflow_efficiency']['agent_caused_test_failure_delta_mnemos_minus_no_memory']}",
         f"- MNEMOS required memory tools used: {pairwise['memory_quality']['mnemos_used_required_memory_tools']}",
         f"- MNEMOS retrieved-context usefulness: {pairwise['memory_quality']['mnemos_retrieved_context_usefulness']}",
         f"- Observed MNEMOS execution path: {pairwise['retrieval_integrity_controls']['mnemos_path']}",

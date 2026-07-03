@@ -22,13 +22,30 @@ from installer.recommend import Recommendation
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 
-def render_compose(profile: ProfileSpec, output_dir: Path = Path(".")) -> Path:
+def _cpu_safe_compose(content: str) -> str:
+    """Remove NVIDIA-only compose directives for CPU deployments."""
+    lines = []
+    for line in content.splitlines():
+        if line.strip() == "runtime: nvidia":
+            continue
+        lines.append(line)
+    return "\n".join(lines) + "\n"
+
+
+def render_compose(
+    profile: ProfileSpec,
+    output_dir: Path = Path("."),
+    compute_mode: str = "cuda",
+) -> Path:
     """Copy the profile-specific compose template to output directory."""
     template_file = TEMPLATES_DIR / f"{profile.name}.yml"
     output_file = output_dir / "docker-compose.generated.yml"
 
     if template_file.exists():
-        shutil.copy2(template_file, output_file)
+        content = template_file.read_text()
+        if compute_mode == "cpu":
+            content = _cpu_safe_compose(content)
+        output_file.write_text(content)
     else:
         # For custom_manual, create a minimal compose
         output_file.write_text(
@@ -48,6 +65,7 @@ def render_env(
     lexical_top_k: int = 25,
     semantic_top_k: int = 25,
     explain_default: bool = False,
+    compute_mode: str = "cuda",
 ) -> Path:
     """Generate .env.mnemos from profile spec."""
     output_file = output_dir / ".env.mnemos"
@@ -65,7 +83,7 @@ def render_env(
 
     # Standard vars
     defaults = {
-        "MNEMOS_GPU_DEVICE": "cuda",
+        "MNEMOS_GPU_DEVICE": "cpu" if compute_mode == "cpu" else "cuda",
         "MNEMOS_QUANT_BITS": "4",
         "MNEMOS_EMBEDDING_MODEL": "all-MiniLM-L6-v2",
         "MNEMOS_PORT": "8700",
@@ -107,6 +125,8 @@ def render_manifest(
     lexical_top_k: int = 25,
     semantic_top_k: int = 25,
     explain_default: bool = False,
+    compute_mode: str = "cuda",
+    compute_reason: str = "",
 ) -> Path:
     """Generate mnemos_profile.yaml source-of-truth manifest."""
     output_file = output_dir / "mnemos_profile.yaml"
@@ -141,7 +161,13 @@ def render_manifest(
                 "nvidia_runtime": probes.nvidia_runtime,
                 "existing_postgres": probes.existing_postgres,
                 "os": probes.os_name,
+                "arch": probes.arch,
                 "cpu_cores": probes.cpu_cores,
+            },
+            "compute": {
+                "mode": compute_mode,
+                "gpu_device": "cpu" if compute_mode == "cpu" else "cuda",
+                "reason": compute_reason,
             },
             "enabled_services": recommendation.profile.services,
             "retrieval": {

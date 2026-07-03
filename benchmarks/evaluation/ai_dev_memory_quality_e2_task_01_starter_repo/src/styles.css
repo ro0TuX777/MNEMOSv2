@@ -1,0 +1,58 @@
+:root {
+  color-scheme: light;
+  font-family: Arial, sans-serif;
+  background: #f6f7f9;
+  color: #1d232b;
+}
+
+body {
+  margin: 0;
+}
+
+.app-shell {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 20px;
+}
+
+header {
+  border-bottom: 1px solid #ccd2da;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 2rem;
+  margin: 0 0 8px;
+}
+
+button {
+  border: 1px solid #1f5f8b;
+  background: #1f5f8b;
+  color: white;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 8px;
+  border: 1px solid #d9dee6;
+  border-radius: 6px;
+  background: white;
+}
+
+@media (max-width: 560px) {
+  li {
+    grid-template-columns: 1fr;
+  }
+}
+

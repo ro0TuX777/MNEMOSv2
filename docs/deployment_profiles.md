@@ -101,6 +101,19 @@ docker compose -f docker-compose.generated.yml up -d --build
 python tools/mnemos_health_audit.py
 ```
 
+The installer resolves compute mode before generating files:
+
+- macOS defaults to CPU mode because Docker Desktop on Mac does not support the
+  NVIDIA container runtime;
+- Linux with an NVIDIA GPU and NVIDIA Container Toolkit defaults to CUDA;
+- Linux without the NVIDIA runtime defaults to CPU;
+- operators can force either path with `--compute-mode cpu` or
+  `--compute-mode cuda`.
+
+In CPU mode, `docker-compose.generated.yml` omits `runtime: nvidia` and
+`.env.mnemos` contains `MNEMOS_GPU_DEVICE=cpu`. Expect slightly longer first
+query/model warmup latency than CUDA deployments.
+
 For quick local evaluation where generated files are not needed:
 
 ```bash
@@ -117,4 +130,3 @@ Move from Starter to Core or Governed only after:
 - `python tools/mnemos_health_audit.py` passes
 - the selected profile is listed as supported in [support matrix](support_matrix.md)
 - any enabled optional component has an explicit owner and rollback plan
-

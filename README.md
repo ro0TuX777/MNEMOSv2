@@ -30,6 +30,8 @@ Model capability alone is not enough to make AI reliable in real work.
 
 Many retrieval systems can return something related. MNEMOS is designed for systems that also need to know whether context is current, supported, permitted, bounded, and suitable to influence the next step.
 
+<img width="1672" height="941" alt="MNEMOS" src="https://github.com/user-attachments/assets/dcd76974-0525-4ac9-8c18-22b016a9b780" />
+
 - What source supports this result, and what is its lineage?
 - Is it current, superseded, contradictory, provisional, or derived?
 - Why was it selected, and what route or evaluation influenced that selection?
@@ -94,6 +96,15 @@ Prepare the local Python environment:
 ```bash
 python -m pip install -r requirements.txt
 ```
+
+The installer is platform-aware. On macOS, including Apple Silicon, it
+automatically generates a CPU-safe compose file without `runtime: nvidia` and
+sets `MNEMOS_GPU_DEVICE=cpu` in `.env.mnemos`. Linux hosts with an NVIDIA GPU
+and NVIDIA Container Toolkit use CUDA by default. You can override detection
+with `--compute-mode cpu` or `--compute-mode cuda`.
+
+CPU mode is suitable for local evaluation and smaller corpora, but first-query
+latency may be higher while embedding models warm up.
 
 Start the default local Compose stack:
 

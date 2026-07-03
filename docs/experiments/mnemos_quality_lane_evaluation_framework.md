@@ -43,7 +43,10 @@ These metrics answer how costly the work was to complete.
 |---|---|
 | `estimated_tokens` | Estimated model input/output token usage |
 | `tool_calls` | Total tool or MCP calls made during the run |
-| `failed_test_count` | Count of failed test executions before success |
+| `failed_test_count` | Raw count retained for audit; mark not comparable when harness failures are present |
+| `harness_environment_failure_count` | Failures caused by test command portability, shell behavior, missing tooling, or environment setup |
+| `expected_red_acceptance_failure_count` | Intended RED failures before implementation on seeded defects |
+| `agent_caused_test_failure_count` | Failures attributable to an agent change after implementation work began |
 | `wrong_turn_count` | Count of meaningful missteps, reversals, or avoidable detours |
 | `files_changed` / `churn` | Breadth of edits and approximate modification volume |
 | `rework_after_first_implementation` | Additional work required after the first working version |
@@ -105,6 +108,17 @@ through:
 
 - `tools/compare_ai_dev_memory_trials.py`
 - `benchmarks/results/ai_dev_memory_quality_lane_result_template.json`
+
+## Current Evaluation Lanes
+
+| Lane | Status | Purpose |
+|---|---|---|
+| `E1_TASK_01` | completed once as a local paired run | Generic local app completion with seeded task docs and structured retrieval telemetry |
+| `E2_TASK_01` | scaffolded, pending paired execution | Durable context, current-vs-superseded guidance rejection, and seeded regression repair |
+
+E2 should not be treated as evidence until both conditions complete and the
+comparison artifact is generated. Its purpose is to test a setting where
+durable memory should matter more than on a generic build task.
 
 ## Claim Boundary
 

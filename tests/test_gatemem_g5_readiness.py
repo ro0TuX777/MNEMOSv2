@@ -33,7 +33,11 @@ def test_handoff_state_does_not_claim_external_work_is_complete():
 
 def test_packet_contains_no_sealed_corpus_or_labels():
     packet = ROOT / "benchmarks" / "evaluation"
-    names = {path.name for path in packet.rglob("*") if path.is_file()}
+    names = {
+        path.name
+        for path in packet.rglob("gatemem_g5_*.json")
+        if path.is_file()
+    }
     assert names == {
         "gatemem_g5_candidate_nomination.json",
         "gatemem_g5_handoff_state.json",

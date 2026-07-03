@@ -73,8 +73,15 @@ def recommend(answers: UserAnswers, probes: ProbeResults) -> Recommendation:
     # Step 3: probe-based warnings
     warnings = []
     alternatives = []
+    os_name = (probes.os_name or "").lower()
+    is_macos = os_name in {"darwin", "macos", "mac os", "mac os x"}
 
-    if not probes.gpu_available:
+    if is_macos:
+        warnings.append(
+            "macOS detected. The installer will use CPU mode because the "
+            "NVIDIA container runtime is not supported on Docker Desktop for Mac."
+        )
+    elif not probes.gpu_available:
         warnings.append(
             "⚠️  No GPU detected. MNEMOS requires CUDA for embedding inference. "
             "CPU fallback exists but is significantly slower."
@@ -86,7 +93,7 @@ def recommend(answers: UserAnswers, probes: ProbeResults) -> Recommendation:
             "Install Docker and NVIDIA Container Toolkit first."
         )
 
-    if probes.docker_available and not probes.nvidia_runtime:
+    if probes.docker_available and not probes.nvidia_runtime and not is_macos:
         warnings.append(
             "⚠️  NVIDIA Container Toolkit not detected. "
             "GPU acceleration will not work in Docker containers."

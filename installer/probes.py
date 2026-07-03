@@ -7,6 +7,7 @@ existing Postgres, disk space.
 """
 
 import os
+import platform
 import shutil
 import subprocess
 from dataclasses import dataclass
@@ -24,6 +25,7 @@ class ProbeResults:
     nvidia_runtime: bool = False
     existing_postgres: bool = False
     os_name: str = ""
+    arch: str = ""
     cpu_cores: int = 0
 
 
@@ -122,6 +124,7 @@ def run_probes() -> ProbeResults:
         docker_available=probe_docker(),
         nvidia_runtime=probe_nvidia_runtime(),
         existing_postgres=probe_existing_postgres(),
-        os_name=os.name,
+        os_name=platform.system() or os.name,
+        arch=platform.machine(),
         cpu_cores=probe_cpu_cores(),
     )
