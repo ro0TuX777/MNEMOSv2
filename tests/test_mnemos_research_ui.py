@@ -3,7 +3,21 @@ from __future__ import annotations
 import io
 from pathlib import Path
 
-from tools.mnemos_research_ui import create_app
+from tools.mnemos_research_ui import create_app, default_ollama_base_url
+
+
+def test_default_ollama_base_url_prefers_ollama_base_url_env(monkeypatch):
+    monkeypatch.setenv("OLLAMA_HOST", "0.0.0.0:7777")
+    monkeypatch.setenv("OLLAMA_BASE_URL", "http://127.0.0.1:9999")
+
+    assert default_ollama_base_url() == "http://127.0.0.1:9999"
+
+
+def test_default_ollama_base_url_uses_ollama_host_env(monkeypatch):
+    monkeypatch.delenv("OLLAMA_BASE_URL", raising=False)
+    monkeypatch.setenv("OLLAMA_HOST", "0.0.0.0:7777")
+
+    assert default_ollama_base_url() == "http://127.0.0.1:7777"
 
 
 def test_index_page_contains_upload_fields_and_controls(tmp_path):
@@ -19,6 +33,17 @@ def test_index_page_contains_upload_fields_and_controls(tmp_path):
     assert "Test Connection" in text
     assert "Run Intake" in text
     assert "ollamaModel" in text
+
+
+def test_index_page_uses_detected_ollama_default(tmp_path, monkeypatch):
+    monkeypatch.delenv("OLLAMA_BASE_URL", raising=False)
+    monkeypatch.setenv("OLLAMA_HOST", "0.0.0.0:7777")
+    app = create_app(upload_dir=tmp_path)
+    client = app.test_client()
+
+    text = client.get("/").get_data(as_text=True)
+
+    assert 'id="ollamaBaseUrl" value="http://127.0.0.1:7777"' in text
 
 
 def test_models_endpoint_returns_available_ollama_models(tmp_path):

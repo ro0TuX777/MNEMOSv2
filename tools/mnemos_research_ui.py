@@ -8,6 +8,7 @@ MNEMOS/Ollama connectivity, and run ``tools.mnemos_research_intake``.
 from __future__ import annotations
 
 import argparse
+import os
 import tempfile
 import sys
 from pathlib import Path
@@ -25,6 +26,17 @@ from tools.mnemos_ollama_chat import DEFAULT_OLLAMA_BASE_URL, normalize_base_url
 from tools.mnemos_research_intake import run_intake
 
 DEFAULT_MNEMOS_BASE_URL = "http://127.0.0.1:8700"
+
+
+def default_ollama_base_url() -> str:
+    """Resolve the local Ollama URL from env, including custom OLLAMA_HOST."""
+    explicit = os.getenv("OLLAMA_BASE_URL", "").strip()
+    if explicit:
+        return normalize_base_url(explicit)
+    host = os.getenv("OLLAMA_HOST", "").strip()
+    if host:
+        return normalize_base_url(host)
+    return normalize_base_url(DEFAULT_OLLAMA_BASE_URL)
 
 
 def _normalize_mnemos_url(value: str) -> str:
@@ -85,11 +97,11 @@ def create_app(
 
     @app.get("/")
     def index():
-        return INDEX_HTML
+        return INDEX_HTML.replace("__DEFAULT_OLLAMA_BASE_URL__", default_ollama_base_url())
 
     @app.get("/api/ollama-models")
     def ollama_models():
-        base_url = request.args.get("ollama_base_url", DEFAULT_OLLAMA_BASE_URL)
+        base_url = request.args.get("ollama_base_url", default_ollama_base_url())
         try:
             models = ollama_models_fn(base_url)
             return jsonify({"ok": True, "models": models})
@@ -100,7 +112,7 @@ def create_app(
     def test_connection():
         body = request.get_json(silent=True) or {}
         mnemos_base_url = body.get("mnemos_base_url", DEFAULT_MNEMOS_BASE_URL)
-        ollama_base_url = body.get("ollama_base_url", DEFAULT_OLLAMA_BASE_URL)
+        ollama_base_url = body.get("ollama_base_url", default_ollama_base_url())
         mnemos = {"ok": False, "error": "not_checked"}
         ollama = {"ok": False, "error": "not_checked", "model_count": 0}
         try:
@@ -121,7 +133,7 @@ def create_app(
             return jsonify({"ok": False, "error": "No files selected."}), 400
 
         mnemos_base_url = _normalize_mnemos_url(request.form.get("mnemos_base_url", DEFAULT_MNEMOS_BASE_URL))
-        ollama_base_url = normalize_base_url(request.form.get("ollama_base_url", DEFAULT_OLLAMA_BASE_URL))
+        ollama_base_url = normalize_base_url(request.form.get("ollama_base_url", default_ollama_base_url()))
         project = request.form.get("project", "").strip()
         capability = request.form.get("capability", "").strip()
         if not project or not capability:
@@ -197,8 +209,8 @@ INDEX_HTML = """<!doctype html>
           <input name="mnemos_base_url" id="mnemosBaseUrl" value="http://127.0.0.1:8700">
         </label>
         <label>Ollama base URL
-          <input name="ollama_base_url" id="ollamaBaseUrl" value="http://127.0.0.1:11434">
-          <span class="hint">Use http://127.0.0.1:7777 if your OLLAMA_HOST is 0.0.0.0:7777.</span>
+          <input name="ollama_base_url" id="ollamaBaseUrl" value="__DEFAULT_OLLAMA_BASE_URL__">
+          <span class="hint">Detected from OLLAMA_BASE_URL or OLLAMA_HOST when available. You can type a different local URL.</span>
         </label>
       </div>
       <div class="inline" style="margin-top:12px;">
@@ -241,6 +253,7 @@ INDEX_HTML = """<!doctype html>
         <label>Ollama model
           <select id="ollamaModelSelect"></select>
           <input name="ollama_model" id="ollamaModel" placeholder="type model name if not listed">
+          <span class="hint">Only needed when "Summarize with Ollama" is checked; you can type a model manually.</span>
         </label>
         <label>Output packet path
           <input name="output" placeholder="docs/research/my_packet.md">
