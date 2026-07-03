@@ -7,6 +7,7 @@ OpenAI-compatible endpoint while keeping MNEMOS as the evidence source.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 import time
@@ -15,7 +16,7 @@ from pathlib import Path
 from typing import Any, Callable, Protocol
 
 import requests
-from flask import Flask, jsonify, request
+from flask import Flask, Response, jsonify, request
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -135,6 +136,128 @@ def _mnemos_meta(result: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _openai_chat_completion_response(
+    *,
+    completion_id: str,
+    created: int,
+    model: str,
+    answer: str,
+    result: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "id": completion_id,
+        "object": "chat.completion",
+        "created": created,
+        "model": model,
+        "choices": [
+            {
+                "index": 0,
+                "message": {"role": "assistant", "content": answer},
+                "finish_reason": "stop",
+            }
+        ],
+        "usage": {
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+        },
+        "mnemos": _mnemos_meta(result),
+    }
+
+
+def _openai_stream_response(
+    *,
+    completion_id: str,
+    created: int,
+    model: str,
+    answer: str,
+    result: dict[str, Any],
+) -> Response:
+    metadata = _mnemos_meta(result)
+
+    def events():
+        role_chunk = {
+            "id": completion_id,
+            "object": "chat.completion.chunk",
+            "created": created,
+            "model": model,
+            "choices": [{"index": 0, "delta": {"role": "assistant"}, "finish_reason": None}],
+            "mnemos": metadata,
+        }
+        yield f"data: {json.dumps(role_chunk, ensure_ascii=False)}\n\n"
+        if answer:
+            content_chunk = {
+                "id": completion_id,
+                "object": "chat.completion.chunk",
+                "created": created,
+                "model": model,
+                "choices": [{"index": 0, "delta": {"content": answer}, "finish_reason": None}],
+                "mnemos": metadata,
+            }
+            yield f"data: {json.dumps(content_chunk, ensure_ascii=False)}\n\n"
+        stop_chunk = {
+            "id": completion_id,
+            "object": "chat.completion.chunk",
+            "created": created,
+            "model": model,
+            "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}],
+            "mnemos": metadata,
+        }
+        yield f"data: {json.dumps(stop_chunk, ensure_ascii=False)}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return Response(events(), mimetype="text/event-stream")
+
+
+def _ollama_chat_response(
+    *,
+    model: str,
+    answer: str,
+    result: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "model": model,
+        "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "message": {"role": "assistant", "content": answer},
+        "done": True,
+        "mnemos": _mnemos_meta(result),
+    }
+
+
+def _ollama_stream_response(
+    *,
+    model: str,
+    answer: str,
+    result: dict[str, Any],
+) -> Response:
+    metadata = _mnemos_meta(result)
+
+    def lines():
+        if answer:
+            yield json.dumps(
+                {
+                    "model": model,
+                    "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                    "message": {"role": "assistant", "content": answer},
+                    "done": False,
+                    "mnemos": metadata,
+                },
+                ensure_ascii=False,
+            ) + "\n"
+        yield json.dumps(
+            {
+                "model": model,
+                "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "message": {"role": "assistant", "content": ""},
+                "done": True,
+                "mnemos": metadata,
+            },
+            ensure_ascii=False,
+        ) + "\n"
+
+    return Response(lines(), mimetype="application/x-ndjson")
+
+
 def create_app(
     *,
     query_runner: QueryRunner = run_query,
@@ -175,9 +298,6 @@ def create_app(
     @app.post("/v1/chat/completions")
     def v1_chat_completions():
         payload = request.get_json(silent=True) or {}
-        if payload.get("stream") is True:
-            return _openai_error("streaming is not supported by the MNEMOS proxy yet")
-
         messages = payload.get("messages") or []
         if not isinstance(messages, list):
             return _openai_error("messages must be a list")
@@ -207,34 +327,28 @@ def create_app(
         )
         answer = str(result.get("answer") or result.get("warning") or "")
         created = int(time.time())
+        completion_id = f"chatcmpl-mnemos-{uuid.uuid4().hex}"
+        if payload.get("stream") is True:
+            return _openai_stream_response(
+                completion_id=completion_id,
+                created=created,
+                model=model,
+                answer=answer,
+                result=result,
+            )
         return jsonify(
-            {
-                "id": f"chatcmpl-mnemos-{uuid.uuid4().hex}",
-                "object": "chat.completion",
-                "created": created,
-                "model": model,
-                "choices": [
-                    {
-                        "index": 0,
-                        "message": {"role": "assistant", "content": answer},
-                        "finish_reason": "stop",
-                    }
-                ],
-                "usage": {
-                    "prompt_tokens": 0,
-                    "completion_tokens": 0,
-                    "total_tokens": 0,
-                },
-                "mnemos": _mnemos_meta(result),
-            }
+            _openai_chat_completion_response(
+                completion_id=completion_id,
+                created=created,
+                model=model,
+                answer=answer,
+                result=result,
+            )
         )
 
     @app.post("/api/chat")
     def api_chat():
         payload = request.get_json(silent=True) or {}
-        if payload.get("stream") is True:
-            return jsonify({"error": "streaming is not supported by the MNEMOS proxy yet"}), 400
-
         messages = payload.get("messages") or []
         if not isinstance(messages, list):
             return jsonify({"error": "messages must be a list"}), 400
@@ -260,15 +374,9 @@ def create_app(
             max_chars_per_hit=int(payload.get("mnemos_max_chars_per_hit") or 1200),
         )
         answer = str(result.get("answer") or result.get("warning") or "")
-        return jsonify(
-            {
-                "model": model,
-                "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                "message": {"role": "assistant", "content": answer},
-                "done": True,
-                "mnemos": _mnemos_meta(result),
-            }
-        )
+        if payload.get("stream") is True:
+            return _ollama_stream_response(model=model, answer=answer, result=result)
+        return jsonify(_ollama_chat_response(model=model, answer=answer, result=result))
 
     return app
 

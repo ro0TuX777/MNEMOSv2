@@ -89,8 +89,17 @@ def test_v1_chat_completions_retrieves_mnemos_and_returns_openai_shape():
     assert calls["num_predict"] == 400
 
 
-def test_v1_chat_completions_rejects_streaming_until_supported():
-    app = create_app(query_runner=lambda **kwargs: {})
+def test_v1_chat_completions_streams_openai_compatible_events():
+    def fake_runner(**kwargs):
+        return {
+            "status": "ok",
+            "answer": "Streamed MNEMOS answer. [1]",
+            "model": kwargs["model"],
+            "citations": [{"index": 1, "source": "workflow.pdf", "score": 0.9}],
+            "claim_boundary": "boundary",
+        }
+
+    app = create_app(query_runner=fake_runner)
     client = app.test_client()
 
     response = client.post(
@@ -102,8 +111,13 @@ def test_v1_chat_completions_rejects_streaming_until_supported():
         },
     )
 
-    assert response.status_code == 400
-    assert "streaming is not supported" in response.get_json()["error"]["message"]
+    text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert response.mimetype == "text/event-stream"
+    assert '"object": "chat.completion.chunk"' in text
+    assert '"content": "Streamed MNEMOS answer. [1]"' in text
+    assert '"finish_reason": "stop"' in text
+    assert "data: [DONE]" in text
 
 
 def test_api_chat_accepts_ollama_shape_and_returns_ollama_shape():
@@ -137,3 +151,32 @@ def test_api_chat_accepts_ollama_shape_and_returns_ollama_shape():
     }
     assert body["done"] is True
     assert body["mnemos"]["claim_boundary"] == "boundary"
+
+
+def test_api_chat_streams_ollama_compatible_json_lines():
+    def fake_runner(**kwargs):
+        return {
+            "status": "ok",
+            "answer": "Ollama stream answer. [1]",
+            "model": kwargs["model"],
+            "citations": [{"index": 1, "source": "workflow.pdf", "score": 0.9}],
+            "claim_boundary": "boundary",
+        }
+
+    app = create_app(query_runner=fake_runner)
+    client = app.test_client()
+
+    response = client.post(
+        "/api/chat",
+        json={
+            "model": "qwen3-coder-next:latest",
+            "stream": True,
+            "messages": [{"role": "user", "content": "Find workflow evidence"}],
+        },
+    )
+
+    text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert response.mimetype == "application/x-ndjson"
+    assert '"content": "Ollama stream answer. [1]"' in text
+    assert '"done": true' in text

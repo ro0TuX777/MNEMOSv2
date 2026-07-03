@@ -265,9 +265,11 @@ Chat requests are handled as:
 4. return the answer plus a `mnemos` metadata block containing citations and
    the `MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY` claim boundary.
 
-The first proxy version is non-streaming. Disable streaming in the client if
-needed. If a client sends `stream: true`, the proxy returns a clear `400`
-response rather than silently bypassing MNEMOS.
+The proxy accepts both non-streaming and streaming requests. Streaming is
+compatibility streaming: MNEMOS retrieval and the Ollama call complete first,
+then the proxy emits the completed answer as OpenAI Server-Sent Events or
+Ollama JSON lines. This keeps the evidence boundary intact while supporting
+Open WebUI clients that send `stream: true` by default.
 
 Direct smoke test:
 
