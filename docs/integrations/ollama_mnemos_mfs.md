@@ -117,6 +117,48 @@ For regular research workflows, use MNEMOS as an artifact-backed research
 memory before asking Ollama broad synthesis questions. The intake tool supports
 Markdown, text, code/data files, PDFs, and `.docx` files.
 
+### Local UI
+
+For a browser form instead of a long terminal command:
+
+```powershell
+python tools/mnemos_research_ui.py
+```
+
+Open:
+
+```text
+http://127.0.0.1:8788
+```
+
+The page lets you:
+
+- set `MNEMOS_BASE_URL` and `OLLAMA_BASE_URL`;
+- test both connections before intake;
+- refresh locally available Ollama models into a dropdown;
+- type a model name manually if it is not listed;
+- upload PDFs, `.docx`, Markdown, text, code, or data files through the browser;
+- set project, capability, status, tags, and output packet path;
+- run the same `mnemos_research_intake.py` logic used by the CLI.
+
+The UI does not provide chat. After intake, use Ollama or
+`tools/mnemos_ollama_chat.py` for prompt sessions over the indexed evidence.
+
+The UI is local-only by default (`127.0.0.1`) and stores uploaded files in the
+OS temp directory unless `--upload-dir` is supplied:
+
+```powershell
+python tools/mnemos_research_ui.py --upload-dir C:\Users\vin\mnemos_research_uploads
+```
+
+macOS/Linux:
+
+```bash
+python tools/mnemos_research_ui.py --upload-dir ~/mnemos_research_uploads
+```
+
+### CLI
+
 Example:
 
 ```powershell
