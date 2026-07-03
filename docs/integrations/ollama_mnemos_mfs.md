@@ -2,6 +2,10 @@
 
 Status: `MNEMOS_OLLAMA_MFS_LOCAL_ADAPTER`
 
+For the end-to-end user workflow with Open WebUI setup steps, start with
+[`openwebui_mnemos_local_chat_readme.md`](openwebui_mnemos_local_chat_readme.md).
+This file remains the lower-level adapter and boundary reference.
+
 This guide makes MNEMOS available to local Ollama workflows through the MFS
 boundary pattern. It is for hosts that use Ollama as the model runtime but do
 not natively mount MCP tools.
