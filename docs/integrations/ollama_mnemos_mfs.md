@@ -111,7 +111,74 @@ python tools/seed_mnemos_repo_summaries.py
 python tools/seed_mnemos_repo_context.py
 ```
 
-## 5. MCP-Capable Ollama Hosts
+## 5. Research Artifact Intake
+
+For regular research workflows, use MNEMOS as an artifact-backed research
+memory before asking Ollama broad synthesis questions. The intake tool supports
+Markdown, text, code/data files, PDFs, and `.docx` files.
+
+Example:
+
+```powershell
+python tools/mnemos_research_intake.py `
+  "C:\Users\vin\Downloads\AI-Assisted Software Development Workflow.pdf" `
+  docs\integrations\ollama_mnemos_mfs.md `
+  --project MNEMOS `
+  --capability "local research memory" `
+  --status reviewed `
+  --tag workflow `
+  --tag ollama `
+  --summarize-with-ollama `
+  --ollama-model "hf.co/danchev/ibm-granite-docling-258M-GGUF:BF16" `
+  --output docs\research\mnemos_ollama_research_memory_packet.md
+```
+
+On macOS:
+
+```bash
+python tools/mnemos_research_intake.py \
+  ~/Downloads/AI-Assisted\ Software\ Development\ Workflow.pdf \
+  docs/integrations/ollama_mnemos_mfs.md \
+  --project MNEMOS \
+  --capability "local research memory" \
+  --status reviewed \
+  --tag workflow \
+  --tag ollama \
+  --summarize-with-ollama \
+  --ollama-model llama3.1 \
+  --output docs/research/mnemos_ollama_research_memory_packet.md
+```
+
+The intake tool:
+
+- extracts readable text from each artifact;
+- chunks the text with source metadata;
+- indexes chunks through `mnemos_sdk`;
+- optionally asks Ollama to create a Markdown research intake packet;
+- records `MFS_RESEARCH_INTAKE_R0_ARTIFACT_MEMORY` as the claim boundary.
+
+Recommended metadata:
+
+| Field | Example |
+|---|---|
+| `--project` | `MNEMOS`, `SAM`, `AIPAM` |
+| `--capability` | `local research memory`, `agent planning`, `retrieval governance` |
+| `--status` | `new`, `reviewed`, `promising`, `rejected`, `integrated` |
+| `--tag` | `arxiv`, `github`, `paper`, `code`, `workflow` |
+
+After intake, ask through the Ollama adapter:
+
+```powershell
+python tools/mnemos_ollama_chat.py `
+  --model "hf.co/danchev/ibm-granite-docling-258M-GGUF:BF16" `
+  --query "Which indexed artifacts suggest useful approaches for local research memory in MNEMOS?"
+```
+
+The goal is not to let Ollama decide what to build. The goal is to preserve
+artifacts, summaries, risks, open questions, and source citations so future
+implementation decisions have a durable evidence trail.
+
+## 6. MCP-Capable Ollama Hosts
 
 Some Ollama front ends or agent hosts can call MCP tools while using Ollama as
 their model backend. In that case, use the MNEMOS MCP bridge directly:
