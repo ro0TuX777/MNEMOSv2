@@ -1,0 +1,145 @@
+# Ollama: MNEMOS MFS Adapter Setup
+
+Status: `MNEMOS_OLLAMA_MFS_LOCAL_ADAPTER`
+
+This guide makes MNEMOS available to local Ollama workflows through the MFS
+boundary pattern. It is for hosts that use Ollama as the model runtime but do
+not natively mount MCP tools.
+
+If your Ollama-facing application already supports MCP, prefer the existing
+MNEMOS MCP bridge in `mcp_servers/mnemos`. If it only calls Ollama's REST API,
+use the adapter below.
+
+## Boundary
+
+The Ollama adapter is an R0-style context path:
+
+- retrieves bounded evidence through `mnemos_sdk`;
+- sends that evidence to Ollama `/api/chat`;
+- returns the Ollama answer plus MNEMOS citations;
+- does not write memory;
+- does not alter MNEMOS retrieval behavior;
+- does not enable or repair R1/R2 enforcement policy.
+
+Claim boundary:
+
+```text
+MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY
+```
+
+## 1. Start MNEMOS
+
+Windows:
+
+```powershell
+cd G:\MNEMOS
+docker compose up -d --build
+curl http://localhost:8700/health
+```
+
+macOS:
+
+```bash
+python -m installer
+docker compose -f docker-compose.generated.yml up -d --build
+curl http://localhost:8700/health
+```
+
+On macOS, CPU mode is expected. The generated compose file should not contain
+`runtime: nvidia`, and `.env.mnemos` should contain `MNEMOS_GPU_DEVICE=cpu`.
+
+## 2. Start Ollama
+
+Install and start Ollama, then pull a local chat model:
+
+```bash
+ollama pull llama3.1
+ollama serve
+```
+
+If Ollama is already running as a background service, `ollama serve` may report
+that the port is already in use. That is fine; the adapter expects
+`http://localhost:11434` by default.
+
+If your machine sets `OLLAMA_HOST` to a custom bind address, mirror that in
+`OLLAMA_BASE_URL`. For example, `OLLAMA_HOST=0.0.0.0:7777` should use
+`OLLAMA_BASE_URL=http://127.0.0.1:7777` for local adapter calls.
+
+## 3. Ask From MNEMOS Evidence
+
+Windows:
+
+```powershell
+$env:MNEMOS_BASE_URL = "http://localhost:8700"
+$env:OLLAMA_BASE_URL = "http://localhost:11434"
+python tools/mnemos_ollama_chat.py `
+  --model llama3.1 `
+  --query "What is the current R1 evidence decision?"
+```
+
+macOS:
+
+```bash
+export MNEMOS_BASE_URL=http://localhost:8700
+export OLLAMA_BASE_URL=http://localhost:11434
+python tools/mnemos_ollama_chat.py \
+  --model llama3.1 \
+  --query "What is the current R1 evidence decision?"
+```
+
+For machine-readable output:
+
+```bash
+python tools/mnemos_ollama_chat.py --model llama3.1 --query "..." --json
+```
+
+The JSON output includes:
+
+- `answer`
+- `citations`
+- `model`
+- `claim_boundary`
+- raw `ollama_response`
+
+## 4. Optional Seed Data
+
+If MNEMOS has an empty or noisy active collection, seed focused repo context
+first:
+
+```bash
+python tools/seed_mnemos_repo_summaries.py
+python tools/seed_mnemos_repo_context.py
+```
+
+## 5. MCP-Capable Ollama Hosts
+
+Some Ollama front ends or agent hosts can call MCP tools while using Ollama as
+their model backend. In that case, use the MNEMOS MCP bridge directly:
+
+```bash
+python tools/setup_mnemos_mcp_env.py
+mcp_servers/mnemos/.venv/Scripts/python.exe mcp_servers/mnemos/server.py
+```
+
+On macOS, the bridge Python is:
+
+```bash
+mcp_servers/mnemos/.venv/bin/python mcp_servers/mnemos/server.py
+```
+
+See `docs/integrations/claude_desktop_mnemos_mcp.md` for the MCP bridge tools,
+smoke checks, and troubleshooting. The MCP bridge and the Ollama adapter expose
+the same MNEMOS memory boundary through different host surfaces.
+
+## Troubleshooting
+
+- If the adapter prints `MNEMOS returned no evidence`, MNEMOS was reachable but
+  the current collection did not return supporting results.
+- If the adapter cannot connect to MNEMOS, check `MNEMOS_BASE_URL` and
+  `/health`.
+- If the adapter cannot connect to Ollama, check `OLLAMA_BASE_URL` and run
+  `curl http://localhost:11434/api/tags`.
+- If the first call is slow, warm both systems: run a small MNEMOS search and
+  `ollama run <model>` once before the real query.
+- If your host supports MCP, do not duplicate tool wiring through this adapter;
+  mount the MNEMOS MCP bridge and let the host decide when to call memory tools.

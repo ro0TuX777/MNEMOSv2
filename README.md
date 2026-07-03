@@ -132,6 +132,8 @@ curl -X POST http://localhost:8700/v1/mnemos/search \
 
 For profile selection, generated Compose files, and operational promotion rules, see [deployment profiles](docs/deployment_profiles.md) and the [operator playbook](docs/mnemos_operator_playbook.md).
 
+For local model workflows, see the [Ollama MFS adapter guide](docs/integrations/ollama_mnemos_mfs.md). It retrieves MNEMOS evidence through the SDK/API boundary, sends bounded context to Ollama, and returns citations without changing retrieval or enforcement policy.
+
 ## Capability Status
 
 MNEMOS distinguishes supported runtime capabilities from experimental and research work.
