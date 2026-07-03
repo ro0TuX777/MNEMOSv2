@@ -247,7 +247,14 @@ Then configure Open WebUI to use the proxy as an OpenAI-compatible provider:
 Base URL: http://127.0.0.1:8790/v1
 API key: any local placeholder value, if the UI requires one
 Model: choose one of the models returned by /v1/models
+Prefix ID: mnemos, recommended when a direct Ollama connection is also enabled
 ```
+
+When Open WebUI sends a prefixed model ID such as
+`mnemos.hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M`, the proxy strips
+the `mnemos.` prefix before calling Ollama, while keeping the prefixed name in
+the response for Open WebUI bookkeeping. Additional prefixes can be configured
+with `MNEMOS_PROXY_MODEL_PREFIXES` as a comma-separated list.
 
 The proxy also exposes Ollama-shaped endpoints for clients that expect Ollama's
 native API:
@@ -255,6 +262,13 @@ native API:
 ```text
 GET  http://127.0.0.1:8790/api/tags
 POST http://127.0.0.1:8790/api/chat
+```
+
+For Open WebUI configurations that append Ollama routes to the OpenAI base URL,
+the proxy also accepts:
+
+```text
+GET  http://127.0.0.1:8790/v1/api/tags
 ```
 
 Chat requests are handled as:

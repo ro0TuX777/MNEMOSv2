@@ -87,6 +87,21 @@ def _model_ids_from_tags(tags: dict[str, Any]) -> list[str]:
     return ids
 
 
+def normalize_openwebui_model_id(model_id: str) -> str:
+    text = str(model_id or "").strip()
+    prefixes = [
+        item.strip()
+        for item in os.getenv("MNEMOS_PROXY_MODEL_PREFIXES", "mnemos").split(",")
+        if item.strip()
+    ]
+    for prefix in prefixes:
+        for separator in (".", "/"):
+            marker = f"{prefix}{separator}"
+            if text.startswith(marker):
+                return text[len(marker) :]
+    return text
+
+
 def _openai_error(message: str, *, status: int = 400):
     return (
         jsonify(
@@ -287,6 +302,10 @@ def create_app(
     def api_tags():
         return jsonify(tags_client.tags())
 
+    @app.get("/v1/api/tags")
+    def v1_api_tags():
+        return jsonify(tags_client.tags())
+
     @app.get("/v1/models")
     def v1_models():
         models = [
@@ -306,7 +325,8 @@ def create_app(
         if not query:
             return _openai_error("at least one user message with text content is required")
 
-        model = str(payload.get("model") or DEFAULT_MODEL)
+        requested_model = str(payload.get("model") or DEFAULT_MODEL)
+        model = normalize_openwebui_model_id(requested_model)
         temperature = float(payload.get("temperature", 0.0) or 0.0)
         num_predict = int(payload.get("max_tokens") or payload.get("num_predict") or 700)
         top_k = int(payload.get("mnemos_top_k") or os.getenv("MNEMOS_PROXY_TOP_K", "5"))
@@ -332,7 +352,7 @@ def create_app(
             return _openai_stream_response(
                 completion_id=completion_id,
                 created=created,
-                model=model,
+                model=requested_model,
                 answer=answer,
                 result=result,
             )
@@ -340,7 +360,7 @@ def create_app(
             _openai_chat_completion_response(
                 completion_id=completion_id,
                 created=created,
-                model=model,
+                model=requested_model,
                 answer=answer,
                 result=result,
             )
@@ -361,10 +381,11 @@ def create_app(
         if not isinstance(options, dict):
             options = {}
 
-        model = str(payload.get("model") or DEFAULT_MODEL)
+        requested_model = str(payload.get("model") or DEFAULT_MODEL)
+        model = normalize_openwebui_model_id(requested_model)
         result = _run_query(
             query_runner,
-            model=model,
+                model=requested_model,
             query=query,
             temperature=float(options.get("temperature", 0.0) or 0.0),
             num_predict=int(options.get("num_predict") or 700),
@@ -375,8 +396,8 @@ def create_app(
         )
         answer = str(result.get("answer") or result.get("warning") or "")
         if payload.get("stream") is True:
-            return _ollama_stream_response(model=model, answer=answer, result=result)
-        return jsonify(_ollama_chat_response(model=model, answer=answer, result=result))
+            return _ollama_stream_response(model=requested_model, answer=answer, result=result)
+        return jsonify(_ollama_chat_response(model=requested_model, answer=answer, result=result))
 
     return app
 

@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from tools.mnemos_ollama_openwebui_proxy import create_app, extract_latest_user_text
+from tools.mnemos_ollama_openwebui_proxy import (
+    create_app,
+    extract_latest_user_text,
+    normalize_openwebui_model_id,
+)
 
 
 def test_extract_latest_user_text_prefers_last_user_message():
@@ -49,6 +53,31 @@ def test_v1_models_maps_ollama_tags_to_openai_shape():
     }
 
 
+def test_v1_api_tags_alias_supports_openwebui_ollama_probe():
+    class TagsClient:
+        def tags(self):
+            return {"models": [{"name": "qwen3-coder-next:latest"}]}
+
+    app = create_app(ollama_tags_client=TagsClient())
+    client = app.test_client()
+
+    response = client.get("/v1/api/tags")
+
+    assert response.status_code == 200
+    assert response.get_json() == {"models": [{"name": "qwen3-coder-next:latest"}]}
+
+
+def test_normalize_openwebui_model_id_strips_known_prefix():
+    assert (
+        normalize_openwebui_model_id(
+            "mnemos.hf.co/cloudbjorn/Qwen3.6-35B-A3B_Opus-4.6-Reasoning-3300x-GGUF:Q4_K_M"
+        )
+        == "hf.co/cloudbjorn/Qwen3.6-35B-A3B_Opus-4.6-Reasoning-3300x-GGUF:Q4_K_M"
+    )
+    assert normalize_openwebui_model_id("mnemos/qwen3-coder-next:latest") == "qwen3-coder-next:latest"
+    assert normalize_openwebui_model_id("qwen3-coder-next:latest") == "qwen3-coder-next:latest"
+
+
 def test_v1_chat_completions_retrieves_mnemos_and_returns_openai_shape():
     calls = {}
 
@@ -87,6 +116,36 @@ def test_v1_chat_completions_retrieves_mnemos_and_returns_openai_shape():
     assert calls["query"] == "How should I run the workflow?"
     assert calls["temperature"] == 0.1
     assert calls["num_predict"] == 400
+
+
+def test_v1_chat_completions_passes_unprefixed_model_to_ollama_runner():
+    calls = {}
+
+    def fake_runner(**kwargs):
+        calls.update(kwargs)
+        return {
+            "status": "ok",
+            "answer": "Prefix normalized. [1]",
+            "model": kwargs["model"],
+            "citations": [{"index": 1, "source": "workflow.pdf", "score": 0.9}],
+            "claim_boundary": "boundary",
+        }
+
+    app = create_app(query_runner=fake_runner)
+    client = app.test_client()
+
+    response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "mnemos.hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+            "messages": [{"role": "user", "content": "How should I run the workflow?"}],
+        },
+    )
+
+    body = response.get_json()
+    assert response.status_code == 200
+    assert body["model"] == "mnemos.hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M"
+    assert calls["model"] == "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M"
 
 
 def test_v1_chat_completions_streams_openai_compatible_events():
