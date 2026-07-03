@@ -13,7 +13,7 @@ Use this index to find the implementation, deployment, evaluation, governance, a
 | [Root README](../README.md) | Public project front door and shortest local path. |
 | [Installation guide](../INSTALL.md) | Installer usage, deployment profiles, and manual setup notes. |
 | [Claude Desktop MCP integration](integrations/claude_desktop_mnemos_mcp.md) | Local MCP bridge setup and troubleshooting. |
-| [Ollama MFS adapter integration](integrations/ollama_mnemos_mfs.md) | Local Ollama chat backed by MNEMOS evidence through the SDK/API boundary. |
+| [Ollama/Open WebUI MFS adapter integration](integrations/ollama_mnemos_mfs.md) | Local Ollama and Open WebUI chat backed by MNEMOS evidence through the SDK/API boundary. |
 
 ## Architecture
 

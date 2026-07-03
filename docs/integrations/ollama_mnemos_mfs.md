@@ -141,8 +141,8 @@ The page lets you:
 - set project, capability, status, tags, and output packet path;
 - run the same `mnemos_research_intake.py` logic used by the CLI.
 
-The UI does not provide chat. After intake, use Ollama or
-`tools/mnemos_ollama_chat.py` for prompt sessions over the indexed evidence.
+The UI does not provide chat. After intake, use the Open WebUI-compatible proxy
+or `tools/mnemos_ollama_chat.py` for prompt sessions over the indexed evidence.
 
 The UI is local-only by default (`127.0.0.1`) and stores uploaded files in the
 OS temp directory unless `--upload-dir` is supplied:
@@ -220,7 +220,75 @@ The goal is not to let Ollama decide what to build. The goal is to preserve
 artifacts, summaries, risks, open questions, and source citations so future
 implementation decisions have a durable evidence trail.
 
-## 6. MCP-Capable Ollama Hosts
+## 6. Open WebUI-Compatible Proxy
+
+For regular chat in Open WebUI, start the MNEMOS proxy after MNEMOS and Ollama
+are running:
+
+```powershell
+$env:MNEMOS_BASE_URL="http://127.0.0.1:8700"
+$env:OLLAMA_BASE_URL="http://127.0.0.1:7777"
+
+python tools/mnemos_ollama_openwebui_proxy.py --port 8790
+```
+
+macOS/Linux:
+
+```bash
+export MNEMOS_BASE_URL="http://127.0.0.1:8700"
+export OLLAMA_BASE_URL="http://127.0.0.1:11434"
+
+python tools/mnemos_ollama_openwebui_proxy.py --port 8790
+```
+
+Then configure Open WebUI to use the proxy as an OpenAI-compatible provider:
+
+```text
+Base URL: http://127.0.0.1:8790/v1
+API key: any local placeholder value, if the UI requires one
+Model: choose one of the models returned by /v1/models
+```
+
+The proxy also exposes Ollama-shaped endpoints for clients that expect Ollama's
+native API:
+
+```text
+GET  http://127.0.0.1:8790/api/tags
+POST http://127.0.0.1:8790/api/chat
+```
+
+Chat requests are handled as:
+
+1. extract the latest user message;
+2. retrieve bounded MNEMOS evidence with the existing SDK defaults;
+3. call the selected Ollama model with MNEMOS evidence injected;
+4. return the answer plus a `mnemos` metadata block containing citations and
+   the `MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY` claim boundary.
+
+The first proxy version is non-streaming. Disable streaming in the client if
+needed. If a client sends `stream: true`, the proxy returns a clear `400`
+response rather than silently bypassing MNEMOS.
+
+Direct smoke test:
+
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8790/v1/chat/completions" `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body '{
+    "model": "qwen3-coder-next:latest",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Using indexed MNEMOS evidence, summarize the AI-assisted software development workflow."
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 700
+  }'
+```
+
+## 7. MCP-Capable Ollama Hosts
 
 Some Ollama front ends or agent hosts can call MCP tools while using Ollama as
 their model backend. In that case, use the MNEMOS MCP bridge directly:
