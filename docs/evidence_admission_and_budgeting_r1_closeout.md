@@ -27,6 +27,25 @@ preserved served retrieval output, and no forbidden route label was served.
 - Execution mode: `http_service`
 - Embedding profile: `BAAI/bge-base-en-v1.5`, explicit dimension `768`
 
+## Evidence Basis and Authorship Order
+
+This result is **evaluation against a subsequently independently authored,
+frozen, hashed formal pack** — not strict pack-before-implementation
+preregistration. The R1 enforcement implementation predates the committed
+54-query exam (it landed with an earlier, superseded pack in `475be22`); the
+exam evaluated here (`f09651f3…`) was authored independently afterwards, so
+the implementation could not have been tuned to these specific queries, but
+the ordering does not satisfy strict preregistration. The non-inferiority
+criterion, margin, conditions, and safety gates themselves were preregistered
+before this evaluation ran.
+
+Additional run facts not embedded in the result JSON's `run_manifest`:
+
+- Freeze receipt commit: `33284e3` (`docs/evidence_admission_and_budgeting_r1_formal_pack_freeze_receipt.md`)
+- Cache state: cold first-pass for every condition (fresh service instances,
+  fresh collection; no pre-cognitive cache fixtures seeded)
+- Corpus snapshot label: `evidence_admission_r1_frozen_corpus_formal:684`
+
 The formal collection was seeded through the HTTP index path after fixing a
 seed-ID collision defect. Verification:
 
