@@ -306,6 +306,16 @@ def create_app(
     def v1_api_tags():
         return jsonify(tags_client.tags())
 
+    @app.get("/api/ps")
+    @app.get("/v1/api/ps")
+    def api_ps():
+        return jsonify({"models": []})
+
+    @app.get("/api/version")
+    @app.get("/v1/api/version")
+    def api_version():
+        return jsonify({"version": "mnemos-proxy"})
+
     @app.get("/v1/models")
     def v1_models():
         models = [
@@ -366,8 +376,7 @@ def create_app(
             )
         )
 
-    @app.post("/api/chat")
-    def api_chat():
+    def _handle_ollama_chat():
         payload = request.get_json(silent=True) or {}
         messages = payload.get("messages") or []
         if not isinstance(messages, list):
@@ -385,7 +394,7 @@ def create_app(
         model = normalize_openwebui_model_id(requested_model)
         result = _run_query(
             query_runner,
-                model=requested_model,
+            model=model,
             query=query,
             temperature=float(options.get("temperature", 0.0) or 0.0),
             num_predict=int(options.get("num_predict") or 700),
@@ -398,6 +407,14 @@ def create_app(
         if payload.get("stream") is True:
             return _ollama_stream_response(model=requested_model, answer=answer, result=result)
         return jsonify(_ollama_chat_response(model=requested_model, answer=answer, result=result))
+
+    @app.post("/api/chat")
+    def api_chat():
+        return _handle_ollama_chat()
+
+    @app.post("/v1/api/chat")
+    def v1_api_chat():
+        return _handle_ollama_chat()
 
     return app
 

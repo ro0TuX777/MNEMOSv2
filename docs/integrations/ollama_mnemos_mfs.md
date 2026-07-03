@@ -265,10 +265,13 @@ POST http://127.0.0.1:8790/api/chat
 ```
 
 For Open WebUI configurations that append Ollama routes to the OpenAI base URL,
-the proxy also accepts:
+the proxy also accepts these compatibility routes:
 
 ```text
 GET  http://127.0.0.1:8790/v1/api/tags
+GET  http://127.0.0.1:8790/v1/api/ps
+GET  http://127.0.0.1:8790/v1/api/version
+POST http://127.0.0.1:8790/v1/api/chat
 ```
 
 Chat requests are handled as:

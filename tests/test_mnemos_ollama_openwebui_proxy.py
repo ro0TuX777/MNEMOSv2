@@ -67,6 +67,26 @@ def test_v1_api_tags_alias_supports_openwebui_ollama_probe():
     assert response.get_json() == {"models": [{"name": "qwen3-coder-next:latest"}]}
 
 
+def test_v1_api_ps_alias_supports_openwebui_ollama_probe():
+    app = create_app(ollama_tags_client=type("TagsClient", (), {"tags": lambda self: {"models": []}})())
+    client = app.test_client()
+
+    response = client.get("/v1/api/ps")
+
+    assert response.status_code == 200
+    assert response.get_json() == {"models": []}
+
+
+def test_v1_api_version_alias_supports_openwebui_ollama_probe():
+    app = create_app(ollama_tags_client=type("TagsClient", (), {"tags": lambda self: {"models": []}})())
+    client = app.test_client()
+
+    response = client.get("/v1/api/version")
+
+    assert response.status_code == 200
+    assert response.get_json()["version"] == "mnemos-proxy"
+
+
 def test_normalize_openwebui_model_id_strips_known_prefix():
     assert (
         normalize_openwebui_model_id(
@@ -239,3 +259,35 @@ def test_api_chat_streams_ollama_compatible_json_lines():
     assert response.mimetype == "application/x-ndjson"
     assert '"content": "Ollama stream answer. [1]"' in text
     assert '"done": true' in text
+
+
+def test_v1_api_chat_alias_accepts_openwebui_ollama_shape():
+    calls = {}
+
+    def fake_runner(**kwargs):
+        calls.update(kwargs)
+        return {
+            "status": "ok",
+            "answer": "Nested Ollama route answer. [1]",
+            "model": kwargs["model"],
+            "citations": [{"index": 1, "source": "workflow.pdf", "score": 0.9}],
+            "claim_boundary": "boundary",
+        }
+
+    app = create_app(query_runner=fake_runner)
+    client = app.test_client()
+
+    response = client.post(
+        "/v1/api/chat",
+        json={
+            "model": "mnemos.qwen3-coder-next:latest",
+            "stream": True,
+            "messages": [{"role": "user", "content": "Find workflow evidence"}],
+        },
+    )
+
+    text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert response.mimetype == "application/x-ndjson"
+    assert '"content": "Nested Ollama route answer. [1]"' in text
+    assert calls["model"] == "qwen3-coder-next:latest"
