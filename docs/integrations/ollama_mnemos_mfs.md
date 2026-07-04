@@ -283,8 +283,22 @@ Chat requests are handled as:
 1. extract the latest user message;
 2. retrieve bounded MNEMOS evidence with the existing SDK defaults;
 3. call the selected Ollama model with MNEMOS evidence injected;
-4. return the answer plus a `mnemos` metadata block containing citations and
-   the `MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY` claim boundary.
+4. write a local evidence receipt containing citations, the evidence block,
+   retrieval metadata, and the `MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY` boundary;
+5. append a deterministic `MNEMOS Evidence Used` footer to the rendered answer;
+6. return the answer plus a `mnemos` metadata block containing citations and
+   the claim boundary.
+
+Evidence receipt links use:
+
+```text
+http://127.0.0.1:8790/evidence/<receipt_id>
+```
+
+Receipts default to `logs/evidence_receipts/`. Set
+`MNEMOS_EVIDENCE_RECEIPT_DIR` to use another local directory. Set
+`MNEMOS_PROXY_FOOTER=off` to suppress rendered footers. Open WebUI background
+task prompts such as title generation are suppressed automatically.
 
 The proxy accepts both non-streaming and streaming requests. Streaming is
 compatibility streaming: MNEMOS retrieval and the Ollama call complete first,

@@ -197,12 +197,68 @@ A successful answer should:
 - mention `MNEMOS_EVIDENCE` or clearly answer from supplied evidence;
 - include bracket citations such as `[1]`, `[2]`;
 - cite source paths from indexed artifacts;
+- include a deterministic `MNEMOS Evidence Used` footer with source paths,
+  scores, engram IDs, and the R0 boundary;
+- include a local `MNEMOS Evidence Receipt` link for inspecting the evidence
+  block that was supplied to Ollama;
 - not invoke Open WebUI tools such as `query_knowledge_bases` or
   `search_knowledge_files`.
 
 If the answer says no evidence was found, the chat path is probably working but
 the right artifact has not been indexed or retrieved. Return to the intake page,
 index the target files with clear metadata, and retry.
+
+## Evidence Footers And Receipts
+
+MNEMOS-backed answers append a proxy-generated footer. The footer is not written
+by the model; it is added after MNEMOS retrieval and Ollama generation so Open
+WebUI users can see the evidence layer that would otherwise be hidden in API
+metadata.
+
+Example:
+
+```text
+---
+MNEMOS Evidence Used
+[1] source=C:\...\paper.pdf
+    score=0.8123
+    engram_id=research::abc123
+
+MNEMOS Evidence Receipt: http://127.0.0.1:8790/evidence/chatcmpl-mnemos-...
+
+Boundary:
+MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY
+```
+
+The receipt page shows:
+
+- the user query;
+- the selected and actual Ollama model IDs;
+- the citations;
+- the evidence block sent to Ollama;
+- retrieval metadata reported by MNEMOS;
+- the claim boundary.
+
+Receipts are local observability artifacts. They are stored under:
+
+```text
+logs/evidence_receipts/
+```
+
+Override the location if needed:
+
+```powershell
+$env:MNEMOS_EVIDENCE_RECEIPT_DIR="C:\Users\vin\mnemos_evidence_receipts"
+```
+
+To turn footers off:
+
+```powershell
+$env:MNEMOS_PROXY_FOOTER="off"
+```
+
+Open WebUI background title/task prompts are automatically suppressed so chat
+titles are not polluted with evidence footers.
 
 ## Troubleshooting
 

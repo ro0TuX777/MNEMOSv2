@@ -87,6 +87,7 @@ def test_run_query_returns_no_evidence_without_calling_ollama():
     assert result["status"] == "no_evidence"
     assert result["answer"] == ""
     assert result["citations"] == []
+    assert result["evidence_block"] == ""
     assert result["claim_boundary"] == adapter.CLAIM_BOUNDARY
 
 
@@ -119,4 +120,55 @@ def test_run_query_calls_ollama_with_mnemos_evidence_and_returns_answer():
     assert result["status"] == "ok"
     assert result["answer"] == "R1 is not retained. [1]"
     assert result["citations"][0]["source"] == "docs/example.md"
+    assert "R1 enforcement is not retained." in result["evidence_block"]
     assert "R1 enforcement is not retained." in json.dumps(ollama.payload)
+
+
+def test_run_query_uses_search_raw_metadata_when_available():
+    class RawClient:
+        def search_raw(self, query, *, top_k, retrieval_mode, fusion_policy):
+            assert query == "workflow"
+            return type(
+                "Response",
+                (),
+                {
+                    "ok": True,
+                    "status": "healthy",
+                    "error": None,
+                    "data": {
+                        "results": [
+                            {
+                                "engram": {
+                                    "id": "raw-hit",
+                                    "content": "Workflow evidence.",
+                                    "metadata": {"source_path": "workflow.pdf"},
+                                },
+                                "score": 0.77,
+                                "tier": "qdrant",
+                                "tiers": ["qdrant"],
+                                "rank": 1,
+                            }
+                        ],
+                        "retrieval_mode": "hybrid",
+                        "retrieval_fingerprint": {"mode": "hybrid", "profile": "test"},
+                    },
+                },
+            )()
+
+    class RecordingOllama:
+        def chat(self, payload):
+            return {"message": {"content": "Answer. [1]"}}
+
+    result = adapter.run_query(
+        query="workflow",
+        model="llama3.1",
+        mnemos_client=RawClient(),
+        ollama_client=RecordingOllama(),
+    )
+
+    assert result["status"] == "ok"
+    assert result["retrieval_metadata"]["retrieval_mode"] == "hybrid"
+    assert result["retrieval_metadata"]["retrieval_fingerprint"] == {
+        "mode": "hybrid",
+        "profile": "test",
+    }

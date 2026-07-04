@@ -7,6 +7,7 @@ OpenAI-compatible endpoint while keeping MNEMOS as the evidence source.
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import os
 import sys
@@ -52,6 +53,7 @@ class RequestsOllamaTagsClient:
 
 
 QueryRunner = Callable[..., dict[str, Any]]
+DEFAULT_RECEIPT_DIR = ROOT / "logs" / "evidence_receipts"
 
 
 def _content_to_text(content: Any) -> str:
@@ -100,6 +102,151 @@ def normalize_openwebui_model_id(model_id: str) -> str:
             if text.startswith(marker):
                 return text[len(marker) :]
     return text
+
+
+def should_append_footer(payload: dict[str, Any]) -> bool:
+    if os.getenv("MNEMOS_PROXY_FOOTER", "on").strip().lower() in {"0", "false", "no", "off"}:
+        return False
+    query = extract_latest_user_text(payload.get("messages") or [])
+    # Open WebUI sends hidden title/tag/task prompts through the same provider.
+    # Keep those responses clean. If multi-turn forwarding is added later,
+    # strip this deterministic footer from prior assistant messages first.
+    if query.lstrip().startswith("### Task:"):
+        return False
+    metadata = payload.get("metadata") or {}
+    if isinstance(metadata, dict) and metadata.get("task"):
+        return False
+    return True
+
+
+def append_evidence_footer(answer: str, result: dict[str, Any], *, receipt_url: str | None) -> str:
+    base = str(answer or result.get("warning") or "").strip()
+    citations = result.get("citations") or []
+    lines = ["", "---", "MNEMOS Evidence Used"]
+    if citations:
+        for citation in citations:
+            index = citation.get("index", "?")
+            source = citation.get("source", "unknown")
+            score = citation.get("score", 0.0)
+            engram_id = citation.get("engram_id") or "unknown"
+            try:
+                score_text = f"{float(score):.4f}"
+            except (TypeError, ValueError):
+                score_text = str(score)
+            lines.append(f"[{index}] source={source}")
+            lines.append(f"    score={score_text}")
+            lines.append(f"    engram_id={engram_id}")
+    else:
+        lines.append("No MNEMOS evidence retrieved - answer withheld by the MNEMOS proxy.")
+        warning = result.get("warning")
+        if warning:
+            lines.append(f"Warning: {warning}")
+
+    if receipt_url:
+        lines.extend(["", f"MNEMOS Evidence Receipt: {receipt_url}"])
+    lines.extend(["", f"Boundary: {result.get('claim_boundary') or CLAIM_BOUNDARY}"])
+    footer = "\n".join(lines)
+    return f"{base}{footer}" if base else footer.lstrip()
+
+
+def _safe_receipt_id(receipt_id: str) -> str:
+    return "".join(ch for ch in receipt_id if ch.isalnum() or ch in {"-", "_"})
+
+
+def _receipt_path(receipt_dir: Path, receipt_id: str) -> Path:
+    safe_id = _safe_receipt_id(receipt_id)
+    if not safe_id:
+        raise ValueError("empty receipt id")
+    return receipt_dir / f"{safe_id}.json"
+
+
+def write_evidence_receipt(
+    receipt_dir: Path,
+    *,
+    receipt_id: str,
+    created: int,
+    query: str,
+    requested_model: str,
+    actual_model: str,
+    answer: str,
+    result: dict[str, Any],
+) -> Path:
+    receipt_dir.mkdir(parents=True, exist_ok=True)
+    receipt = {
+        "receipt_id": receipt_id,
+        "created": created,
+        "query": query,
+        "requested_model": requested_model,
+        "actual_model": actual_model,
+        "answer": answer,
+        "status": result.get("status"),
+        "citations": result.get("citations") or [],
+        "evidence_block": result.get("evidence_block") or "",
+        "retrieval_metadata": result.get("retrieval_metadata") or {},
+        "claim_boundary": result.get("claim_boundary") or CLAIM_BOUNDARY,
+        "warning": result.get("warning"),
+    }
+    path = _receipt_path(receipt_dir, receipt_id)
+    path.write_text(json.dumps(receipt, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    max_receipts = int(os.getenv("MNEMOS_EVIDENCE_RECEIPT_MAX_FILES", "500"))
+    receipt_files = sorted(receipt_dir.glob("*.json"), key=lambda item: item.stat().st_mtime)
+    for stale in receipt_files[: max(0, len(receipt_files) - max_receipts)]:
+        stale.unlink(missing_ok=True)
+    return path
+
+
+def render_evidence_receipt_html(receipt: dict[str, Any]) -> str:
+    citations = receipt.get("citations") or []
+    citation_rows = "\n".join(
+        "<tr>"
+        f"<td>{html.escape(str(item.get('index', '')))}</td>"
+        f"<td>{html.escape(str(item.get('source', 'unknown')))}</td>"
+        f"<td>{html.escape(str(item.get('score', '')))}</td>"
+        f"<td>{html.escape(str(item.get('engram_id', '')))}</td>"
+        "</tr>"
+        for item in citations
+    )
+    return f"""<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>MNEMOS Evidence Receipt</title>
+  <style>
+    body {{ font-family: system-ui, sans-serif; margin: 32px; max-width: 1120px; }}
+    pre {{ white-space: pre-wrap; background: #f5f5f5; padding: 12px; border-radius: 6px; }}
+    table {{ border-collapse: collapse; width: 100%; }}
+    th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }}
+    th {{ background: #f5f5f5; }}
+  </style>
+</head>
+<body>
+  <h1>MNEMOS Evidence Receipt</h1>
+  <p><strong>Receipt:</strong> {html.escape(str(receipt.get("receipt_id", "")))}</p>
+  <p><strong>Status:</strong> {html.escape(str(receipt.get("status", "")))}</p>
+  <p><strong>Model:</strong> {html.escape(str(receipt.get("requested_model", "")))}</p>
+  <h2>Query</h2>
+  <pre>{html.escape(str(receipt.get("query", "")))}</pre>
+  <h2>Citations</h2>
+  <table>
+    <thead><tr><th>#</th><th>Source</th><th>Score</th><th>Engram ID</th></tr></thead>
+    <tbody>{citation_rows}</tbody>
+  </table>
+  <h2>Evidence Block Sent To Ollama</h2>
+  <pre>{html.escape(str(receipt.get("evidence_block", "")))}</pre>
+  <h2>Boundary</h2>
+  <pre>{html.escape(str(receipt.get("claim_boundary", "")))}</pre>
+</body>
+</html>"""
+
+
+def _public_receipt_base_url() -> str:
+    configured = os.getenv("MNEMOS_EVIDENCE_PUBLIC_BASE_URL")
+    if configured:
+        return configured.rstrip("/")
+    host = request.host.split(":", 1)
+    port = f":{host[1]}" if len(host) == 2 else ""
+    return f"http://127.0.0.1{port}"
 
 
 def _openai_error(message: str, *, status: int = 400):
@@ -278,6 +425,7 @@ def create_app(
     query_runner: QueryRunner = run_query,
     ollama_tags_client: OllamaTagsClient | None = None,
     ollama_base_url: str | None = None,
+    receipt_dir: str | Path | None = None,
 ) -> Flask:
     app = Flask(__name__)
     resolved_ollama_url = normalize_base_url(
@@ -287,6 +435,10 @@ def create_app(
 
     app.config["CLAIM_BOUNDARY"] = CLAIM_BOUNDARY
     app.config["OLLAMA_BASE_URL"] = resolved_ollama_url
+    resolved_receipt_dir = Path(
+        receipt_dir or os.getenv("MNEMOS_EVIDENCE_RECEIPT_DIR", str(DEFAULT_RECEIPT_DIR))
+    )
+    app.config["MNEMOS_EVIDENCE_RECEIPT_DIR"] = str(resolved_receipt_dir)
 
     @app.get("/health")
     def health():
@@ -315,6 +467,21 @@ def create_app(
     @app.get("/v1/api/version")
     def api_version():
         return jsonify({"version": "mnemos-proxy"})
+
+    @app.get("/evidence/<receipt_id>.json")
+    def evidence_receipt_json(receipt_id: str):
+        path = _receipt_path(resolved_receipt_dir, receipt_id)
+        if not path.exists():
+            return jsonify({"error": "receipt_not_found"}), 404
+        return jsonify(json.loads(path.read_text(encoding="utf-8")))
+
+    @app.get("/evidence/<receipt_id>")
+    def evidence_receipt(receipt_id: str):
+        path = _receipt_path(resolved_receipt_dir, receipt_id)
+        if not path.exists():
+            return "MNEMOS evidence receipt not found.", 404
+        receipt = json.loads(path.read_text(encoding="utf-8"))
+        return Response(render_evidence_receipt_html(receipt), mimetype="text/html")
 
     @app.get("/v1/models")
     def v1_models():
@@ -355,9 +522,28 @@ def create_app(
             fusion_policy=fusion_policy,
             max_chars_per_hit=max_chars,
         )
-        answer = str(result.get("answer") or result.get("warning") or "")
         created = int(time.time())
         completion_id = f"chatcmpl-mnemos-{uuid.uuid4().hex}"
+        raw_answer = str(result.get("answer") or result.get("warning") or "")
+        footer_enabled = should_append_footer(payload)
+        receipt_url = None
+        if footer_enabled:
+            write_evidence_receipt(
+                resolved_receipt_dir,
+                receipt_id=completion_id,
+                created=created,
+                query=query,
+                requested_model=requested_model,
+                actual_model=model,
+                answer=raw_answer,
+                result=result,
+            )
+            receipt_url = f"{_public_receipt_base_url()}/evidence/{completion_id}"
+        answer = (
+            append_evidence_footer(raw_answer, result, receipt_url=receipt_url)
+            if footer_enabled
+            else raw_answer
+        )
         if payload.get("stream") is True:
             return _openai_stream_response(
                 completion_id=completion_id,
@@ -403,7 +589,28 @@ def create_app(
             fusion_policy=str(payload.get("mnemos_fusion_policy") or "balanced"),
             max_chars_per_hit=int(payload.get("mnemos_max_chars_per_hit") or 1200),
         )
-        answer = str(result.get("answer") or result.get("warning") or "")
+        created = int(time.time())
+        receipt_id = f"chatcmpl-mnemos-{uuid.uuid4().hex}"
+        raw_answer = str(result.get("answer") or result.get("warning") or "")
+        footer_enabled = should_append_footer(payload)
+        receipt_url = None
+        if footer_enabled:
+            write_evidence_receipt(
+                resolved_receipt_dir,
+                receipt_id=receipt_id,
+                created=created,
+                query=query,
+                requested_model=requested_model,
+                actual_model=model,
+                answer=raw_answer,
+                result=result,
+            )
+            receipt_url = f"{_public_receipt_base_url()}/evidence/{receipt_id}"
+        answer = (
+            append_evidence_footer(raw_answer, result, receipt_url=receipt_url)
+            if footer_enabled
+            else raw_answer
+        )
         if payload.get("stream") is True:
             return _ollama_stream_response(model=requested_model, answer=answer, result=result)
         return jsonify(_ollama_chat_response(model=requested_model, answer=answer, result=result))

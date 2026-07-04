@@ -22,7 +22,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from mnemos_sdk import MnemosClient, MnemosConfig  # noqa: E402
-from mnemos_sdk.client import SearchHit  # noqa: E402
+from mnemos_sdk.client import MnemosResponse, SearchHit  # noqa: E402
 
 DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434"
 DEFAULT_MODEL = os.getenv("OLLAMA_MODEL", "llama3.1")
@@ -43,6 +43,45 @@ class MnemosSearchClient(Protocol):
         fusion_policy: str,
     ) -> list[SearchHit]:
         ...
+
+
+def _hits_from_raw_response(response: MnemosResponse) -> list[SearchHit]:
+    hits: list[SearchHit] = []
+    for row in response.data.get("results", []):
+        hits.append(
+            SearchHit(
+                engram=row.get("engram", {}),
+                score=row.get("score", 0.0),
+                tier=row.get("tier", ""),
+                tiers=row.get("tiers", []),
+                rank=row.get("rank"),
+                evidence=row.get("evidence"),
+                component_scores=row.get("component_scores"),
+                retrieval_sources=row.get("retrieval_sources"),
+                fusion_policy=row.get("fusion_policy"),
+            )
+        )
+    return hits
+
+
+def _retrieval_metadata_from_raw_response(response: MnemosResponse) -> dict[str, Any]:
+    data = response.data or {}
+    metadata: dict[str, Any] = {
+        "response_status": response.status,
+        "response_error": response.error,
+    }
+    for key in (
+        "retrieval_mode",
+        "effective_retrieval_mode",
+        "requested_retrieval_mode",
+        "fusion_policy",
+        "retrieval_fingerprint",
+        "fingerprint",
+        "profile",
+    ):
+        if key in data:
+            metadata[key] = data[key]
+    return metadata
 
 
 class OllamaChatClient:
@@ -177,12 +216,26 @@ def run_query(
     mnemos = mnemos_client or MnemosClient(MnemosConfig.from_env())
     ollama = ollama_client or OllamaChatClient(os.getenv("OLLAMA_BASE_URL", DEFAULT_OLLAMA_BASE_URL))
 
-    hits = mnemos.search(
-        query,
-        top_k=top_k,
-        retrieval_mode=retrieval_mode,
-        fusion_policy=fusion_policy,
-    )
+    retrieval_metadata: dict[str, Any] = {
+        "requested_retrieval_mode": retrieval_mode,
+        "requested_fusion_policy": fusion_policy,
+    }
+    if hasattr(mnemos, "search_raw"):
+        raw_response = mnemos.search_raw(
+            query,
+            top_k=top_k,
+            retrieval_mode=retrieval_mode,
+            fusion_policy=fusion_policy,
+        )
+        retrieval_metadata.update(_retrieval_metadata_from_raw_response(raw_response))
+        hits = _hits_from_raw_response(raw_response) if raw_response.ok else []
+    else:
+        hits = mnemos.search(
+            query,
+            top_k=top_k,
+            retrieval_mode=retrieval_mode,
+            fusion_policy=fusion_policy,
+        )
     evidence_block, citations = format_evidence_block(
         hits,
         max_chars_per_hit=max_chars_per_hit,
@@ -193,6 +246,8 @@ def run_query(
             "answer": "",
             "query": query,
             "citations": [],
+            "evidence_block": "",
+            "retrieval_metadata": retrieval_metadata,
             "claim_boundary": CLAIM_BOUNDARY,
             "warning": "MNEMOS returned no evidence; Ollama was not called.",
         }
@@ -211,6 +266,8 @@ def run_query(
         "query": query,
         "model": model,
         "citations": citations,
+        "evidence_block": evidence_block,
+        "retrieval_metadata": retrieval_metadata,
         "claim_boundary": CLAIM_BOUNDARY,
         "ollama_response": response,
     }
