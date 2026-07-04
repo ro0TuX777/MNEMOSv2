@@ -8,6 +8,8 @@ MNEMOS/Ollama connectivity, and run ``tools.mnemos_research_intake``.
 from __future__ import annotations
 
 import argparse
+import html
+import json
 import os
 import tempfile
 import sys
@@ -15,7 +17,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 import requests
-from flask import Flask, jsonify, request
+from flask import Flask, Response, jsonify, request
 from werkzeug.utils import secure_filename
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,6 +28,7 @@ from tools.mnemos_ollama_chat import DEFAULT_OLLAMA_BASE_URL, normalize_base_url
 from tools.mnemos_research_intake import run_intake
 
 DEFAULT_MNEMOS_BASE_URL = "http://127.0.0.1:8700"
+DEFAULT_RECEIPT_DIR = ROOT / "logs" / "evidence_receipts"
 
 
 def default_ollama_base_url() -> str:
@@ -92,19 +95,223 @@ def _save_uploads(files: list[Any], upload_dir: Path) -> list[Path]:
     return saved
 
 
+def safe_receipt_id(receipt_id: str) -> str | None:
+    safe = "".join(ch for ch in str(receipt_id or "") if ch.isalnum() or ch in {"-", "_"})
+    return safe or None
+
+
+def _receipt_path(receipt_dir: Path, receipt_id: str) -> Path | None:
+    safe = safe_receipt_id(receipt_id)
+    if not safe:
+        return None
+    return receipt_dir / f"{safe}.json"
+
+
+def load_evidence_receipt(receipt_dir: Path, receipt_id: str) -> dict[str, Any] | None:
+    path = _receipt_path(receipt_dir, receipt_id)
+    if path is None or not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _query_preview(query: str, max_chars: int = 96) -> str:
+    clean = " ".join(str(query or "").split())
+    if len(clean) <= max_chars:
+        return clean
+    return clean[:max_chars].rstrip() + "..."
+
+
+def _receipt_retrieval_mode(receipt: dict[str, Any]) -> str:
+    metadata = receipt.get("retrieval_metadata") or {}
+    if not isinstance(metadata, dict):
+        return "unknown"
+    return str(
+        metadata.get("retrieval_mode")
+        or metadata.get("effective_retrieval_mode")
+        or metadata.get("requested_retrieval_mode")
+        or "unknown"
+    )
+
+
+def list_evidence_receipts(receipt_dir: Path, *, limit: int = 100) -> list[dict[str, Any]]:
+    if not receipt_dir.exists():
+        return []
+    rows: list[dict[str, Any]] = []
+    for path in sorted(receipt_dir.glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True):
+        if len(rows) >= limit:
+            break
+        receipt = load_evidence_receipt(receipt_dir, path.stem)
+        if not receipt:
+            continue
+        citations = receipt.get("citations") or []
+        rows.append(
+            {
+                "receipt_id": str(receipt.get("receipt_id") or path.stem),
+                "created": receipt.get("created"),
+                "query_preview": _query_preview(str(receipt.get("query") or "")),
+                "model": str(receipt.get("requested_model") or receipt.get("actual_model") or ""),
+                "status": str(receipt.get("status") or "unknown"),
+                "source_count": len(citations) if isinstance(citations, list) else 0,
+                "retrieval_mode": _receipt_retrieval_mode(receipt),
+            }
+        )
+    return rows
+
+
+def _json_pretty(value: Any) -> str:
+    return json.dumps(value, indent=2, ensure_ascii=False, sort_keys=True)
+
+
+def _render_page(title: str, body: str) -> str:
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{html.escape(title)}</title>
+  <style>
+    :root {{ color-scheme: light; --ink:#172026; --muted:#52616b; --line:#d9e1e8; --fill:#f6f8fa; --accent:#176b87; }}
+    * {{ box-sizing: border-box; }}
+    body {{ margin:0; font-family: Arial, sans-serif; color:var(--ink); background:#fff; }}
+    main {{ max-width: 1180px; margin: 0 auto; padding: 28px 20px 44px; }}
+    nav {{ display:flex; gap:14px; margin-bottom:20px; }}
+    nav a {{ color:var(--accent); font-weight:700; text-decoration:none; }}
+    h1 {{ margin:0 0 6px; font-size:30px; }}
+    h2 {{ margin-top:28px; }}
+    p {{ color:var(--muted); line-height:1.45; }}
+    table {{ width:100%; border-collapse:collapse; margin-top:14px; }}
+    th, td {{ border:1px solid var(--line); padding:8px; text-align:left; vertical-align:top; }}
+    th {{ background:var(--fill); }}
+    pre {{ white-space:pre-wrap; overflow:auto; background:var(--fill); border:1px solid var(--line); border-radius:6px; padding:12px; }}
+    .graph {{ display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:10px; align-items:stretch; }}
+    .node {{ border:1px solid var(--line); background:var(--fill); border-radius:8px; padding:12px; min-height:96px; }}
+    .arrow {{ display:none; }}
+    .muted {{ color:var(--muted); }}
+    @media (max-width: 860px) {{ .graph {{ grid-template-columns: 1fr; }} }}
+  </style>
+</head>
+<body>
+<main>
+  <nav><a href="/">Research Intake</a><a href="/evidence">Evidence Receipts</a></nav>
+  {body}
+</main>
+</body>
+</html>"""
+
+
+def render_evidence_list_page(receipts: list[dict[str, Any]]) -> str:
+    rows = "\n".join(
+        "<tr>"
+        f"<td><a href=\"/evidence/{html.escape(row['receipt_id'])}\">{html.escape(row['receipt_id'])}</a></td>"
+        f"<td>{html.escape(row['status'])}</td>"
+        f"<td>{html.escape(row['retrieval_mode'])}</td>"
+        f"<td>{html.escape(str(row['source_count']))}</td>"
+        f"<td>{html.escape(row['model'])}</td>"
+        f"<td>{html.escape(row['query_preview'])}</td>"
+        "</tr>"
+        for row in receipts
+    )
+    if not rows:
+        rows = '<tr><td colspan="6" class="muted">No evidence receipts found.</td></tr>'
+    body = f"""
+<h1>MNEMOS Evidence Receipts</h1>
+<p>Inspect the evidence trails behind MNEMOS-backed Open WebUI answers. This is an evidence graph, not a model reasoning graph.</p>
+<table>
+  <thead><tr><th>Receipt</th><th>Status</th><th>Retrieval Mode</th><th>Sources</th><th>Model</th><th>Query</th></tr></thead>
+  <tbody>{rows}</tbody>
+</table>"""
+    return _render_page("MNEMOS Evidence Receipts", body)
+
+
+def render_evidence_detail_page(receipt: dict[str, Any]) -> str:
+    citations = receipt.get("citations") or []
+    citation_rows = "\n".join(
+        "<tr>"
+        f"<td>{html.escape(str(item.get('index', '')))}</td>"
+        f"<td>{html.escape(str(item.get('source', 'unknown')))}</td>"
+        f"<td>{html.escape(str(item.get('score', '')))}</td>"
+        f"<td>{html.escape(str(item.get('engram_id', '')))}</td>"
+        "</tr>"
+        for item in citations
+        if isinstance(item, dict)
+    )
+    if not citation_rows:
+        citation_rows = '<tr><td colspan="4" class="muted">No citations recorded.</td></tr>'
+    sources = sorted({str(item.get("source", "unknown")) for item in citations if isinstance(item, dict)})
+    source_list = "<br>".join(html.escape(source) for source in sources) or "No source files recorded."
+    body = f"""
+<h1>MNEMOS Evidence Receipt</h1>
+<p><strong>Receipt:</strong> {html.escape(str(receipt.get('receipt_id', '')))}</p>
+<p><strong>Status:</strong> {html.escape(str(receipt.get('status', '')))} | <strong>Retrieval mode:</strong> {html.escape(_receipt_retrieval_mode(receipt))}</p>
+
+<h2>Evidence Graph</h2>
+<p class="muted">This graph shows the evidence path supplied to the model. It does not claim to expose private model reasoning.</p>
+<section class="graph">
+  <div class="node"><strong>User Query</strong><br>{html.escape(_query_preview(str(receipt.get('query') or ''), 180))}</div>
+  <div class="node"><strong>Retrieved Evidence Chunks</strong><br>{len(citations)} cited chunk(s)</div>
+  <div class="node"><strong>Source Files / Metadata</strong><br>{source_list}</div>
+  <div class="node"><strong>Model Answer With Citations</strong><br>{html.escape(_query_preview(str(receipt.get('answer') or ''), 180))}</div>
+</section>
+
+<h2>Models</h2>
+<pre>requested_model: {html.escape(str(receipt.get('requested_model', '')))}
+actual_model: {html.escape(str(receipt.get('actual_model', '')))}</pre>
+
+<h2>Citations</h2>
+<table>
+  <thead><tr><th>#</th><th>Source</th><th>Score</th><th>Engram ID</th></tr></thead>
+  <tbody>{citation_rows}</tbody>
+</table>
+
+<h2>Retrieval Metadata</h2>
+<pre>{html.escape(_json_pretty(receipt.get('retrieval_metadata') or {}))}</pre>
+
+<h2>Query</h2>
+<pre>{html.escape(str(receipt.get('query') or ''))}</pre>
+
+<h2>Answer</h2>
+<pre>{html.escape(str(receipt.get('answer') or ''))}</pre>
+
+<h2>Evidence Block Sent To Ollama</h2>
+<pre>{html.escape(str(receipt.get('evidence_block') or ''))}</pre>
+
+<h2>Boundary</h2>
+<pre>{html.escape(str(receipt.get('claim_boundary') or ''))}</pre>
+"""
+    return _render_page("MNEMOS Evidence Receipt", body)
+
+
 def create_app(
     *,
     upload_dir: Path | None = None,
+    receipt_dir: Path | None = None,
     intake_runner: Callable[..., dict[str, Any]] = run_intake,
     ollama_models_fn: Callable[[str], list[dict[str, Any]]] = default_ollama_models,
     mnemos_health_fn: Callable[[str], dict[str, Any]] = default_mnemos_health,
 ) -> Flask:
     app = Flask(__name__)
     app.config["UPLOAD_DIR"] = Path(upload_dir or Path(tempfile.gettempdir()) / "mnemos_research_ui_uploads")
+    app.config["RECEIPT_DIR"] = Path(receipt_dir or os.getenv("MNEMOS_EVIDENCE_RECEIPT_DIR", str(DEFAULT_RECEIPT_DIR)))
 
     @app.get("/")
     def index():
         return INDEX_HTML.replace("__DEFAULT_OLLAMA_BASE_URL__", default_ollama_base_url())
+
+    @app.get("/evidence")
+    def evidence_list():
+        receipts = list_evidence_receipts(app.config["RECEIPT_DIR"])
+        return Response(render_evidence_list_page(receipts), mimetype="text/html")
+
+    @app.get("/evidence/<receipt_id>")
+    def evidence_detail(receipt_id: str):
+        receipt = load_evidence_receipt(app.config["RECEIPT_DIR"], receipt_id)
+        if receipt is None:
+            return Response("MNEMOS evidence receipt not found.", status=404, mimetype="text/plain")
+        return Response(render_evidence_detail_page(receipt), mimetype="text/html")
 
     @app.get("/api/ollama-models")
     def ollama_models():
@@ -183,6 +390,8 @@ INDEX_HTML = """<!doctype html>
     * { box-sizing: border-box; }
     body { margin:0; font-family: Arial, sans-serif; color:var(--ink); background:#ffffff; }
     main { max-width: 1080px; margin: 0 auto; padding: 28px 20px 44px; }
+    nav { display:flex; gap:14px; margin-bottom:20px; }
+    nav a { color:var(--accent); font-weight:700; text-decoration:none; }
     h1 { margin: 0 0 6px; font-size: 30px; font-weight: 700; }
     p { color: var(--muted); line-height: 1.45; }
     form { display:grid; gap:18px; }
@@ -207,6 +416,7 @@ INDEX_HTML = """<!doctype html>
 </head>
 <body>
 <main>
+  <nav><a href="/">Research Intake</a><a href="/evidence">Evidence Receipts</a></nav>
   <h1>MNEMOS Research Intake</h1>
   <p>Upload PDFs, Word files, Markdown, code, or data files into MNEMOS, optionally summarize with a local Ollama model, then use Ollama separately for evidence-grounded prompting.</p>
 

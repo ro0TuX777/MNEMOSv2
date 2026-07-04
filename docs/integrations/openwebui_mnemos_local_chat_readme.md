@@ -260,6 +260,22 @@ $env:MNEMOS_PROXY_FOOTER="off"
 Open WebUI background title/task prompts are automatically suppressed so chat
 titles are not polluted with evidence footers.
 
+The Research Intake UI also includes an evidence browser:
+
+```text
+http://127.0.0.1:8788/evidence
+```
+
+Use it to review recent receipts, open a receipt detail page, and inspect the
+evidence graph:
+
+```text
+User Query -> Retrieved Evidence Chunks -> Source Files / Metadata -> Model Answer With Citations
+```
+
+This is an evidence graph, not a reasoning graph. It shows what MNEMOS
+retrieved and supplied to the local model.
+
 ## Troubleshooting
 
 If Open WebUI says `Server Connection Error`, check:
