@@ -120,10 +120,14 @@ def should_append_footer(payload: dict[str, Any]) -> bool:
 
 
 def append_evidence_footer(answer: str, result: dict[str, Any], *, receipt_url: str | None) -> str:
+    # Markdown discipline: a "---" line directly under paragraph text renders
+    # as a setext heading, so the footer must be separated by a blank line, and
+    # the citation lines live in a fenced block to keep their line structure.
     base = str(answer or result.get("warning") or "").strip()
     citations = result.get("citations") or []
-    lines = ["", "---", "MNEMOS Evidence Used"]
+    lines = ["---", "", "MNEMOS Evidence Used", ""]
     if citations:
+        lines.append("```text")
         for citation in citations:
             index = citation.get("index", "?")
             source = citation.get("source", "unknown")
@@ -136,17 +140,21 @@ def append_evidence_footer(answer: str, result: dict[str, Any], *, receipt_url: 
             lines.append(f"[{index}] source={source}")
             lines.append(f"    score={score_text}")
             lines.append(f"    engram_id={engram_id}")
+        lines.append("```")
     else:
-        lines.append("No MNEMOS evidence retrieved - answer withheld by the MNEMOS proxy.")
-        warning = result.get("warning")
-        if warning:
+        if result.get("status") == "mnemos_error":
+            lines.append("MNEMOS retrieval failed - answer withheld by the MNEMOS proxy.")
+        else:
+            lines.append("No MNEMOS evidence retrieved - answer withheld by the MNEMOS proxy.")
+        warning = str(result.get("warning") or "").strip()
+        if warning and warning != base:
             lines.append(f"Warning: {warning}")
 
     if receipt_url:
         lines.extend(["", f"MNEMOS Evidence Receipt: {receipt_url}"])
     lines.extend(["", f"Boundary: {result.get('claim_boundary') or CLAIM_BOUNDARY}"])
     footer = "\n".join(lines)
-    return f"{base}{footer}" if base else footer.lstrip()
+    return f"{base}\n\n{footer}" if base else footer
 
 
 def _safe_receipt_id(receipt_id: str) -> str:

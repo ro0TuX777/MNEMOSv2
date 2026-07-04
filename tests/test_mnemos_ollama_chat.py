@@ -149,8 +149,12 @@ def test_run_query_uses_search_raw_metadata_when_available():
                                 "rank": 1,
                             }
                         ],
-                        "retrieval_mode": "hybrid",
-                        "retrieval_fingerprint": {"mode": "hybrid", "profile": "test"},
+                        # Real service shape: mode/fingerprint nest under meta.
+                        "meta": {
+                            "retrieval_mode": "hybrid",
+                            "fusion_policy": "balanced",
+                            "retrieval_fingerprint": {"mode": "hybrid", "profile": "test"},
+                        },
                     },
                 },
             )()
@@ -168,7 +172,40 @@ def test_run_query_uses_search_raw_metadata_when_available():
 
     assert result["status"] == "ok"
     assert result["retrieval_metadata"]["retrieval_mode"] == "hybrid"
+    assert result["retrieval_metadata"]["fusion_policy"] == "balanced"
     assert result["retrieval_metadata"]["retrieval_fingerprint"] == {
         "mode": "hybrid",
         "profile": "test",
     }
+
+
+def test_run_query_reports_mnemos_error_when_search_raw_not_ok():
+    class FailingClient:
+        def search_raw(self, query, *, top_k, retrieval_mode, fusion_policy):
+            return type(
+                "Response",
+                (),
+                {
+                    "ok": False,
+                    "status": "unavailable",
+                    "error": "connection refused",
+                    "data": {},
+                },
+            )()
+
+    class NeverOllama:
+        def chat(self, payload):
+            raise AssertionError("Ollama must not be called when MNEMOS errors")
+
+    result = adapter.run_query(
+        query="workflow",
+        model="llama3.1",
+        mnemos_client=FailingClient(),
+        ollama_client=NeverOllama(),
+    )
+
+    assert result["status"] == "mnemos_error"
+    assert "MNEMOS search failed" in result["warning"]
+    assert result["citations"] == []
+    assert result["retrieval_metadata"]["response_status"] == "unavailable"
+    assert result["retrieval_metadata"]["response_error"] == "connection refused"

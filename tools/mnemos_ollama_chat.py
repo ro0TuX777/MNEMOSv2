@@ -65,22 +65,22 @@ def _hits_from_raw_response(response: MnemosResponse) -> list[SearchHit]:
 
 
 def _retrieval_metadata_from_raw_response(response: MnemosResponse) -> dict[str, Any]:
-    data = response.data or {}
+    # The service reports mode/fingerprint under data["meta"], not top-level data.
+    meta = (response.data or {}).get("meta") or {}
     metadata: dict[str, Any] = {
         "response_status": response.status,
         "response_error": response.error,
     }
     for key in (
         "retrieval_mode",
-        "effective_retrieval_mode",
-        "requested_retrieval_mode",
         "fusion_policy",
         "retrieval_fingerprint",
-        "fingerprint",
-        "profile",
+        "lexical_lane_available",
+        "result_count",
+        "latency_s",
     ):
-        if key in data:
-            metadata[key] = data[key]
+        if key in meta:
+            metadata[key] = meta[key]
     return metadata
 
 
@@ -228,7 +228,21 @@ def run_query(
             fusion_policy=fusion_policy,
         )
         retrieval_metadata.update(_retrieval_metadata_from_raw_response(raw_response))
-        hits = _hits_from_raw_response(raw_response) if raw_response.ok else []
+        if not raw_response.ok:
+            return {
+                "status": "mnemos_error",
+                "answer": "",
+                "query": query,
+                "citations": [],
+                "evidence_block": "",
+                "retrieval_metadata": retrieval_metadata,
+                "claim_boundary": CLAIM_BOUNDARY,
+                "warning": (
+                    f"MNEMOS search failed (status={raw_response.status}, "
+                    f"error={raw_response.error}); Ollama was not called."
+                ),
+            }
+        hits = _hits_from_raw_response(raw_response)
     else:
         hits = mnemos.search(
             query,

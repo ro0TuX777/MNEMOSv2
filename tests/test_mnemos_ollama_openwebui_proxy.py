@@ -143,6 +143,42 @@ def test_append_evidence_footer_handles_no_evidence():
     assert "Boundary:" in answer
 
 
+def test_append_evidence_footer_keeps_markdown_structure():
+    answer = append_evidence_footer(
+        "Answer text. [1]",
+        {
+            "status": "ok",
+            "citations": [
+                {"index": 1, "source": "paper.pdf", "score": 0.5, "engram_id": "e-1"}
+            ],
+            "claim_boundary": "boundary",
+        },
+        receipt_url=None,
+    )
+
+    # Blank line before the rule so "---" cannot become a setext heading, and
+    # citations inside a fenced block so their line breaks survive rendering.
+    assert "Answer text. [1]\n\n---\n" in answer
+    assert "```text\n[1] source=paper.pdf" in answer
+    assert answer.count("```") == 2
+
+
+def test_append_evidence_footer_distinguishes_mnemos_error():
+    answer = append_evidence_footer(
+        "",
+        {
+            "status": "mnemos_error",
+            "citations": [],
+            "claim_boundary": "boundary",
+            "warning": "MNEMOS search failed (status=unavailable, error=connection refused); Ollama was not called.",
+        },
+        receipt_url=None,
+    )
+
+    assert "MNEMOS retrieval failed" in answer
+    assert "No MNEMOS evidence retrieved" not in answer
+
+
 def test_should_append_footer_suppresses_openwebui_task_prompts(monkeypatch):
     monkeypatch.delenv("MNEMOS_PROXY_FOOTER", raising=False)
     assert should_append_footer({"messages": [{"role": "user", "content": "### Task:\nGenerate a title"}]}) is False
