@@ -535,7 +535,7 @@ def create_app(
         raw_answer = str(result.get("answer") or result.get("warning") or "")
         footer_enabled = should_append_footer(payload)
         receipt_url = None
-        if footer_enabled:
+        if result.get("status") in {"ok", "no_evidence", "mnemos_error"}:
             write_evidence_receipt(
                 resolved_receipt_dir,
                 receipt_id=completion_id,
@@ -602,7 +602,7 @@ def create_app(
         raw_answer = str(result.get("answer") or result.get("warning") or "")
         footer_enabled = should_append_footer(payload)
         receipt_url = None
-        if footer_enabled:
+        if result.get("status") in {"ok", "no_evidence", "mnemos_error"}:
             write_evidence_receipt(
                 resolved_receipt_dir,
                 receipt_id=receipt_id,

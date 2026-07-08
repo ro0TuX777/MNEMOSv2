@@ -320,7 +320,37 @@ def test_v1_chat_completions_suppresses_footer_for_openwebui_task_prompts(tmp_pa
 
     content = response.get_json()["choices"][0]["message"]["content"]
     assert content == "Short title"
-    assert list(tmp_path.glob("*.json")) == []
+    assert len(list(tmp_path.glob("*.json"))) == 1
+
+
+def test_v1_chat_completions_writes_receipt_even_when_footer_is_disabled(tmp_path, monkeypatch):
+    monkeypatch.setenv("MNEMOS_PROXY_FOOTER", "off")
+
+    def fake_runner(**kwargs):
+        return {
+            "status": "ok",
+            "answer": "Receipt should still be written.",
+            "model": kwargs["model"],
+            "citations": [{"index": 1, "source": "workflow.pdf", "score": 0.9}],
+            "evidence_block": "[1] source=workflow.pdf score=0.9000\nEvidence text",
+            "claim_boundary": "boundary",
+        }
+
+    app = create_app(query_runner=fake_runner, receipt_dir=tmp_path)
+    client = app.test_client()
+
+    response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "qwen3-coder-next:latest",
+            "messages": [{"role": "user", "content": "Show me the evidence trail"}],
+        },
+    )
+
+    assert response.status_code == 200
+    receipt_files = list(tmp_path.glob("*.json"))
+    assert len(receipt_files) == 1
+    assert "Receipt should still be written." in receipt_files[0].read_text(encoding="utf-8")
 
 
 def test_v1_chat_completions_streams_openai_compatible_events():
