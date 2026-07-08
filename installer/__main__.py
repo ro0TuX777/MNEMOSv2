@@ -13,6 +13,37 @@ import argparse
 import sys
 from pathlib import Path
 
+
+def write_post_install_guide(output_dir: Path) -> Path:
+    """Write a quick-start guide that highlights the local Research Intake page."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    guide_path = output_dir / "MNEMOS_POST_INSTALL_GUIDE.md"
+    guide_path.write_text(
+        """# MNEMOS post-install quick guide
+
+## Local research intake workflow
+
+MNEMOS includes a separate local Research Intake page for uploading files and data that should be indexed for later chat use.
+
+- Open the Research Intake page at http://127.0.0.1:8788/
+- Upload PDFs, documents, markdown, code, or other data files
+- Choose project/capability metadata and optionally summarize with Ollama
+- Then use Open WebUI locally to chat with the indexed material
+
+## Suggested local startup
+
+```bash
+export MNEMOS_BASE_URL=\"http://127.0.0.1:8700\"
+export OLLAMA_BASE_URL=\"http://127.0.0.1:11434\"
+python tools/mnemos_research_ui.py
+```
+
+If you are using the bundled Open WebUI stack helper, it can also start the surrounding local services for you.
+""",
+        encoding="utf-8",
+    )
+    return guide_path
+
 from installer.profiles import PROFILES, list_profiles, get_profile
 from installer.questions import ask_interactive, from_dict, UserAnswers
 from installer.probes import run_probes, ProbeResults
@@ -221,8 +252,12 @@ def main():
     )
     print(f"    [OK] {manifest_path}")
 
+    guide_path = write_post_install_guide(output_dir)
+    print(f"    [OK] {guide_path}")
+
     print(f"\n  [OK] Installation complete!")
     print(f"  Profile: {rec.profile.display_name}")
+    print("  Local workflow: use the Research Intake page to upload files/data, then chat with them in Open WebUI")
     print(f"  Compute: {compute.mode.upper()} ({compute.reason})")
     print(f"  GPU device: {compute.gpu_device}")
     print(f"  Retrieval mode: {args.retrieval_mode}")
@@ -231,6 +266,8 @@ def main():
     print(f"    1. Review: cat {env_path}")
     print(f"    2. Start:  docker compose -f {compose_path} up -d --build")
     print(f"    3. Verify: python tools/mnemos_health_audit.py")
+    print(f"    4. Research Intake: open http://127.0.0.1:8788/ (or run 'python tools/mnemos_research_ui.py')")
+    print(f"    5. Open WebUI workflow: upload content through the Research Intake page, then chat with it in Open WebUI")
     print()
 
 

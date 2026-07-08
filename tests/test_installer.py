@@ -9,6 +9,7 @@ from installer.probes import ProbeResults
 from installer.recommend import recommend, Recommendation
 from installer.render import render_compose, render_env, render_manifest
 from installer.compute import resolve_compute_mode
+from installer import __main__ as installer_main
 
 
 # ─────────────────── Profile Tests ───────────────────
@@ -259,6 +260,18 @@ class TestRenderHybridSettings:
             assert "retrieval:" in content
             assert "mode: hybrid" in content
             assert "fusion_policy: balanced" in content
+
+
+class TestPostInstallGuidance:
+    def test_write_post_install_guide_creates_research_intake_instructions(self):
+        with tempfile.TemporaryDirectory(dir=".") as tmpdir:
+            guide_path = installer_main.write_post_install_guide(Path(tmpdir))
+
+            assert guide_path.exists()
+            content = guide_path.read_text(encoding="utf-8")
+            assert "Research Intake" in content
+            assert "http://127.0.0.1:8788/" in content
+            assert "Open WebUI" in content
 
 
 class TestInstallerComputeMode:
