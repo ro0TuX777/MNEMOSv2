@@ -158,3 +158,142 @@ def test_run_intake_reports_no_documents_for_empty_file(tmp_path):
 
     assert result["status"] == "no_documents"
     assert result["indexed"] == 0
+    assert result["files_without_content"] == [str(source)]
+
+
+def _write_blank_pdf(path: Path) -> None:
+    """Write an image-free, text-free PDF that mimics a scanned document."""
+    from pypdf import PdfWriter
+
+    writer = PdfWriter()
+    writer.add_blank_page(width=612, height=792)
+    with path.open("wb") as handle:
+        writer.write(handle)
+
+
+def test_scanned_pdf_routes_to_docling_ocr_fallback(tmp_path, monkeypatch):
+    pdf = tmp_path / "scanned.pdf"
+    _write_blank_pdf(pdf)
+
+    monkeypatch.setattr(
+        intake, "_extract_pdf_pages_docling", lambda path: ["OCR recovered text from scan."]
+    )
+
+    text, details = intake.extract_text_with_details(pdf)
+    assert text == "OCR recovered text from scan."
+    assert details["extraction_method"] == "docling_ocr"
+    assert details["extraction_chars_per_page"] > 0
+    assert details["page_count"] == 1
+
+
+def test_text_pdf_uses_pypdf_without_ocr(tmp_path, monkeypatch):
+    pdf = tmp_path / "digital.pdf"
+    _write_blank_pdf(pdf)
+
+    dense_text = "word " * 500
+    monkeypatch.setattr(
+        intake, "_extract_pdf_pages_pypdf", lambda path: [dense_text]
+    )
+
+    def _fail(path):
+        raise AssertionError("docling fallback must not run for text PDFs")
+
+    monkeypatch.setattr(intake, "_extract_pdf_pages_docling", _fail)
+
+    text, details = intake.extract_text_with_details(pdf)
+    assert "word" in text
+    assert details["extraction_method"] == "pypdf"
+    assert details["extraction_chars_per_page"] >= intake.PDF_OCR_MIN_CHARS_PER_PAGE
+
+
+def test_build_documents_records_extraction_method(tmp_path, monkeypatch):
+    pdf = tmp_path / "scanned.pdf"
+    _write_blank_pdf(pdf)
+    monkeypatch.setattr(
+        intake,
+        "_extract_pdf_pages_docling",
+        lambda path: [" ".join(f"ocr{i}" for i in range(30))],
+    )
+
+    docs = intake.build_documents([pdf], project="MNEMOS", capability="ocr")
+
+    assert docs
+    assert docs[0]["metadata"]["extraction_method"] == "docling_ocr"
+    assert docs[0]["metadata"]["extraction_chars_per_page"] > 0
+
+    md = tmp_path / "notes.md"
+    md.write_text("plain markdown notes", encoding="utf-8")
+    docs = intake.build_documents([md], project="MNEMOS", capability="ocr")
+    assert docs[0]["metadata"]["extraction_method"] == "plain_text"
+
+
+def test_chunk_pages_tracks_page_lineage_and_matches_chunk_text():
+    pages = [
+        " ".join(f"p1w{i}" for i in range(30)),
+        " ".join(f"p2w{i}" for i in range(30)),
+        " ".join(f"p3w{i}" for i in range(30)),
+    ]
+    chunks = intake.chunk_pages(pages, max_words=40, overlap_words=10)
+
+    assert chunks[0][1] == 1  # first chunk starts on page 1
+    assert chunks[0][2] == 2  # 40-word window crosses into page 2
+    assert chunks[-1][2] == 3  # last chunk ends on the final page
+
+    # Chunk content must be identical to page-blind chunking so that
+    # deterministic chunk IDs (and thus dedupe) are unchanged.
+    joined = "\n\n".join(pages)
+    assert [c for c, _, _ in chunks] == intake.chunk_text(joined, max_words=40, overlap_words=10)
+
+
+def test_pdf_chunks_carry_page_start_and_page_end(tmp_path, monkeypatch):
+    pdf = tmp_path / "paper.pdf"
+    _write_blank_pdf(pdf)
+    pages = [" ".join(f"p{n}w{i}" for i in range(200)) for n in (1, 2, 3)]
+    monkeypatch.setattr(intake, "_extract_pdf_pages_pypdf", lambda path: pages)
+
+    docs = intake.build_documents(
+        [pdf], project="MNEMOS", capability="lineage", max_words=250, overlap_words=0
+    )
+
+    assert docs[0]["metadata"]["page_start"] == 1
+    assert docs[0]["metadata"]["page_end"] == 2
+    assert docs[-1]["metadata"]["page_end"] == 3
+    assert docs[0]["metadata"]["page_count"] == 3
+
+    md = tmp_path / "notes.md"
+    md.write_text("no pages in markdown", encoding="utf-8")
+    md_docs = intake.build_documents([md], project="MNEMOS", capability="lineage")
+    assert "page_start" not in md_docs[0]["metadata"]
+    assert "page_end" not in md_docs[0]["metadata"]
+
+
+def test_run_intake_reports_files_without_content_alongside_indexed(tmp_path, monkeypatch):
+    good = tmp_path / "good.md"
+    good.write_text("Useful research content here.", encoding="utf-8")
+    scanned = tmp_path / "scan_failed.pdf"
+    _write_blank_pdf(scanned)
+    monkeypatch.setattr(intake, "_extract_pdf_pages_docling", lambda path: [])
+
+    class RecordingMnemos:
+        def index(self, documents, *, tiers=None):
+            return type(
+                "Resp",
+                (),
+                {
+                    "ok": True,
+                    "status": "healthy",
+                    "error": None,
+                    "data": {"result": {"indexed": len(documents)}},
+                },
+            )()
+
+    result = intake.run_intake(
+        files=[good, scanned],
+        project="MNEMOS",
+        capability="ocr",
+        mnemos_client=RecordingMnemos(),
+    )
+
+    assert result["status"] == "ok"
+    assert result["indexed"] == 1
+    assert result["files_without_content"] == [str(scanned)]

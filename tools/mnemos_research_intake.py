@@ -76,24 +76,99 @@ def _artifact_type(path: Path) -> str:
 
 def extract_text(path: Path | str) -> str:
     """Extract readable text from supported research artifact types."""
+    return extract_text_with_details(path)[0]
+
+
+def extract_text_with_details(path: Path | str) -> tuple[str, dict[str, Any]]:
+    """Extract text and return (text, extraction details) for receipt metadata."""
+    pages, details = extract_pages_with_details(path)
+    return "\n\n".join(pages).strip(), details
+
+
+def extract_pages_with_details(path: Path | str) -> tuple[list[str], dict[str, Any]]:
+    """Extract per-page text (single-element list for unpaged formats).
+
+    Page boundaries feed ``page_start``/``page_end`` chunk lineage so evidence
+    receipts can point at pages, not just files.
+    """
     p = Path(path)
     suffix = p.suffix.lower()
-    if suffix in TEXT_SUFFIXES:
-        return p.read_text(encoding="utf-8", errors="replace").strip()
     if suffix == ".pdf":
-        return _extract_pdf_text(p).strip()
+        pages, method, chars_per_page = _extract_pdf_pages(p)
+        return pages, {
+            "extraction_method": method,
+            "extraction_chars_per_page": round(chars_per_page, 1),
+            "page_count": len(pages),
+        }
     if suffix == ".docx":
-        return _extract_docx_text(p).strip()
-    return p.read_text(encoding="utf-8", errors="replace").strip()
+        return [_extract_docx_text(p).strip()], {"extraction_method": "docx_xml"}
+    text = p.read_text(encoding="utf-8", errors="replace").strip()
+    return [text], {"extraction_method": "plain_text"}
 
 
-def _extract_pdf_text(path: Path) -> str:
+# Below this pypdf text density (chars per page), a PDF is treated as scanned
+# (image-only) and routed to the Docling OCR fallback.
+PDF_OCR_MIN_CHARS_PER_PAGE = 100.0
+
+
+def _extract_pdf_pages(path: Path) -> tuple[list[str], str, float]:
+    """Extract PDF text; returns (page_texts, extraction_method, chars_per_page).
+
+    Tries pypdf first (fast, no OCR). If the extracted text density is below
+    ``PDF_OCR_MIN_CHARS_PER_PAGE`` the PDF is treated as scanned and re-parsed
+    with Docling OCR (optional dependency).
+    """
+    pages = _extract_pdf_pages_pypdf(path)
+    page_count = max(len(pages), 1)
+    chars_per_page = sum(len(page.strip()) for page in pages) / page_count
+    if chars_per_page >= PDF_OCR_MIN_CHARS_PER_PAGE:
+        return pages, "pypdf", chars_per_page
+    ocr_pages = _extract_pdf_pages_docling(path)
+    ocr_chars = sum(len(page.strip()) for page in ocr_pages)
+    return ocr_pages, "docling_ocr", ocr_chars / max(len(ocr_pages), page_count, 1)
+
+
+def _extract_pdf_pages_pypdf(path: Path) -> list[str]:
     try:
         import pypdf
     except Exception as exc:  # pragma: no cover - environment-dependent
         raise RuntimeError("PDF extraction requires pypdf to be installed") from exc
     reader = pypdf.PdfReader(str(path))
-    return "\n\n".join((page.extract_text() or "") for page in reader.pages)
+    return [(page.extract_text() or "") for page in reader.pages]
+
+
+def _extract_pdf_pages_docling(path: Path) -> list[str]:
+    try:
+        from docling.datamodel.base_models import InputFormat
+        from docling.datamodel.pipeline_options import PdfPipelineOptions
+        from docling.document_converter import DocumentConverter, PdfFormatOption
+    except Exception as exc:  # pragma: no cover - environment-dependent
+        raise RuntimeError(
+            f"{path.name} appears to be a scanned PDF (no extractable text layer). "
+            "OCR fallback requires the optional 'docling' package: pip install docling"
+        ) from exc
+    pipeline_options = PdfPipelineOptions()
+    pipeline_options.do_ocr = True
+    pipeline_options.do_table_structure = True
+    converter = DocumentConverter(
+        format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options)}
+    )
+    document = converter.convert(str(path)).document
+    page_texts: dict[int, list[str]] = {}
+    for item, _level in document.iterate_items():
+        prov = getattr(item, "prov", None)
+        page_no = prov[0].page_no if prov else 1
+        text = getattr(item, "text", None)
+        if text is None and type(item).__name__ == "TableItem":
+            try:
+                text = item.export_to_markdown(document)
+            except TypeError:  # older docling-core takes no doc argument
+                text = item.export_to_markdown()
+        if text:
+            page_texts.setdefault(page_no, []).append(text)
+    if not page_texts:
+        return []
+    return ["\n".join(page_texts.get(n, [])) for n in range(1, max(page_texts) + 1)]
 
 
 def _extract_docx_text(path: Path) -> str:
@@ -106,19 +181,41 @@ def _extract_docx_text(path: Path) -> str:
 
 
 def chunk_text(text: str, *, max_words: int = 350, overlap_words: int = 50) -> list[str]:
-    words = re.sub(r"\s+", " ", text).strip().split(" ")
-    words = [word for word in words if word]
+    return [
+        chunk
+        for chunk, _start, _end in chunk_pages(
+            [text], max_words=max_words, overlap_words=overlap_words
+        )
+    ]
+
+
+def chunk_pages(
+    pages: list[str], *, max_words: int = 350, overlap_words: int = 50
+) -> list[tuple[str, int, int]]:
+    """Chunk page texts into (chunk, page_start, page_end) with 1-based pages.
+
+    Chunk content is identical to ``chunk_text`` over the joined pages, so
+    deterministic chunk IDs are unaffected by page tracking.
+    """
+    words: list[str] = []
+    word_pages: list[int] = []
+    for page_no, page_text in enumerate(pages, start=1):
+        for word in re.sub(r"\s+", " ", page_text).strip().split(" "):
+            if word:
+                words.append(word)
+                word_pages.append(page_no)
     if not words:
         return []
     if max_words <= 0:
         raise ValueError("max_words must be > 0")
     if overlap_words < 0 or overlap_words >= max_words:
         raise ValueError("overlap_words must be >= 0 and < max_words")
-    chunks: list[str] = []
+    chunks: list[tuple[str, int, int]] = []
     step = max_words - overlap_words
     index = 0
     while index < len(words):
-        chunks.append(" ".join(words[index:index + max_words]))
+        end = min(index + max_words, len(words))
+        chunks.append((" ".join(words[index:end]), word_pages[index], word_pages[end - 1]))
         if index + max_words >= len(words):
             break
         index += step
@@ -139,32 +236,37 @@ def build_documents(
     clean_tags = [tag for tag in (tags or []) if tag]
     for raw_path in files:
         path = Path(raw_path)
-        text = extract_text(path)
-        chunks = chunk_text(text, max_words=max_words, overlap_words=overlap_words)
+        pages, extraction_details = extract_pages_with_details(path)
+        chunks = chunk_pages(pages, max_words=max_words, overlap_words=overlap_words)
         source_uri = path.resolve().as_uri()
         artifact_type = _artifact_type(path)
         file_hash = hashlib.sha256(path.read_bytes()).hexdigest()
-        for chunk_index, chunk in enumerate(chunks):
+        for chunk_index, (chunk, page_start, page_end) in enumerate(chunks):
             chunk_hash = _sha256_text(f"{source_uri}\n{chunk_index}\n{chunk}")[:20]
+            metadata = {
+                "source_path": str(path),
+                "source_uri": source_uri,
+                "filename": path.name,
+                "artifact_type": artifact_type,
+                "project": project,
+                "capability": capability,
+                "status": status,
+                "tags": clean_tags,
+                "chunk_index": chunk_index,
+                "chunk_count": len(chunks),
+                "file_sha256": file_hash,
+                "claim_boundary": CLAIM_BOUNDARY,
+                **extraction_details,
+            }
+            if artifact_type == "pdf":
+                metadata["page_start"] = page_start
+                metadata["page_end"] = page_end
             documents.append(
                 {
                     "id": f"research::{chunk_hash}",
                     "content": chunk,
                     "source": source_uri,
-                    "metadata": {
-                        "source_path": str(path),
-                        "source_uri": source_uri,
-                        "filename": path.name,
-                        "artifact_type": artifact_type,
-                        "project": project,
-                        "capability": capability,
-                        "status": status,
-                        "tags": clean_tags,
-                        "chunk_index": chunk_index,
-                        "chunk_count": len(chunks),
-                        "file_sha256": file_hash,
-                        "claim_boundary": CLAIM_BOUNDARY,
-                    },
+                    "metadata": metadata,
                 }
             )
     return documents
@@ -303,12 +405,17 @@ def run_intake(
         max_words=max_words,
         overlap_words=overlap_words,
     )
+    indexed_paths = {doc["metadata"]["source_path"] for doc in documents}
+    files_without_content = [
+        str(Path(path)) for path in files if str(Path(path)) not in indexed_paths
+    ]
     if not documents:
         return {
             "status": "no_documents",
             "indexed": 0,
             "claim_boundary": CLAIM_BOUNDARY,
             "files": [str(Path(path)) for path in files],
+            "files_without_content": files_without_content,
         }
 
     mnemos = mnemos_client or MnemosClient(MnemosConfig.from_env())
@@ -354,6 +461,7 @@ def run_intake(
         "summary": summary,
         "claim_boundary": CLAIM_BOUNDARY,
         "files": [str(Path(path)) for path in files],
+        "files_without_content": files_without_content,
     }
 
 
@@ -394,6 +502,8 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print(f"Status: {result['status']}")
         print(f"Indexed chunks: {result['indexed']}")
+        for skipped in result.get("files_without_content", []):
+            print(f"WARNING: no text content extracted, not indexed: {skipped}")
         print(result["claim_boundary"])
         if result.get("summary"):
             print("\nSummary:\n")
