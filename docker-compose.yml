@@ -76,7 +76,7 @@ services:
       - ./logs:/app/logs
     environment:
       - MNEMOS_BASE_URL=http://mnemos:8700
-      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_BASE_URL=http://host.docker.internal:7777
       - MNEMOS_EVIDENCE_RECEIPT_DIR=/app/logs/evidence_receipts
     depends_on:
       mnemos:
@@ -99,7 +99,7 @@ services:
       - ./logs:/app/logs
     environment:
       - MNEMOS_BASE_URL=http://mnemos:8700
-      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_BASE_URL=http://host.docker.internal:7777
       - MNEMOS_EVIDENCE_RECEIPT_DIR=/app/logs/evidence_receipts
     depends_on:
       mnemos:
