@@ -27,7 +27,7 @@ if str(ROOT) not in sys.path:
 from tools.mnemos_ollama_chat import DEFAULT_OLLAMA_BASE_URL, normalize_base_url
 from tools.mnemos_research_intake import run_intake
 
-DEFAULT_MNEMOS_BASE_URL = "http://127.0.0.1:8700"
+DEFAULT_MNEMOS_BASE_URL = os.getenv("MNEMOS_BASE_URL", "http://127.0.0.1:8700")
 DEFAULT_RECEIPT_DIR = ROOT / "logs" / "evidence_receipts"
 
 
@@ -299,7 +299,9 @@ def create_app(
 
     @app.get("/")
     def index():
-        return INDEX_HTML.replace("__DEFAULT_OLLAMA_BASE_URL__", default_ollama_base_url())
+        return INDEX_HTML.replace("__DEFAULT_OLLAMA_BASE_URL__", default_ollama_base_url()).replace(
+            "__DEFAULT_MNEMOS_BASE_URL__", DEFAULT_MNEMOS_BASE_URL
+        )
 
     @app.get("/evidence")
     def evidence_list():
@@ -425,7 +427,7 @@ INDEX_HTML = """<!doctype html>
       <legend>Connections</legend>
       <div class="grid">
         <label>MNEMOS base URL
-          <input name="mnemos_base_url" id="mnemosBaseUrl" value="http://127.0.0.1:8700">
+          <input name="mnemos_base_url" id="mnemosBaseUrl" value="__DEFAULT_MNEMOS_BASE_URL__">
         </label>
         <label>MNEMOS timeout seconds
           <input name="mnemos_timeout_s" id="mnemosTimeoutS" type="number" min="1" value="180">

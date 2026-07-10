@@ -25,3 +25,4 @@ scipy>=1.11
 
 # Utilities
 python-dotenv>=1.0
+pypdf>=5.0
