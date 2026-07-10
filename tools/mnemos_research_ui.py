@@ -184,11 +184,11 @@ def _render_page(title: str, body: str) -> str:
     h2 {{ margin-top:28px; }}
     p {{ color:var(--muted); line-height:1.45; }}
     table {{ width:100%; border-collapse:collapse; margin-top:14px; }}
-    th, td {{ border:1px solid var(--line); padding:8px; text-align:left; vertical-align:top; }}
+    th, td {{ border:1px solid var(--line); padding:8px; text-align:left; vertical-align:top; overflow-wrap:anywhere; }}
     th {{ background:var(--fill); }}
-    pre {{ white-space:pre-wrap; overflow:auto; background:var(--fill); border:1px solid var(--line); border-radius:6px; padding:12px; }}
+    pre {{ white-space:pre-wrap; overflow-wrap:anywhere; overflow:auto; background:var(--fill); border:1px solid var(--line); border-radius:6px; padding:12px; }}
     .graph {{ display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:10px; align-items:stretch; }}
-    .node {{ border:1px solid var(--line); background:var(--fill); border-radius:8px; padding:12px; min-height:96px; }}
+    .node {{ border:1px solid var(--line); background:var(--fill); border-radius:8px; padding:12px; min-height:96px; overflow-wrap:anywhere; }}
     .arrow {{ display:none; }}
     .muted {{ color:var(--muted); }}
     @media (max-width: 860px) {{ .graph {{ grid-template-columns: 1fr; }} }}

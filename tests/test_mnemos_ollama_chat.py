@@ -179,6 +179,210 @@ def test_run_query_uses_search_raw_metadata_when_available():
     }
 
 
+class _ScriptedOllama:
+    """Returns queued chat responses; records every payload it receives."""
+
+    def __init__(self, responses):
+        self.payloads = []
+        self._responses = list(responses)
+
+    def chat(self, payload):
+        self.payloads.append(payload)
+        return self._responses.pop(0)
+
+
+class _StreamingOllama:
+    def __init__(self, chunks):
+        self.payload = None
+        self._chunks = list(chunks)
+
+    def chat_stream(self, payload):
+        self.payload = payload
+        yield from self._chunks
+
+
+def test_build_chat_payload_forwards_history_between_system_and_query():
+    payload = adapter.build_ollama_chat_payload(
+        model="llama3.1",
+        query="What about its abstention gap?",
+        evidence_block="[1] source=docs/example.md score=0.9\nEvidence text",
+        history=[
+            {"role": "user", "content": "What is R1?"},
+            {"role": "assistant", "content": "R1 was closed. [1]"},
+            {"role": "tool", "content": "should be dropped"},
+        ],
+    )
+
+    roles = [message["role"] for message in payload["messages"]]
+    assert roles == ["system", "user", "assistant", "user"]
+    assert payload["messages"][1]["content"] == "What is R1?"
+    assert payload["messages"][2]["content"] == "R1 was closed. [1]"
+    assert "resolve references" in payload["messages"][0]["content"]
+    assert "What about its abstention gap?" in payload["messages"][-1]["content"]
+
+
+def test_build_chat_payload_stream_flag_controls_ollama_streaming():
+    payload = adapter.build_ollama_chat_payload(
+        model="llama3.1",
+        query="q",
+        evidence_block="e",
+        stream=True,
+    )
+    assert payload["stream"] is True
+
+
+def test_condense_query_with_history_rewrites_and_records_metadata():
+    ollama = _ScriptedOllama(
+        [{"message": {"content": "What is the R1 abstention gap?"}}]
+    )
+    query, metadata = adapter.condense_query_with_history(
+        query="What about its abstention gap?",
+        history=[
+            {"role": "user", "content": "What is R1?"},
+            {"role": "assistant", "content": "R1 was closed."},
+        ],
+        model="llama3.1",
+        ollama_client=ollama,
+    )
+
+    assert query == "What is the R1 abstention gap?"
+    assert metadata["query_condensed"] is True
+    assert metadata["original_query"] == "What about its abstention gap?"
+    assert metadata["retrieval_query"] == "What is the R1 abstention gap?"
+    assert "Standalone rewrite:" in ollama.payloads[0]["messages"][1]["content"]
+
+
+def test_condense_query_with_history_falls_back_on_failure():
+    class ExplodingOllama:
+        def chat(self, payload):
+            raise RuntimeError("ollama unavailable")
+
+    query, metadata = adapter.condense_query_with_history(
+        query="What about it?",
+        history=[{"role": "user", "content": "Tell me about R1"}],
+        model="llama3.1",
+        ollama_client=ExplodingOllama(),
+    )
+
+    assert query == "What about it?"
+    assert metadata["query_condensed"] is False
+    assert "ollama unavailable" in metadata["condense_error"]
+
+
+def test_run_query_condenses_follow_up_before_retrieval():
+    searches = []
+
+    class RecordingMnemos:
+        def search(self, query, *, top_k, retrieval_mode, fusion_policy):
+            searches.append(query)
+            return [_hit("R1 abstention details.", rank=1)]
+
+    ollama = _ScriptedOllama(
+        [
+            {"message": {"content": "What is the R1 abstention gap?"}},
+            {"message": {"content": "The gap is documented. [1]"}},
+        ]
+    )
+    result = adapter.run_query(
+        query="What about its abstention gap?",
+        model="llama3.1",
+        history=[
+            {"role": "user", "content": "What is R1?"},
+            {"role": "assistant", "content": "R1 was closed."},
+        ],
+        mnemos_client=RecordingMnemos(),
+        ollama_client=ollama,
+    )
+
+    assert searches == ["What is the R1 abstention gap?"]
+    assert result["status"] == "ok"
+    assert result["retrieval_metadata"]["query_condensed"] is True
+    assert result["retrieval_metadata"]["history_turns"] == 2
+    # The generation prompt keeps the user's original wording and the history.
+    final_messages = ollama.payloads[1]["messages"]
+    assert final_messages[1]["content"] == "What is R1?"
+    assert "What about its abstention gap?" in final_messages[-1]["content"]
+
+
+def test_run_query_stream_yields_retrieval_deltas_and_done():
+    class OneHitClient:
+        def search(self, query, *, top_k, retrieval_mode, fusion_policy):
+            return [_hit("Workflow evidence.", rank=1)]
+
+    ollama = _StreamingOllama(
+        [
+            {"message": {"content": "Hello "}, "done": False},
+            {"message": {"content": "world. [1]"}, "done": False},
+            {"message": {"content": ""}, "done": True, "done_reason": "stop"},
+        ]
+    )
+    events = list(
+        adapter.run_query_stream(
+            query="workflow",
+            model="llama3.1",
+            mnemos_client=OneHitClient(),
+            ollama_client=ollama,
+        )
+    )
+
+    assert [event["event"] for event in events] == ["retrieval", "delta", "delta", "done"]
+    assert events[0]["result"]["citations"][0]["source"] == "docs/example.md"
+    assert events[1]["content"] == "Hello "
+    done = events[-1]["result"]
+    assert done["status"] == "ok"
+    assert done["answer"] == "Hello world. [1]"
+    assert done["ollama_response"]["done_reason"] == "stop"
+    assert ollama.payload["stream"] is True
+
+
+def test_run_query_stream_terminal_no_evidence_yields_single_done():
+    class EmptyClient:
+        def search(self, *args, **kwargs):
+            return []
+
+    class NeverOllama:
+        def chat_stream(self, payload):
+            raise AssertionError("Ollama must not be called without evidence")
+
+    events = list(
+        adapter.run_query_stream(
+            query="missing",
+            model="llama3.1",
+            mnemos_client=EmptyClient(),
+            ollama_client=NeverOllama(),
+        )
+    )
+
+    assert [event["event"] for event in events] == ["done"]
+    assert events[0]["result"]["status"] == "no_evidence"
+
+
+def test_run_query_stream_reports_ollama_error_with_partial_answer():
+    class OneHitClient:
+        def search(self, query, *, top_k, retrieval_mode, fusion_policy):
+            return [_hit("Workflow evidence.", rank=1)]
+
+    class ExplodingOllama:
+        def chat_stream(self, payload):
+            yield {"message": {"content": "partial"}, "done": False}
+            raise RuntimeError("boom")
+
+    events = list(
+        adapter.run_query_stream(
+            query="workflow",
+            model="llama3.1",
+            mnemos_client=OneHitClient(),
+            ollama_client=ExplodingOllama(),
+        )
+    )
+
+    assert [event["event"] for event in events] == ["retrieval", "delta", "done"]
+    done = events[-1]["result"]
+    assert done["status"] == "ollama_error"
+    assert done["answer"] == "partial"
+    assert "boom" in done["warning"]
+
+
 def test_run_query_reports_mnemos_error_when_search_raw_not_ok():
     class FailingClient:
         def search_raw(self, query, *, top_k, retrieval_mode, fusion_policy):

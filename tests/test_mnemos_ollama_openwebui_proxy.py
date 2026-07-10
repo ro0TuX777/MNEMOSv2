@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import json
+
 from tools.mnemos_ollama_openwebui_proxy import (
     append_evidence_footer,
     create_app,
     extract_latest_user_text,
     normalize_openwebui_model_id,
     should_append_footer,
+    split_query_and_history,
+    strip_evidence_footer,
 )
 
 
@@ -445,6 +449,281 @@ def test_api_chat_streams_ollama_compatible_json_lines():
     assert "Ollama stream answer. [1]" in text
     assert "MNEMOS Evidence Used" in text
     assert '"done": true' in text
+
+
+def test_strip_evidence_footer_removes_footer_and_keeps_answer():
+    footered = append_evidence_footer(
+        "R1 was closed. [1]",
+        {
+            "status": "ok",
+            "citations": [{"index": 1, "source": "paper.pdf", "score": 0.9, "engram_id": "e-1"}],
+            "claim_boundary": "boundary",
+        },
+        receipt_url="http://127.0.0.1:8790/evidence/chatcmpl-1",
+    )
+
+    assert strip_evidence_footer(footered) == "R1 was closed. [1]"
+
+
+def test_strip_evidence_footer_handles_footer_only_and_plain_text():
+    footer_only = append_evidence_footer(
+        "",
+        {"status": "no_evidence", "citations": [], "claim_boundary": "boundary"},
+        receipt_url=None,
+    )
+    assert strip_evidence_footer(footer_only) == ""
+    # A withheld answer whose body is the warning keeps that body.
+    withheld = append_evidence_footer(
+        "",
+        {"status": "no_evidence", "citations": [], "claim_boundary": "boundary", "warning": "w"},
+        receipt_url=None,
+    )
+    assert strip_evidence_footer(withheld) == "w"
+    assert strip_evidence_footer("plain answer") == "plain answer"
+
+
+def test_split_query_and_history_strips_footers_and_returns_prior_turns(monkeypatch):
+    monkeypatch.delenv("MNEMOS_PROXY_HISTORY", raising=False)
+    monkeypatch.delenv("MNEMOS_PROXY_HISTORY_MAX_TURNS", raising=False)
+    assistant_turn = append_evidence_footer(
+        "R1 was closed. [1]",
+        {"status": "ok", "citations": [], "claim_boundary": "boundary"},
+        receipt_url=None,
+    )
+
+    query, history = split_query_and_history(
+        [
+            {"role": "system", "content": "ignore me"},
+            {"role": "user", "content": "What is R1?"},
+            {"role": "assistant", "content": assistant_turn},
+            {"role": "user", "content": "What about its abstention gap?"},
+        ]
+    )
+
+    assert query == "What about its abstention gap?"
+    assert history == [
+        {"role": "user", "content": "What is R1?"},
+        {"role": "assistant", "content": "R1 was closed. [1]"},
+    ]
+
+
+def test_split_query_and_history_respects_env_gates(monkeypatch):
+    messages = [
+        {"role": "user", "content": "one"},
+        {"role": "assistant", "content": "two"},
+        {"role": "user", "content": "three"},
+        {"role": "assistant", "content": "four"},
+        {"role": "user", "content": "latest"},
+    ]
+
+    monkeypatch.setenv("MNEMOS_PROXY_HISTORY_MAX_TURNS", "2")
+    query, history = split_query_and_history(messages)
+    assert query == "latest"
+    assert [m["content"] for m in history] == ["three", "four"]
+
+    monkeypatch.setenv("MNEMOS_PROXY_HISTORY", "off")
+    query, history = split_query_and_history(messages)
+    assert query == "latest"
+    assert history == []
+
+
+def test_v1_chat_completions_forwards_history_and_condense_flag(monkeypatch):
+    monkeypatch.delenv("MNEMOS_PROXY_HISTORY", raising=False)
+    monkeypatch.delenv("MNEMOS_PROXY_QUERY_CONDENSE", raising=False)
+    calls = {}
+
+    def fake_runner(**kwargs):
+        calls.update(kwargs)
+        return {
+            "status": "ok",
+            "answer": "Follow-up answered. [1]",
+            "model": kwargs["model"],
+            "citations": [{"index": 1, "source": "workflow.pdf", "score": 0.9}],
+            "claim_boundary": "boundary",
+        }
+
+    app = create_app(query_runner=fake_runner)
+    client = app.test_client()
+
+    assistant_turn = append_evidence_footer(
+        "R1 was closed. [1]",
+        {"status": "ok", "citations": [], "claim_boundary": "boundary"},
+        receipt_url=None,
+    )
+    response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "qwen3-coder-next:latest",
+            "messages": [
+                {"role": "user", "content": "What is R1?"},
+                {"role": "assistant", "content": assistant_turn},
+                {"role": "user", "content": "What about its abstention gap?"},
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    assert calls["query"] == "What about its abstention gap?"
+    assert calls["history"] == [
+        {"role": "user", "content": "What is R1?"},
+        {"role": "assistant", "content": "R1 was closed. [1]"},
+    ]
+    assert calls["condense_queries"] is True
+
+
+def _stream_events(retrieval_result, deltas, done_result):
+    def stream_runner(**kwargs):
+        yield {"event": "retrieval", "result": retrieval_result}
+        for delta in deltas:
+            yield {"event": "delta", "content": delta}
+        yield {"event": "done", "result": done_result}
+
+    return stream_runner
+
+
+def test_v1_chat_completions_live_streams_deltas_then_footer_and_receipt(tmp_path):
+    retrieval = {
+        "status": "ok",
+        "citations": [{"index": 1, "source": "workflow.pdf", "score": 0.9}],
+        "evidence_block": "[1] source=workflow.pdf score=0.9000\nEvidence text",
+        "claim_boundary": "boundary",
+    }
+    done = dict(retrieval)
+    done["answer"] = "First second. [1]"
+    runner = _stream_events(retrieval, ["First ", "second. [1]"], done)
+
+    app = create_app(stream_query_runner=runner, receipt_dir=tmp_path)
+    client = app.test_client()
+
+    response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "qwen3-coder-next:latest",
+            "stream": True,
+            "messages": [{"role": "user", "content": "Find workflow evidence"}],
+        },
+    )
+
+    text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert response.mimetype == "text/event-stream"
+    # Each delta arrives as its own SSE chunk, in order, before the footer.
+    assert text.index('"content": "First "') < text.index('"content": "second. [1]"')
+    assert text.index('"content": "second. [1]"') < text.index("MNEMOS Evidence Used")
+    assert "MNEMOS Evidence Receipt:" in text
+    assert '"finish_reason": "stop"' in text
+    assert text.rstrip().endswith("data: [DONE]")
+
+    receipt_files = list(tmp_path.glob("*.json"))
+    assert len(receipt_files) == 1
+    receipt = json.loads(receipt_files[0].read_text(encoding="utf-8"))
+    assert receipt["answer"] == "First second. [1]"
+    assert receipt["status"] == "ok"
+
+
+def test_v1_chat_completions_streams_terminal_no_evidence_fallback(tmp_path):
+    def runner(**kwargs):
+        yield {
+            "event": "done",
+            "result": {
+                "status": "no_evidence",
+                "answer": "",
+                "citations": [],
+                "evidence_block": "",
+                "warning": "MNEMOS returned no evidence; Ollama was not called.",
+                "claim_boundary": "boundary",
+            },
+        }
+
+    app = create_app(stream_query_runner=runner, receipt_dir=tmp_path)
+    client = app.test_client()
+
+    response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "qwen3-coder-next:latest",
+            "stream": True,
+            "messages": [{"role": "user", "content": "Unknown thing"}],
+        },
+    )
+
+    text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert "No MNEMOS evidence retrieved" in text
+    assert "data: [DONE]" in text
+    assert len(list(tmp_path.glob("*.json"))) == 1
+
+
+def test_v1_chat_completions_stream_reports_mid_generation_failure(tmp_path):
+    retrieval = {
+        "status": "ok",
+        "citations": [{"index": 1, "source": "workflow.pdf", "score": 0.9}],
+        "evidence_block": "[1] source=workflow.pdf score=0.9000\nEvidence text",
+        "claim_boundary": "boundary",
+    }
+    done = dict(retrieval)
+    done.update(
+        {
+            "status": "ollama_error",
+            "answer": "partial",
+            "warning": "Ollama streaming failed after retrieval: boom",
+        }
+    )
+    runner = _stream_events(retrieval, ["partial"], done)
+
+    app = create_app(stream_query_runner=runner, receipt_dir=tmp_path)
+    client = app.test_client()
+
+    response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "qwen3-coder-next:latest",
+            "stream": True,
+            "messages": [{"role": "user", "content": "Find workflow evidence"}],
+        },
+    )
+
+    text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert "[MNEMOS proxy] Ollama streaming failed after retrieval: boom" in text
+    receipt = json.loads(next(tmp_path.glob("*.json")).read_text(encoding="utf-8"))
+    assert receipt["status"] == "ollama_error"
+    assert receipt["answer"] == "partial"
+
+
+def test_api_chat_live_streams_ndjson_deltas_then_footer(tmp_path):
+    retrieval = {
+        "status": "ok",
+        "citations": [{"index": 1, "source": "workflow.pdf", "score": 0.9}],
+        "evidence_block": "[1] source=workflow.pdf score=0.9000\nEvidence text",
+        "claim_boundary": "boundary",
+    }
+    done = dict(retrieval)
+    done["answer"] = "Alpha beta. [1]"
+    runner = _stream_events(retrieval, ["Alpha ", "beta. [1]"], done)
+
+    app = create_app(stream_query_runner=runner, receipt_dir=tmp_path)
+    client = app.test_client()
+
+    response = client.post(
+        "/api/chat",
+        json={
+            "model": "qwen3-coder-next:latest",
+            "stream": True,
+            "messages": [{"role": "user", "content": "Find workflow evidence"}],
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.mimetype == "application/x-ndjson"
+    lines = [json.loads(line) for line in response.get_data(as_text=True).splitlines() if line]
+    contents = [line["message"]["content"] for line in lines]
+    assert contents[0] == "Alpha "
+    assert contents[1] == "beta. [1]"
+    assert "MNEMOS Evidence Used" in contents[2]
+    assert lines[-1]["done"] is True
+    assert all(line["done"] is False for line in lines[:-1])
+    assert len(list(tmp_path.glob("*.json"))) == 1
 
 
 def test_v1_api_chat_alias_accepts_openwebui_ollama_shape():

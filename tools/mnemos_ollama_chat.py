@@ -13,7 +13,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Iterator, Protocol
 
 import requests
 
@@ -103,6 +103,22 @@ class OllamaChatClient:
             raise ValueError("Ollama response must be a JSON object")
         return data
 
+    def chat_stream(self, payload: dict[str, Any]) -> Iterator[dict[str, Any]]:
+        """Yield Ollama's NDJSON chat chunks as they arrive."""
+        with requests.post(
+            f"{self.base_url}/api/chat",
+            json=payload,
+            timeout=max(0.1, self.timeout_s),
+            stream=True,
+        ) as response:
+            response.raise_for_status()
+            for line in response.iter_lines(decode_unicode=True):
+                if not line:
+                    continue
+                chunk = json.loads(line)
+                if isinstance(chunk, dict):
+                    yield chunk
+
 
 def normalize_base_url(value: str) -> str:
     text = (value or "").strip() or DEFAULT_OLLAMA_BASE_URL
@@ -162,6 +178,8 @@ def build_ollama_chat_payload(
     evidence_block: str,
     temperature: float = 0.0,
     num_predict: int = 700,
+    history: list[dict[str, Any]] | None = None,
+    stream: bool = False,
 ) -> dict[str, Any]:
     system = (
         "You are answering through an MFS-governed MNEMOS memory adapter. "
@@ -171,11 +189,63 @@ def build_ollama_chat_payload(
         "If the evidence is insufficient, say what is missing. "
         "Do not claim unsupported facts."
     )
+    if history:
+        system += (
+            " Earlier conversation turns are provided only to resolve references; "
+            "factual claims must still come from the supplied MNEMOS_EVIDENCE."
+        )
     user = (
         "MNEMOS_EVIDENCE:\n"
         f"{evidence_block}\n\n"
         "USER_QUERY:\n"
         f"{query}"
+    )
+    messages: list[dict[str, Any]] = [{"role": "system", "content": system}]
+    for message in history or []:
+        role = str(message.get("role") or "").strip()
+        content = str(message.get("content") or "").strip()
+        if role in {"user", "assistant"} and content:
+            messages.append({"role": role, "content": content})
+    messages.append({"role": "user", "content": user})
+    return {
+        "model": model,
+        "messages": messages,
+        "stream": bool(stream),
+        "options": {
+            "temperature": temperature,
+            "num_predict": num_predict,
+        },
+    }
+
+
+CONDENSE_MAX_HISTORY_CHARS = 700
+CONDENSE_MAX_QUERY_CHARS = 400
+
+
+def build_condense_payload(
+    *,
+    model: str,
+    query: str,
+    history: list[dict[str, Any]],
+) -> dict[str, Any]:
+    transcript_lines: list[str] = []
+    for message in history:
+        role = str(message.get("role") or "user").upper()
+        content = _truncate(str(message.get("content") or ""), CONDENSE_MAX_HISTORY_CHARS)
+        if content:
+            transcript_lines.append(f"{role}: {content}")
+    system = (
+        "You rewrite the latest user message as one self-contained search query. "
+        "Use the conversation only to resolve pronouns and references. "
+        "Output only the rewritten query with no commentary."
+    )
+    transcript = "\n".join(transcript_lines)
+    user = (
+        "CONVERSATION:\n"
+        f"{transcript}\n\n"
+        "LATEST_USER_MESSAGE:\n"
+        f"{query}\n\n"
+        "Standalone rewrite:"
     )
     return {
         "model": model,
@@ -184,11 +254,53 @@ def build_ollama_chat_payload(
             {"role": "user", "content": user},
         ],
         "stream": False,
-        "options": {
-            "temperature": temperature,
-            "num_predict": num_predict,
-        },
+        "options": {"temperature": 0.0, "num_predict": 160},
     }
+
+
+def condense_query_with_history(
+    *,
+    query: str,
+    history: list[dict[str, Any]],
+    model: str,
+    ollama_client: OllamaChatClient,
+) -> tuple[str, dict[str, Any]]:
+    """Rewrite a follow-up question into a standalone retrieval query.
+
+    Any failure falls back to the original query so retrieval never blocks on
+    the condensation call; the metadata records what actually happened.
+    """
+    metadata: dict[str, Any] = {"query_condensed": False, "retrieval_query": query}
+    if not history:
+        return query, metadata
+    try:
+        response = ollama_client.chat(
+            build_condense_payload(model=model, query=query, history=history)
+        )
+    except Exception as exc:  # noqa: BLE001 - condensation must never block retrieval
+        metadata["condense_error"] = str(exc)
+        return query, metadata
+    message = response.get("message") if isinstance(response, dict) else None
+    text = message.get("content") if isinstance(message, dict) else None
+    if not isinstance(text, str):
+        metadata["condense_error"] = "condense response had no message content"
+        return query, metadata
+    # Some local templates leak reasoning tags into content; keep the tail only.
+    if "</think>" in text:
+        text = text.rsplit("</think>", 1)[1]
+    clean = " ".join(text.split()).strip().strip('"').strip()
+    if not clean or len(clean) > CONDENSE_MAX_QUERY_CHARS:
+        metadata["condense_error"] = "condense output empty or too long"
+        return query, metadata
+    if clean != query:
+        metadata.update(
+            {
+                "query_condensed": True,
+                "original_query": query,
+                "retrieval_query": clean,
+            }
+        )
+    return clean, metadata
 
 
 def _answer_from_ollama_response(response: dict[str, Any]) -> str:
@@ -198,6 +310,100 @@ def _answer_from_ollama_response(response: dict[str, Any]) -> str:
     if isinstance(response.get("response"), str):
         return response["response"].strip()
     return json.dumps(response, ensure_ascii=False, sort_keys=True)
+
+
+def _terminal_result(
+    status: str,
+    *,
+    query: str,
+    retrieval_metadata: dict[str, Any],
+    warning: str,
+) -> dict[str, Any]:
+    return {
+        "status": status,
+        "answer": "",
+        "query": query,
+        "citations": [],
+        "evidence_block": "",
+        "retrieval_metadata": retrieval_metadata,
+        "claim_boundary": CLAIM_BOUNDARY,
+        "warning": warning,
+    }
+
+
+def _prepare_evidence(
+    *,
+    query: str,
+    model: str,
+    top_k: int,
+    retrieval_mode: str,
+    fusion_policy: str,
+    max_chars_per_hit: int,
+    history: list[dict[str, Any]] | None,
+    condense_queries: bool,
+    mnemos: MnemosSearchClient,
+    ollama: OllamaChatClient,
+) -> tuple[dict[str, Any] | None, str, list[dict[str, Any]], dict[str, Any]]:
+    """Condense the query if needed, retrieve MNEMOS evidence, format it.
+
+    Returns ``(terminal_result, evidence_block, citations, retrieval_metadata)``
+    where ``terminal_result`` is non-None when Ollama must not be called.
+    """
+    retrieval_metadata: dict[str, Any] = {
+        "requested_retrieval_mode": retrieval_mode,
+        "requested_fusion_policy": fusion_policy,
+    }
+    retrieval_query = query
+    if history:
+        retrieval_metadata["history_turns"] = len(history)
+        if condense_queries:
+            retrieval_query, condense_metadata = condense_query_with_history(
+                query=query,
+                history=history,
+                model=model,
+                ollama_client=ollama,
+            )
+            retrieval_metadata.update(condense_metadata)
+    if hasattr(mnemos, "search_raw"):
+        raw_response = mnemos.search_raw(
+            retrieval_query,
+            top_k=top_k,
+            retrieval_mode=retrieval_mode,
+            fusion_policy=fusion_policy,
+        )
+        retrieval_metadata.update(_retrieval_metadata_from_raw_response(raw_response))
+        if not raw_response.ok:
+            terminal = _terminal_result(
+                "mnemos_error",
+                query=query,
+                retrieval_metadata=retrieval_metadata,
+                warning=(
+                    f"MNEMOS search failed (status={raw_response.status}, "
+                    f"error={raw_response.error}); Ollama was not called."
+                ),
+            )
+            return terminal, "", [], retrieval_metadata
+        hits = _hits_from_raw_response(raw_response)
+    else:
+        hits = mnemos.search(
+            retrieval_query,
+            top_k=top_k,
+            retrieval_mode=retrieval_mode,
+            fusion_policy=fusion_policy,
+        )
+    evidence_block, citations = format_evidence_block(
+        hits,
+        max_chars_per_hit=max_chars_per_hit,
+    )
+    if not hits:
+        terminal = _terminal_result(
+            "no_evidence",
+            query=query,
+            retrieval_metadata=retrieval_metadata,
+            warning="MNEMOS returned no evidence; Ollama was not called.",
+        )
+        return terminal, "", [], retrieval_metadata
+    return None, evidence_block, citations, retrieval_metadata
 
 
 def run_query(
@@ -210,61 +416,28 @@ def run_query(
     max_chars_per_hit: int = 1200,
     temperature: float = 0.0,
     num_predict: int = 700,
+    history: list[dict[str, Any]] | None = None,
+    condense_queries: bool = True,
     mnemos_client: MnemosSearchClient | None = None,
     ollama_client: OllamaChatClient | None = None,
 ) -> dict[str, Any]:
     mnemos = mnemos_client or MnemosClient(MnemosConfig.from_env())
     ollama = ollama_client or OllamaChatClient(os.getenv("OLLAMA_BASE_URL", DEFAULT_OLLAMA_BASE_URL))
 
-    retrieval_metadata: dict[str, Any] = {
-        "requested_retrieval_mode": retrieval_mode,
-        "requested_fusion_policy": fusion_policy,
-    }
-    if hasattr(mnemos, "search_raw"):
-        raw_response = mnemos.search_raw(
-            query,
-            top_k=top_k,
-            retrieval_mode=retrieval_mode,
-            fusion_policy=fusion_policy,
-        )
-        retrieval_metadata.update(_retrieval_metadata_from_raw_response(raw_response))
-        if not raw_response.ok:
-            return {
-                "status": "mnemos_error",
-                "answer": "",
-                "query": query,
-                "citations": [],
-                "evidence_block": "",
-                "retrieval_metadata": retrieval_metadata,
-                "claim_boundary": CLAIM_BOUNDARY,
-                "warning": (
-                    f"MNEMOS search failed (status={raw_response.status}, "
-                    f"error={raw_response.error}); Ollama was not called."
-                ),
-            }
-        hits = _hits_from_raw_response(raw_response)
-    else:
-        hits = mnemos.search(
-            query,
-            top_k=top_k,
-            retrieval_mode=retrieval_mode,
-            fusion_policy=fusion_policy,
-        )
-    evidence_block, citations = format_evidence_block(
-        hits,
+    terminal, evidence_block, citations, retrieval_metadata = _prepare_evidence(
+        query=query,
+        model=model,
+        top_k=top_k,
+        retrieval_mode=retrieval_mode,
+        fusion_policy=fusion_policy,
         max_chars_per_hit=max_chars_per_hit,
+        history=history,
+        condense_queries=condense_queries,
+        mnemos=mnemos,
+        ollama=ollama,
     )
-    if not hits:
-        return {
-            "status": "no_evidence",
-            "answer": "",
-            "query": query,
-            "citations": [],
-            "evidence_block": "",
-            "retrieval_metadata": retrieval_metadata,
-            "claim_boundary": CLAIM_BOUNDARY,
-            "warning": "MNEMOS returned no evidence; Ollama was not called.",
-        }
+    if terminal is not None:
+        return terminal
 
     payload = build_ollama_chat_payload(
         model=model,
@@ -272,6 +445,7 @@ def run_query(
         evidence_block=evidence_block,
         temperature=temperature,
         num_predict=num_predict,
+        history=history,
     )
     response = ollama.chat(payload)
     return {
@@ -285,6 +459,100 @@ def run_query(
         "claim_boundary": CLAIM_BOUNDARY,
         "ollama_response": response,
     }
+
+
+def run_query_stream(
+    *,
+    query: str,
+    model: str,
+    top_k: int = 5,
+    retrieval_mode: str = "semantic",
+    fusion_policy: str = "balanced",
+    max_chars_per_hit: int = 1200,
+    temperature: float = 0.0,
+    num_predict: int = 700,
+    history: list[dict[str, Any]] | None = None,
+    condense_queries: bool = True,
+    mnemos_client: MnemosSearchClient | None = None,
+    ollama_client: OllamaChatClient | None = None,
+) -> Iterator[dict[str, Any]]:
+    """Streaming variant of :func:`run_query`.
+
+    Yields ``{"event": "retrieval", "result": ...}`` once evidence is admitted,
+    ``{"event": "delta", "content": ...}`` per generated chunk, and finally
+    ``{"event": "done", "result": ...}`` with the complete result. Terminal
+    retrieval outcomes (no evidence, MNEMOS error) yield only a done event.
+    """
+    mnemos = mnemos_client or MnemosClient(MnemosConfig.from_env())
+    ollama = ollama_client or OllamaChatClient(os.getenv("OLLAMA_BASE_URL", DEFAULT_OLLAMA_BASE_URL))
+
+    terminal, evidence_block, citations, retrieval_metadata = _prepare_evidence(
+        query=query,
+        model=model,
+        top_k=top_k,
+        retrieval_mode=retrieval_mode,
+        fusion_policy=fusion_policy,
+        max_chars_per_hit=max_chars_per_hit,
+        history=history,
+        condense_queries=condense_queries,
+        mnemos=mnemos,
+        ollama=ollama,
+    )
+    if terminal is not None:
+        yield {"event": "done", "result": terminal}
+        return
+
+    partial: dict[str, Any] = {
+        "status": "ok",
+        "query": query,
+        "model": model,
+        "citations": citations,
+        "evidence_block": evidence_block,
+        "retrieval_metadata": retrieval_metadata,
+        "claim_boundary": CLAIM_BOUNDARY,
+    }
+    yield {"event": "retrieval", "result": dict(partial)}
+
+    payload = build_ollama_chat_payload(
+        model=model,
+        query=query,
+        evidence_block=evidence_block,
+        temperature=temperature,
+        num_predict=num_predict,
+        history=history,
+        stream=True,
+    )
+    parts: list[str] = []
+    final_chunk: dict[str, Any] | None = None
+    try:
+        for chunk in ollama.chat_stream(payload):
+            message = chunk.get("message")
+            content = message.get("content") if isinstance(message, dict) else None
+            if isinstance(content, str) and content:
+                parts.append(content)
+                yield {"event": "delta", "content": content}
+            if chunk.get("done"):
+                final_chunk = chunk
+    except Exception as exc:  # noqa: BLE001 - surface the failure inside the stream
+        result = dict(partial)
+        result.update(
+            {
+                "status": "ollama_error",
+                "answer": "".join(parts).strip(),
+                "warning": f"Ollama streaming failed after retrieval: {exc}",
+            }
+        )
+        yield {"event": "done", "result": result}
+        return
+
+    result = dict(partial)
+    result.update(
+        {
+            "answer": "".join(parts).strip(),
+            "ollama_response": final_chunk or {},
+        }
+    )
+    yield {"event": "done", "result": result}
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
