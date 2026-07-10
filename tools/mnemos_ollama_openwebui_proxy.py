@@ -7,9 +7,12 @@ OpenAI-compatible endpoint while keeping MNEMOS as the evidence source.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html
 import json
+import logging
 import os
+import re
 import sys
 import time
 import uuid
@@ -63,6 +66,109 @@ RECEIPT_STATUSES = {"ok", "no_evidence", "mnemos_error", "ollama_error"}
 
 def _env_flag(name: str, default: str = "on") -> bool:
     return os.getenv(name, default).strip().lower() not in {"0", "false", "no", "off"}
+
+
+LOGGER = logging.getLogger("mnemos.openwebui_proxy")
+
+CITATION_PATTERN = re.compile(r"\[(\d{1,3})\]")
+
+
+def verify_citations(answer: str, citations: list[dict[str, Any]]) -> dict[str, Any]:
+    """Deterministic, passive check of bracket citations against sent evidence.
+
+    Shadow-observability annotation only: it records what the answer cited, it
+    never blocks or alters the answer (R0 posture, not R1 enforcement).
+    """
+    available: set[int] = set()
+    for citation in citations or []:
+        index_value = citation.get("index")
+        if index_value is None:
+            continue
+        try:
+            available.add(int(index_value))
+        except (TypeError, ValueError):
+            continue
+    cited: list[int] = []
+    for match in CITATION_PATTERN.finditer(str(answer or "")):
+        index = int(match.group(1))
+        if index not in cited:
+            cited.append(index)
+    valid = [index for index in cited if index in available]
+    invalid = [index for index in cited if index not in available]
+    uncited = sorted(available - set(valid))
+    if not available:
+        verdict = "no_evidence_available"
+    elif invalid:
+        verdict = "cites_missing_evidence"
+    elif not valid:
+        verdict = "no_citations_in_answer"
+    elif not uncited:
+        verdict = "all_evidence_cited"
+    else:
+        verdict = "partial_evidence_cited"
+    return {
+        "cited_indices": cited,
+        "invalid_indices": invalid,
+        "uncited_evidence_indices": uncited,
+        "evidence_count": len(available),
+        "coverage": round(len(valid) / len(available), 4) if available else None,
+        "verdict": verdict,
+    }
+
+
+def generation_info(result: dict[str, Any]) -> dict[str, Any]:
+    """Extract generation-honesty fields from the final Ollama response."""
+    response = result.get("ollama_response")
+    if not isinstance(response, dict):
+        response = {}
+    done_reason = response.get("done_reason")
+    return {
+        "done_reason": done_reason,
+        "truncated": done_reason == "length",
+        "prompt_eval_count": response.get("prompt_eval_count"),
+        "eval_count": response.get("eval_count"),
+    }
+
+
+def _usage_from_result(result: dict[str, Any]) -> dict[str, int]:
+    info = generation_info(result)
+    prompt_tokens = int(info.get("prompt_eval_count") or 0)
+    completion_tokens = int(info.get("eval_count") or 0)
+    return {
+        "prompt_tokens": prompt_tokens,
+        "completion_tokens": completion_tokens,
+        "total_tokens": prompt_tokens + completion_tokens,
+    }
+
+
+def _score_stats(citations: list[dict[str, Any]]) -> dict[str, Any] | None:
+    scores: list[float] = []
+    for citation in citations or []:
+        score = citation.get("score")
+        if isinstance(score, (int, float)):
+            scores.append(float(score))
+    if not scores:
+        return None
+    return {
+        "count": len(scores),
+        "max": round(max(scores), 4),
+        "min": round(min(scores), 4),
+        "mean": round(sum(scores) / len(scores), 4),
+    }
+
+
+def receipt_content_hash(receipt: dict[str, Any]) -> str:
+    """Tamper-evidence hash over the receipt's factual core."""
+    core = {
+        "receipt_id": receipt.get("receipt_id"),
+        "created": receipt.get("created"),
+        "query": receipt.get("query"),
+        "answer": receipt.get("answer"),
+        "evidence_block": receipt.get("evidence_block"),
+        "citations": receipt.get("citations"),
+    }
+    payload = json.dumps(core, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _content_to_text(content: Any) -> str:
@@ -211,6 +317,15 @@ def build_evidence_footer(
         if warning and warning != answer_text:
             lines.append(f"Warning: {warning}")
 
+    if generation_info(result)["truncated"]:
+        lines.extend(
+            [
+                "",
+                "Warning: answer stopped at the token limit (done_reason=length); "
+                "citations may be incomplete.",
+            ]
+        )
+
     if receipt_url:
         lines.extend(["", f"MNEMOS Evidence Receipt: {receipt_url}"])
     lines.extend(["", f"Boundary: {result.get('claim_boundary') or CLAIM_BOUNDARY}"])
@@ -249,6 +364,7 @@ def write_evidence_receipt(
     result: dict[str, Any],
 ) -> Path:
     receipt_dir.mkdir(parents=True, exist_ok=True)
+    citations = result.get("citations") or []
     receipt = {
         "receipt_id": receipt_id,
         "created": created,
@@ -257,23 +373,50 @@ def write_evidence_receipt(
         "actual_model": actual_model,
         "answer": answer,
         "status": result.get("status"),
-        "citations": result.get("citations") or [],
+        "citations": citations,
         "evidence_block": result.get("evidence_block") or "",
         "retrieval_metadata": result.get("retrieval_metadata") or {},
         "claim_boundary": result.get("claim_boundary") or CLAIM_BOUNDARY,
         "warning": result.get("warning"),
+        "citation_check": verify_citations(answer, citations),
+        "generation": generation_info(result),
+        "score_stats": _score_stats(citations),
     }
+    receipt["content_hash"] = receipt_content_hash(receipt)
     path = _receipt_path(receipt_dir, receipt_id)
     path.write_text(json.dumps(receipt, indent=2, ensure_ascii=False), encoding="utf-8")
 
+    # Receipts are proof artifacts: overflow is archived, never silently deleted.
     max_receipts = int(os.getenv("MNEMOS_EVIDENCE_RECEIPT_MAX_FILES", "500"))
     receipt_files = sorted(receipt_dir.glob("*.json"), key=lambda item: item.stat().st_mtime)
-    for stale in receipt_files[: max(0, len(receipt_files) - max_receipts)]:
-        stale.unlink(missing_ok=True)
+    overflow = receipt_files[: max(0, len(receipt_files) - max_receipts)]
+    if overflow:
+        archive_dir = receipt_dir / "archive"
+        try:
+            archive_dir.mkdir(parents=True, exist_ok=True)
+            for stale in overflow:
+                stale.rename(archive_dir / stale.name)
+            LOGGER.info(
+                "archived %d evidence receipt(s) past MNEMOS_EVIDENCE_RECEIPT_MAX_FILES=%d to %s",
+                len(overflow),
+                max_receipts,
+                archive_dir,
+            )
+        except OSError as exc:
+            LOGGER.warning("failed to archive stale evidence receipts: %s", exc)
     return path
 
 
 def render_evidence_receipt_html(receipt: dict[str, Any]) -> str:
+    verification_json = json.dumps(
+        {
+            "citation_check": receipt.get("citation_check"),
+            "generation": receipt.get("generation"),
+            "score_stats": receipt.get("score_stats"),
+        },
+        indent=2,
+        ensure_ascii=False,
+    )
     citations = receipt.get("citations") or []
     citation_rows = "\n".join(
         "<tr>"
@@ -302,6 +445,9 @@ def render_evidence_receipt_html(receipt: dict[str, Any]) -> str:
   <p><strong>Receipt:</strong> {html.escape(str(receipt.get("receipt_id", "")))}</p>
   <p><strong>Status:</strong> {html.escape(str(receipt.get("status", "")))}</p>
   <p><strong>Model:</strong> {html.escape(str(receipt.get("requested_model", "")))}</p>
+  <p><strong>Integrity:</strong> {html.escape(str(receipt.get("content_hash", "not recorded")))}</p>
+  <h2>Verification</h2>
+  <pre>{html.escape(verification_json)}</pre>
   <h2>Query</h2>
   <pre>{html.escape(str(receipt.get("query", "")))}</pre>
   <h2>Citations</h2>
@@ -443,7 +589,12 @@ def _openai_live_stream_response(
     events: Iterator[dict[str, Any]],
     finalize: Callable[[dict[str, Any]], str],
 ) -> Response:
-    def chunk(delta: dict[str, Any], meta: dict[str, Any], finish: str | None = None) -> str:
+    def chunk(
+        delta: dict[str, Any],
+        meta: dict[str, Any],
+        finish: str | None = None,
+        usage: dict[str, int] | None = None,
+    ) -> str:
         body = {
             "id": completion_id,
             "object": "chat.completion.chunk",
@@ -452,6 +603,8 @@ def _openai_live_stream_response(
             "choices": [{"index": 0, "delta": delta, "finish_reason": finish}],
             "mnemos": meta,
         }
+        if usage is not None:
+            body["usage"] = usage
         return f"data: {json.dumps(body, ensure_ascii=False)}\n\n"
 
     def event_stream():
@@ -470,7 +623,7 @@ def _openai_live_stream_response(
         if suffix:
             text = f"\n\n{suffix}" if streamed_any else suffix
             yield chunk({"content": text}, final_meta)
-        yield chunk({}, final_meta, finish="stop")
+        yield chunk({}, final_meta, finish="stop", usage=_usage_from_result(done_result))
         yield "data: [DONE]\n\n"
 
     return Response(event_stream(), mimetype="text/event-stream")
@@ -483,12 +636,18 @@ def _ollama_live_stream_response(
     events: Iterator[dict[str, Any]],
     finalize: Callable[[dict[str, Any]], str],
 ) -> Response:
-    def line(content: str, done: bool, meta: dict[str, Any]) -> str:
+    def line(
+        content: str,
+        done: bool,
+        meta: dict[str, Any],
+        extra: dict[str, Any] | None = None,
+    ) -> str:
         body = {
             "model": model,
             "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "message": {"role": "assistant", "content": content},
             "done": done,
+            **(extra or {}),
             "mnemos": meta,
         }
         return json.dumps(body, ensure_ascii=False) + "\n"
@@ -508,7 +667,7 @@ def _ollama_live_stream_response(
         if suffix:
             text = f"\n\n{suffix}" if streamed_any else suffix
             yield line(text, False, final_meta)
-        yield line("", True, final_meta)
+        yield line("", True, final_meta, extra=_generation_passthrough(done_result))
 
     return Response(lines(), mimetype="application/x-ndjson")
 
@@ -542,11 +701,7 @@ def _openai_chat_completion_response(
                 "finish_reason": "stop",
             }
         ],
-        "usage": {
-            "prompt_tokens": 0,
-            "completion_tokens": 0,
-            "total_tokens": 0,
-        },
+        "usage": _usage_from_result(result),
         "mnemos": _mnemos_meta(result),
     }
 
@@ -587,12 +742,26 @@ def _openai_stream_response(
             "created": created,
             "model": model,
             "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}],
+            "usage": _usage_from_result(result),
             "mnemos": metadata,
         }
         yield f"data: {json.dumps(stop_chunk, ensure_ascii=False)}\n\n"
         yield "data: [DONE]\n\n"
 
     return Response(events(), mimetype="text/event-stream")
+
+
+def _generation_passthrough(result: dict[str, Any]) -> dict[str, Any]:
+    """Ollama-native generation fields worth forwarding when present."""
+    info = generation_info(result)
+    fields: dict[str, Any] = {}
+    if info["done_reason"] is not None:
+        fields["done_reason"] = info["done_reason"]
+    if info["prompt_eval_count"] is not None:
+        fields["prompt_eval_count"] = info["prompt_eval_count"]
+    if info["eval_count"] is not None:
+        fields["eval_count"] = info["eval_count"]
+    return fields
 
 
 def _ollama_chat_response(
@@ -606,6 +775,7 @@ def _ollama_chat_response(
         "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "message": {"role": "assistant", "content": answer},
         "done": True,
+        **_generation_passthrough(result),
         "mnemos": _mnemos_meta(result),
     }
 
@@ -636,6 +806,7 @@ def _ollama_stream_response(
                 "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 "message": {"role": "assistant", "content": ""},
                 "done": True,
+                **_generation_passthrough(result),
                 "mnemos": metadata,
             },
             ensure_ascii=False,
@@ -944,7 +1115,14 @@ def main(argv: list[str] | None = None) -> int:
             ollama_client=ollama_client,
         ),
     )
-    app.run(host=args.host, port=args.port, threaded=True)
+    try:
+        from waitress import serve
+    except ImportError:
+        app.run(host=args.host, port=args.port, threaded=True)
+    else:
+        # send_bytes=1 so SSE/NDJSON chunks flush immediately instead of being
+        # batched, which would defeat token-level streaming.
+        serve(app, host=args.host, port=args.port, threads=8, send_bytes=1)
     return 0
 
 

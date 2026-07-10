@@ -6,10 +6,14 @@ from tools.mnemos_ollama_openwebui_proxy import (
     append_evidence_footer,
     create_app,
     extract_latest_user_text,
+    generation_info,
     normalize_openwebui_model_id,
+    receipt_content_hash,
     should_append_footer,
     split_query_and_history,
     strip_evidence_footer,
+    verify_citations,
+    write_evidence_receipt,
 )
 
 
@@ -449,6 +453,153 @@ def test_api_chat_streams_ollama_compatible_json_lines():
     assert "Ollama stream answer. [1]" in text
     assert "MNEMOS Evidence Used" in text
     assert '"done": true' in text
+
+
+def test_verify_citations_all_evidence_cited():
+    check = verify_citations(
+        "First point. [1] Second point. [2]",
+        [{"index": 1, "source": "a.pdf"}, {"index": 2, "source": "b.pdf"}],
+    )
+    assert check["verdict"] == "all_evidence_cited"
+    assert check["cited_indices"] == [1, 2]
+    assert check["invalid_indices"] == []
+    assert check["uncited_evidence_indices"] == []
+    assert check["coverage"] == 1.0
+
+
+def test_verify_citations_flags_missing_and_uncited_evidence():
+    check = verify_citations(
+        "Claim. [1] Bogus claim. [7]",
+        [{"index": 1}, {"index": 2}, {"index": 3}],
+    )
+    assert check["verdict"] == "cites_missing_evidence"
+    assert check["invalid_indices"] == [7]
+    assert check["uncited_evidence_indices"] == [2, 3]
+    assert check["coverage"] == round(1 / 3, 4)
+
+
+def test_verify_citations_uncited_answer_and_no_evidence():
+    uncited = verify_citations("No brackets here.", [{"index": 1}])
+    assert uncited["verdict"] == "no_citations_in_answer"
+    assert uncited["coverage"] == 0.0
+
+    empty = verify_citations("Anything. [1]", [])
+    assert empty["verdict"] == "no_evidence_available"
+    assert empty["coverage"] is None
+
+
+def test_generation_info_flags_length_truncation():
+    info = generation_info(
+        {"ollama_response": {"done_reason": "length", "eval_count": 700, "prompt_eval_count": 2100}}
+    )
+    assert info["truncated"] is True
+    assert info["eval_count"] == 700
+
+    assert generation_info({})["truncated"] is False
+    assert generation_info({"ollama_response": {"done_reason": "stop"}})["truncated"] is False
+
+
+def test_footer_warns_when_answer_truncated_at_token_limit():
+    answer = append_evidence_footer(
+        "Cut off mid-sentence [1",
+        {
+            "status": "ok",
+            "citations": [{"index": 1, "source": "a.pdf", "score": 0.9, "engram_id": "e-1"}],
+            "claim_boundary": "boundary",
+            "ollama_response": {"done_reason": "length"},
+        },
+        receipt_url=None,
+    )
+    assert "done_reason=length" in answer
+    assert "citations may be incomplete" in answer
+
+
+def test_write_evidence_receipt_records_verification_and_hash(tmp_path):
+    result = {
+        "status": "ok",
+        "citations": [
+            {"index": 1, "source": "a.pdf", "score": 0.9},
+            {"index": 2, "source": "b.pdf", "score": 0.5},
+        ],
+        "evidence_block": "[1] a\n\n[2] b",
+        "ollama_response": {"done_reason": "stop", "prompt_eval_count": 100, "eval_count": 50},
+    }
+    path = write_evidence_receipt(
+        tmp_path,
+        receipt_id="chatcmpl-mnemos-test1",
+        created=123,
+        query="q",
+        requested_model="m",
+        actual_model="m",
+        answer="Uses evidence. [1]",
+        result=result,
+    )
+    receipt = json.loads(path.read_text(encoding="utf-8"))
+
+    assert receipt["citation_check"]["verdict"] == "partial_evidence_cited"
+    assert receipt["citation_check"]["uncited_evidence_indices"] == [2]
+    assert receipt["generation"] == {
+        "done_reason": "stop",
+        "truncated": False,
+        "prompt_eval_count": 100,
+        "eval_count": 50,
+    }
+    assert receipt["score_stats"] == {"count": 2, "max": 0.9, "min": 0.5, "mean": 0.7}
+    # The stored hash must be recomputable from the receipt's factual core.
+    assert receipt["content_hash"].startswith("sha256:")
+    assert receipt_content_hash(receipt) == receipt["content_hash"]
+
+
+def test_write_evidence_receipt_archives_overflow_instead_of_deleting(tmp_path, monkeypatch):
+    import os
+    import time as time_module
+
+    monkeypatch.setenv("MNEMOS_EVIDENCE_RECEIPT_MAX_FILES", "2")
+    result = {"status": "ok", "citations": [], "evidence_block": ""}
+    now = time_module.time()
+    for offset, receipt_id in enumerate(["chatcmpl-old", "chatcmpl-mid", "chatcmpl-new"]):
+        path = write_evidence_receipt(
+            tmp_path,
+            receipt_id=receipt_id,
+            created=123 + offset,
+            query="q",
+            requested_model="m",
+            actual_model="m",
+            answer="",
+            result=result,
+        )
+        os.utime(path, (now + offset, now + offset))
+
+    live = sorted(item.name for item in tmp_path.glob("*.json"))
+    archived = sorted(item.name for item in (tmp_path / "archive").glob("*.json"))
+    assert live == ["chatcmpl-mid.json", "chatcmpl-new.json"]
+    assert archived == ["chatcmpl-old.json"]
+
+
+def test_v1_chat_completions_reports_real_token_usage():
+    def fake_runner(**kwargs):
+        return {
+            "status": "ok",
+            "answer": "Counted. [1]",
+            "model": kwargs["model"],
+            "citations": [{"index": 1, "source": "a.pdf", "score": 0.9}],
+            "claim_boundary": "boundary",
+            "ollama_response": {"done_reason": "stop", "prompt_eval_count": 321, "eval_count": 45},
+        }
+
+    app = create_app(query_runner=fake_runner)
+    client = app.test_client()
+
+    response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "qwen3-coder-next:latest",
+            "messages": [{"role": "user", "content": "count my tokens"}],
+        },
+    )
+
+    body = response.get_json()
+    assert body["usage"] == {"prompt_tokens": 321, "completion_tokens": 45, "total_tokens": 366}
 
 
 def test_strip_evidence_footer_removes_footer_and_keeps_answer():

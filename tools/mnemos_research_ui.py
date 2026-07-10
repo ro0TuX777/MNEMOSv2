@@ -228,6 +228,14 @@ def render_evidence_list_page(receipts: list[dict[str, Any]]) -> str:
 
 
 def render_evidence_detail_page(receipt: dict[str, Any]) -> str:
+    verification_json = _json_pretty(
+        {
+            "citation_check": receipt.get("citation_check"),
+            "generation": receipt.get("generation"),
+            "score_stats": receipt.get("score_stats"),
+            "content_hash": receipt.get("content_hash"),
+        }
+    )
     citations = receipt.get("citations") or []
     citation_rows = "\n".join(
         "<tr>"
@@ -266,6 +274,10 @@ actual_model: {html.escape(str(receipt.get('actual_model', '')))}</pre>
   <thead><tr><th>#</th><th>Source</th><th>Score</th><th>Engram ID</th></tr></thead>
   <tbody>{citation_rows}</tbody>
 </table>
+
+<h2>Verification</h2>
+<p class="muted">Deterministic post-hoc annotations: citation usage, generation honesty, score spread, and the tamper-evidence hash. Recorded, never enforced.</p>
+<pre>{html.escape(verification_json)}</pre>
 
 <h2>Retrieval Metadata</h2>
 <pre>{html.escape(_json_pretty(receipt.get('retrieval_metadata') or {}))}</pre>

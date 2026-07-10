@@ -78,6 +78,7 @@ def _retrieval_metadata_from_raw_response(response: MnemosResponse) -> dict[str,
         "lexical_lane_available",
         "result_count",
         "latency_s",
+        "low_relevance_abstention",
     ):
         if key in meta:
             metadata[key] = meta[key]
