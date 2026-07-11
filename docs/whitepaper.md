@@ -2,7 +2,7 @@
 
 **A containerised, contract-governed memory and retrieval service for AI-native applications.**
 
-*Version 3.3 · June 2026*
+*Version 3.4 · July 2026*
 
 > [!NOTE]
 > **As of June 11, 2026:** Benchmark conclusions in dated sections remain scoped to their cited artifact timestamps. For full methodology, raw artifacts, and latest measured runs, see `docs/benchmark.md`.
@@ -18,6 +18,7 @@
 > **Session Context Assembler local shadow milestone is technically accepted** — a consumer-neutral, read-only adapter can assemble bounded, provenance-labeled context packages in an isolated local harness. It has no listener, route, SDK, external consumer connection, deployment, or effect on MNEMOS authority surfaces. See §4.13 and ADR 0008.
 > **GateMem governance reference baseline is frozen** — MNEMOS completed a governed authorization/disclosure research lane from clean-input benchmark isolation through a deterministic offline reference implementation. G4 matched 36/36 expected synthetic outcomes and passed 33/33 reference gates. This is regression-only research evidence, not production authorization security or held-out benchmark performance. See §4.14 and ADRs 0009–0013.
 > **Graph Tier (`graph_hybrid_experimental`) is experimental and read-only** — offline/live resolver validation complete (MG-Test-1→10); not exposed on the public HTTP retrieval-mode surface. See §4.2 and `docs/graph_tier/operator_guide.md`.
+> **Open WebUI evidence lane (v3.4) is operational as a local consumer-boundary workflow** — a research intake UI, an Ollama/OpenAI-compatible evidence proxy, and per-answer evidence receipts let a generic chat front end answer from MNEMOS evidence with token streaming, multi-turn query condensation, and deterministic post-hoc verification annotations (citation check, truncation honesty, score spread, tamper-evidence hash). Context-only adapter: it does not alter MNEMOS retrieval, write memory, or enforce admission policy. Local single-user workflow evidence only. See §4.16.
 > **Deployment model:** MNEMOS runtime services are deployed as a Docker Compose stack; all serving components run in containers.
 > **Developer model:** tooling, benchmarks, and tests are typically run from host Python unless explicitly containerized.
 
@@ -25,6 +26,8 @@
 
 | Date | Change |
 |---|---|
+| 2026-07-10/11 | **Open WebUI evidence lane hardening (v3.4)** - Real token streaming through the evidence proxy (Ollama NDJSON passthrough re-emitted as OpenAI SSE / Ollama chunks); multi-turn support with footer-stripped history forwarding and standalone retrieval-query condensation recorded in receipt metadata; receipt verification annotations (`citation_check`, `generation` truncation honesty, `score_stats`, `content_hash`); receipt overflow archived instead of deleted; real token usage passthrough; waitress serving. Deterministic, passive annotations only — no admission enforcement. Local single-user workflow evidence. |
+| 2026-07-05→08 | **Open WebUI evidence lane established** - Research intake UI (upload → extract → chunk → index, with Docling OCR fallback and page lineage), Ollama/OpenAI-compatible evidence proxy, per-answer evidence receipts with a receipt browser, and containerized deployment of both services in the compose stack. |
 | 2026-06-26 | **AI developer MCP memory trial** - MNEMOS was exposed through an MFS-compatible MCP bridge and tested in local paired app-building trials against no-memory controls. The first pilot exposed infrastructure-readiness and measurement gaps; the refreshed E1 paired run used a dedicated seeded collection and structured telemetry. Both conditions completed and passed acceptance. MNEMOS retrieved useful task context with provenance and no observed quality degradation, but added memory/tool-call overhead and did not establish a speed or token-efficiency claim. Local development evidence only; no general memory-performance claim. |
 | 2026-03-30 | Enhancement roadmap closed: CI phase gates, Wave 4 hygiene gate, reflect precision guards, tenant policy profiles, explainability traces, economics counters, SLO reliability gate, operator playbook |
 | 2026-04–05 | Qdrant v1.17 server-side RRF (`qdrant_rrf`), relevance feedback adapter, Cross-Encoder rerank hardening |
@@ -87,6 +90,7 @@ MNEMOS is **application-agnostic** — it knows nothing about the domain of the 
 - **Graph Tier (experimental)** — read-only graph-neighbor expansion via `graph_hybrid_experimental`; double opt-in, no write path
 - **SLO-driven promotion gates** — automated canary-stage reliability checks with rollback discipline (`tools/run_slo_reliability_gate.py`)
 - **Operator playbook** — single operational runbook for deploy/promote/rollback/incident execution (`docs/mnemos_operator_playbook.md`)
+- **Open WebUI evidence lane (v3.4)** — local research intake UI, an Ollama/OpenAI-compatible evidence proxy for generic chat front ends, and per-answer evidence receipts with streaming, multi-turn condensation, and deterministic verification annotations; context-only, no MNEMOS authority-surface change (§4.16)
 
 MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of **operational tools** (health audit, contract evolution, onboarding, CI gates, and staged cutover) — making it a complete platform that can be deployed with a single `python -m installer`.
 
@@ -1068,6 +1072,92 @@ Evidence: `docs/experiments/ai_dev_mnemos_enabled_trial_instructions.md`,
 `benchmarks/results/ai_dev_memory_quality_e1_task_01_comparison_004.json`, and
 `benchmarks/results/ai_dev_memory_quality_e1_task_01_comparison_004.md`.
 
+### 4.16 Open WebUI Evidence Lane (v3.4)
+
+The Open WebUI evidence lane answers a consumer-boundary question: can a
+generic, MNEMOS-unaware chat front end deliver answers grounded in MNEMOS
+evidence — with per-answer proof — without widening MNEMOS's authority surface?
+The lane adds no new MNEMOS endpoints and no new write paths. Open WebUI never
+learns MNEMOS exists; MNEMOS never learns chat exists. The only component that
+knows both worlds is a local proxy.
+
+**Topology (local compose stack + host Ollama):**
+
+| Component | Port | Role |
+|---|---|---|
+| `research-ui` | :8788 | Intake desk: upload PDFs/docs → extract (pypdf, Docling OCR fallback) → chunk → index into MNEMOS with source/page lineage; hosts the `/evidence` receipt browser |
+| `openwebui-proxy` | :8790 | Evidence proxy: presents an Ollama/OpenAI-compatible API to chat front ends; retrieves bounded evidence from MNEMOS, sends evidence + question to Ollama, appends an evidence footer, writes a receipt |
+| `open-webui` | :8088 | Generic chat window (separate container); speaks the standard model API and must be connected **only** to the proxy |
+| Ollama | :7777 (host) | Local model runtime; the only generation engine in the lane |
+| Evidence receipts | `./logs/evidence_receipts` | Host-mounted JSON receipts, shared read-only with the receipt browser |
+
+**Chat flow:** the proxy takes the latest user message (plus sanitized prior
+turns), asks MNEMOS for bounded evidence, streams Ollama's generation back to
+the chat client token-by-token, appends a deterministic evidence footer
+(citations, receipt link, claim boundary), and writes a receipt. If MNEMOS
+returns no evidence or errors, the answer is withheld and the footer says so —
+Ollama is not called.
+
+**Multi-turn handling (July 2026):** prior turns are forwarded to Ollama with
+evidence footers stripped, capped by `MNEMOS_PROXY_HISTORY_MAX_TURNS`
+(default 8). Follow-up questions are condensed into standalone retrieval
+queries via a bounded temperature-0 Ollama call before hitting MNEMOS;
+condensation is env-gated (`MNEMOS_PROXY_QUERY_CONDENSE`), falls back to the
+raw query on any failure, and is fully recorded in the receipt
+(`history_turns`, `query_condensed`, `original_query`, `retrieval_query`).
+Factual claims remain bound to the supplied evidence; history is
+reference-resolution context only.
+
+**Evidence receipts** are per-answer JSON artifacts recording the query, the
+retrieval query actually sent, requested/actual model, the full evidence block
+sent to Ollama, citations with scores and engram IDs, retrieval metadata
+(mode, fingerprint, fusion policy, latency, low-relevance abstention signal
+when reported), the answer, and the claim boundary. Receipts are viewable as
+HTML at both the proxy and the research UI.
+
+**Verification annotations (July 2026)** — each receipt additionally carries
+deterministic post-hoc annotations. These are recorded, never enforced:
+
+| Field | What it records |
+|---|---|
+| `citation_check` | Which `[n]` indices the answer cited, indices citing non-existent evidence, evidence never cited, coverage ratio, and a verdict (`all_evidence_cited`, `partial_evidence_cited`, `cites_missing_evidence`, `no_citations_in_answer`, `no_evidence_available`) |
+| `generation` | Ollama `done_reason`, a `truncated` flag (token-limit stops also warn in the served footer that citations may be incomplete), and prompt/eval token counts |
+| `score_stats` | Min/max/mean/count of retrieval scores, making the relevance spread of the evidence visible instead of presenting top-k chunks as equally admissible |
+| `content_hash` | `sha256` over the receipt's factual core (id, created, query, answer, evidence block, citations) — recomputable tamper evidence |
+
+**Receipt lifecycle:** receipts past `MNEMOS_EVIDENCE_RECEIPT_MAX_FILES`
+(default 500) are moved to an `archive/` subfolder with a log line — proof
+artifacts are never silently deleted. Real token usage
+(`prompt_eval_count`/`eval_count`) passes through to the chat client. The
+proxy serves via waitress (threaded, unbuffered chunk flushing) with a Flask
+dev-server fallback.
+
+**Operational note:** the chat front end must be connected only to the proxy.
+A parallel direct-to-Ollama connection exposing the same model IDs causes the
+front end to load-balance between them, nondeterministically bypassing
+retrieval and producing answers with no footer and no receipt.
+
+**Claim boundary:** the adapter is stamped
+`MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY` in every receipt: it retrieves MNEMOS
+evidence and asks Ollama to answer from that evidence; it does not alter
+MNEMOS retrieval, write memory, or enforce R1/R2 admission policy. The
+verification annotations are passive shadow-style observability consistent
+with the retained R0 posture — Evidence Admission R1 enforcement remains not
+retained, and nothing in this lane blocks, rewrites, or re-ranks answers. The
+`content_hash` is tamper evidence on a mutable file, not a signed or immutable
+ledger entry. Behavior is validated by the unit suites and local end-to-end
+runs of the deployed stack (streaming cadence, condensation trail, truncation
+capture); this is local single-user workflow evidence, not a benchmark, and no
+relevance-quality or performance claim is made.
+
+Evidence: `tools/mnemos_ollama_chat.py`,
+`tools/mnemos_ollama_openwebui_proxy.py`, `tools/mnemos_research_ui.py`,
+`tools/mnemos_research_intake.py`, `tests/test_mnemos_ollama_chat.py`,
+`tests/test_mnemos_ollama_openwebui_proxy.py`,
+`tests/test_mnemos_research_ui.py`,
+`docs/integrations/openwebui_mnemos_local_chat_readme.md`,
+`docs/integrations/ollama_mnemos_mfs.md`, and `topology.md`.
+
 ---
 
 ## 5. API Contract
@@ -1802,5 +1892,6 @@ MNEMOS was designed from the ground up as a reusable memory service. Its archite
 | Auditable forecast lifecycle | `ForecastOutcomeRecord` (`mnemos/cognitive/forecast_outcome.py`) |
 | Structured attention contract | `build_attention_decisions()` (`mnemos/cognitive/attention.py`) — 11 named dimensions |
 | Cognitive cycle history | `GET /v1/mnemos/cognitive/cycles` |
+| Consumer-boundary evidence chat | Open WebUI evidence lane (`tools/mnemos_ollama_openwebui_proxy.py`, `tools/mnemos_research_ui.py`) — streamed answers with receipts + verification annotations (§4.16) |
 
 What remains is a **pure infrastructure service** — a reusable, tooling-complete foundation for any application that needs intelligent, compressed, auditable memory.

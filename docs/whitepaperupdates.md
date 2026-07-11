@@ -1,3 +1,5 @@
+> [!NOTE]
+> **Historical supplement — superseded.** This June 11, 2026 supplement covered the Phase 7-10 advancements only. Its content has been folded into the canonical whitepaper (`docs/whitepaper.md`, v3.4, July 2026), which is the maintained document of record. This file is retained as a dated artifact and receives no further updates.
 
 MNEMOSv2: From Retrieval Substrate to Governed Memory Authority
 Technical Whitepaper Supplement: Phase 7-10 Advancements
@@ -13,10 +15,10 @@ Storage: embeddings remain compressed via TurboQuant 4-bit (arXiv:2504.19874), m
 Result (measured, June 11, 2026): the coarse prefetch + rescore design preserved labeled recall in migration replay; the long-context class remained in REVIEW at 0.4286 median Jaccard@10 and replay budget p95 was 53.5ms against a 50.3ms target on the small replay sample (`docs/reports/mnemos_phase7_burn_in_report.md`). The architectural win at current corpus scale is candidate-pool economics (99.5% reduction for global queries); wall-clock p95 deltas are gated at production scale (≥100K points).
 2.2 Budget-Aware Adaptive Retrieval
 The system now treats latency as a finite resource managed by an EWMA (Exponentially Weighted Moving Average) Cost Model.
-Degradation Ladder: Based on a user-provided latency_budget_ms, the BudgetAwareRouter orchestrates "load shedding." If the predicted cost exceeds the budget, the system sheds expensive stages (Cross-Encoder reranking 
+Degradation Ladder: Based on a user-provided latency_budget_ms, the BudgetAwareRouter orchestrates "load shedding." If the predicted cost exceeds the budget, the system sheds expensive stages (Cross-Encoder reranking
 →
 →
- HNSW complexity reduction 
+ HNSW complexity reduction
 →
 →
  Rescore skipping).
