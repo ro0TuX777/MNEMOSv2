@@ -13,6 +13,7 @@ import json
 import os
 import tempfile
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable
 
@@ -148,153 +149,640 @@ def list_evidence_receipts(receipt_dir: Path, *, limit: int = 100) -> list[dict[
         if not receipt:
             continue
         citations = receipt.get("citations") or []
+        citation_check = receipt.get("citation_check") or {}
+        generation = receipt.get("generation") or {}
         rows.append(
             {
                 "receipt_id": str(receipt.get("receipt_id") or path.stem),
                 "created": receipt.get("created"),
+                "created_label": _format_created(receipt.get("created")),
                 "query_preview": _query_preview(str(receipt.get("query") or "")),
                 "model": str(receipt.get("requested_model") or receipt.get("actual_model") or ""),
                 "status": str(receipt.get("status") or "unknown"),
                 "source_count": len(citations) if isinstance(citations, list) else 0,
                 "retrieval_mode": _receipt_retrieval_mode(receipt),
+                "verdict": citation_check.get("verdict") if isinstance(citation_check, dict) else None,
+                "coverage": citation_check.get("coverage") if isinstance(citation_check, dict) else None,
+                "evidence_count": citation_check.get("evidence_count") if isinstance(citation_check, dict) else None,
+                "truncated": bool(generation.get("truncated")) if isinstance(generation, dict) else False,
             }
         )
     return rows
+
+
+def _format_created(created: Any) -> str:
+    try:
+        return datetime.fromtimestamp(float(created)).strftime("%b %d, %Y %H:%M")
+    except (TypeError, ValueError, OSError, OverflowError):
+        return ""
+
+
+def _pill(kind: str, label: str) -> str:
+    css = f"pill {kind}".strip()
+    return f'<span class="{css}"><span class="dot"></span>{html.escape(label)}</span>'
+
+
+_VERDICT_PILLS = {
+    "all_evidence_cited": ("ok", "all cited"),
+    "partial_evidence_cited": ("accent", "partial coverage"),
+    "cites_missing_evidence": ("warn", "cites missing"),
+    "no_citations_in_answer": ("warn", "no citations"),
+    "no_evidence_available": ("", "no evidence"),
+}
+
+
+def _verdict_pill(verdict: Any) -> str:
+    kind, label = _VERDICT_PILLS.get(str(verdict or ""), ("", "not recorded"))
+    return _pill(kind, label)
+
+
+def _generation_pill(status: str, truncated: bool) -> str:
+    if status == "ok":
+        return _pill("warn", "truncated") if truncated else _pill("ok", "complete")
+    if status == "no_evidence":
+        return _pill("warn", "withheld")
+    if status == "mnemos_error":
+        return _pill("bad", "MNEMOS error")
+    if status == "ollama_error":
+        return _pill("bad", "Ollama error")
+    return _pill("", status or "unknown")
+
+
+def _status_pill(status: str) -> str:
+    kind = "ok" if status == "ok" else "bad" if status.endswith("error") else "warn"
+    return _pill(kind, f"status · {status or 'unknown'}")
 
 
 def _json_pretty(value: Any) -> str:
     return json.dumps(value, indent=2, ensure_ascii=False, sort_keys=True)
 
 
-def _render_page(title: str, body: str) -> str:
+BASE_CSS = """
+  :root {
+    color-scheme: light dark;
+    --paper: #F6F8F7; --panel: #FFFFFF; --panel-2: #EEF3F1;
+    --ink: #1B2723; --muted: #5B6B65;
+    --line: #D7E0DC; --line-soft: #E6ECE9;
+    --accent: #0B7F66; --accent-ink: #FFFFFF; --accent-soft: #0B7F6614;
+    --copper: #A85E28;
+    --ok: #1E7A46; --warn: #9A6700; --bad: #A3312C;
+    --ok-soft: #1E7A4614; --warn-soft: #9A670014; --bad-soft: #A3312C12;
+    --shadow: 0 1px 2px rgba(27,39,35,.05), 0 4px 14px rgba(27,39,35,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0E1412; --panel: #151D1A; --panel-2: #1B2521;
+      --ink: #E2EAE6; --muted: #93A39C;
+      --line: #2A3833; --line-soft: #223029;
+      --accent: #0FA07E; --accent-ink: #07130F; --accent-soft: #0FA07E1F;
+      --copper: #D08B4F;
+      --ok: #44A05F; --warn: #B58322; --bad: #E0685E;
+      --ok-soft: #44A05F1F; --warn-soft: #B583221F; --bad-soft: #E0685E1C;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 14px/1.5 system-ui, "Segoe UI", sans-serif; }
+  .mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+  button { font: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  .muted { color: var(--muted); }
+
+  header.masthead { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .masthead-inner { max-width: 1160px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+  .wordmark { display: flex; flex-direction: column; gap: 1px; }
+  .wordmark .name { font-family: "Iowan Old Style", Georgia, "Times New Roman", serif; font-size: 21px; font-weight: 700; letter-spacing: .14em; }
+  .wordmark .sub { font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--copper); font-weight: 600; }
+  nav.primary { display: flex; gap: 4px; margin-left: 8px; }
+  nav.primary a { padding: 7px 14px; border-radius: 7px; text-decoration: none; color: var(--muted); font-weight: 600; }
+  nav.primary a:hover { color: var(--ink); background: var(--panel-2); }
+  nav.primary a.active { color: var(--accent); background: var(--accent-soft); }
+  .service-pills { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid var(--line); color: var(--muted); background: var(--panel); white-space: nowrap; }
+  .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex: none; }
+  .pill.ok { color: var(--ok); border-color: transparent; background: var(--ok-soft); }
+  .pill.ok .dot { background: var(--ok); }
+  .pill.warn { color: var(--warn); border-color: transparent; background: var(--warn-soft); }
+  .pill.warn .dot { background: var(--warn); }
+  .pill.bad { color: var(--bad); border-color: transparent; background: var(--bad-soft); }
+  .pill.bad .dot { background: var(--bad); }
+  .pill.accent { color: var(--accent); border-color: transparent; background: var(--accent-soft); }
+  .pill.accent .dot { background: var(--accent); }
+
+  main { max-width: 1160px; margin: 0 auto; padding: 26px 24px 56px; }
+  h1 { font-size: 21px; margin: 0 0 4px; }
+  .lede { color: var(--muted); margin: 0 0 22px; max-width: 62ch; }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); }
+  .card h2 { font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0; padding: 12px 18px; border-bottom: 1px solid var(--line-soft); font-weight: 700; }
+  .card .body { padding: 16px 18px; }
+
+  .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 640px) { .field-grid { grid-template-columns: 1fr; } }
+  label.field { display: grid; gap: 5px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+  label.field input, label.field select { font: inherit; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 7px; padding: 9px 11px; width: 100%; }
+  label.field input:hover, label.field select:hover { border-color: var(--muted); }
+  .hint { font-weight: 400; font-size: 12px; color: var(--muted); }
+  .inline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .inline label.check { display: flex; flex-direction: row; align-items: center; gap: 7px; font-weight: 600; font-size: 13px; color: var(--ink); }
+
+  .btn-primary { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; padding: 10px 18px; font-weight: 700; }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-primary:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-quiet { background: none; border: 1px solid var(--line); color: var(--ink); border-radius: 8px; padding: 9px 14px; font-weight: 600; }
+  .btn-quiet:hover { border-color: var(--muted); }
+
+  .intake-layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 18px; align-items: start; }
+  @media (max-width: 900px) { .intake-layout { grid-template-columns: 1fr; } }
+  .intake-form { display: grid; gap: 16px; }
+
+  .dropzone { border: 1.5px dashed var(--line); border-radius: 9px; padding: 26px 18px; display: grid; justify-items: center; gap: 6px; text-align: center; color: var(--muted); background: var(--paper); transition: border-color .15s; cursor: pointer; }
+  .dropzone:hover, .dropzone.drag { border-color: var(--accent); color: var(--ink); }
+  .dropzone .big { font-size: 15px; font-weight: 600; color: var(--ink); }
+  .filechip { display: flex; align-items: center; gap: 10px; margin-top: 10px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: var(--panel); }
+  .filechip .fname { font-weight: 600; overflow-wrap: anywhere; }
+  .filechip .fmeta { color: var(--muted); font-size: 12px; margin-left: auto; white-space: nowrap; }
+  .filechip .x { border: 0; background: none; color: var(--muted); font-size: 15px; padding: 2px 6px; }
+  .filechip .x:hover { color: var(--bad); }
+
+  .runlog { position: sticky; top: 18px; }
+  .runlog .statusline { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+  .runlog .msg { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; }
+  .runlog .kv { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); display: grid; gap: 6px; font-size: 12.5px; }
+  .runlog .kv div { display: flex; justify-content: space-between; gap: 12px; }
+  .runlog .kv dt { color: var(--muted); }
+  .runlog .kv dd { margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; text-align: right; }
+
+  .toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+  .toolbar input[type="search"] { flex: 1; min-width: 220px; font: inherit; color: var(--ink); border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 9px 12px; }
+  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--muted); border-radius: 999px; padding: 5px 13px; font-size: 12.5px; font-weight: 600; }
+  .chip:hover { color: var(--ink); }
+  .chip.on { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+
+  .tablewrap { overflow-x: auto; }
+  table.receipts { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.receipts th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); font-weight: 700; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  table.receipts td { padding: 11px 14px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; }
+  table.receipts tr:hover td { background: var(--accent-soft); cursor: pointer; }
+  td.rid { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  td.query { max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  td.time { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+  .meter { display: flex; align-items: center; gap: 8px; min-width: 110px; }
+  .meter .track { flex: 1; height: 6px; border-radius: 4px; background: var(--line-soft); overflow: hidden; }
+  .meter .fill { height: 100%; border-radius: 4px; background: var(--accent); }
+  .meter .val { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .receipt-doc { max-width: 860px; }
+  .receipt-head { padding: 20px 22px; border-bottom: 1px solid var(--line); display: grid; gap: 10px; }
+  .receipt-head .row1 { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .receipt-head .rid { font-size: 13px; overflow-wrap: anywhere; }
+  .copybtn { border: 1px solid var(--line); background: none; color: var(--muted); border-radius: 6px; padding: 2px 9px; font-size: 11.5px; }
+  .copybtn:hover { color: var(--accent); border-color: var(--accent); }
+  .receipt-head .when { color: var(--muted); font-size: 12.5px; margin-left: auto; white-space: nowrap; }
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .seal { display: flex; gap: 10px; align-items: center; padding: 12px 22px; border-bottom: 1px solid var(--line); background: var(--panel-2); font-size: 12.5px; }
+  .seal .mark { color: var(--copper); font-size: 16px; }
+  .seal .label { font-weight: 700; color: var(--copper); letter-spacing: .1em; text-transform: uppercase; font-size: 10.5px; white-space: nowrap; }
+  .seal .hash { color: var(--muted); word-break: break-all; }
+
+  .verif { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+  @media (max-width: 720px) { .verif { grid-template-columns: 1fr; } }
+  .verif > div { padding: 16px 22px; }
+  .verif > div + div { border-left: 1px solid var(--line-soft); }
+  @media (max-width: 720px) { .verif > div + div { border-left: 0; border-top: 1px solid var(--line-soft); } }
+  .verif h3 { margin: 0 0 8px; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .verif .headline { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .verif .note { color: var(--muted); font-size: 12.5px; }
+
+  .coverage-track { height: 8px; border-radius: 4px; background: var(--line-soft); overflow: hidden; margin: 8px 0 6px; }
+  .coverage-fill { height: 100%; background: var(--accent); border-radius: 4px; }
+
+  .spread { display: flex; align-items: flex-end; gap: 5px; height: 44px; margin: 8px 0 4px; }
+  .spread .bar { width: 14px; background: var(--accent); border-radius: 3px 3px 0 0; }
+  .spread .bar.dim { opacity: .38; }
+
+  .rsection { padding: 16px 22px; border-bottom: 1px solid var(--line-soft); }
+  .rsection:last-child { border-bottom: 0; }
+  .rsection h3 { margin: 0 0 8px; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .rsection p.text { margin: 0; max-width: 68ch; overflow-wrap: anywhere; }
+  .rsection .qtext { font-size: 15px; font-weight: 600; }
+  .rsection .subnote { color: var(--muted); font-size: 12.5px; margin-top: 6px; }
+
+  table.cites { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.cites th { text-align: left; color: var(--muted); font-weight: 600; padding: 6px 10px; border-bottom: 1px solid var(--line-soft); }
+  table.cites td { padding: 7px 10px; border-bottom: 1px solid var(--line-soft); overflow-wrap: anywhere; }
+  table.cites td.score { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .cited-mark { color: var(--ok); font-weight: 700; }
+  .uncited-mark { color: var(--muted); }
+
+  details.fold summary { cursor: pointer; font-weight: 600; color: var(--accent); font-size: 13px; list-style: none; display: inline-flex; align-items: center; gap: 6px; }
+  details.fold summary::before { content: "\\25B8"; transition: transform .12s; }
+  details.fold[open] summary::before { transform: rotate(90deg); }
+  @media (prefers-reduced-motion: reduce) { details.fold summary::before, .dropzone { transition: none; } }
+  details.fold pre { margin: 10px 0 0; }
+  pre { padding: 12px; background: var(--paper); border: 1px solid var(--line-soft); border-radius: 8px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; max-height: 320px; overflow-y: auto; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+  .boundary { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+"""
+
+
+def _render_page(
+    title: str,
+    body: str,
+    *,
+    active: str = "evidence",
+    script: str = "",
+    pills: str = "",
+) -> str:
+    nav_intake = ' class="active"' if active == "intake" else ""
+    nav_evidence = ' class="active"' if active == "evidence" else ""
+    script_tag = f"<script>{script}</script>" if script else ""
     return f"""<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{html.escape(title)}</title>
-  <style>
-    :root {{ color-scheme: light; --ink:#172026; --muted:#52616b; --line:#d9e1e8; --fill:#f6f8fa; --accent:#176b87; }}
-    * {{ box-sizing: border-box; }}
-    body {{ margin:0; font-family: Arial, sans-serif; color:var(--ink); background:#fff; }}
-    main {{ max-width: 1180px; margin: 0 auto; padding: 28px 20px 44px; }}
-    nav {{ display:flex; gap:14px; margin-bottom:20px; }}
-    nav a {{ color:var(--accent); font-weight:700; text-decoration:none; }}
-    h1 {{ margin:0 0 6px; font-size:30px; }}
-    h2 {{ margin-top:28px; }}
-    p {{ color:var(--muted); line-height:1.45; }}
-    table {{ width:100%; border-collapse:collapse; margin-top:14px; }}
-    th, td {{ border:1px solid var(--line); padding:8px; text-align:left; vertical-align:top; overflow-wrap:anywhere; }}
-    th {{ background:var(--fill); }}
-    pre {{ white-space:pre-wrap; overflow-wrap:anywhere; overflow:auto; background:var(--fill); border:1px solid var(--line); border-radius:6px; padding:12px; }}
-    .graph {{ display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:10px; align-items:stretch; }}
-    .node {{ border:1px solid var(--line); background:var(--fill); border-radius:8px; padding:12px; min-height:96px; overflow-wrap:anywhere; }}
-    .arrow {{ display:none; }}
-    .muted {{ color:var(--muted); }}
-    @media (max-width: 860px) {{ .graph {{ grid-template-columns: 1fr; }} }}
-  </style>
+  <style>{BASE_CSS}</style>
 </head>
 <body>
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="wordmark"><span class="name">MNEMOS</span><span class="sub">Evidence Desk</span></div>
+    <nav class="primary" aria-label="Sections">
+      <a href="/"{nav_intake}>Intake</a>
+      <a href="/evidence"{nav_evidence}>Evidence Receipts</a>
+    </nav>
+    <div class="service-pills">{pills}</div>
+  </div>
+</header>
 <main>
-  <nav><a href="/">Research Intake</a><a href="/evidence">Evidence Receipts</a></nav>
-  {body}
+{body}
 </main>
+{script_tag}
 </body>
 </html>"""
 
 
-def render_evidence_list_page(receipts: list[dict[str, Any]]) -> str:
-    rows = "\n".join(
-        "<tr>"
-        f"<td><a href=\"/evidence/{html.escape(row['receipt_id'])}\">{html.escape(row['receipt_id'])}</a></td>"
-        f"<td>{html.escape(row['status'])}</td>"
-        f"<td>{html.escape(row['retrieval_mode'])}</td>"
-        f"<td>{html.escape(str(row['source_count']))}</td>"
-        f"<td>{html.escape(row['model'])}</td>"
-        f"<td>{html.escape(row['query_preview'])}</td>"
-        "</tr>"
-        for row in receipts
+def _coverage_meter(coverage: Any, evidence_count: Any) -> str:
+    try:
+        ratio = max(0.0, min(1.0, float(coverage)))
+        total = int(evidence_count)
+    except (TypeError, ValueError):
+        return (
+            '<div class="meter"><div class="track"><div class="fill" style="width:0%"></div></div>'
+            '<span class="val">&mdash;</span></div>'
+        )
+    cited = round(ratio * total)
+    return (
+        f'<div class="meter"><div class="track"><div class="fill" style="width:{ratio * 100:.0f}%"></div></div>'
+        f'<span class="val">{cited}/{total}</span></div>'
     )
-    if not rows:
-        rows = '<tr><td colspan="6" class="muted">No evidence receipts found.</td></tr>'
+
+
+def _receipt_filter_bucket(row: dict[str, Any]) -> str:
+    status = str(row.get("status") or "unknown")
+    if status == "ok":
+        return "truncated" if row.get("truncated") else "ok"
+    if status == "no_evidence":
+        return "no_evidence"
+    return "error"
+
+
+def render_evidence_list_page(receipts: list[dict[str, Any]]) -> str:
+    row_parts: list[str] = []
+    bucket_counts = {"ok": 0, "truncated": 0, "no_evidence": 0, "error": 0}
+    for row in receipts:
+        bucket = _receipt_filter_bucket(row)
+        bucket_counts[bucket] += 1
+        rid = str(row["receipt_id"])
+        short_id = "&hellip;" + html.escape(rid[-12:]) if len(rid) > 12 else html.escape(rid)
+        status = str(row.get("status") or "unknown")
+        row_parts.append(
+            f'<tr tabindex="0" data-bucket="{bucket}" data-mode="{html.escape(str(row.get("retrieval_mode") or ""))}"'
+            f' data-href="/evidence/{html.escape(rid)}">'
+            f'<td class="query" title="{html.escape(row["query_preview"])}">{html.escape(row["query_preview"])}</td>'
+            f"<td>{_verdict_pill(row.get('verdict'))}</td>"
+            f"<td>{_coverage_meter(row.get('coverage'), row.get('evidence_count'))}</td>"
+            f"<td>{_generation_pill(status, bool(row.get('truncated')))}</td>"
+            f'<td class="rid mono">{short_id}</td>'
+            f'<td class="time">{html.escape(row.get("created_label") or "")}</td>'
+            "</tr>"
+        )
+    rows = "\n".join(row_parts) or '<tr><td colspan="6" class="muted">No evidence receipts found.</td></tr>'
+    total = len(receipts)
+    chips = "\n".join(
+        f'<button class="chip{" on" if key == "all" else ""}" type="button" data-filter="{key}">{label} &middot; {count}</button>'
+        for key, label, count in [
+            ("all", "All", total),
+            ("ok", "ok", bucket_counts["ok"]),
+            ("truncated", "truncated", bucket_counts["truncated"]),
+            ("no_evidence", "no evidence", bucket_counts["no_evidence"]),
+            ("error", "errors", bucket_counts["error"]),
+        ]
+    )
     body = f"""
 <h1>MNEMOS Evidence Receipts</h1>
-<p>Inspect the evidence trails behind MNEMOS-backed Open WebUI answers. This is an evidence graph, not a model reasoning graph.</p>
-<table>
-  <thead><tr><th>Receipt</th><th>Status</th><th>Retrieval Mode</th><th>Sources</th><th>Model</th><th>Query</th></tr></thead>
-  <tbody>{rows}</tbody>
-</table>"""
-    return _render_page("MNEMOS Evidence Receipts", body)
+<p class="lede">Every MNEMOS-grounded answer leaves a receipt: the evidence sent, what the answer cited, and whether generation completed honestly.</p>
+<div class="toolbar">
+  <input type="search" id="receiptSearch" placeholder="Search query text or receipt id&hellip;" aria-label="Search receipts">
+  {chips}
+</div>
+<div class="card">
+  <div class="tablewrap">
+    <table class="receipts">
+      <thead><tr><th>Query</th><th>Verdict</th><th>Coverage</th><th>Generation</th><th>Receipt</th><th>When</th></tr></thead>
+      <tbody id="receiptRows">{rows}</tbody>
+    </table>
+  </div>
+</div>"""
+    script = """
+const search = document.getElementById('receiptSearch');
+const chips = document.querySelectorAll('.toolbar .chip');
+let bucket = 'all';
+function applyFilters() {
+  const term = (search.value || '').toLowerCase();
+  document.querySelectorAll('#receiptRows tr[data-bucket]').forEach((row) => {
+    const bucketHit = bucket === 'all' || row.dataset.bucket === bucket;
+    const termHit = !term || row.textContent.toLowerCase().includes(term);
+    row.style.display = bucketHit && termHit ? '' : 'none';
+  });
+}
+chips.forEach((chip) => chip.addEventListener('click', () => {
+  bucket = chip.dataset.filter;
+  chips.forEach((c) => c.classList.toggle('on', c === chip));
+  applyFilters();
+}));
+search.addEventListener('input', applyFilters);
+document.querySelectorAll('#receiptRows tr[data-href]').forEach((row) => {
+  row.addEventListener('click', () => { window.location = row.dataset.href; });
+  row.addEventListener('keydown', (e) => { if (e.key === 'Enter') window.location = row.dataset.href; });
+});
+"""
+    return _render_page("MNEMOS Evidence Receipts", body, active="evidence", script=script)
+
+
+def _coverage_panel(citation_check: dict[str, Any]) -> str:
+    coverage = citation_check.get("coverage")
+    evidence_count = citation_check.get("evidence_count")
+    if not citation_check or coverage is None or not evidence_count:
+        if citation_check and citation_check.get("verdict") == "no_evidence_available":
+            return (
+                '<div class="headline">No evidence available</div>'
+                '<div class="note">No chunks were admitted, so there was nothing to cite.</div>'
+            )
+        return (
+            '<div class="headline">Not recorded</div>'
+            '<div class="note">This receipt predates citation verification.</div>'
+        )
+    ratio = max(0.0, min(1.0, float(coverage)))
+    total = int(evidence_count)
+    cited = [i for i in (citation_check.get("cited_indices") or [])]
+    invalid = [i for i in (citation_check.get("invalid_indices") or [])]
+    uncited = [i for i in (citation_check.get("uncited_evidence_indices") or [])]
+    parts = []
+    if cited:
+        parts.append("Answer cited " + " ".join(f"[{i}]" for i in cited))
+    else:
+        parts.append("Answer contains no bracket citations")
+    if uncited:
+        parts.append("never cited " + " ".join(f"[{i}]" for i in uncited))
+    if invalid:
+        parts.append("cites missing " + " ".join(f"[{i}]" for i in invalid))
+    else:
+        parts.append("no invalid citations")
+    return (
+        f'<div class="headline">{round(ratio * total)} of {total} chunks cited</div>'
+        f'<div class="coverage-track"><div class="coverage-fill" style="width:{ratio * 100:.0f}%"></div></div>'
+        f'<div class="note">{html.escape(" · ".join(parts))}</div>'
+    )
+
+
+def _generation_panel(generation: dict[str, Any], status: str) -> str:
+    done_reason = generation.get("done_reason")
+    if not generation or (done_reason is None and generation.get("eval_count") is None):
+        if status != "ok":
+            return (
+                '<div class="headline">Not generated</div>'
+                f'<div class="note">Status {html.escape(status)} — Ollama was not called or did not complete.</div>'
+            )
+        return (
+            '<div class="headline">Not recorded</div>'
+            '<div class="note">This receipt predates generation annotations.</div>'
+        )
+    truncated = bool(generation.get("truncated"))
+    headline = "Stopped at token limit" if truncated else "Completed"
+    bits = []
+    if done_reason:
+        bits.append(f"done_reason = {done_reason}")
+    prompt_tokens = generation.get("prompt_eval_count")
+    eval_tokens = generation.get("eval_count")
+    if isinstance(prompt_tokens, int) and isinstance(eval_tokens, int):
+        bits.append(f"{prompt_tokens:,} prompt + {eval_tokens:,} completion tokens")
+    if truncated:
+        bits.append("citations may be incomplete — the served footer carries the same warning")
+    return (
+        f'<div class="headline">{headline}</div>'
+        f'<div class="note">{html.escape(" · ".join(bits))}</div>'
+    )
+
+
+def _spread_panel(
+    citations: list[dict[str, Any]],
+    score_stats: dict[str, Any],
+    cited_indices: set[Any],
+    has_check: bool,
+) -> str:
+    scored: list[tuple[Any, float]] = []
+    for item in citations:
+        score = item.get("score")
+        if score is None:
+            continue
+        try:
+            scored.append((item.get("index"), float(score)))
+        except (TypeError, ValueError):
+            continue
+    if not scored:
+        return (
+            '<div class="headline">No scores</div>'
+            '<div class="note">No retrieval scores were recorded on this receipt.</div>'
+        )
+    top = max(score for _, score in scored) or 1.0
+    bars = "".join(
+        f'<div class="bar{" dim" if has_check and index not in cited_indices else ""}"'
+        f' style="height:{max(6.0, score / top * 100):.0f}%" title="[{html.escape(str(index))}] {score:.4f}"></div>'
+        for index, score in scored[:10]
+    )
+    values = [score for _, score in scored]
+    stats = {
+        "max": score_stats.get("max", round(max(values), 4)),
+        "mean": score_stats.get("mean", round(sum(values) / len(values), 4)),
+        "min": score_stats.get("min", round(min(values), 4)),
+    }
+    label = ", ".join(f"{score:.2f}" for _, score in scored[:10])
+    return (
+        f'<div class="spread" role="img" aria-label="Retrieval scores: {label}">{bars}</div>'
+        f'<div class="note">max {stats["max"]} · mean {stats["mean"]} · min {stats["min"]}'
+        " — the weak tail is shown, not hidden.</div>"
+    )
 
 
 def render_evidence_detail_page(receipt: dict[str, Any]) -> str:
-    verification_json = _json_pretty(
-        {
-            "citation_check": receipt.get("citation_check"),
-            "generation": receipt.get("generation"),
-            "score_stats": receipt.get("score_stats"),
-            "content_hash": receipt.get("content_hash"),
-        }
+    citations = [item for item in (receipt.get("citations") or []) if isinstance(item, dict)]
+    citation_check = receipt.get("citation_check")
+    citation_check = citation_check if isinstance(citation_check, dict) else {}
+    generation = receipt.get("generation")
+    generation = generation if isinstance(generation, dict) else {}
+    score_stats = receipt.get("score_stats")
+    score_stats = score_stats if isinstance(score_stats, dict) else {}
+    metadata = receipt.get("retrieval_metadata")
+    metadata = metadata if isinstance(metadata, dict) else {}
+
+    status = str(receipt.get("status") or "unknown")
+    truncated = bool(generation.get("truncated"))
+    cited_indices = set(citation_check.get("cited_indices") or [])
+
+    badges = [_status_pill(status)]
+    if citation_check:
+        badges.append(_verdict_pill(citation_check.get("verdict")))
+    if truncated:
+        badges.append(_pill("warn", "truncated at token limit"))
+    if metadata.get("query_condensed"):
+        badges.append(_pill("", "query condensed"))
+
+    requested_model = str(receipt.get("requested_model") or "")
+    actual_model = str(receipt.get("actual_model") or "")
+    model_label = requested_model or actual_model
+    if actual_model and requested_model and actual_model != requested_model:
+        model_label = f"{requested_model} → {actual_model}"
+    when_label = " · ".join(part for part in [_format_created(receipt.get("created")), model_label] if part)
+
+    content_hash = str(receipt.get("content_hash") or "")
+    hash_html = (
+        f'<span class="hash mono">{html.escape(content_hash)}</span>'
+        if content_hash
+        else '<span class="hash muted">not recorded (pre-verification receipt)</span>'
     )
-    citations = receipt.get("citations") or []
+
+    def _mark(index: Any) -> str:
+        if not citation_check:
+            return "<td></td>"
+        if index in cited_indices:
+            return '<td class="cited-mark">✓</td>'
+        return '<td class="uncited-mark">·</td>'
+
     citation_rows = "\n".join(
         "<tr>"
-        f"<td>{html.escape(str(item.get('index', '')))}</td>"
+        + _mark(item.get("index"))
+        + f"<td>[{html.escape(str(item.get('index', '')))}]</td>"
         f"<td>{html.escape(str(item.get('source', 'unknown')))}</td>"
-        f"<td>{html.escape(str(item.get('score', '')))}</td>"
-        f"<td>{html.escape(str(item.get('engram_id', '')))}</td>"
+        f'<td class="score">{html.escape(str(item.get("score", "")))}</td>'
+        f'<td class="mono">{html.escape(str(item.get("engram_id", "")))}</td>'
         "</tr>"
         for item in citations
-        if isinstance(item, dict)
+    ) or '<tr><td colspan="5" class="muted">No citations recorded.</td></tr>'
+
+    condensed_note = ""
+    if metadata.get("query_condensed"):
+        retrieval_query = str(metadata.get("retrieval_query") or "")
+        turns = metadata.get("history_turns")
+        turns_text = f" · {turns} history turns forwarded" if turns else ""
+        condensed_note = (
+            f'<p class="subnote">Condensed for retrieval → <em>{html.escape(retrieval_query)}</em>{html.escape(turns_text)}</p>'
+        )
+
+    answer = str(receipt.get("answer") or "")
+    answer_html = (
+        f'<p class="text">{html.escape(answer)}</p>'
+        if answer
+        else '<p class="text muted">No answer generated.</p>'
     )
-    if not citation_rows:
-        citation_rows = '<tr><td colspan="4" class="muted">No citations recorded.</td></tr>'
-    sources = sorted({str(item.get("source", "unknown")) for item in citations if isinstance(item, dict)})
-    source_list = "<br>".join(html.escape(source) for source in sources) or "No source files recorded."
+    warning = str(receipt.get("warning") or "")
+    warning_html = (
+        f'<div class="rsection"><h3>Warning</h3><p class="text">{html.escape(warning)}</p></div>'
+        if warning
+        else ""
+    )
+
+    evidence_block = str(receipt.get("evidence_block") or "")
     body = f"""
-<h1>MNEMOS Evidence Receipt</h1>
-<p><strong>Receipt:</strong> {html.escape(str(receipt.get('receipt_id', '')))}</p>
-<p><strong>Status:</strong> {html.escape(str(receipt.get('status', '')))} | <strong>Retrieval mode:</strong> {html.escape(_receipt_retrieval_mode(receipt))}</p>
+<h1>Evidence receipt</h1>
+<p class="lede">The full trail behind one answer — what was asked, what evidence was admitted, what the answer actually used.</p>
 
-<h2>Evidence Graph</h2>
-<p class="muted">This graph shows the evidence path supplied to the model. It does not claim to expose private model reasoning.</p>
-<section class="graph">
-  <div class="node"><strong>User Query</strong><br>{html.escape(_query_preview(str(receipt.get('query') or ''), 180))}</div>
-  <div class="node"><strong>Retrieved Evidence Chunks</strong><br>{len(citations)} cited chunk(s)</div>
-  <div class="node"><strong>Source Files / Metadata</strong><br>{source_list}</div>
-  <div class="node"><strong>Model Answer With Citations</strong><br>{html.escape(_query_preview(str(receipt.get('answer') or ''), 180))}</div>
-</section>
+<div class="card receipt-doc">
+  <div class="receipt-head">
+    <div class="row1">
+      <span class="rid mono" id="receiptId">{html.escape(str(receipt.get('receipt_id', '')))}</span>
+      <button class="copybtn" type="button" id="copyId">copy id</button>
+      <span class="when">{html.escape(when_label)}</span>
+    </div>
+    <div class="badges">{''.join(badges)}</div>
+  </div>
 
-<h2>Models</h2>
-<pre>requested_model: {html.escape(str(receipt.get('requested_model', '')))}
-actual_model: {html.escape(str(receipt.get('actual_model', '')))}</pre>
+  <div class="seal">
+    <span class="mark">◈</span>
+    <span class="label">Integrity</span>
+    {hash_html}
+  </div>
 
-<h2>Citations</h2>
-<table>
-  <thead><tr><th>#</th><th>Source</th><th>Score</th><th>Engram ID</th></tr></thead>
-  <tbody>{citation_rows}</tbody>
-</table>
+  <div class="verif">
+    <div><h3>Citation coverage</h3>{_coverage_panel(citation_check)}</div>
+    <div><h3>Generation</h3>{_generation_panel(generation, status)}</div>
+    <div><h3>Score spread</h3>{_spread_panel(citations, score_stats, cited_indices, bool(citation_check))}</div>
+  </div>
 
-<h2>Verification</h2>
-<p class="muted">Deterministic post-hoc annotations: citation usage, generation honesty, score spread, and the tamper-evidence hash. Recorded, never enforced.</p>
-<pre>{html.escape(verification_json)}</pre>
+  <div class="rsection">
+    <h3>Query</h3>
+    <p class="text qtext">{html.escape(str(receipt.get('query') or ''))}</p>
+    {condensed_note}
+  </div>
 
-<h2>Retrieval Metadata</h2>
-<pre>{html.escape(_json_pretty(receipt.get('retrieval_metadata') or {}))}</pre>
+  <div class="rsection">
+    <h3>Citations</h3>
+    <table class="cites">
+      <thead><tr><th></th><th>#</th><th>Source</th><th>Score</th><th>Engram ID</th></tr></thead>
+      <tbody>{citation_rows}</tbody>
+    </table>
+  </div>
 
-<h2>Query</h2>
-<pre>{html.escape(str(receipt.get('query') or ''))}</pre>
+  <div class="rsection">
+    <h3>Answer</h3>
+    {answer_html}
+  </div>
+  {warning_html}
 
-<h2>Answer</h2>
-<pre>{html.escape(str(receipt.get('answer') or ''))}</pre>
+  <div class="rsection">
+    <details class="fold">
+      <summary>Evidence block sent to Ollama · {len(citations)} chunks · {len(evidence_block):,} chars</summary>
+      <pre>{html.escape(evidence_block)}</pre>
+    </details>
+  </div>
 
-<h2>Evidence Block Sent To Ollama</h2>
-<pre>{html.escape(str(receipt.get('evidence_block') or ''))}</pre>
+  <div class="rsection">
+    <details class="fold">
+      <summary>Retrieval metadata · mode {html.escape(_receipt_retrieval_mode(receipt))}</summary>
+      <pre>{html.escape(_json_pretty(receipt.get('retrieval_metadata') or {}))}</pre>
+    </details>
+  </div>
 
-<h2>Boundary</h2>
-<pre>{html.escape(str(receipt.get('claim_boundary') or ''))}</pre>
+  <div class="rsection">
+    <h3>Boundary</h3>
+    <p class="boundary mono">{html.escape(str(receipt.get('claim_boundary') or ''))}</p>
+  </div>
+</div>"""
+    script = """
+const copyBtn = document.getElementById('copyId');
+if (copyBtn && navigator.clipboard) {
+  copyBtn.addEventListener('click', async () => {
+    await navigator.clipboard.writeText(document.getElementById('receiptId').textContent.trim());
+    copyBtn.textContent = 'copied';
+    setTimeout(() => { copyBtn.textContent = 'copy id'; }, 1400);
+  });
+}
 """
-    return _render_page("MNEMOS Evidence Receipt", body)
+    return _render_page("MNEMOS Evidence Receipt", body, active="evidence", script=script)
 
 
 def create_app(
@@ -311,7 +799,18 @@ def create_app(
 
     @app.get("/")
     def index():
-        return INDEX_HTML.replace("__DEFAULT_OLLAMA_BASE_URL__", default_ollama_base_url()).replace(
+        pills = (
+            '<span class="pill" id="svcMnemos"><span class="dot"></span>MNEMOS · checking…</span>'
+            '<span class="pill" id="svcOllama"><span class="dot"></span>Ollama · checking…</span>'
+        )
+        page = _render_page(
+            "MNEMOS Research Intake",
+            INDEX_BODY,
+            active="intake",
+            script=INDEX_SCRIPT,
+            pills=pills,
+        )
+        return page.replace("__DEFAULT_OLLAMA_BASE_URL__", default_ollama_base_url()).replace(
             "__DEFAULT_MNEMOS_BASE_URL__", DEFAULT_MNEMOS_BASE_URL
         )
 
@@ -393,189 +892,273 @@ def create_app(
     return app
 
 
-INDEX_HTML = """<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MNEMOS Research Intake</title>
-  <style>
-    :root { color-scheme: light; --ink:#172026; --muted:#52616b; --line:#d9e1e8; --fill:#f6f8fa; --accent:#176b87; --ok:#166534; --bad:#991b1b; }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family: Arial, sans-serif; color:var(--ink); background:#ffffff; }
-    main { max-width: 1080px; margin: 0 auto; padding: 28px 20px 44px; }
-    nav { display:flex; gap:14px; margin-bottom:20px; }
-    nav a { color:var(--accent); font-weight:700; text-decoration:none; }
-    h1 { margin: 0 0 6px; font-size: 30px; font-weight: 700; }
-    p { color: var(--muted); line-height: 1.45; }
-    form { display:grid; gap:18px; }
-    fieldset { border:1px solid var(--line); border-radius:8px; padding:18px; }
-    legend { font-weight:700; padding:0 8px; }
-    .grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:14px; }
-    label { display:grid; gap:6px; font-size: 14px; font-weight: 700; }
-    input, select { width:100%; border:1px solid var(--line); border-radius:6px; padding:10px 11px; font-size:14px; background:#fff; }
-    input[type=file] { padding: 9px; }
-    .inline { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    .inline label { display:flex; flex-direction:row; align-items:center; font-weight:600; }
-    button { border:0; border-radius:6px; padding:10px 14px; font-weight:700; cursor:pointer; }
-    button.primary { background:var(--accent); color:#fff; }
-    button.secondary { background:#e8eef2; color:#172026; }
-    button:disabled { opacity:.58; cursor:not-allowed; }
-    .status { min-height: 44px; border:1px solid var(--line); border-radius:8px; padding:12px; background:var(--fill); white-space:pre-wrap; }
-    .ok { color: var(--ok); }
-    .bad { color: var(--bad); }
-    .hint { font-size:13px; color:var(--muted); font-weight:400; }
-    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
-  </style>
-</head>
-<body>
-<main>
-  <nav><a href="/">Research Intake</a><a href="/evidence">Evidence Receipts</a></nav>
+INDEX_BODY = """
   <h1>MNEMOS Research Intake</h1>
-  <p>Upload PDFs, Word files, Markdown, code, or data files into MNEMOS, optionally summarize with a local Ollama model, then use Ollama separately for evidence-grounded prompting.</p>
+  <p class="lede">Upload PDFs, documents, or code. Files are extracted, chunked, and indexed into MNEMOS with source lineage — ready for evidence-grounded chat.</p>
 
-  <form id="intakeForm">
-    <fieldset>
-      <legend>Connections</legend>
-      <div class="grid">
-        <label>MNEMOS base URL
-          <input name="mnemos_base_url" id="mnemosBaseUrl" value="__DEFAULT_MNEMOS_BASE_URL__">
-        </label>
-        <label>MNEMOS timeout seconds
-          <input name="mnemos_timeout_s" id="mnemosTimeoutS" type="number" min="1" value="180">
-          <span class="hint">PDF embedding/indexing can exceed the SDK default 5 seconds.</span>
-        </label>
-        <label>Ollama base URL
-          <input name="ollama_base_url" id="ollamaBaseUrl" value="__DEFAULT_OLLAMA_BASE_URL__">
-          <span class="hint">Detected from OLLAMA_BASE_URL or OLLAMA_HOST when available. You can type a different local URL.</span>
-        </label>
+  <div class="intake-layout">
+    <form id="intakeForm" class="intake-form">
+      <div class="card">
+        <h2>Connections</h2>
+        <div class="body">
+          <div class="field-grid">
+            <label class="field">MNEMOS base URL
+              <input name="mnemos_base_url" id="mnemosBaseUrl" value="__DEFAULT_MNEMOS_BASE_URL__">
+            </label>
+            <label class="field">MNEMOS timeout seconds
+              <input name="mnemos_timeout_s" id="mnemosTimeoutS" type="number" min="1" value="180">
+              <span class="hint">PDF embedding/indexing can exceed the SDK default 5 seconds.</span>
+            </label>
+            <label class="field">Ollama base URL
+              <input name="ollama_base_url" id="ollamaBaseUrl" value="__DEFAULT_OLLAMA_BASE_URL__">
+              <span class="hint">Detected from OLLAMA_BASE_URL or OLLAMA_HOST when available.</span>
+            </label>
+          </div>
+          <div class="inline" style="margin-top:12px;">
+            <button class="btn-quiet" type="button" id="testConnection">Test Connection</button>
+            <button class="btn-quiet" type="button" id="refreshModels">Refresh Models</button>
+          </div>
+        </div>
       </div>
-      <div class="inline" style="margin-top:12px;">
-        <button class="secondary" type="button" id="testConnection">Test Connection</button>
-        <button class="secondary" type="button" id="refreshModels">Refresh Models</button>
-      </div>
-    </fieldset>
 
-    <fieldset>
-      <legend>Artifact Metadata</legend>
-      <div class="grid">
-        <label>Project
-          <input name="project" value="MNEMOS" required>
-        </label>
-        <label>Capability
-          <input name="capability" placeholder="local research memory" required>
-        </label>
-        <label>Status
-          <select name="status">
-            <option value="new">new</option>
-            <option value="reviewed">reviewed</option>
-            <option value="promising">promising</option>
-            <option value="rejected">rejected</option>
-            <option value="integrated">integrated</option>
-          </select>
-        </label>
-        <label>Tags
-          <input name="tags" placeholder="workflow, pdf, github">
-          <span class="hint">Comma-separated.</span>
-        </label>
+      <div class="card">
+        <h2>Files</h2>
+        <div class="body">
+          <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Add files">
+            <span class="big">Drop files here</span>
+            <span>or click to browse · PDF, DOCX, MD, code, data</span>
+          </div>
+          <input name="files" id="fileInput" type="file" multiple style="display:none">
+          <div id="fileChips"></div>
+        </div>
       </div>
-    </fieldset>
 
-    <fieldset>
-      <legend>Files And Summary</legend>
-      <label>Files
-        <input name="files" type="file" multiple required>
-      </label>
-      <div class="grid" style="margin-top:14px;">
-        <label>Ollama model
-          <select id="ollamaModelSelect"></select>
-          <input name="ollama_model" id="ollamaModel" placeholder="type model name if not listed">
-          <span class="hint">Only needed when "Summarize with Ollama" is checked; you can type a model manually.</span>
-        </label>
-        <label>Index batch size
-          <input name="batch_size" type="number" min="1" value="25">
-          <span class="hint">Smaller batches are slower but less likely to time out on large PDFs.</span>
-        </label>
-        <label>Output packet path
-          <input name="output" placeholder="docs/research/my_packet.md">
-        </label>
+      <div class="card">
+        <h2>Metadata &amp; options</h2>
+        <div class="body">
+          <div class="field-grid">
+            <label class="field">Project
+              <input name="project" value="MNEMOS" required>
+            </label>
+            <label class="field">Capability
+              <input name="capability" placeholder="local research memory" required>
+            </label>
+            <label class="field">Status
+              <select name="status">
+                <option value="new">new</option>
+                <option value="reviewed">reviewed</option>
+                <option value="promising">promising</option>
+                <option value="rejected">rejected</option>
+                <option value="integrated">integrated</option>
+              </select>
+            </label>
+            <label class="field">Tags
+              <input name="tags" placeholder="workflow, pdf, github">
+              <span class="hint">Comma-separated.</span>
+            </label>
+            <label class="field">Ollama model
+              <select id="ollamaModelSelect" aria-label="Ollama model list"></select>
+              <input name="ollama_model" id="ollamaModel" placeholder="type model name if not listed">
+              <span class="hint">Only used when summarizing; you can type a model manually.</span>
+            </label>
+            <label class="field">Index batch size
+              <input name="batch_size" type="number" min="1" value="25">
+              <span class="hint">Smaller batches are slower but less likely to time out on large PDFs.</span>
+            </label>
+            <label class="field">Output packet path
+              <input name="output" placeholder="docs/research/my_packet.md">
+            </label>
+          </div>
+          <div class="inline" style="margin-top:14px;">
+            <label class="check"><input name="summarize" type="checkbox" value="true" checked> Summarize with Ollama</label>
+          </div>
+        </div>
       </div>
-      <div class="inline" style="margin-top:12px;">
-        <label><input name="summarize" type="checkbox" value="true" checked> Summarize with Ollama</label>
-      </div>
-    </fieldset>
 
-    <div class="inline">
-      <button class="primary" type="submit" id="runIntake">Run Intake</button>
+      <div class="inline">
+        <button class="btn-primary" type="submit" id="runIntake">Run Intake</button>
+      </div>
+    </form>
+
+    <div class="card runlog">
+      <h2>Run log</h2>
+      <div class="body">
+        <div class="statusline"><span class="pill" id="runPill"><span class="dot"></span>idle</span></div>
+        <div class="msg" id="statusBox">Ready.</div>
+        <dl class="kv" id="resultKv" hidden></dl>
+        <details class="fold" id="rawWrap" hidden>
+          <summary>Raw response</summary>
+          <pre id="rawJson"></pre>
+        </details>
+      </div>
     </div>
-  </form>
+  </div>
+"""
 
-  <h2>Result</h2>
-  <div class="status" id="statusBox">Ready.</div>
-</main>
-<script>
+INDEX_SCRIPT = """
 const statusBox = document.getElementById('statusBox');
+const runPill = document.getElementById('runPill');
+const resultKv = document.getElementById('resultKv');
+const rawWrap = document.getElementById('rawWrap');
+const rawJson = document.getElementById('rawJson');
 const modelSelect = document.getElementById('ollamaModelSelect');
 const modelInput = document.getElementById('ollamaModel');
+const fileInput = document.getElementById('fileInput');
+const dropzone = document.getElementById('dropzone');
+const fileChips = document.getElementById('fileChips');
+const runButton = document.getElementById('runIntake');
 
-function setStatus(text, ok=null) {
-  statusBox.className = 'status' + (ok === true ? ' ok' : ok === false ? ' bad' : '');
-  statusBox.textContent = text;
+function setPill(el, kind, text) {
+  el.className = 'pill' + (kind ? ' ' + kind : '');
+  el.innerHTML = '<span class="dot"></span>' + text;
 }
+
+function setStatus(text, ok = null) {
+  statusBox.textContent = text;
+  if (ok === true) setPill(runPill, 'ok', 'done');
+  else if (ok === false) setPill(runPill, 'bad', 'failed');
+}
+
+function renderChips() {
+  fileChips.innerHTML = '';
+  [...fileInput.files].forEach((file, index) => {
+    const chip = document.createElement('div');
+    chip.className = 'filechip';
+    const name = document.createElement('span');
+    name.className = 'fname';
+    name.textContent = file.name;
+    const meta = document.createElement('span');
+    meta.className = 'fmeta';
+    meta.textContent = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'x';
+    remove.setAttribute('aria-label', 'Remove ' + file.name);
+    remove.textContent = '\\u00d7';
+    remove.addEventListener('click', () => {
+      const dt = new DataTransfer();
+      [...fileInput.files].forEach((f, i) => { if (i !== index) dt.items.add(f); });
+      fileInput.files = dt.files;
+      renderChips();
+    });
+    chip.append(name, meta, remove);
+    fileChips.appendChild(chip);
+  });
+}
+
+function addFiles(list) {
+  const dt = new DataTransfer();
+  [...fileInput.files].forEach((f) => dt.items.add(f));
+  [...list].forEach((f) => dt.items.add(f));
+  fileInput.files = dt.files;
+  renderChips();
+}
+
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+fileInput.addEventListener('change', renderChips);
+['dragover', 'dragenter'].forEach((evt) => dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.add('drag'); }));
+['dragleave', 'drop'].forEach((evt) => dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.remove('drag'); }));
+dropzone.addEventListener('drop', (e) => addFiles(e.dataTransfer.files));
 
 async function refreshModels() {
   const base = document.getElementById('ollamaBaseUrl').value;
-  setStatus('Loading Ollama models...');
   const res = await fetch('/api/ollama-models?ollama_base_url=' + encodeURIComponent(base));
   const data = await res.json();
   modelSelect.innerHTML = '';
   if (!data.ok) {
-    setStatus('Ollama model lookup failed: ' + data.error, false);
+    setPill(document.getElementById('svcOllama'), 'bad', 'Ollama · unreachable');
     return;
   }
-  data.models.forEach(model => {
+  data.models.forEach((model) => {
     const opt = document.createElement('option');
     opt.value = model.name;
     opt.textContent = model.name;
     modelSelect.appendChild(opt);
   });
-  if (data.models.length) {
-    modelInput.value = data.models[0].name;
+  if (data.models.length && !modelInput.value) modelInput.value = data.models[0].name;
+  setPill(document.getElementById('svcOllama'), 'ok', 'Ollama · ' + data.models.length + ' models');
+}
+
+async function testConnections(announce) {
+  if (announce) setStatus('Testing connections...');
+  const res = await fetch('/api/test-connection', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      mnemos_base_url: document.getElementById('mnemosBaseUrl').value,
+      ollama_base_url: document.getElementById('ollamaBaseUrl').value,
+    }),
+  });
+  const data = await res.json();
+  const m = data.mnemos || {};
+  const o = data.ollama || {};
+  setPill(document.getElementById('svcMnemos'), m.ok ? 'ok' : 'bad', 'MNEMOS · ' + (m.ok ? (m.status || 'healthy') : 'unreachable'));
+  setPill(document.getElementById('svcOllama'), o.ok ? 'ok' : 'bad', 'Ollama · ' + (o.ok ? o.model_count + ' models' : 'unreachable'));
+  if (announce) {
+    const problems = [];
+    if (!m.ok) problems.push('MNEMOS: ' + (m.error || m.status || 'unreachable'));
+    if (!o.ok) problems.push('Ollama: ' + (o.error || 'unreachable'));
+    setStatus(data.ok ? 'Both connections healthy.' : problems.join('\\n'), data.ok);
   }
-  setStatus('Loaded ' + data.models.length + ' Ollama model(s).', true);
+  return data;
+}
+
+function renderResult(data) {
+  resultKv.innerHTML = '';
+  const entries = [];
+  const result = data.result || {};
+  for (const [key, value] of Object.entries(result)) {
+    if (['string', 'number', 'boolean'].includes(typeof value) && String(value).length <= 120) {
+      entries.push([key, String(value)]);
+    }
+  }
+  if (Array.isArray(data.uploaded_files)) entries.unshift(['uploaded files', String(data.uploaded_files.length)]);
+  entries.forEach(([key, value]) => {
+    const row = document.createElement('div');
+    const dt = document.createElement('dt');
+    dt.textContent = key;
+    const dd = document.createElement('dd');
+    dd.textContent = value;
+    row.append(dt, dd);
+    resultKv.appendChild(row);
+  });
+  resultKv.hidden = entries.length === 0;
+  rawJson.textContent = JSON.stringify(data, null, 2);
+  rawWrap.hidden = false;
 }
 
 modelSelect.addEventListener('change', () => { modelInput.value = modelSelect.value; });
 document.getElementById('refreshModels').addEventListener('click', refreshModels);
-
-document.getElementById('testConnection').addEventListener('click', async () => {
-  setStatus('Testing connections...');
-  const res = await fetch('/api/test-connection', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      mnemos_base_url: document.getElementById('mnemosBaseUrl').value,
-      ollama_base_url: document.getElementById('ollamaBaseUrl').value
-    })
-  });
-  const data = await res.json();
-  setStatus(JSON.stringify(data, null, 2), data.ok);
-});
+document.getElementById('testConnection').addEventListener('click', () => testConnections(true));
 
 document.getElementById('intakeForm').addEventListener('submit', async (event) => {
   event.preventDefault();
-  setStatus('Running intake...');
-  const form = new FormData(event.target);
-  form.set('ollama_model', modelInput.value || modelSelect.value || 'llama3.1');
-  const res = await fetch('/api/intake', { method: 'POST', body: form });
-  const data = await res.json();
-  setStatus(JSON.stringify(data, null, 2), data.ok);
+  if (!fileInput.files.length) {
+    setStatus('Add at least one file before running intake.', false);
+    return;
+  }
+  setPill(runPill, 'accent', 'running');
+  setStatus('Running intake\\u2026 extract \\u2192 chunk \\u2192 index' + (event.target.summarize.checked ? ' \\u2192 summarize' : '') + '. Large PDFs can take a few minutes.');
+  resultKv.hidden = true;
+  rawWrap.hidden = true;
+  runButton.disabled = true;
+  try {
+    const form = new FormData(event.target);
+    form.set('ollama_model', modelInput.value || modelSelect.value || 'llama3.1');
+    const res = await fetch('/api/intake', { method: 'POST', body: form });
+    const data = await res.json();
+    setStatus(data.ok ? 'Intake complete.' : 'Intake failed: ' + (data.error || (data.result && data.result.status) || 'see raw response'), data.ok);
+    renderResult(data);
+  } catch (err) {
+    setStatus('Intake request failed: ' + err, false);
+  } finally {
+    runButton.disabled = false;
+  }
 });
 
 refreshModels();
-</script>
-</body>
-</html>
+testConnections(false);
 """
 
 

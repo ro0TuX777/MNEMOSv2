@@ -123,7 +123,7 @@ def test_evidence_list_page_renders_recent_receipts(tmp_path):
     assert "semantic" in text
 
 
-def test_evidence_detail_page_renders_graph_and_receipt(tmp_path):
+def test_evidence_detail_page_renders_receipt_document(tmp_path):
     receipt_dir = tmp_path / "receipts"
     receipt_dir.mkdir()
     _write_receipt(receipt_dir, receipt_id="chatcmpl-mnemos-1")
@@ -134,13 +134,60 @@ def test_evidence_detail_page_renders_graph_and_receipt(tmp_path):
     text = response.get_data(as_text=True)
 
     assert response.status_code == 200
-    assert "Evidence Graph" in text
-    assert "User Query" in text
-    assert "Retrieved Evidence Chunks" in text
-    assert "Source Files / Metadata" in text
-    assert "Model Answer With Citations" in text
+    assert "Evidence receipt" in text
+    assert "Integrity" in text
+    assert "Citation coverage" in text
+    assert "Generation" in text
+    assert "Score spread" in text
+    assert "How does cycle convexity differ?" in text
     assert "cycle-convexity.pdf" in text
     assert "BAAI/bge-base-en-v1.5" in text
+    assert "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY" in text
+    # Legacy receipt without verification annotations degrades gracefully.
+    assert "not recorded" in text.lower()
+
+
+def test_evidence_detail_page_renders_verification_annotations(tmp_path):
+    receipt_dir = tmp_path / "receipts"
+    receipt_dir.mkdir()
+    target = _write_receipt(receipt_dir, receipt_id="chatcmpl-mnemos-2")
+    receipt = json.loads(target.read_text(encoding="utf-8"))
+    receipt.update(
+        {
+            "citation_check": {
+                "cited_indices": [1],
+                "invalid_indices": [],
+                "uncited_evidence_indices": [],
+                "evidence_count": 1,
+                "coverage": 1.0,
+                "verdict": "all_evidence_cited",
+            },
+            "generation": {
+                "done_reason": "length",
+                "truncated": True,
+                "prompt_eval_count": 1979,
+                "eval_count": 200,
+            },
+            "score_stats": {"count": 1, "max": 0.8123, "min": 0.8123, "mean": 0.8123},
+            "content_hash": "sha256:abc123",
+        }
+    )
+    receipt["retrieval_metadata"]["query_condensed"] = True
+    receipt["retrieval_metadata"]["retrieval_query"] = "standalone cycle convexity question"
+    receipt["retrieval_metadata"]["history_turns"] = 2
+    target.write_text(json.dumps(receipt), encoding="utf-8")
+    app = create_app(upload_dir=tmp_path / "uploads", receipt_dir=receipt_dir)
+    client = app.test_client()
+
+    text = client.get("/evidence/chatcmpl-mnemos-2").get_data(as_text=True)
+
+    assert "1 of 1 chunks cited" in text
+    assert "all cited" in text
+    assert "Stopped at token limit" in text
+    assert "truncated at token limit" in text
+    assert "sha256:abc123" in text
+    assert "standalone cycle convexity question" in text
+    assert "query condensed" in text
 
 
 def test_evidence_detail_missing_receipt_returns_404(tmp_path):
