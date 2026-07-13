@@ -9,7 +9,7 @@ This guide makes MNEMOS available to Claude Desktop as a local MCP tool server.
 From the MNEMOS repo:
 
 ```powershell
-cd G:\MNEMOS
+cd <path-to-MNEMOS>
 python tools/setup_mnemos_mcp_env.py
 python tools/run_mnemos_mcp_isolation_check.py
 ```
@@ -64,9 +64,9 @@ Add or merge:
 {
   "mcpServers": {
     "mnemos": {
-      "command": "G:\\MNEMOS\\mcp_servers\\mnemos\\.venv\\Scripts\\python.exe",
+      "command": "<path-to-MNEMOS>\\mcp_servers\\mnemos\\.venv\\Scripts\\python.exe",
       "args": [
-        "G:\\MNEMOS\\mcp_servers\\mnemos\\server.py"
+        "<path-to-MNEMOS>\\mcp_servers\\mnemos\\server.py"
       ],
       "env": {
         "MNEMOS_BASE_URL": "http://localhost:8700",

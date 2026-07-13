@@ -36,7 +36,7 @@ MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY
 Windows:
 
 ```powershell
-cd G:\MNEMOS
+cd <path-to-MNEMOS>
 docker compose up -d --build
 curl http://localhost:8700/health
 ```
@@ -152,7 +152,7 @@ The UI is local-only by default (`127.0.0.1`) and stores uploaded files in the
 OS temp directory unless `--upload-dir` is supplied:
 
 ```powershell
-python tools/mnemos_research_ui.py --upload-dir C:\Users\vin\mnemos_research_uploads
+python tools/mnemos_research_ui.py --upload-dir <path-to-research-uploads>
 ```
 
 macOS/Linux:
@@ -167,7 +167,7 @@ Example:
 
 ```powershell
 python tools/mnemos_research_intake.py `
-  "C:\Users\vin\Downloads\AI-Assisted Software Development Workflow.pdf" `
+  "<path-to-pdf>" `
   docs\integrations\ollama_mnemos_mfs.md `
   --project MNEMOS `
   --capability "local research memory" `

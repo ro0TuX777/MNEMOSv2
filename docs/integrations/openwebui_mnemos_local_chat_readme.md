@@ -63,7 +63,7 @@ http://127.0.0.1:11434
 From the MNEMOS repository:
 
 ```powershell
-cd G:\MNEMOS
+cd <path-to-MNEMOS>
 $env:MNEMOS_BASE_URL="http://127.0.0.1:8700"
 $env:OLLAMA_BASE_URL="http://127.0.0.1:7777"
 
@@ -248,7 +248,7 @@ logs/evidence_receipts/
 Override the location if needed:
 
 ```powershell
-$env:MNEMOS_EVIDENCE_RECEIPT_DIR="C:\Users\vin\mnemos_evidence_receipts"
+$env:MNEMOS_EVIDENCE_RECEIPT_DIR="<path-to-receipts>"
 ```
 
 To turn footers off:
