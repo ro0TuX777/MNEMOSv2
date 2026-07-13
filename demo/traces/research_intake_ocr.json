@@ -1,0 +1,101 @@
+{
+  "trace_id": "research_intake_ocr",
+  "title": "Research Intake OCR Fallback",
+  "demo_status": "precomputed_static_demo",
+  "public_safe": true,
+  "question": "How does MNEMOS handle scanned PDFs?",
+  "short_answer": "The research intake tool tries pypdf extraction first. If PDF text density is below the configured threshold, it treats the file as scanned and routes extraction to the optional Docling OCR fallback, recording extraction method metadata for downstream evidence.",
+  "decision_state": "available_where_optional_ocr_dependency_is_configured",
+  "evidence_used": [
+    {
+      "artifact_title": "MNEMOS Research Intake Tool",
+      "artifact_path": "tools/mnemos_research_intake.py",
+      "artifact_type": "tool_source",
+      "claim_supported": "PDF extraction uses pypdf first and routes low-text-density scanned PDFs to Docling OCR when available.",
+      "status": "available",
+      "public_safe_summary": "Code records extraction method, page count, chars per page, source URI, file hash, page range metadata, and claim boundary."
+    },
+    {
+      "artifact_title": "Research Intake Tests",
+      "artifact_path": "tests/test_mnemos_research_intake.py",
+      "artifact_type": "test_suite",
+      "claim_supported": "Tests cover scanned PDF routing to Docling OCR fallback, text PDFs staying on pypdf, and PDF chunks carrying page start/end metadata.",
+      "status": "available",
+      "public_safe_summary": "Unit tests validate the fallback branch and metadata behavior without requiring a live public upload path."
+    },
+    {
+      "artifact_title": "Open WebUI Local Chat Guide",
+      "artifact_path": "docs/integrations/openwebui_mnemos_local_chat_readme.md",
+      "artifact_type": "integration_guide",
+      "claim_supported": "Research Intake UI is the user-facing way to put PDFs and other artifacts into MNEMOS before asking questions.",
+      "status": "available",
+      "public_safe_summary": "Documents the local intake workflow and notes timeout/batch-size tuning for large PDFs."
+    }
+  ],
+  "trace_path": [
+    {
+      "step": 1,
+      "label": "source_artifact",
+      "description": "A PDF is supplied to the research intake path."
+    },
+    {
+      "step": 2,
+      "label": "text_extraction",
+      "description": "The tool first attempts pypdf extraction and measures extracted characters per page."
+    },
+    {
+      "step": 3,
+      "label": "ocr_fallback",
+      "description": "If text density is below `PDF_OCR_MIN_CHARS_PER_PAGE`, the tool routes to Docling OCR when the optional dependency is installed."
+    },
+    {
+      "step": 4,
+      "label": "indexed_chunks",
+      "description": "Extracted pages are chunked with metadata including extraction method, page range, file hash, source URI, and claim boundary."
+    }
+  ],
+  "excluded_or_unsupported_claims": [
+    {
+      "claim": "OCR fallback is guaranteed in every environment.",
+      "reason": "Docling is an optional dependency; missing Docling raises an operator-visible error for scanned PDFs."
+    },
+    {
+      "claim": "Research intake changes retrieval policy or enforcement.",
+      "reason": "The intake claim boundary states it indexes artifacts and does not alter retrieval policy or enable R1/R2 enforcement."
+    },
+    {
+      "claim": "This static trace accepts uploads.",
+      "reason": "The demo package is precomputed and does not include a live upload path."
+    }
+  ],
+  "provenance": {
+    "receipt_id": "demo-research-intake-ocr",
+    "mode": "precomputed_demo",
+    "source_basis": "existing_committed_artifacts",
+    "content_hash": "sha256:b31c2f4d3155dd5e20f6bffd856cb801315455039cf00c24c3c3e49056ea3fe7",
+    "generated_at": "2026-07-13T00:00:00Z"
+  },
+  "limitations": [
+    "This trace describes the static behavior of the intake code and tests.",
+    "It does not run OCR during the demo.",
+    "OCR quality depends on the optional Docling dependency and source PDF quality.",
+    "Large PDFs may need timeout or batch-size tuning in local workflows."
+  ],
+  "demo_panels": {
+    "answer_panel": "MNEMOS research intake uses pypdf first and falls back to Docling OCR for scanned PDFs when configured, recording extraction metadata so later evidence can carry method and page context.",
+    "evidence_panel": [
+      "Code path: `_extract_pdf_pages` -> pypdf density check -> `_extract_pdf_pages_docling` fallback.",
+      "Metadata: extraction method, chars per page, page count, source URI, file hash, page start/end.",
+      "Tests: scanned PDF routes to `docling_ocr`; text PDF stays on `pypdf`."
+    ],
+    "decision_boundary_panel": [
+      "Optional OCR dependency required.",
+      "No runtime inference added by this demo.",
+      "No retrieval or enforcement policy change.",
+      "No user upload path in the static demo package."
+    ],
+    "trace_panel": [
+      "PDF artifact -> pypdf extraction -> OCR fallback if scanned -> chunk metadata -> MNEMOS index boundary."
+    ]
+  }
+}

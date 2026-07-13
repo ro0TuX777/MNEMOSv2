@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MNEMOS Static Demo</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <div class="wordmark" aria-label="MNEMOS">
+          <span class="name">MNEMOS</span>
+          <span class="sub">Evidence Memory System</span>
+        </div>
+        <nav class="primary" aria-label="Demo sections">
+          <button class="tab-button active" type="button" data-tab-target="trace-demo">Trace Explorer</button>
+          <button class="tab-button" type="button" data-tab-target="intake-demo">Research Intake + Receipt</button>
+        </nav>
+        <div class="service-pills" aria-label="Static demo boundaries">
+          <span class="pill accent"><span class="dot"></span>Static demo</span>
+          <span class="pill warn"><span class="dot"></span>No upload</span>
+          <span class="pill warn"><span class="dot"></span>No inference</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero card">
+        <div class="body">
+          <p class="eyebrow">MNEMOS static public demo</p>
+          <h1>Evidence-shaped answers, decisions, handoffs, and evaluations</h1>
+          <p class="lede">
+            A guided static prototype powered by precomputed public-safe traces.
+            The Research Intake tab shows how a PDF Q/A session can surface
+            evidence and a receipt without running uploads, OCR, or live model calls.
+          </p>
+          <div class="boundary-strip" aria-label="Static demo boundaries">
+            <span>Precomputed traces only</span>
+            <span>No runtime inference</span>
+            <span>No user upload</span>
+            <span>No graph implementation</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="trace-demo" class="tab-panel active">
+        <div class="layout">
+          <section class="scenario-rail" aria-labelledby="scenario-heading">
+            <div class="section-heading">
+              <p class="eyebrow">Scenarios</p>
+              <h2 id="scenario-heading">Choose a trace</h2>
+            </div>
+            <div id="scenarioCards" class="scenario-cards" aria-live="polite"></div>
+          </section>
+
+          <section class="trace-view" aria-live="polite">
+            <div id="loadingState" class="loading-state">Loading demo traces...</div>
+            <article id="traceContent" class="trace-content" hidden>
+              <div class="trace-hero">
+                <div>
+                  <p id="traceStatus" class="status-pill">precomputed_static_demo</p>
+                  <h2 id="traceTitle"></h2>
+                  <p id="traceQuestion" class="question"></p>
+                </div>
+                <div class="receipt-card">
+                  <span class="receipt-label">Demo receipt</span>
+                  <code id="receiptId"></code>
+                </div>
+              </div>
+
+              <section class="answer-band">
+                <h3>Short Answer</h3>
+                <p id="shortAnswer"></p>
+              </section>
+
+              <section id="boundaryPanel" class="boundary-panel"></section>
+
+              <div class="content-grid">
+                <section class="panel evidence-panel">
+                  <div class="panel-heading">
+                    <p class="eyebrow">Evidence</p>
+                    <h3>Artifacts Used</h3>
+                  </div>
+                  <div id="evidenceList" class="evidence-list"></div>
+                </section>
+
+                <section class="panel">
+                  <div class="panel-heading">
+                    <p class="eyebrow">Decision</p>
+                    <h3>State And Boundaries</h3>
+                  </div>
+                  <dl id="decisionDetails" class="definition-list"></dl>
+                </section>
+              </div>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <p class="eyebrow">Trace</p>
+                  <h3>Evidence-To-Decision Path</h3>
+                </div>
+                <ol id="tracePath" class="trace-path"></ol>
+              </section>
+
+              <div class="content-grid">
+                <section class="panel caution-panel">
+                  <div class="panel-heading">
+                    <p class="eyebrow">Unsupported</p>
+                    <h3>Claims MNEMOS Does Not Make Here</h3>
+                  </div>
+                  <div id="unsupportedClaims" class="claim-list"></div>
+                </section>
+
+                <section class="panel">
+                  <div class="panel-heading">
+                    <p class="eyebrow">Limits</p>
+                    <h3>Limitations</h3>
+                  </div>
+                  <ul id="limitations" class="limit-list"></ul>
+                </section>
+              </div>
+
+              <section class="panel provenance-panel">
+                <div class="panel-heading">
+                  <p class="eyebrow">Provenance</p>
+                  <h3>Precomputed Demo Receipt</h3>
+                </div>
+                <dl id="provenance" class="definition-list compact"></dl>
+              </section>
+            </article>
+          </section>
+        </div>
+      </section>
+
+      <section id="intake-demo" class="tab-panel">
+        <div id="intakeLoadingState" class="loading-state">Loading Research Intake scenario...</div>
+        <article id="intakeContent" class="intake-demo" hidden>
+          <section class="intake-copy">
+            <p class="eyebrow">Research Intake + Receipt</p>
+            <h2>Static PDF Q/A walkthrough</h2>
+            <p>
+              This tab is a static copy of the Research Intake experience:
+              a PDF is already represented as ingested, a scripted question is
+              answered from precomputed trace data, and the receipt shows what
+              evidence shaped the answer.
+            </p>
+          </section>
+
+          <div class="intake-layout">
+            <section class="intake-form card">
+              <h2>Research Intake</h2>
+              <div class="body">
+                <div class="dropzone static-dropzone" aria-label="Static PDF artifact">
+                  <span class="big">Sample PDF already ingested</span>
+                  <span id="intakePdfName" class="muted">research-intake-sample.pdf</span>
+                  <span class="pill warn"><span class="dot"></span>Uploads disabled in static demo</span>
+                </div>
+
+                <div class="field-grid">
+                  <label class="field">
+                    Artifact type
+                    <input type="text" value="PDF research artifact" readonly>
+                  </label>
+                  <label class="field">
+                    Extraction path
+                    <input id="intakeExtractionPath" type="text" value="pypdf -> optional OCR fallback" readonly>
+                  </label>
+                </div>
+
+                <label class="field">
+                  Scripted question
+                  <textarea id="intakeQuestion" readonly rows="3"></textarea>
+                </label>
+
+                <button class="btn-primary" type="button" disabled>Generate receipt (static preview)</button>
+                <p class="hint">
+                  This control is intentionally disabled: the public demo uses
+                  precomputed traces only.
+                </p>
+              </div>
+            </section>
+
+            <aside class="card receipt-aside">
+              <h2>Demo Receipt</h2>
+              <div class="body">
+                <dl id="intakeReceipt" class="definition-list stacked"></dl>
+              </div>
+            </aside>
+          </div>
+
+          <div class="content-grid">
+            <section class="panel answer-band">
+              <h3>Precomputed Answer</h3>
+              <p id="intakeAnswer"></p>
+            </section>
+
+            <section class="panel boundary-panel">
+              <h3>Boundary</h3>
+              <p>
+                This tab does not accept PDFs, run OCR, call a model, or alter
+                retrieval and enforcement behavior.
+              </p>
+              <ul id="intakeBoundaries" class="boundary-list"></ul>
+            </section>
+          </div>
+
+          <section class="panel evidence-panel">
+            <div class="panel-heading">
+              <p class="eyebrow">Evidence</p>
+              <h3>What shaped the answer</h3>
+            </div>
+            <div id="intakeEvidenceList" class="evidence-list"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <p class="eyebrow">Receipt path</p>
+              <h3>From PDF artifact to auditable answer</h3>
+            </div>
+            <ol id="intakeTracePath" class="trace-path"></ol>
+          </section>
+        </article>
+      </section>
+    </main>
+
+    <template id="scenarioTemplate">
+      <button class="scenario-card" type="button">
+        <span class="card-status"></span>
+        <strong></strong>
+        <span class="card-question"></span>
+      </button>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>

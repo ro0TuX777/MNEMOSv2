@@ -1,0 +1,93 @@
+{
+  "trace_id": "source_grounded_retrieval",
+  "title": "Source-grounded Retrieval",
+  "demo_status": "precomputed_static_demo",
+  "public_safe": true,
+  "question": "What evidence supports this answer?",
+  "short_answer": "MNEMOS search responses are designed to expose per-result evidence and a grouped evidence summary so a downstream chat or agent can cite retrieved sources without inventing filenames, titles, ranks, scores, or source metadata.",
+  "decision_state": "available_evidence_contract",
+  "evidence_used": [
+    {
+      "artifact_title": "Chat Integration Evidence Contract",
+      "artifact_path": "docs/chat_integration_evidence_contract.md",
+      "artifact_type": "integration_contract",
+      "claim_supported": "Search responses expose `results[].evidence` and `meta.evidence_summary` for citation-aware consumers.",
+      "status": "available",
+      "public_safe_summary": "Defines the per-result and grouped evidence fields that a chat UI should preserve."
+    },
+    {
+      "artifact_title": "MNEMOS README Quickstart",
+      "artifact_path": "README.md",
+      "artifact_type": "public_readme",
+      "claim_supported": "The public quickstart indexes one record and searches it through `/v1/mnemos/index` and `/v1/mnemos/search`.",
+      "status": "available",
+      "public_safe_summary": "Shows the simplest local index/search path for a first-time visitor."
+    }
+  ],
+  "trace_path": [
+    {
+      "step": 1,
+      "label": "source_artifact",
+      "description": "A document, note, code file, research artifact, or decision record is indexed as source-grounded memory."
+    },
+    {
+      "step": 2,
+      "label": "source_engram",
+      "description": "The indexed record receives retrievable content and source metadata."
+    },
+    {
+      "step": 3,
+      "label": "retrieval_result_set",
+      "description": "A search response returns ranked results plus per-result evidence fields."
+    },
+    {
+      "step": 4,
+      "label": "answer_with_sources",
+      "description": "A downstream chat or agent can cite only the returned evidence and render a Sources footer from `meta.evidence_summary`."
+    }
+  ],
+  "excluded_or_unsupported_claims": [
+    {
+      "claim": "MNEMOS proves every generated sentence is true.",
+      "reason": "The evidence contract preserves retrieved source metadata; truthfulness still depends on downstream use and sufficient evidence."
+    },
+    {
+      "claim": "A model may invent citations if evidence is missing.",
+      "reason": "The contract explicitly instructs integrators not to synthesize filenames, titles, chunk indices, or scores."
+    },
+    {
+      "claim": "An empty result set is still MNEMOS-grounded.",
+      "reason": "The integration rules say not to claim MNEMOS grounding when evidence is absent."
+    }
+  ],
+  "provenance": {
+    "receipt_id": "demo-source-grounded-retrieval",
+    "mode": "precomputed_demo",
+    "source_basis": "existing_committed_artifacts",
+    "content_hash": "sha256:a981acfdeb5a30ab1d09c9d4e06fcb4c334b202fea35b6a101b068891f6aba08",
+    "generated_at": "2026-07-13T00:00:00Z"
+  },
+  "limitations": [
+    "This trace demonstrates the evidence contract shape, not a live query.",
+    "Page and character spans may be null depending on ingestion source.",
+    "Applications must define their own confidence thresholds and answer policy."
+  ],
+  "demo_panels": {
+    "answer_panel": "The answer is supported by retrieved MNEMOS evidence only when the response includes result-level evidence or a grouped evidence summary.",
+    "evidence_panel": [
+      "`results[].evidence` carries fields such as engram ID, source URI, rank, score, filename, title, chunk, page, and span when known.",
+      "`meta.evidence_summary` groups source evidence for a concise Sources footer.",
+      "Integrators should preserve ranks and scores in visible footers or hidden traces."
+    ],
+    "decision_boundary_panel": [
+      "Do not invent citations.",
+      "Do not claim grounding with no evidence.",
+      "Treat null page/span fields as unknown.",
+      "Keep evidence attached to generated answers for audit."
+    ],
+    "trace_panel": [
+      "Indexed source -> search result -> result evidence -> source footer -> answer audit trail."
+    ]
+  }
+}
+

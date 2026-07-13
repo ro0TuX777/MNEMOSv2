@@ -1,0 +1,101 @@
+{
+  "trace_id": "evidence_admission_r1",
+  "title": "Evidence Admission R1",
+  "demo_status": "precomputed_static_demo",
+  "public_safe": true,
+  "question": "Why was Evidence Admission R1 enforcement not retained?",
+  "short_answer": "Evidence Admission R1 enforcement was not retained because the formal HTTP evaluation failed the preregistered primary non-inferiority criterion. R0 shadow and gate-off controls preserved served retrieval output, but R1 enforcement lost one required-lineage coverage case versus normal retrieval.",
+  "decision_state": "r1_enforcement_not_retained_formal_failure",
+  "evidence_used": [
+    {
+      "artifact_title": "Evidence Admission and Budgeting R1 Closeout",
+      "artifact_path": "docs/evidence_admission_and_budgeting_r1_closeout.md",
+      "artifact_type": "closeout_report",
+      "claim_supported": "R1 bounded enforcement is rejected for retention after failing the primary non-inferiority criterion.",
+      "status": "rejected",
+      "public_safe_summary": "Normal baseline covered 33/42 non-abstention queries with required lineage; R1 enforcement covered 32/42; the -2.381 point delta exceeded the allowed -2.0 point drop."
+    },
+    {
+      "artifact_title": "Evidence Admission R1 Formal HTTP Service Result",
+      "artifact_path": "benchmarks/results/evidence_admission_r1_formal_http_service_run_001.json",
+      "artifact_type": "formal_evaluation_result",
+      "claim_supported": "Formal result records condition-level coverage, fallback counts, and route safety outcomes.",
+      "status": "rejected",
+      "public_safe_summary": "Formal artifact backing the closeout decision; referenced as HTTP-service evidence, not a broad production benchmark."
+    },
+    {
+      "artifact_title": "Evidence Admission and Budgeting R1 Formal Pack",
+      "artifact_path": "docs/experiments/evidence_admission_and_budgeting_r1_formal_pack.json",
+      "artifact_type": "formal_pack",
+      "claim_supported": "Evaluation used a frozen formal pack with query conditions and expected evidence neighborhoods.",
+      "status": "accepted",
+      "public_safe_summary": "Provides the structured evaluation basis for the R1 formal run."
+    }
+  ],
+  "trace_path": [
+    {
+      "step": 1,
+      "label": "formal_pack",
+      "description": "Formal pack defines the evaluation questions, lineage requirements, and safety expectations."
+    },
+    {
+      "step": 2,
+      "label": "http_service_evaluation",
+      "description": "Normal baseline, R0 shadow, R1 enforcement, and R1 gate-disabled conditions were compared."
+    },
+    {
+      "step": 3,
+      "label": "metric_check",
+      "description": "R1 enforcement missed the preregistered non-inferiority margin."
+    },
+    {
+      "step": 4,
+      "label": "decision_record",
+      "description": "R1 enforcement was not retained; R0 shadow observability and gate safety findings remain narrower positives."
+    }
+  ],
+  "excluded_or_unsupported_claims": [
+    {
+      "claim": "Evidence Admission R1 enforcement improved retrieval quality.",
+      "reason": "The formal primary metric failed non-inferiority and blocks a positive retention claim."
+    },
+    {
+      "claim": "R1 provides broad abstention safety.",
+      "reason": "The closeout records unmet out-of-corpus abstention behavior."
+    },
+    {
+      "claim": "R1 should be tuned in place after the formal result.",
+      "reason": "The closeout says any revised candidate requires a new preregistered evaluation cycle."
+    }
+  ],
+  "provenance": {
+    "receipt_id": "demo-evidence-admission-r1",
+    "mode": "precomputed_demo",
+    "source_basis": "existing_committed_artifacts",
+    "content_hash": "sha256:64887dbc28c78981828bc0730eb9ce45de9eb8d2b8841c14bf0bff3a8641ab76",
+    "generated_at": "2026-07-13T00:00:00Z"
+  },
+  "limitations": [
+    "This trace is scoped to the recorded R1 formal HTTP evaluation.",
+    "It does not claim a broad retrieval, safety, or production-readiness benchmark.",
+    "It summarizes metrics rather than embedding raw per-query result rows."
+  ],
+  "demo_panels": {
+    "answer_panel": "R1 enforcement was rejected because it fell below the preregistered non-inferiority margin: 32/42 required-lineage coverage versus 33/42 for normal retrieval.",
+    "evidence_panel": [
+      "Closeout decision: R1_PRIMARY_NON_INFERIORITY_FAIL.",
+      "Safety controls: R0 shadow and gate-disabled paths preserved served output.",
+      "Boundary: R1 positive retention claim blocked."
+    ],
+    "decision_boundary_panel": [
+      "R0 shadow retained as observability.",
+      "R1 enforcement not retained.",
+      "No tuning in place after formal failure.",
+      "Future redesign requires new preregistered cycle."
+    ],
+    "trace_panel": [
+      "Formal pack -> HTTP service run -> non-inferiority comparison -> non-retention decision."
+    ]
+  }
+}
+

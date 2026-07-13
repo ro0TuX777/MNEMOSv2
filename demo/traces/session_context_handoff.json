@@ -1,0 +1,110 @@
+{
+  "trace_id": "session_context_handoff",
+  "title": "Session Context Handoff Trace",
+  "demo_status": "precomputed_static_demo",
+  "public_safe": true,
+  "question": "What context was included in a handoff or package, and why?",
+  "short_answer": "Session Context Assembler artifacts show how a package can include selected parent Engram IDs, selected source IDs, lineage counters, digest checks, and non-authoritative synthetic context labels while remaining shadow-only and not a runtime integration.",
+  "decision_state": "technical_shadow_pass_non_authoritative_no_runtime_integration",
+  "evidence_used": [
+    {
+      "artifact_title": "Session Context Assembler Phase 5A Closeout Notes",
+      "artifact_path": "docs/session_context_assembler_phase_5a_notes.md",
+      "artifact_type": "closeout_notes",
+      "claim_supported": "Phase 5A is a technical pass only; it is not human usability evidence, production validation, or authority/promotion/governance evidence.",
+      "status": "experimental",
+      "public_safe_summary": "Records provenance preservation, budget compliance, and shadow-only boundaries."
+    },
+    {
+      "artifact_title": "Session Context Assembler R2 Verification",
+      "artifact_path": "benchmarks/results/session_context_assembler_r2_verification.json",
+      "artifact_type": "verification_result",
+      "claim_supported": "R2 verification records selected parent Engram IDs, selected source IDs, provenance loss counts, lineage preservation, budget status, and abstention reasons.",
+      "status": "experimental",
+      "public_safe_summary": "Structured artifact with case-level package and lineage metrics."
+    },
+    {
+      "artifact_title": "Session Context Assembler Shadow Adapter Gate",
+      "artifact_path": "benchmarks/results/session_context_assembler_shadow_adapter_gate.json",
+      "artifact_type": "gate_result",
+      "claim_supported": "Gate labels include isolated shadow-only, no network listener, no external consumer connection, no live routing, and no memory/governance mutation.",
+      "status": "experimental",
+      "public_safe_summary": "Confirms the shadow adapter gate posture and mutation checks."
+    },
+    {
+      "artifact_title": "Session Context Assembler Phase 5 Review Packet Task 001",
+      "artifact_path": "benchmarks/review_packets/session_context_assembler_phase_5/packets/task-001.json",
+      "artifact_type": "review_packet",
+      "claim_supported": "Structured review packets can include `parent_engram_ids`, `parent_source_ids`, and non-authoritative synthetic context labels.",
+      "status": "experimental",
+      "public_safe_summary": "Example packet demonstrating package-local parent/source refs without promoting the package to authority."
+    }
+  ],
+  "trace_path": [
+    {
+      "step": 1,
+      "label": "source_artifact",
+      "description": "Prior decisions and source-linked evidence appear as explicit IDs in selected package records."
+    },
+    {
+      "step": 2,
+      "label": "context_package",
+      "description": "The assembler package records selected parent Engram IDs, selected source IDs, token estimates, lineage counters, and abstention status."
+    },
+    {
+      "step": 3,
+      "label": "handoff_package",
+      "description": "Structured review packets can expose non-authoritative synthetic context with parent references for reviewer inspection."
+    },
+    {
+      "step": 4,
+      "label": "boundary",
+      "description": "The lane remains technical, shadow-only, and non-authoritative with no runtime route or external consumer connection."
+    }
+  ],
+  "excluded_or_unsupported_claims": [
+    {
+      "claim": "Session Context Assembler is production-ready.",
+      "reason": "The closeout explicitly limits the result to technical verification and blocks production or general human-value claims."
+    },
+    {
+      "claim": "Synthetic context is authoritative memory.",
+      "reason": "Review packets mark synthetic context as non-authoritative and non-promotable."
+    },
+    {
+      "claim": "The shadow adapter has a live external consumer route.",
+      "reason": "The gate labels state no network listener, no external consumer connection, and no live routing."
+    }
+  ],
+  "provenance": {
+    "receipt_id": "demo-session-context-handoff",
+    "mode": "precomputed_demo",
+    "source_basis": "existing_committed_artifacts",
+    "content_hash": "sha256:47df26c8b17dd01f4c4a42acee8a93ca542bf6a8edfc61b05d2c00a05445682e",
+    "generated_at": "2026-07-13T00:00:00Z"
+  },
+  "limitations": [
+    "This trace summarizes structured package metadata and closeout claims only.",
+    "It does not expose raw conversation content beyond public committed examples.",
+    "It does not authorize live routing, consumer integration, production use, or memory mutation."
+  ],
+  "demo_panels": {
+    "answer_panel": "A handoff/package can show what parent decisions and source IDs were selected, what lineage was preserved, and whether any required artifacts were omitted explicitly.",
+    "evidence_panel": [
+      "R2 verification: provenance loss count 0 in selector condition, lineage preservation 1.0, budget compliance 10/10.",
+      "Shadow adapter gate: all gates passed, shadow-only, no live routing.",
+      "Review packet: synthetic context carries parent Engram/source refs and non-authoritative labels."
+    ],
+    "decision_boundary_panel": [
+      "Technical verification only.",
+      "Not human value evidence.",
+      "No runtime integration.",
+      "No production readiness claim.",
+      "No memory or governance mutation."
+    ],
+    "trace_panel": [
+      "Parent decision/source refs -> package selection -> synthetic context labels -> review/handoff package -> shadow-only boundary."
+    ]
+  }
+}
+

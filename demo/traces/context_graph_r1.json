@@ -1,0 +1,101 @@
+{
+  "trace_id": "context_graph_r1",
+  "title": "Context Graph Projection R1",
+  "demo_status": "precomputed_static_demo",
+  "public_safe": true,
+  "question": "What did MNEMOS decide about Context Graph Projection R1?",
+  "short_answer": "MNEMOS recorded Context Graph Projection R1 as research-only preregistration. The artifacts recommend narrow-scope future consideration only for explicit-reference artifact families and authorize no implementation.",
+  "decision_state": "research_only_preregistered_no_implementation_authorized",
+  "evidence_used": [
+    {
+      "artifact_title": "Context Graph Projection R1 Preregistration",
+      "artifact_path": "docs/experiments/context_graph_projection_r1_preregistration.md",
+      "artifact_type": "research_preregistration",
+      "claim_supported": "R1 is research-only and does not authorize graph code, graph storage, GraphRAG, retrieval changes, governance changes, promotion changes, context assembly changes, Engram schema changes, or authority changes.",
+      "status": "research_only",
+      "public_safe_summary": "Defines the future standard for a JSON-only projection using explicit refs and disclosure checks only."
+    },
+    {
+      "artifact_title": "Context Graph Projection R1 Field Validation Results",
+      "artifact_path": "docs/experiments/context_graph_projection_r1_field_validation_results.md",
+      "artifact_type": "field_validation_result",
+      "claim_supported": "Recommendation is NARROW_SCOPE, not GO; field evidence is partial and insufficient for full implementation.",
+      "status": "research_only",
+      "public_safe_summary": "Finds promising explicit refs in selected artifact families, but blocks full GO because durable result-set identity, serialized cycle refs, uniform handoff refs, ledger correlation, and graph-specific disclosure rules remain incomplete."
+    },
+    {
+      "artifact_title": "Context Graph Projection R1 Lineage Omission Semantics",
+      "artifact_path": "docs/experiments/context_graph_projection_r1_lineage_omission_semantics.md",
+      "artifact_type": "research_semantics",
+      "claim_supported": "Unauthorized or incomplete lineage must not be converted into inferred graph edges.",
+      "status": "research_only",
+      "public_safe_summary": "Defines omission and lineage-incomplete boundaries for any future projection."
+    }
+  ],
+  "trace_path": [
+    {
+      "step": 1,
+      "label": "source_artifact",
+      "description": "Accepted R1 research artifacts define the candidate trace path and allowed artifact families."
+    },
+    {
+      "step": 2,
+      "label": "field_validation",
+      "description": "Representative artifacts were inspected for explicit source, Engram, retrieval, evaluation, package, digest, and ledger refs."
+    },
+    {
+      "step": 3,
+      "label": "decision_record",
+      "description": "The result is NARROW_SCOPE: continue research only for explicit-ref families; do not implement a graph projection."
+    },
+    {
+      "step": 4,
+      "label": "boundary",
+      "description": "No graph storage, GraphRAG, retrieval, governance, promotion, context assembly, Engram schema, or authority change is authorized."
+    }
+  ],
+  "excluded_or_unsupported_claims": [
+    {
+      "claim": "Context Graph Projection is implemented in MNEMOS.",
+      "reason": "The preregistration explicitly says no implementation is authorized."
+    },
+    {
+      "claim": "MNEMOS is GraphRAG or uses graph storage for this lane.",
+      "reason": "GraphRAG and graph storage are prohibited behaviors for R1."
+    },
+    {
+      "claim": "Projected graph edges can be inferred from prose or semantic similarity.",
+      "reason": "R1 requires explicit refs and rejects inference, semantic guessing, and model judgment."
+    }
+  ],
+  "provenance": {
+    "receipt_id": "demo-context-graph-r1",
+    "mode": "precomputed_demo",
+    "source_basis": "existing_committed_artifacts",
+    "content_hash": "sha256:bbe06a36b3e8b9c1208484d21bfe4f5c520cf4fc495ff0f884ab532dd8267806",
+    "generated_at": "2026-07-13T00:00:00Z"
+  },
+  "limitations": [
+    "This trace summarizes research artifacts only.",
+    "It does not prove or demonstrate runtime graph behavior.",
+    "It intentionally omits raw receipt content and any private or local log paths."
+  ],
+  "demo_panels": {
+    "answer_panel": "MNEMOS did not ship Context Graph Projection R1. It preregistered a future research standard and concluded that only a narrow explicit-reference subset may be considered later.",
+    "evidence_panel": [
+      "Preregistration: research-only, no implementation authorized.",
+      "Field validation: NARROW_SCOPE, not GO.",
+      "Lineage semantics: missing or unauthorized relationships must be omitted, not inferred."
+    ],
+    "decision_boundary_panel": [
+      "No graph implementation.",
+      "No GraphRAG.",
+      "No retrieval or governance behavior change.",
+      "No authority surface change."
+    ],
+    "trace_panel": [
+      "Research artifacts -> explicit-ref validation -> NARROW_SCOPE recommendation -> no runtime authorization."
+    ]
+  }
+}
+

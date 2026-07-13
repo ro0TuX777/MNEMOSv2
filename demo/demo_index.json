@@ -1,0 +1,39 @@
+{
+  "demo_package": "mnemos_static_demo_traces",
+  "status": "precomputed_static_demo",
+  "description": "Public-safe demo traces for showing evidence-shaped answers, decisions, handoffs, and evaluations.",
+  "generated_at": "2026-07-13T00:00:00Z",
+  "traces": [
+    {
+      "trace_id": "context_graph_r1",
+      "title": "Context Graph Projection R1",
+      "question": "What did MNEMOS decide about Context Graph Projection R1?",
+      "path": "traces/context_graph_r1.json"
+    },
+    {
+      "trace_id": "evidence_admission_r1",
+      "title": "Evidence Admission R1",
+      "question": "Why was Evidence Admission R1 enforcement not retained?",
+      "path": "traces/evidence_admission_r1.json"
+    },
+    {
+      "trace_id": "source_grounded_retrieval",
+      "title": "Source-grounded Retrieval",
+      "question": "What evidence supports this answer?",
+      "path": "traces/source_grounded_retrieval.json"
+    },
+    {
+      "trace_id": "session_context_handoff",
+      "title": "Session Context Handoff Trace",
+      "question": "What context was included in a handoff or package, and why?",
+      "path": "traces/session_context_handoff.json"
+    },
+    {
+      "trace_id": "research_intake_ocr",
+      "title": "Research Intake OCR Fallback",
+      "question": "How does MNEMOS handle scanned PDFs?",
+      "path": "traces/research_intake_ocr.json"
+    }
+  ]
+}
+

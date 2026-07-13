@@ -9,6 +9,7 @@ system must prove what evidence shaped an answer, decision, handoff, or
 evaluation.
 
 [Quickstart](#quickstart-run-mnemos-locally) |
+[Static Demo](https://ro0TuX777.github.io/MNEMOSv2/) |
 [Architecture](#architecture) |
 [Capability Status](#capability-status) |
 [Examples](#examples-and-integrations) |
@@ -41,6 +42,15 @@ Use MNEMOS when you need:
   agents through documented APIs.
 
 MNEMOS is a developer preview. It is not a broad production-readiness claim.
+
+## Static Public Demo
+
+A static, precomputed MNEMOS demo is available at
+[ro0TuX777.github.io/MNEMOSv2](https://ro0TuX777.github.io/MNEMOSv2/).
+It shows evidence-shaped answers, decision boundaries, and a Research Intake
+receipt walkthrough using public-safe JSON traces. The demo does not run live
+inference, accept uploads, run OCR, implement graphs, or change MNEMOS runtime
+behavior.
 
 ## How It Fits
 
