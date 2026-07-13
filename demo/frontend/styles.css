@@ -262,6 +262,40 @@ h3 {
   font-size: 1.08rem;
 }
 
+.hero-explainer {
+  max-width: 740px;
+  margin: 14px 0 0;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.hero-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--accent);
+  padding: 6px 12px;
+  font-weight: 760;
+  text-decoration: none;
+}
+
+.hero-actions a:hover,
+.hero-actions a:focus-visible {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
 .boundary-strip {
   display: flex;
   flex-wrap: wrap;
@@ -325,6 +359,7 @@ h3 {
 }
 
 .scenario-card {
+  position: relative;
   width: 100%;
   min-height: 132px;
   border: 1px solid var(--line);
@@ -348,7 +383,18 @@ h3 {
 
 .scenario-card.is-active {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  background: linear-gradient(135deg, var(--accent-soft), var(--panel) 42%);
+  box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow);
+  transform: translateY(-1px);
+}
+
+.scenario-card.is-active::before {
+  content: "";
+  position: absolute;
+  inset: 12px auto 12px 0;
+  width: 4px;
+  border-radius: 0 999px 999px 0;
+  background: var(--accent);
 }
 
 .scenario-card strong,
@@ -361,6 +407,19 @@ h3 {
   margin-bottom: 12px;
   background: var(--accent-soft);
   color: var(--accent);
+}
+
+.selected-label {
+  width: fit-content;
+  margin: 0 0 8px auto;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: 3px 9px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .card-question {
@@ -486,6 +545,10 @@ code {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
+}
+
+.priority-grid {
+  align-items: start;
 }
 
 .panel-heading {
@@ -633,6 +696,16 @@ code {
 
 .provenance-panel {
   background: var(--panel);
+}
+
+.why-panel {
+  border-left: 5px solid var(--copper);
+}
+
+.why-panel p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
 }
 
 .intake-demo {

@@ -35,6 +35,15 @@
             The Research Intake tab shows how a PDF Q/A session can surface
             evidence and a receipt without running uploads, OCR, or live model calls.
           </p>
+          <p class="hero-explainer">
+            Select a scenario to see how MNEMOS connects an answer or decision
+            back to the artifacts that shaped it.
+          </p>
+          <div class="hero-actions" aria-label="Demo resources">
+            <a href="https://github.com/ro0TuX777/MNEMOSv2">View GitHub</a>
+            <a href="https://github.com/ro0TuX777/MNEMOSv2/blob/main/README.md">Read README</a>
+            <a id="inspectDemoJson" href="demo_index.json">Inspect demo JSON</a>
+          </div>
           <div class="boundary-strip" aria-label="Static demo boundaries">
             <span>Precomputed traces only</span>
             <span>No runtime inference</span>
@@ -49,7 +58,7 @@
           <section class="scenario-rail" aria-labelledby="scenario-heading">
             <div class="section-heading">
               <p class="eyebrow">Scenarios</p>
-              <h2 id="scenario-heading">Choose a trace</h2>
+              <h2 id="scenario-heading">Inspect an evidence trace.</h2>
             </div>
             <div id="scenarioCards" class="scenario-cards" aria-live="polite"></div>
           </section>
@@ -70,17 +79,35 @@
               </div>
 
               <section class="answer-band">
-                <h3>Short Answer</h3>
+                <h3>Short answer</h3>
                 <p id="shortAnswer"></p>
               </section>
 
               <section id="boundaryPanel" class="boundary-panel"></section>
 
+              <div class="content-grid priority-grid">
+                <section class="panel why-panel">
+                  <div class="panel-heading">
+                    <p class="eyebrow">Why this matters</p>
+                    <h3>What this trace demonstrates</h3>
+                  </div>
+                  <p id="whyThisMatters"></p>
+                </section>
+
+                <section class="panel">
+                  <div class="panel-heading">
+                    <p class="eyebrow">Trace</p>
+                    <h3>Evidence-to-decision path</h3>
+                  </div>
+                  <ol id="tracePath" class="trace-path"></ol>
+                </section>
+              </div>
+
               <div class="content-grid">
                 <section class="panel evidence-panel">
                   <div class="panel-heading">
                     <p class="eyebrow">Evidence</p>
-                    <h3>Artifacts Used</h3>
+                    <h3>Artifacts used</h3>
                   </div>
                   <div id="evidenceList" class="evidence-list"></div>
                 </section>
@@ -88,25 +115,17 @@
                 <section class="panel">
                   <div class="panel-heading">
                     <p class="eyebrow">Decision</p>
-                    <h3>State And Boundaries</h3>
+                    <h3>State and boundaries</h3>
                   </div>
                   <dl id="decisionDetails" class="definition-list"></dl>
                 </section>
               </div>
 
-              <section class="panel">
-                <div class="panel-heading">
-                  <p class="eyebrow">Trace</p>
-                  <h3>Evidence-To-Decision Path</h3>
-                </div>
-                <ol id="tracePath" class="trace-path"></ol>
-              </section>
-
               <div class="content-grid">
                 <section class="panel caution-panel">
                   <div class="panel-heading">
                     <p class="eyebrow">Unsupported</p>
-                    <h3>Claims MNEMOS Does Not Make Here</h3>
+                    <h3>Claims MNEMOS does not make here</h3>
                   </div>
                   <div id="unsupportedClaims" class="claim-list"></div>
                 </section>
@@ -123,7 +142,7 @@
               <section class="panel provenance-panel">
                 <div class="panel-heading">
                   <p class="eyebrow">Provenance</p>
-                  <h3>Precomputed Demo Receipt</h3>
+                  <h3>Precomputed demo receipt</h3>
                 </div>
                 <dl id="provenance" class="definition-list compact"></dl>
               </section>
@@ -190,7 +209,7 @@
 
           <div class="content-grid">
             <section class="panel answer-band">
-              <h3>Precomputed Answer</h3>
+              <h3>Precomputed answer</h3>
               <p id="intakeAnswer"></p>
             </section>
 
@@ -225,6 +244,7 @@
 
     <template id="scenarioTemplate">
       <button class="scenario-card" type="button">
+        <span class="selected-label">Selected</span>
         <span class="card-status"></span>
         <strong></strong>
         <span class="card-question"></span>

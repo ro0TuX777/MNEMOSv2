@@ -20,6 +20,7 @@ const state = {
 const elements = {
   tabButtons: document.querySelectorAll(".tab-button"),
   tabPanels: document.querySelectorAll(".tab-panel"),
+  inspectDemoJson: document.querySelector("#inspectDemoJson"),
   scenarioCards: document.querySelector("#scenarioCards"),
   loadingState: document.querySelector("#loadingState"),
   traceContent: document.querySelector("#traceContent"),
@@ -29,6 +30,7 @@ const elements = {
   receiptId: document.querySelector("#receiptId"),
   shortAnswer: document.querySelector("#shortAnswer"),
   boundaryPanel: document.querySelector("#boundaryPanel"),
+  whyThisMatters: document.querySelector("#whyThisMatters"),
   evidenceList: document.querySelector("#evidenceList"),
   decisionDetails: document.querySelector("#decisionDetails"),
   tracePath: document.querySelector("#tracePath"),
@@ -143,11 +145,15 @@ function renderScenarioCards() {
     const fragment = elements.scenarioTemplate.content.cloneNode(true);
     const button = fragment.querySelector(".scenario-card");
     const status = fragment.querySelector(".card-status");
+    const selectedLabel = fragment.querySelector(".selected-label");
     const title = fragment.querySelector("strong");
     const question = fragment.querySelector(".card-question");
+    const isActive = item.trace_id === state.activeTraceId;
 
     button.dataset.traceId = item.trace_id;
-    button.classList.toggle("is-active", item.trace_id === state.activeTraceId);
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+    selectedLabel.hidden = !isActive;
     status.textContent = normalizeStatus(statusLabelForTrace(trace));
     title.textContent = item.title;
     question.textContent = item.question;
@@ -212,6 +218,15 @@ function renderTracePath(trace) {
   renderTracePathInto(elements.tracePath, trace);
 }
 
+function renderWhyThisMatters(trace) {
+  const answerPanel = trace.demo_panels?.answer_panel;
+  const evidenceCount = (trace.evidence_used || []).length;
+  const unsupportedCount = (trace.excluded_or_unsupported_claims || []).length;
+  const boundaryCount = (trace.demo_panels?.decision_boundary_panel || []).length;
+  elements.whyThisMatters.textContent =
+    `${text(answerPanel)} This trace links ${evidenceCount} evidence artifact${evidenceCount === 1 ? "" : "s"} to a visible decision state, while keeping ${unsupportedCount} unsupported claim${unsupportedCount === 1 ? "" : "s"} and ${boundaryCount} boundary note${boundaryCount === 1 ? "" : "s"} explicit.`;
+}
+
 function renderTracePathInto(container, trace) {
   clear(container);
   for (const step of trace.trace_path || []) {
@@ -261,6 +276,7 @@ function renderTrace(trace) {
   elements.shortAnswer.textContent = trace.short_answer;
 
   renderBoundaryPanel(trace);
+  renderWhyThisMatters(trace);
   renderEvidence(trace);
   renderTracePath(trace);
   renderUnsupportedClaims(trace);
@@ -333,6 +349,7 @@ async function init() {
     const loaded = await loadIndexWithFallback();
     state.index = loaded.index;
     state.dataLayout = loaded.layout;
+    elements.inspectDemoJson.href = loaded.layout.indexPath;
     for (const item of state.index.traces || []) {
       const trace = await fetchJson(tracePathForItem(item));
       state.traces.set(item.trace_id, trace);
