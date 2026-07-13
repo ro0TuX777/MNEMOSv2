@@ -78,8 +78,10 @@ plus `traces/*.json` beside it so the first public URL can be:
 https://ro0TuX777.github.io/MNEMOSv2/
 ```
 
-For a first deployment, configure repository **Settings → Pages → Build and
-deployment → GitHub Actions**, then run the workflow or push changes to `main`.
+For a first deployment, open the repository **Actions** tab and run
+`Deploy static MNEMOS demo to Pages` on `main`. The workflow configures GitHub
+Pages with `enablement: true` on first run. A custom domain is optional later
+and is not required for the GitHub Pages URL.
 
 ## Manual Review Or Regeneration
 

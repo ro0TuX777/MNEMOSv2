@@ -61,12 +61,13 @@ Expected first deployment URL:
 https://ro0TuX777.github.io/MNEMOSv2/
 ```
 
-Repository setting required for first deployment:
+First deployment:
 
-1. Open GitHub repository settings.
-2. Go to **Pages**.
-3. Set **Build and deployment** source to **GitHub Actions**.
-4. Run or wait for the `Deploy static MNEMOS demo to Pages` workflow.
+1. Open the repository **Actions** tab.
+2. Run `Deploy static MNEMOS demo to Pages` on `main`.
+3. The workflow configures GitHub Pages with `enablement: true` on first run.
+4. A custom domain is optional later; it is not required for the GitHub Pages
+   URL.
 
 ## What The UI Shows
 
