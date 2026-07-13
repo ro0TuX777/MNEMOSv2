@@ -14,6 +14,15 @@ MNEMOS can provide source-grounded candidates, provenance, evaluation signals, a
 
 The whitepaper remains the detailed technical reference: [docs/whitepaper.md](whitepaper.md).
 
+For explanatory shorthand, this existing architecture can be described as:
+
+- **Evidence memory** — source-grounded long-term evidence and lineage-bearing records
+- **Working memory** — bounded, inspectable working context and context packages
+- **Decision memory** — audit-safe decision, evaluation, contradiction, and lineage records
+
+These labels are descriptive only. They do not introduce a new authority model,
+context-graph implementation claim, or retrieval-path change.
+
 ## System Flow
 
 ```text

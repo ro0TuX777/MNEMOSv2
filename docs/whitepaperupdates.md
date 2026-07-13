@@ -1,6 +1,47 @@
 > [!NOTE]
 > **Historical supplement — superseded.** This June 11, 2026 supplement covered the Phase 7-10 advancements only. Its content has been folded into the canonical whitepaper (`docs/whitepaper.md`, v3.4, July 2026), which is the maintained document of record. This file is retained as a dated artifact and receives no further updates.
 
+> [!NOTE]
+> **Design-note addendum — July 13, 2026.** The following short entry is a companion positioning note only. It does **not** reopen this supplement as a maintained technical source, and it does **not** authorize implementation.
+
+## Context Graph Projection R0 (Design-Only Future Observability Lane)
+
+Status labels:
+
+```text
+CONTEXT_GRAPH_POSITIONING_ACCEPTED
+CONTEXT_GRAPH_PROJECTION_R0_DESIGN_NOTE_COMPLETE
+FUTURE_OBSERVABILITY_LANE
+NO_IMPLEMENTATION_AUTHORIZED
+NO_AUTHORITY_SURFACE_CHANGE
+```
+
+MNEMOS is adopting the language of **evidence memory**, **working memory**,
+and **decision memory** to explain parts of its existing architecture in a more
+market-readable way.
+
+- **Evidence memory** refers to source-grounded long-term evidence such as
+  indexed documents, code, notes, research artifacts, and other project
+  material.
+- **Working memory** refers to bounded session context, retrieved evidence
+  packages, current task state, handoff packages, and consumer-neutral context
+  packages.
+- **Decision memory** refers to audit-safe decision records, accepted or
+  rejected claims, contradiction or supersession status, evaluation outcomes,
+  handoff inclusion, tool or action lineage, and bounded outcome
+  justifications.
+
+MNEMOS does **not** implement “context graph memory” as a new authority model.
+MNEMOS has a **design note** for a future **read-only context graph
+projection**: `docs/experiments/context_graph_projection_r0_design_note.md`.
+
+If separately authorized in the future, that projection may expose
+deterministic, audit-safe relationships among sources, retrieval events,
+context packages, decisions, evaluations, and handoffs. The projection is
+explicitly framed as a read-only observability lane over existing MNEMOS
+records. It does not imply GraphRAG, graph database integration, retrieval
+reranking, governance changes, promotion changes, or authority-surface changes.
+
 MNEMOSv2: From Retrieval Substrate to Governed Memory Authority
 Technical Whitepaper Supplement: Phase 7-10 Advancements
 Date: June 11, 2026

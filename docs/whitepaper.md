@@ -70,6 +70,14 @@ A guided Python installer (`python -m installer`) probes the host, resolves plat
 
 MNEMOS is **application-agnostic** — it knows nothing about the domain of the consuming application. It stores, enriches, compresses, retrieves, and audits knowledge. That’s it.
 
+For explanatory and product-positioning purposes, parts of the current
+architecture can also be described as **evidence memory**, **working memory**,
+and **decision memory**. In MNEMOS, these are descriptive labels for existing
+source-grounded evidence, bounded context packages, and audit-safe decision or
+evaluation records. They are not a claim that MNEMOS implements a new
+context-graph authority model, reasoning-memory authority surface, or changed
+retrieval path.
+
 **What's new in v3:**
 - **Deployment profiles** replace the flat tier model — named profiles with distinct retrieval architectures
 - **pgvector tier** — PostgreSQL-native ANN with SQL WHERE metadata filtering (Governance Native profile)
