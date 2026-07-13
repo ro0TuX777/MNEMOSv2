@@ -1,0 +1,148 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-202"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-queue-backend-decision"
+          ],
+          "session_turns": [
+            {
+              "content": "We need to pick a queue backend for retry scheduling.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Comparing a Redis-backed queue vs a dedicated scheduler service.",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Go with the dedicated scheduler service, it is purpose-built.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Recorded: dedicated scheduler service handles retry scheduling (DEC-SCA-202). See SRC-SCA-queue-backend-decision.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "artifact_context",
+      "warning": {
+        "context_budget_insufficient": true,
+        "omitted_required_artifact_types": [
+          "prior_decision_artifact",
+          "source_linked_evidence"
+        ],
+        "selection_abstention_reason": "One or more mandatory eligible artifact types could not fit inside the context budget; lower-priority semantic fill was withheld."
+      }
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "We need to pick a queue backend for retry scheduling.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Comparing a Redis-backed queue vs a dedicated scheduler service.",
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Go with the dedicated scheduler service, it is purpose-built.",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded: dedicated scheduler service handles retry scheduling (DEC-SCA-202). See SRC-SCA-queue-backend-decision.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Random aside: anyone up for tacos at lunch?",
+          "speaker": "user",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Sure, tacos sound good, unrelated to queues.",
+          "speaker": "agent",
+          "turn_id": "t6"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Separately: did we finalize which backend handles notification delivery retries?",
+          "speaker": "user",
+          "turn_id": "t7"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Yes, notification retries use the webhook-retry backend now (DEC-SCA-203). See SRC-SCA-notification-backend-decision.",
+          "speaker": "agent",
+          "turn_id": "t8"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Going back to my first question, did we ever finalize which queue backend handles retry scheduling?",
+          "speaker": "user",
+          "turn_id": "t9"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Sure, tacos sound good, unrelated to queues.",
+          "speaker": "agent",
+          "turn_id": "t6"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Separately: did we finalize which backend handles notification delivery retries?",
+          "speaker": "user",
+          "turn_id": "t7"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Yes, notification retries use the webhook-retry backend now (DEC-SCA-203). See SRC-SCA-notification-backend-decision.",
+          "speaker": "agent",
+          "turn_id": "t8"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Going back to my first question, did we ever finalize which queue backend handles retry scheduling?",
+          "speaker": "user",
+          "turn_id": "t9"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-026",
+  "task_prompt": "Did we ever finalize which queue backend handles retry scheduling?"
+}

@@ -1,0 +1,130 @@
+{
+  "schema_version": "mnemos-agent-navigation-protocol-v1",
+  "status": "MNEMOS_AGENT_NAVIGATION_DEVELOPMENT_STUDY_READY",
+  "classification": "LOCAL_REPO_AGENT_ORIENTATION_AND_BOUNDARY_RECALL_DEVELOPMENT_STUDY",
+  "authorization": {
+    "local_repo_tasks_only": true,
+    "agent_orientation_and_boundary_recall_only": true,
+    "gatemem_reopening_authorized": false,
+    "sealed_evaluation_authorized": false,
+    "general_memory_claim_authorized": false,
+    "runtime_memory_integration_authorized": false
+  },
+  "protocol_document": "docs/benchmarks/mnemos_agent_navigation_development_study.md",
+  "trial_modes": [
+    "baseline_repo_search",
+    "mnemos_memory_assisted"
+  ],
+  "memory_cards": [
+    {
+      "memory_id": "mem-gatemem-current-status",
+      "status": "current",
+      "claim": "GateMem is paused after the frozen G4 reference-contract baseline; further meaningful evaluation requires an independent sealed-evaluation custodian and a newly sealed or independent corpus.",
+      "evidence_paths": [
+        "docs/benchmarks/gatemem_program_status.md",
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "benchmarks/results/gatemem_g4_frozen_reference_manifest.md"
+      ],
+      "expected_use": "accept_with_primary_evidence"
+    },
+    {
+      "memory_id": "mem-g4-frozen-regression-only",
+      "status": "current",
+      "claim": "G4 is a frozen regression-only reference baseline and must not be rewritten to support a fresh claim.",
+      "evidence_paths": [
+        "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+        "tools/verify_gatemem_g4_frozen.py"
+      ],
+      "expected_use": "accept_with_primary_evidence"
+    },
+    {
+      "memory_id": "mem-stale-g4-can-advance-internally",
+      "status": "stale",
+      "claim": "G4 policy work can continue internally as long as the cases remain synthetic.",
+      "contradicted_by": [
+        "docs/benchmarks/gatemem_program_status.md",
+        "benchmarks/results/gatemem_g4_frozen_reference_manifest.md"
+      ],
+      "expected_use": "reject_as_stale_or_contradicted"
+    },
+    {
+      "memory_id": "mem-overbroad-provenance-is-authorization",
+      "status": "overbroad",
+      "claim": "Perfect provenance integrity is enough to claim authorization correctness.",
+      "contradicted_by": [
+        "docs/benchmarks/gatemem_program_status.md",
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md"
+      ],
+      "expected_use": "reject_as_overclaim"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "nav-gatemem-status-blocker",
+      "prompt": "Find the current GateMem status and identify what blocks further meaningful evaluation.",
+      "required_evidence_paths": [
+        "docs/benchmarks/gatemem_program_status.md",
+        "docs/benchmarks/gatemem_g5/README.md"
+      ],
+      "expected_boundary_decision": "sealed_evaluation_blocked_external_inputs_required",
+      "forbidden_claim_fragments": [
+        "production ready",
+        "held-out evaluation complete",
+        "generalization claim authorized",
+        "GateMem reopened"
+      ]
+    },
+    {
+      "task_id": "nav-g4-modification-boundary",
+      "prompt": "Determine whether the frozen G4 policy/reference logic may be modified to improve the result.",
+      "required_evidence_paths": [
+        "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+        "docs/benchmarks/gatemem_program_status.md"
+      ],
+      "expected_boundary_decision": "modification_requires_new_development_iteration_not_frozen_rewrite",
+      "forbidden_claim_fragments": [
+        "rewrite the frozen result",
+        "modify G4 in place",
+        "fresh held-out claim"
+      ]
+    },
+    {
+      "task_id": "nav-g4-evidence-chain",
+      "prompt": "Trace the evidence chain for the frozen G4 implementation/corpus composite.",
+      "required_evidence_paths": [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "benchmarks/results/gatemem_g4_frozen_reference_manifest.json",
+        "tools/verify_gatemem_g4_frozen.py"
+      ],
+      "expected_boundary_decision": "regression_reference_contract_only",
+      "forbidden_claim_fragments": [
+        "authorization security proven",
+        "production authority claim",
+        "deletion capability"
+      ]
+    },
+    {
+      "task_id": "nav-stale-memory-rejection",
+      "prompt": "Use the provided memory cards and decide whether the claim that internal G4 policy work can continue is current.",
+      "required_evidence_paths": [
+        "docs/benchmarks/gatemem_program_status.md",
+        "benchmarks/results/gatemem_g4_frozen_reference_manifest.md"
+      ],
+      "required_rejected_memory_ids": [
+        "mem-stale-g4-can-advance-internally"
+      ],
+      "expected_boundary_decision": "reject_stale_memory_and_preserve_pause",
+      "forbidden_claim_fragments": [
+        "can continue internally",
+        "synthetic cases are sufficient for advancement"
+      ]
+    }
+  ],
+  "claim_boundary": {
+    "development_evidence_only": true,
+    "sealed_evaluation": false,
+    "gatemem_benchmark_run": false,
+    "production_readiness": false,
+    "general_memory_claim": false
+  }
+}

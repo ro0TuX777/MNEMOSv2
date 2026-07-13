@@ -1,0 +1,259 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "annotations": [
+    {
+      "annotationType": "OTHER",
+      "annotator": "Tool: tools/generate_release_sbom.py",
+      "comment": "git_commit=e2a3347317ddf49d8055164f33e2127d65d057e4; requirements_sha256=3c09d6dff23915ec38cc6233c0a65f4419c9b76c0c60b4ca405f63fb703598c2"
+    }
+  ],
+  "creationInfo": {
+    "comment": "Generated from requirements.txt and the current resolved Python environment.",
+    "created": "2026-06-22T22:36:17+12:00",
+    "creators": [
+      "Tool: tools/generate_release_sbom.py"
+    ]
+  },
+  "dataLicense": "CC0-1.0",
+  "documentDescribes": [
+    "SPDXRef-Package-1",
+    "SPDXRef-Package-2",
+    "SPDXRef-Package-3",
+    "SPDXRef-Package-4",
+    "SPDXRef-Package-5",
+    "SPDXRef-Package-6",
+    "SPDXRef-Package-7",
+    "SPDXRef-Package-8",
+    "SPDXRef-Package-9",
+    "SPDXRef-Package-10",
+    "SPDXRef-Package-11",
+    "SPDXRef-Package-12",
+    "SPDXRef-Package-13"
+  ],
+  "documentNamespace": "https://mnemos.invalid/spdx/27747837-799b-588b-86bb-aa6e7ef0157f",
+  "name": "MNEMOS Python dependency SBOM",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-1",
+      "comment": "Declared requirement: flask>=3.0",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/flask@3.1.3",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "flask",
+      "versionInfo": "3.1.3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-2",
+      "comment": "Declared requirement: gunicorn>=21.2",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/gunicorn@25.3.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "gunicorn",
+      "versionInfo": "25.3.0"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-3",
+      "comment": "Declared requirement: requests>=2.31",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/requests@2.32.5",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "requests",
+      "versionInfo": "2.32.5"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-4",
+      "comment": "Declared requirement: qdrant-client>=1.13",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/qdrant-client@1.17.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "qdrant-client",
+      "versionInfo": "1.17.0"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-5",
+      "comment": "Declared requirement: pgvector>=0.3",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/pgvector@0.4.2",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "pgvector",
+      "versionInfo": "0.4.2"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-6",
+      "comment": "Declared requirement: sentence-transformers>=2.2.2",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/sentence-transformers@2.7.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "sentence-transformers",
+      "versionInfo": "2.7.0"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-7",
+      "comment": "Declared requirement: torch>=2.0",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/torch@2.6.0+cu124",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "torch",
+      "versionInfo": "2.6.0+cu124"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-8",
+      "comment": "Declared requirement: einops>=0.7",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/einops@0.8.1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "einops",
+      "versionInfo": "0.8.1"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-9",
+      "comment": "Declared requirement: psycopg[binary]>=3.1",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/psycopg@3.3.3",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "psycopg",
+      "versionInfo": "3.3.3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-10",
+      "comment": "Declared requirement: psycopg_pool>=3.1",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/psycopg-pool@3.3.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "psycopg_pool",
+      "versionInfo": "3.3.0"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-11",
+      "comment": "Declared requirement: numpy>=1.24",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/numpy@1.26.4",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "numpy",
+      "versionInfo": "1.26.4"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-12",
+      "comment": "Declared requirement: scipy>=1.11",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/scipy@1.13.1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "scipy",
+      "versionInfo": "1.13.1"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-13",
+      "comment": "Declared requirement: python-dotenv>=1.0",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/python-dotenv@1.2.2",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "python-dotenv",
+      "versionInfo": "1.2.2"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

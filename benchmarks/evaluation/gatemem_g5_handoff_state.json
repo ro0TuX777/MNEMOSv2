@@ -1,0 +1,33 @@
+{
+  "schema_version": "gatemem-g5-handoff-state-v1",
+  "status": "GATEMEM_G5_PACKET_READY_FOR_EXTERNAL_HANDOFF",
+  "packet_index": "docs/benchmarks/gatemem_g5/README.md",
+  "required_documents": [
+    "docs/benchmarks/gatemem_g5/custodian_charter.md",
+    "docs/benchmarks/gatemem_g5/preregistration.md",
+    "docs/benchmarks/gatemem_g5/evaluator_protocol.md",
+    "docs/benchmarks/gatemem_g5/one_shot_rules.md",
+    "docs/benchmarks/gatemem_g5/handoff_checklist.md"
+  ],
+  "candidate_nomination": "benchmarks/evaluation/gatemem_g5_candidate_nomination.json",
+  "completed_internal_preparation": {
+    "candidate_nominated": true,
+    "candidate_hash_pinned": true,
+    "custodian_charter_prepared": true,
+    "preregistration_template_prepared": true,
+    "evaluator_protocol_prepared": true,
+    "one_shot_rules_prepared": true,
+    "handoff_checklist_prepared": true
+  },
+  "external_requirements": {
+    "independent_custodian_appointed": false,
+    "independence_attestation_signed": false,
+    "newly_sealed_or_independent_corpus_committed": false,
+    "candidate_accepted_by_custodian": false,
+    "preregistration_frozen_and_signed": false,
+    "one_shot_run_authorized": false
+  },
+  "evaluation_state": "SEALED_EVALUATION_BLOCKED_EXTERNAL_INPUTS_REQUIRED",
+  "performance_claim_authorized": false,
+  "generalization_claim_authorized": false
+}

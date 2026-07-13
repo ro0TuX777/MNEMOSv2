@@ -1,0 +1,158 @@
+{
+  "task_id": "release_review_queue_v1",
+  "benchmark_lane": "AI_DEV_MEMORY_QUALITY_E2",
+  "task_name": "Durable Context and Stale Guidance Rejection",
+  "starter_repo_identity_sha256": "03d85b006b0a87f9ecefebc7e6fe7a68f3771893fb5fcc67ae497ecc81c555e8",
+  "starter_repo_identity_scope": "all starter files except task_control_manifest.json to avoid circular checksum",
+  "acceptance_command": "npm run test:acceptance",
+  "build_command": "npm run build",
+  "mnemos_collection_name": "mnemos_ai_dev_e2_task_01",
+  "mnemos_seed_snapshot_id": "e66433c4f643fe6d",
+  "mnemos_seed_collection_snapshot": "mnemos_ai_dev_e2_task_01:5",
+  "current_authoritative_docs": [
+    "docs/current_release_contract.md",
+    "docs/adr/0007-local-review-queue.md",
+    "docs/known_regression.md",
+    "docs/handoff_notes.md"
+  ],
+  "superseded_docs": [
+    "docs/archive/superseded_queue_policy_2025.md"
+  ],
+  "claim_boundary": {
+    "local_development_evidence_only": true,
+    "general_memory_claim": false,
+    "not_held_out": true
+  },
+  "mnemos_seed_collection_name": "mnemos_ai_dev_e2_task_01",
+  "mnemos_seed_schema_version": "ai_dev_task_02_seed_v1",
+  "mnemos_seed_ingestion_source": "seed_mnemos_ai_dev_task_02",
+  "mnemos_seed_scope": [
+    "docs/current_release_contract.md",
+    "docs/adr/0007-local-review-queue.md",
+    "docs/known_regression.md",
+    "docs/handoff_notes.md",
+    "docs/archive/superseded_queue_policy_2025.md"
+  ],
+  "mnemos_seed_query_smoke_checks": [
+    {
+      "query": "Release Review Queue local-only no cloud sync backend sharing export current ADR",
+      "result_count": 5,
+      "top_sources": [
+        {
+          "source": "docs/adr/0007-local-review-queue.md",
+          "source_uri": "docs/adr/0007-local-review-queue.md",
+          "authority_state": "current_authority",
+          "score": 0.7687
+        },
+        {
+          "source": "docs/current_release_contract.md",
+          "source_uri": "docs/current_release_contract.md",
+          "authority_state": "current_authority",
+          "score": 0.7472
+        },
+        {
+          "source": "docs/archive/superseded_queue_policy_2025.md",
+          "source_uri": "docs/archive/superseded_queue_policy_2025.md",
+          "authority_state": "superseded_archive",
+          "score": 0.6757
+        },
+        {
+          "source": "docs/known_regression.md",
+          "source_uri": "docs/known_regression.md",
+          "authority_state": "current_authority",
+          "score": 0.6385
+        }
+      ]
+    },
+    {
+      "query": "riskScore severity impact blocker plus 10 risk_desc updatedAt title id",
+      "result_count": 5,
+      "top_sources": [
+        {
+          "source": "docs/adr/0007-local-review-queue.md",
+          "source_uri": "docs/adr/0007-local-review-queue.md",
+          "authority_state": "current_authority",
+          "score": 0.9942
+        },
+        {
+          "source": "docs/current_release_contract.md",
+          "source_uri": "docs/current_release_contract.md",
+          "authority_state": "current_authority",
+          "score": 0.7602
+        },
+        {
+          "source": "docs/known_regression.md",
+          "source_uri": "docs/known_regression.md",
+          "authority_state": "current_authority",
+          "score": 0.4385
+        },
+        {
+          "source": "docs/handoff_notes.md",
+          "source_uri": "docs/handoff_notes.md",
+          "authority_state": "current_authority",
+          "score": 0.0148
+        }
+      ]
+    },
+    {
+      "query": "deferred remains deferred and is not promoted to approved",
+      "result_count": 5,
+      "top_sources": [
+        {
+          "source": "docs/known_regression.md",
+          "source_uri": "docs/known_regression.md",
+          "authority_state": "current_authority",
+          "score": 0.7213
+        },
+        {
+          "source": "docs/archive/superseded_queue_policy_2025.md",
+          "source_uri": "docs/archive/superseded_queue_policy_2025.md",
+          "authority_state": "superseded_archive",
+          "score": 0.6961
+        },
+        {
+          "source": "docs/current_release_contract.md",
+          "source_uri": "docs/current_release_contract.md",
+          "authority_state": "current_authority",
+          "score": 0.6761
+        },
+        {
+          "source": "docs/adr/0007-local-review-queue.md",
+          "source_uri": "docs/adr/0007-local-review-queue.md",
+          "authority_state": "current_authority",
+          "score": 0.6285
+        }
+      ]
+    },
+    {
+      "query": "superseded 2025 queue policy archived stale guidance accepted active status",
+      "result_count": 5,
+      "top_sources": [
+        {
+          "source": "docs/adr/0007-local-review-queue.md",
+          "source_uri": "docs/adr/0007-local-review-queue.md",
+          "authority_state": "current_authority",
+          "score": 0.9941
+        },
+        {
+          "source": "docs/archive/superseded_queue_policy_2025.md",
+          "source_uri": "docs/archive/superseded_queue_policy_2025.md",
+          "authority_state": "superseded_archive",
+          "score": 0.9935
+        },
+        {
+          "source": "docs/known_regression.md",
+          "source_uri": "docs/known_regression.md",
+          "authority_state": "current_authority",
+          "score": 0.923
+        },
+        {
+          "source": "docs/handoff_notes.md",
+          "source_uri": "docs/handoff_notes.md",
+          "authority_state": "current_authority",
+          "score": 0.0416
+        }
+      ]
+    }
+  ]
+}

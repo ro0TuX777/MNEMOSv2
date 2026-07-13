@@ -1,0 +1,31 @@
+{
+  "schema_version": "gatemem-g3-design-review-v1",
+  "status": "GATEMEM_G3_AUTHORIZATION_DISCLOSURE_SEMANTICS_DESIGN_COMPLETE",
+  "authorization": "GATEMEM_G3_AUTHORIZATION_DISCLOSURE_SEMANTICS_DESIGN_ONLY",
+  "review": {
+    "authenticated_principal_contract_defined": true,
+    "identity_derived_tenant_session_scope_defined": true,
+    "role_and_entitlement_intersection_defined": true,
+    "artifact_and_source_class_semantics_defined": true,
+    "deny_by_default_defined": true,
+    "redaction_obligations_and_fail_closed_behavior_defined": true,
+    "content_free_error_and_audit_contracts_defined": true,
+    "replay_and_policy_pin_semantics_defined": true,
+    "existence_and_inference_leakage_addressed": true,
+    "development_corpus_governance_defined": true,
+    "newly_sealed_evaluation_requirement_defined": true,
+    "already_observed_g2a_corpus_excluded_from_fresh_holdout": true,
+    "preregistration_and_one_shot_rules_defined": true,
+    "deletion_assigned_to_separate_future_adr": true
+  },
+  "scope_checks": {
+    "runtime_files_changed_for_g3": 0,
+    "policy_implementation_files_added": 0,
+    "policy_tuning_runs": 0,
+    "new_gatemem_prediction_runs": 0,
+    "new_gatemem_score_claims": 0,
+    "deletion_engineering_changes": 0
+  },
+  "all_design_gates_passed": true,
+  "advancement_boundary": "Design completion permits review of a separate implementation proposal only."
+}

@@ -2,7 +2,7 @@
 
 **A containerised, contract-governed memory and retrieval service for AI-native applications.**
 
-*Version 3.3 · June 2026*
+*Version 3.4 · July 2026*
 
 > [!NOTE]
 > **As of June 11, 2026:** Benchmark conclusions in dated sections remain scoped to their cited artifact timestamps. For full methodology, raw artifacts, and latest measured runs, see `docs/benchmark.md`.
@@ -15,7 +15,10 @@
 > **CoALA Cognitive Cycle (v3.2) is implemented** — MNEMOS cognitive behaviours are now explicit, auditable, and interoperable via `mnemos/cognitive/`. Add `cognitive_cycle: true` to any `/search` request to receive a `CognitiveCycleRecord` in the response. See §4.10.
 > **PatternEngramCandidate Extraction Harness (v3.3) is implemented** — Phases 16–21 complete. `CycleEvaluator`, `PatternLearner`, `PatternConsolidator`, `PatternCandidateStore`, and `PatternEngram` ship as advisory-only, governance-gated pattern abstraction. 182 new tests; Phase 21 gate harness (`tools/run_pattern_phase_gate.py`) passes 8/8 scenarios and 5/5 cross-cutting gates. See §4.11.
 > **EBIR-R1 shadow refinement lane is technically accepted and CI-gated** — RepFusion-inspired Evidence-Bounded Iterative Reconciliation evaluates multi-pass evidence challenge/revision for contradiction clusters in shadow only. Authoritative Resolution Engram promotion remains blocked. See §4.12 and `docs/ebir_r1_acceptance.md`.
+> **Session Context Assembler local shadow milestone is technically accepted** — a consumer-neutral, read-only adapter can assemble bounded, provenance-labeled context packages in an isolated local harness. It has no listener, route, SDK, external consumer connection, deployment, or effect on MNEMOS authority surfaces. See §4.13 and ADR 0008.
+> **GateMem governance reference baseline is frozen** — MNEMOS completed a governed authorization/disclosure research lane from clean-input benchmark isolation through a deterministic offline reference implementation. G4 matched 36/36 expected synthetic outcomes and passed 33/33 reference gates. This is regression-only research evidence, not production authorization security or held-out benchmark performance. See §4.14 and ADRs 0009–0013.
 > **Graph Tier (`graph_hybrid_experimental`) is experimental and read-only** — offline/live resolver validation complete (MG-Test-1→10); not exposed on the public HTTP retrieval-mode surface. See §4.2 and `docs/graph_tier/operator_guide.md`.
+> **Open WebUI evidence lane (v3.4) is operational as a local consumer-boundary workflow** — a research intake UI, an Ollama/OpenAI-compatible evidence proxy, and per-answer evidence receipts let a generic chat front end answer from MNEMOS evidence with token streaming, multi-turn query condensation, and deterministic post-hoc verification annotations (citation check, truncation honesty, score spread, tamper-evidence hash). Context-only adapter: it does not alter MNEMOS retrieval, write memory, or enforce admission policy. Local single-user workflow evidence only. See §4.16.
 > **Deployment model:** MNEMOS runtime services are deployed as a Docker Compose stack; all serving components run in containers.
 > **Developer model:** tooling, benchmarks, and tests are typically run from host Python unless explicitly containerized.
 
@@ -23,6 +26,9 @@
 
 | Date | Change |
 |---|---|
+| 2026-07-10/11 | **Open WebUI evidence lane hardening (v3.4)** - Real token streaming through the evidence proxy (Ollama NDJSON passthrough re-emitted as OpenAI SSE / Ollama chunks); multi-turn support with footer-stripped history forwarding and standalone retrieval-query condensation recorded in receipt metadata; receipt verification annotations (`citation_check`, `generation` truncation honesty, `score_stats`, `content_hash`); receipt overflow archived instead of deleted; real token usage passthrough; waitress serving. Deterministic, passive annotations only — no admission enforcement. Local single-user workflow evidence. |
+| 2026-07-05→08 | **Open WebUI evidence lane established** - Research intake UI (upload → extract → chunk → index, with Docling OCR fallback and page lineage), Ollama/OpenAI-compatible evidence proxy, per-answer evidence receipts with a receipt browser, and containerized deployment of both services in the compose stack. |
+| 2026-06-26 | **AI developer MCP memory trial** - MNEMOS was exposed through an MFS-compatible MCP bridge and tested in local paired app-building trials against no-memory controls. The first pilot exposed infrastructure-readiness and measurement gaps; the refreshed E1 paired run used a dedicated seeded collection and structured telemetry. Both conditions completed and passed acceptance. MNEMOS retrieved useful task context with provenance and no observed quality degradation, but added memory/tool-call overhead and did not establish a speed or token-efficiency claim. Local development evidence only; no general memory-performance claim. |
 | 2026-03-30 | Enhancement roadmap closed: CI phase gates, Wave 4 hygiene gate, reflect precision guards, tenant policy profiles, explainability traces, economics counters, SLO reliability gate, operator playbook |
 | 2026-04–05 | Qdrant v1.17 server-side RRF (`qdrant_rrf`), relevance feedback adapter, Cross-Encoder rerank hardening |
 | 2026-05–06 | Graph Tier evaluation track (MG-Test-1→10); read-only `QdrantEngramResolver` with batched prefetch |
@@ -33,6 +39,8 @@
 | 2026-06-14 | **CoALA Cognitive Cycle (v3.2)** — New `mnemos/cognitive/` overlay module. `CognitiveCycleRecord`, `WorkingMemorySnapshot`, `AttentionContract`, `ForecastOutcomeRecord`, and `CycleAssembler` ship as a zero-cost opt-in. New endpoint: `GET /v1/mnemos/cognitive/cycles`. 77 new cycle tests; Phase 15 operational validation adds 8 representative cases and 40 passing focused tests. |
 | 2026-06-15 | **PatternEngramCandidate Extraction Harness (v3.3)** — Phases 16–21 complete. `CycleEvaluator` (R²-Mem rubric scorer), `PatternLearner` (ExpeL-style IF-THEN extractor), `PatternConsolidator` (A-MEM deduplication), `PatternCandidateStore` (advisory accumulation + governed promotion), and `PatternEngram` (authoritative promoted pattern). Advisory recall integrated into cognitive cycle (`advisory_patterns` field). 182 new tests; Phase 21 phase gate (`tools/run_pattern_phase_gate.py`) passes 8 scenarios + 5 cross-cutting gates. Gate evidence: `benchmarks/results/pattern_phase_gate.json`. |
 | 2026-06-18 | **EBIR-R1 shadow refinement lane** — RepFusion-inspired Evidence-Bounded Iterative Reconciliation scaffold added around `ReconciliationRunner`; adversarial technical acceptance pack covers 10 conflict classes and is CI-gated via `tools/run_ebir_refinement_benchmark.py`. EBIR is shadow-only; authoritative promotion remains blocked pending R2 human-review value trials. |
+| 2026-06-22 | **Session Context Assembler research milestone** — governed selector and consumer-neutral, read-only local shadow adapter accepted through ADR 0008. Technical gates cover lineage, digest verification, binding budgets, content-free telemetry, determinism, isolation, kill-switch behavior, and mutation sensitivity. No external integration or production surface is authorized. |
+| 2026-06-24 | **GateMem governance reference baseline** — external benchmark isolation, frozen G2/G2A characterization, principal-bound authorization/disclosure semantics, and a deterministic offline G4 reference implementation completed. The 36-case synthetic development corpus matched 36/36 expected outcomes and 33/33 G4 gates passed. Runtime integration, deletion, production authorization, and fresh benchmark claims remain blocked. |
 
 ---
 
@@ -58,9 +66,17 @@ Today, each project re-implements these capabilities from scratch — writing cu
 - **Custom Manual** — Operator-defined configuration for advanced multi-backend setups.
 - **Hybrid Retrieval Mode (Gate C)** - optional lexical + semantic fusion mode inside existing profiles (not a separate profile).
 
-A guided Python installer (`python -m installer`) probes the host, asks 5 questions, recommends a profile, and generates all deployment files. The service exposes a versioned REST API governed by an MFS contract.
+A guided Python installer (`python -m installer`) probes the host, resolves platform-safe compute mode, asks deployment questions, recommends a profile, and generates all deployment files. The service exposes a versioned REST API governed by an MFS contract.
 
 MNEMOS is **application-agnostic** — it knows nothing about the domain of the consuming application. It stores, enriches, compresses, retrieves, and audits knowledge. That’s it.
+
+For explanatory and product-positioning purposes, parts of the current
+architecture can also be described as **evidence memory**, **working memory**,
+and **decision memory**. In MNEMOS, these are descriptive labels for existing
+source-grounded evidence, bounded context packages, and audit-safe decision or
+evaluation records. They are not a claim that MNEMOS implements a new
+context-graph authority model, reasoning-memory authority surface, or changed
+retrieval path.
 
 **What's new in v3:**
 - **Deployment profiles** replace the flat tier model — named profiles with distinct retrieval architectures
@@ -74,12 +90,15 @@ MNEMOS is **application-agnostic** — it knows nothing about the domain of the 
 - **Hierarchical retrieval (Phase 9b)** — RAPTOR-lite summary engrams support global CLASS_C retrieval while the `__exclude_summaries__` sentinel prevents summary nodes from leaking into default factoid searches
 - **Consensus governance (Phase 10)** — contradiction clusters can synthesize additive Resolution Engrams that preserve parent lineage, take Tier-1 read-path priority with a 1.25 contradiction modifier, and suppress conflicting parents without deleting them
 - **EBIR shadow refinement lane (R1)** — RepFusion-inspired, evidence-bounded iterative reconciliation for complex contradiction clusters; CI-gated as shadow research only, with no retrieval, ranking, governance-score, parent-mutation, or promotion-path effects
+- **Session Context Assembler (research milestone)** — governed, budget-aware session selection and a consumer-neutral, read-only local shadow adapter; provenance, abstention, replay, digest, disclosure, telemetry, and kill-switch behavior are test-gated without changing runtime, retrieval, governance, or write paths
+- **GateMem governance reference baseline (research milestone)** — evaluator-safe clean-input projection, honest weak-governance characterization, principal-bound authorization/disclosure semantics, and a frozen deterministic offline reference implementation; regression-only, with no runtime, production-security, deletion, or fresh benchmark claim
 - **Anticipatory cognition (Phases 11-14)** — integration with Google TimesFM enables MNEMOS to forecast its operational pulse, predict factual obsolescence, and execute shadow searches from user intent trajectories
 - **Server-side hybrid RRF + relevance feedback** — `qdrant_rrf` fusion policy and governance-driven `discover_points()` exemplar biasing (opt-in)
 - **Derived Facts lane (production-adjacent pilot)** — isolated shadow evaluation packets with authority matrices and source traceability; default retrieval invariant: zero derived facts
 - **Graph Tier (experimental)** — read-only graph-neighbor expansion via `graph_hybrid_experimental`; double opt-in, no write path
 - **SLO-driven promotion gates** — automated canary-stage reliability checks with rollback discipline (`tools/run_slo_reliability_gate.py`)
 - **Operator playbook** — single operational runbook for deploy/promote/rollback/incident execution (`docs/mnemos_operator_playbook.md`)
+- **Open WebUI evidence lane (v3.4)** — local research intake UI, an Ollama/OpenAI-compatible evidence proxy for generic chat front ends, and per-answer evidence receipts with streaming, multi-turn condensation, and deterministic verification annotations; context-only, no MNEMOS authority-surface change (§4.16)
 
 MNEMOS also ships with a **Boundary SDK** (Python client library) and a suite of **operational tools** (health audit, contract evolution, onboarding, CI gates, and staged cutover) — making it a complete platform that can be deployed with a single `python -m installer`.
 
@@ -888,6 +907,265 @@ The gate requires zero EBIR regressions, zero safety violations, packet-hash equ
 
 **R2 boundary:** EBIR-R2 is the next authorized horizon and remains a human-review value trial only. It must compare raw evidence review, one-pass reconciliation, and EBIR output on difficult conflict packets, measuring correct resolution, correct abstention/escalation, evidence-supported decision quality, reviewer confidence calibration, review time, unsupported-claim detection, latency, token cost, and trigger selectivity. No product promotion is approved until EBIR improves real human review outcomes, not merely benchmarked reconciliation quality.
 
+### 4.13 Session Context Assembler: Consumer-Neutral Local Shadow Milestone
+
+The Session Context Assembler is a governed MNEMOS research capability for constructing bounded context packages from eligible session artifacts. Its S1 selector reserves budget in policy order for prior decisions, unresolved or mixed contradictions, and their required source-linked evidence before allocating remaining space to task-relevant supporting episodes and optional semantic fill. If mandatory eligible context cannot fit, the package explicitly abstains instead of silently reporting success.
+
+Selected artifacts retain artifact-local provenance and safety labels: `synthetic_context`, `non_authoritative`, `non_promotable`, `parent_engram_ids`, `parent_source_ids`, lineage completeness, and artifact type. The consumer receives context, not memory authority: package content is not source truth and cannot alter Engrams, contradiction state, governance, promotion, retrieval ranking, or durable write paths.
+
+ADR 0008 authorizes and closes out only an **isolated, consumer-neutral, read-only local shadow adapter**. The local implementation demonstrates:
+
+- authenticated request validation through a transport-neutral local abstraction;
+- tenant/scope, entitlement, classification, disclosure, and redaction enforcement;
+- policy- and version-pinned replay behavior with fail-closed drift handling;
+- canonical package digests and artifact-local lineage verification;
+- bounded package assembly with visible omission and abstention state;
+- content-free shadow telemetry; and
+- an atomic kill switch that blocks new assembly, cache writes, sink events, and delivery attempts without disturbing MNEMOS state.
+
+The isolated gate passes frozen-corpus integrity, assembly, digest, lineage, budget, telemetry, determinism, and runtime/network-isolation checks. It also detects eight deliberate mutations covering digest tampering, lineage removal, telemetry escape, kill-switch bypass, replay-policy bypass, authorization bypass, redaction bypass, and abstention suppression. The focused evidence is **175 relevant tests**, not a whole-repository release certification; unrelated failures and optional dependency availability are outside this feature-lane claim.
+
+**Research and release boundary:** this milestone contains no network listener, API route, SDK, external consumer connection, live routing, staging or production deployment, durable memory write, retrieval change, governance mutation, or consumer active-path effect. A passing gate authorizes review of a separately governed consumer-neutral shadow-evaluation proposal only. Model-assisted answer-fidelity testing remains surrogate evidence, and prepared owner review remains non-independent and non-generalizable; neither is a broad human-value claim.
+
+For a future separately authorized consumer evaluation, a downstream application could inspect a source-linked, artifact-lineage-preserving, `synthetic_context`-labeled, non-authoritative, non-promotable, policy-scoped, budget-bounded package with explicit omissions or abstention. This could reduce irrelevant context while preserving earlier decisions, contradictions, and source evidence, without turning the consumer into an alternate memory authority.
+
+Evidence: `docs/adr/0008-consumer-neutral-read-only-shadow-adapter-implementation.md`, `docs/session_context_assembler_spec.md`, `docs/session_context_assembler_shadow_adapter_implementation_notes.md`, and `benchmarks/results/session_context_assembler_shadow_adapter_gate.md`.
+
+---
+
+### 4.14 GateMem Governance Reference Baseline
+
+MNEMOS completed a governed research program for memory authorization and disclosure. The work does not establish that MNEMOS has solved production authorization governance; it establishes a reproducible research boundary, an honestly measured weak baseline, a normative decision model, and a deterministic reference implementation for regression testing.
+
+The program progressed through five bounded milestones:
+
+1. **G0 — environment and gap assessment.** GateMem was pinned as an external research dependency, with its runtime, evaluator, licensing, and deletion-governance gaps recorded without modifying upstream.
+2. **G1 — clean-input projection.** Visible turns, requester identity/role, and permitted metadata were projected through a strict allowlist. Evaluator-only annotations remained unavailable to the decision path.
+3. **G2/G2A — frozen baseline characterization.** The unchanged offline adapter was evaluated across all four released GateMem domains. Provenance integrity remained 1.0, while utility, leakage, and over-refusal results showed that visible-text heuristics and candidate filtering were not adequate disclosure controls. These domains are historical characterization data, not a future held-out set.
+4. **G3 — principal-bound semantics.** The design binds disclosure to authenticated identity, identity-derived tenant/session scope, scoped role assignment, entitlement, purpose, artifact/source classification, time validity, redaction obligations, replay controls, and content-free audit correlation. Caller filters and query wording are never authority; unknown policy or failed redaction denies.
+5. **G4 — offline reference conformance.** A local deterministic implementation exercised those contracts against 36 MNEMOS-owned, inspectable synthetic development cases. It matched 36/36 expected outcomes and passed 33/33 focused gates, including forged identity, scope widening, entitlement drift, lineage change, redaction residue, replay drift, audit leakage, evaluator-field injection, and harness-owned HMAC-key isolation.
+
+The frozen G4 implementation/corpus composite is `ed3b5c7672e591b039183eaa2d8c7c7630a655575bfc7866558d53f2eb874c52`. A read-only verifier checks pinned source hashes, corpus fingerprint, evidence counts, gate counts, and claim classification before regression tests run. Changes to the implementation or corpus create a new development iteration rather than revising the frozen result.
+
+**Focused verification:** 59 focused tests passed; 8/8 frozen-reference checks passed; 36/36 synthetic outcomes matched; 33/33 G4 reference gates passed; and the external GateMem checkout remained clean.
+
+**Research and release boundary:** G4 is isolated from MNEMOS runtime modules, network services, hosted models, GateMem imports, durable memory, shared caches, and deletion paths. This milestone does not claim production authorization security, held-out benchmark performance, legal compliance, active forgetting, or deletion capability. It is focused research-lane evidence, not a full-repository certification. No hosted judge, runtime integration, public benchmark submission, or leaderboard submission occurred.
+
+GateMem policy work is paused pending an independent sealed-evaluation custodian and a newly sealed or independent evaluation corpus. Until then, G4 is retained for regression testing only.
+
+Evidence: `docs/reports/gatemem_governance_reference_baseline.md`, `docs/benchmarks/gatemem_program_status.md`, `docs/benchmarks/gatemem_g4_offline_reference_implementation.md`, `benchmarks/results/gatemem_g4_frozen_reference_manifest.json`, and ADRs 0009–0013.
+
+---
+
+### 4.15 AI Developer MCP Memory Trial
+
+MNEMOS was tested as an agentic memory substrate for an AI developer workflow
+through an MFS-compatible MCP bridge. The question was narrow: when a coding
+agent builds the same small local application, does MNEMOS-assisted project
+memory reduce logged orientation and rework signals compared with a no-memory
+control?
+
+The bridge exposes MNEMOS through MCP tools for agent use:
+
+```text
+health_check
+get_capabilities
+search_memory
+write_observation
+record_decision
+find_related_context
+detect_contradictions
+summarize_session_handoff
+explain_memory_provenance
+```
+
+The evaluation progressed in two steps. The first pilot proved that the MCP
+bridge could be used from an AI developer session, but also exposed
+infrastructure-readiness and measurement gaps: the backing service had to be
+started correctly, early calls could miss or route to the wrong corpus, and the
+original logs did not contain enough retrieval-integrity fields to support a
+retrieval-conditioned comparison.
+
+The refreshed E1 trial fixed those gaps before rerunning the paired task. The
+same starter repository was reset into both workspaces. The MNEMOS condition
+used a dedicated Qdrant collection (`mnemos_ai_dev_e1_task_01`) seeded with the
+task documents and identified by seed snapshot `0a578569ef136afa`. Both
+conditions were required to write structured trial artifacts under
+`trial_results/`, including route logs, repo activity, test runs, wrong turns,
+user interventions, token estimates, and a final report. The MNEMOS-enabled
+condition additionally had to log per-call retrieval telemetry: execution path,
+retrieval fingerprint, returned source labels, provenance, usefulness,
+abstention behavior, and whether retrieved material influenced the next action.
+A verifier rejected incomplete or inconsistent folders before comparison.
+
+The refreshed task was a local issue tracker completion task: saved views,
+deterministic sorting, schema migration/default handling, repair of a seeded
+`priority_desc` sorting defect, responsive/focus-safe UI polish, and a
+Windows-compatible acceptance-test script without modifying the frozen
+acceptance suite.
+
+| Metric | MNEMOS enabled | No memory |
+|---|---:|---:|
+| Task completion | 1.0 | 1.0 |
+| Acceptance-test pass rate | 1.0 | 1.0 |
+| Build result | Pass | Pass |
+| Total estimated tokens | 57,000 | 51,000 |
+| Logged tool calls | 14 | 5 |
+| Memory calls | 7 | 0 |
+| Route log rows | 7 | 7 |
+| Repo activity rows | 16 | 29 |
+| Raw failed-test count | 5 | 0 |
+| Failed-test metric status | not comparable due to harness failures | not comparable due to harness failures |
+| Harness/environment failures | 1 | 1 |
+| Expected RED acceptance failures | 4 | 0 |
+| Agent-caused test failures | 0 | 0 |
+| Wrong-turn rows | 2 | 2 |
+| Files changed | 7 | 8 |
+| User interventions | 0 | 0 |
+| Seed snapshot recorded | `0a578569ef136afa` | n/a |
+| Seed snapshot layer | task seed manifest hash | n/a |
+| Collection snapshot from executed route | `mnemos_ai_dev_e1_task_01:2437be792647c500` | n/a |
+| Collection snapshot layer | retrieval index snapshot | n/a |
+| Executed-route fingerprint recorded | Yes | n/a |
+| Retrieved-context usefulness | 0.857 | n/a |
+| Provenance retained | 1.0 | n/a |
+| Irrelevant-context rate | 0.0 | n/a |
+
+Both runs completed and passed the same acceptance/build checks. The
+MNEMOS-enabled run used the required memory tools (`health_check`,
+`get_capabilities`, `find_related_context`, `search_memory`, `record_decision`,
+`write_observation`, and `summarize_session_handoff`). Its useful
+`search_memory` call returned the seeded task-doc neighborhood, including
+`docs/product_scope.md`, `docs/architecture_decisions.md`, and
+`docs/data_contract.md`; the agent then verified those results against local
+project files before relying on them. Prior-run memory appeared in the result
+set but was rejected for direct reliance rather than used as authority.
+
+The no-memory control also completed successfully without memory calls. It
+required no user intervention and reached the same final quality bar, but logged
+more repo-activity rows. The MNEMOS condition logged fewer repo-activity rows
+but more tool calls and a higher estimated token count. In this run, MNEMOS
+showed useful retrieval and no observed quality degradation; it did not show a
+token or speed advantage. The raw failed-test count is retained for audit, but
+is not used as a workflow-quality comparison because both legs encountered the
+same Windows glob/script harness issue. The normalized agent-caused test
+failure count was `0` in both conditions.
+
+**Interpretation:** MNEMOS can operate as a useful AI-developer orientation and
+continuity layer when the collection is correctly seeded and the MCP path is
+healthy. The strongest evidence from E1 is retrieval quality and auditability:
+correct source neighborhood, source labels retained, retrieval fingerprints
+recorded, and stale/prior-run context rejected rather than used. The evidence
+does not support a broad claim that MNEMOS makes agents faster or cheaper. The
+reported seed snapshot and executed-route collection snapshot are different
+lineage layers: `0a578569ef136afa` identifies the task seed manifest, while
+`mnemos_ai_dev_e1_task_01:2437be792647c500` identifies the retrieval index
+snapshot observed in the executed route.
+
+**Claim boundary:** this is local development evidence for one paired task, one
+seed snapshot, one dedicated collection, and the tested MCP configuration. It
+does not establish general AI-developer performance improvement, universal
+token reduction, broad retrieval quality, production readiness as a universal
+agent memory store, or causality for all observed differences. More paired
+trials are needed, including warm-start repeats, resume tests, bug-regression
+tests, design-constraint retention tests, stale-memory rejection tests, and
+multi-task comparisons with exact token/latency instrumentation.
+
+Evidence: `docs/experiments/ai_dev_mnemos_enabled_trial_instructions.md`,
+`docs/experiments/ai_dev_no_memory_trial_instructions.md`,
+`tools/verify_ai_dev_memory_trial.py`,
+`tools/compare_ai_dev_memory_trials.py`,
+`benchmarks/results/ai_dev_memory_trial_comparison_001.json`,
+`benchmarks/results/ai_dev_memory_trial_comparison_001.md`,
+`benchmarks/results/ai_dev_memory_quality_e1_task_01_comparison_004.json`, and
+`benchmarks/results/ai_dev_memory_quality_e1_task_01_comparison_004.md`.
+
+### 4.16 Open WebUI Evidence Lane (v3.4)
+
+The Open WebUI evidence lane answers a consumer-boundary question: can a
+generic, MNEMOS-unaware chat front end deliver answers grounded in MNEMOS
+evidence — with per-answer proof — without widening MNEMOS's authority surface?
+The lane adds no new MNEMOS endpoints and no new write paths. Open WebUI never
+learns MNEMOS exists; MNEMOS never learns chat exists. The only component that
+knows both worlds is a local proxy.
+
+**Topology (local compose stack + host Ollama):**
+
+| Component | Port | Role |
+|---|---|---|
+| `research-ui` | :8788 | Intake desk: upload PDFs/docs → extract (pypdf, Docling OCR fallback) → chunk → index into MNEMOS with source/page lineage; hosts the `/evidence` receipt browser |
+| `openwebui-proxy` | :8790 | Evidence proxy: presents an Ollama/OpenAI-compatible API to chat front ends; retrieves bounded evidence from MNEMOS, sends evidence + question to Ollama, appends an evidence footer, writes a receipt |
+| `open-webui` | :8088 | Generic chat window (separate container); speaks the standard model API and must be connected **only** to the proxy |
+| Ollama | :7777 (host) | Local model runtime; the only generation engine in the lane |
+| Evidence receipts | `./logs/evidence_receipts` | Host-mounted JSON receipts, shared read-only with the receipt browser |
+
+**Chat flow:** the proxy takes the latest user message (plus sanitized prior
+turns), asks MNEMOS for bounded evidence, streams Ollama's generation back to
+the chat client token-by-token, appends a deterministic evidence footer
+(citations, receipt link, claim boundary), and writes a receipt. If MNEMOS
+returns no evidence or errors, the answer is withheld and the footer says so —
+Ollama is not called.
+
+**Multi-turn handling (July 2026):** prior turns are forwarded to Ollama with
+evidence footers stripped, capped by `MNEMOS_PROXY_HISTORY_MAX_TURNS`
+(default 8). Follow-up questions are condensed into standalone retrieval
+queries via a bounded temperature-0 Ollama call before hitting MNEMOS;
+condensation is env-gated (`MNEMOS_PROXY_QUERY_CONDENSE`), falls back to the
+raw query on any failure, and is fully recorded in the receipt
+(`history_turns`, `query_condensed`, `original_query`, `retrieval_query`).
+Factual claims remain bound to the supplied evidence; history is
+reference-resolution context only.
+
+**Evidence receipts** are per-answer JSON artifacts recording the query, the
+retrieval query actually sent, requested/actual model, the full evidence block
+sent to Ollama, citations with scores and engram IDs, retrieval metadata
+(mode, fingerprint, fusion policy, latency, low-relevance abstention signal
+when reported), the answer, and the claim boundary. Receipts are viewable as
+HTML at both the proxy and the research UI.
+
+**Verification annotations (July 2026)** — each receipt additionally carries
+deterministic post-hoc annotations. These are recorded, never enforced:
+
+| Field | What it records |
+|---|---|
+| `citation_check` | Which `[n]` indices the answer cited, indices citing non-existent evidence, evidence never cited, coverage ratio, and a verdict (`all_evidence_cited`, `partial_evidence_cited`, `cites_missing_evidence`, `no_citations_in_answer`, `no_evidence_available`) |
+| `generation` | Ollama `done_reason`, a `truncated` flag (token-limit stops also warn in the served footer that citations may be incomplete), and prompt/eval token counts |
+| `score_stats` | Min/max/mean/count of retrieval scores, making the relevance spread of the evidence visible instead of presenting top-k chunks as equally admissible |
+| `content_hash` | `sha256` over the receipt's factual core (id, created, query, answer, evidence block, citations) — recomputable tamper evidence |
+
+**Receipt lifecycle:** receipts past `MNEMOS_EVIDENCE_RECEIPT_MAX_FILES`
+(default 500) are moved to an `archive/` subfolder with a log line — proof
+artifacts are never silently deleted. Real token usage
+(`prompt_eval_count`/`eval_count`) passes through to the chat client. The
+proxy serves via waitress (threaded, unbuffered chunk flushing) with a Flask
+dev-server fallback.
+
+**Operational note:** the chat front end must be connected only to the proxy.
+A parallel direct-to-Ollama connection exposing the same model IDs causes the
+front end to load-balance between them, nondeterministically bypassing
+retrieval and producing answers with no footer and no receipt.
+
+**Claim boundary:** the adapter is stamped
+`MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY` in every receipt: it retrieves MNEMOS
+evidence and asks Ollama to answer from that evidence; it does not alter
+MNEMOS retrieval, write memory, or enforce R1/R2 admission policy. The
+verification annotations are passive shadow-style observability consistent
+with the retained R0 posture — Evidence Admission R1 enforcement remains not
+retained, and nothing in this lane blocks, rewrites, or re-ranks answers. The
+`content_hash` is tamper evidence on a mutable file, not a signed or immutable
+ledger entry. Behavior is validated by the unit suites and local end-to-end
+runs of the deployed stack (streaming cadence, condensation trail, truncation
+capture); this is local single-user workflow evidence, not a benchmark, and no
+relevance-quality or performance claim is made.
+
+Evidence: `tools/mnemos_ollama_chat.py`,
+`tools/mnemos_ollama_openwebui_proxy.py`, `tools/mnemos_research_ui.py`,
+`tools/mnemos_research_intake.py`, `tests/test_mnemos_ollama_chat.py`,
+`tests/test_mnemos_ollama_openwebui_proxy.py`,
+`tests/test_mnemos_research_ui.py`,
+`docs/integrations/openwebui_mnemos_local_chat_readme.md`,
+`docs/integrations/ollama_mnemos_mfs.md`, and `topology.md`.
+
 ---
 
 ## 5. API Contract
@@ -1198,6 +1476,7 @@ Detailed trial, certification, and experimental evidence is maintained outside t
 | Human operator trials (DFE) | `docs/reports/dfe_*.md` | Derived-fact selection and value assessment |
 | Graph Tier (MG-Test) | `docs/graph_tier/`, `docs/mg_test_10_experimental_closeout.md` | Experimental graph hybrid |
 | EBIR-R1 shadow refinement | `docs/ebir_r1_acceptance.md`, `benchmarks/truthsets/ebir_r1_adversarial.json`, `benchmarks/results/ebir_refinement_benchmark.json` | RepFusion-inspired evidence-bounded reconciliation; shadow-only, promotion blocked |
+| AI developer MCP memory trial | `docs/experiments/ai_dev_*_trial_instructions.md`, `benchmarks/results/ai_dev_memory_trial_comparison_001.*`, `benchmarks/results/ai_dev_memory_quality_e1_task_01_comparison_004.*` | Pilot plus refreshed E1 paired local app-building trial; useful retrieval/provenance evidence and no observed quality degradation, but no speed or token-efficiency claim |
 | Ops certification | `docs/reports/ops_*.md`, `docs/cert_binder/` | Release governance and red-lines |
 | Validation / shadow (VFR) | `docs/reports/vfr_*` (where present) | Sidecar read-only enforcement |
 | Schema/fact extraction (SMC) | `tools/smc_*.py`, `docs/reports/` | **Blocked** pending separate review |
@@ -1206,7 +1485,7 @@ Detailed trial, certification, and experimental evidence is maintained outside t
 
 ## 8. Deployment Profiles
 
-MNEMOS ships with named deployment profiles that determine the retrieval backend, container topology, and operational posture. The guided installer (`python -m installer`) recommends a profile based on use case, priorities, and host capabilities.
+MNEMOS ships with named deployment profiles that determine the retrieval backend, container topology, and operational posture. The guided installer (`python -m installer`) recommends a profile based on use case, priorities, host capabilities, and platform-safe compute mode.
 
 ### Profile A: Core Memory Appliance *(default)*
 
@@ -1214,9 +1493,9 @@ MNEMOS ships with named deployment profiles that determine the retrieval backend
 
 | Component | Service | Container |
 |---|---|---|
-| Vector store | Qdrant (HNSW, CUDA embeddings) | `mnemos-qdrant` |
+| Vector store | Qdrant (HNSW, CUDA or CPU embeddings) | `mnemos-qdrant` |
 | Audit ledger | PostgreSQL | `mnemos-postgres` |
-| Service | MNEMOS (nvidia runtime) | `mnemos-service` |
+| Service | MNEMOS (CUDA or CPU mode) | `mnemos-service` |
 
 3 containers. Qdrant provides fast semantic ANN with payload filtering. Recommended when retrieval is primarily semantic and the corpus exceeds 100K documents.
 
@@ -1228,7 +1507,7 @@ MNEMOS ships with named deployment profiles that determine the retrieval backend
 |---|---|---|
 | Vector store | pgvector (inside PostgreSQL) | `mnemos-postgres` (shared) |
 | Audit ledger | PostgreSQL | `mnemos-postgres` (shared) |
-| Service | MNEMOS (nvidia runtime) | `mnemos-service` |
+| Service | MNEMOS (CUDA or CPU mode) | `mnemos-service` |
 
 2 containers. Vectors and audit share one Postgres instance. ANN retrieval can be combined with SQL `WHERE` clauses on tenant, provenance, or security markings — in a single query. Recommended when metadata filtering matters more than raw ANN throughput.
 
@@ -1246,7 +1525,9 @@ Hybrid retrieval is not a separate deployment profile. It is a retrieval mode av
 
 ## 9. Deployment
 
-The installer generates a profile-specific `docker-compose.generated.yml` and `.env.mnemos`. Example stacks:
+The installer generates a profile-specific `docker-compose.generated.yml` and `.env.mnemos`. It resolves compute mode first: Linux hosts with an NVIDIA GPU and NVIDIA Container Toolkit use CUDA, while macOS and hosts without the NVIDIA runtime generate CPU-safe files with no `runtime: nvidia` stanza and `MNEMOS_GPU_DEVICE=cpu`. Operators can override with `--compute-mode cpu` or `--compute-mode cuda`.
+
+CUDA-mode example stacks:
 
 ### Core Memory Appliance
 
@@ -1319,10 +1600,10 @@ volumes:
 
 | Profile | Containers | RAM | Disk | GPU |
 |---|---|---|---|---|
-| Core Memory Appliance | 3 | ~2 GB | ~200 MB base | Required (CUDA) |
-| Core + Cross-Encoder reranking | 3 | ~4 GB | ~400 MB base | Required (CUDA) |
-| Governance Native | 2 | ~1.5 GB | ~150 MB base | Required (CUDA) |
-| Governance + Cross-Encoder | 2 | ~3.5 GB | ~350 MB base | Required (CUDA, ≥8 GB VRAM) |
+| Core Memory Appliance | 3 | ~2 GB | ~200 MB base | CUDA recommended; CPU supported for local/macOS evaluation |
+| Core + Cross-Encoder reranking | 3 | ~4 GB | ~400 MB base | CUDA recommended; CPU slower |
+| Governance Native | 2 | ~1.5 GB | ~150 MB base | CUDA recommended; CPU supported for local/macOS evaluation |
+| Governance + Cross-Encoder | 2 | ~3.5 GB | ~350 MB base | CUDA recommended; CPU slower |
 
 ---
 
@@ -1412,7 +1693,7 @@ Any application that stores, enriches, retrieves, and audits knowledge — and n
 ## 11. Design Principles
 
 1. **Application-agnostic** — The service has zero knowledge of what domain it serves. It stores vectors, enriches engrams, and answers queries. Period.
-2. **GPU-native** — Embedding inference runs on CUDA by default. The service is built on `nvidia/cuda` and requires GPU hardware — CPU fallback exists for resilience, not as a primary mode.
+2. **Compute-mode aware** — Embedding inference uses CUDA when an NVIDIA GPU and container runtime are available, while CPU mode is generated automatically for macOS and other non-NVIDIA hosts.
 3. **Profile-composable** — Named deployment profiles (Core Memory Appliance, Governance Native) determine the retrieval backend and container topology. The installer recommends, the operator confirms.
 4. **Contract-governed** — Every API response follows a strict MFS contract schema, enabling reliable integration without tight coupling.
 5. **Compression by default** — TurboQuant is on at 4-bit out of the box. Storage scales sublinearly with document count.
@@ -1550,7 +1831,7 @@ MNEMOS/
 ├── service/                   Flask REST API + MFS contract
 ├── installer/                 Guided deployment installer
 │   ├── __main__.py            Entry point (python -m installer)
-│   ├── questions.py           5-question Q/A
+│   ├── questions.py           Deployment Q/A
 │   ├── probes.py              Host capability detection
 │   ├── profiles.py            Profile definitions
 │   ├── recommend.py           Decision tree recommendation
@@ -1602,6 +1883,7 @@ MNEMOS was designed from the ground up as a reusable memory service. Its archite
 | Hierarchical summary retrieval | RAPTOR-lite hierarchy runner (`mnemos/governance/hygiene/clustering_runner.py`) |
 | Consensus resolution | Reconciliation runner + Resolution Engrams (`mnemos/governance/hygiene/reconciliation_runner.py`) |
 | Evidence-bounded reconciliation refinement | EBIR shadow lane (`mnemos/governance/hygiene/repfusion_refiner.py`) + R1 gate (`tools/run_ebir_refinement_benchmark.py`) |
+| Governed session context assembly | S1 selector + consumer-neutral read-only local shadow adapter (`prototype/session_context_assembler/`) + isolated gate (`tools/run_session_context_assembler_shadow_adapter_gate.py`) |
 | Source-grounded selective synthesis | Memory Over Maps lane (mnemos/memory_over_maps/) |
 | Background memory hygiene | Wave 4 hygiene pipeline (`mnemos/governance/hygiene/`) |
 | Tenant governance tuning | `GovernancePolicyProfile` + `MNEMOS_GOVERNANCE_POLICY_PROFILES_JSON` |
@@ -1618,5 +1900,6 @@ MNEMOS was designed from the ground up as a reusable memory service. Its archite
 | Auditable forecast lifecycle | `ForecastOutcomeRecord` (`mnemos/cognitive/forecast_outcome.py`) |
 | Structured attention contract | `build_attention_decisions()` (`mnemos/cognitive/attention.py`) — 11 named dimensions |
 | Cognitive cycle history | `GET /v1/mnemos/cognitive/cycles` |
+| Consumer-boundary evidence chat | Open WebUI evidence lane (`tools/mnemos_ollama_openwebui_proxy.py`, `tools/mnemos_research_ui.py`) — streamed answers with receipts + verification annotations (§4.16) |
 
 What remains is a **pure infrastructure service** — a reusable, tooling-complete foundation for any application that needs intelligent, compressed, auditable memory.

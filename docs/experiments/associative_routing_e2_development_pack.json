@@ -1,0 +1,43 @@
+{
+  "pack_id": "associative_routing_e2_development_pack_v1",
+  "status": "informal_debugging_only",
+  "disclosure": {
+    "independence_label": "not_a_verification_artifact",
+    "reason": "Authored by the implementation team while building the E2 engine. Must not be used to support final E2 closeout claims; see associative_routing_e2_verification_pack.json for the frozen pack."
+  },
+  "queries": [
+    {"query_id": "dev01", "query": "Why is GateMem work paused?"},
+    {"query_id": "dev02", "query": "What is the current status of GateMem G4?"},
+    {"query_id": "dev03", "query": "What is the current state of the G5 handoff?"},
+    {"query_id": "dev04", "query": "What is the current state of Retrieval Hygiene R0?"},
+    {"query_id": "dev05", "query": "What is the current state of the AI developer memory trial?"},
+    {"query_id": "dev06", "query": "What is frozen for regression testing only?"},
+    {"query_id": "dev07", "query": "What governs the G4 implementation lane?"},
+    {"query_id": "dev08", "query": "What is the current state of the R0 frozen alias benchmark?"},
+    {"query_id": "dev09", "query": "What is the current state of the R0 fresh verification pack?"},
+    {"query_id": "dev10", "query": "What is evidence for the R0 closure?"},
+    {"query_id": "dev11", "query": "What superseded the G4 implementation proposal?"},
+    {"query_id": "dev12", "query": "What did the G4 implementation lane supersede?"},
+    {"query_id": "dev13", "query": "What superseded the G4 implementation lane?"},
+    {"query_id": "dev14", "query": "What did the latest AI dev trial comparison supersede?"},
+    {"query_id": "dev15", "query": "What superseded trial comparison 001?"},
+    {"query_id": "dev16", "query": "What is the G4 implementation lane preceded by?"},
+    {"query_id": "dev17", "query": "What blocks a fresh GateMem evaluation?"},
+    {"query_id": "dev18", "query": "What blocks GateMem?"},
+    {"query_id": "dev19", "query": "What depends on the G5 handoff?"},
+    {"query_id": "dev20", "query": "What blocks GateMem G5?"},
+    {"query_id": "dev21", "query": "What is evidence for GateMem G5?"},
+    {"query_id": "dev22", "query": "What blocks the R0 retrieval hygiene closure?"},
+    {"query_id": "dev23", "query": "What is the GateMem frozen baseline?"},
+    {"query_id": "dev24", "query": "What is frozen?"},
+    {"query_id": "dev25", "query": "Tell me about Retrieval Hygiene R0."},
+    {"query_id": "dev26", "query": "Tell me about the G4 implementation lane."},
+    {"query_id": "dev27", "query": "What is the current state of the PIT production-adjacent evaluation lane?"},
+    {"query_id": "dev28", "query": "Tell me about the PIT production-adjacent evaluation lane."},
+    {"query_id": "dev29", "query": "What is the current state of PIT-8?"},
+    {"query_id": "dev30", "query": "What is the current state of PIT-9B?"},
+    {"query_id": "dev31", "query": "What is the current state of trial comparison 001?"},
+    {"query_id": "dev32", "query": "What is the capital of France?"},
+    {"query_id": "dev33", "query": "How do I configure a Kubernetes ingress controller?"}
+  ]
+}

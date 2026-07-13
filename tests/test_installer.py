@@ -7,7 +7,9 @@ from installer.profiles import PROFILES, get_profile, list_profiles, ProfileSpec
 from installer.questions import UserAnswers, from_dict
 from installer.probes import ProbeResults
 from installer.recommend import recommend, Recommendation
-from installer.render import render_env, render_manifest
+from installer.render import render_compose, render_env, render_manifest
+from installer.compute import resolve_compute_mode
+from installer import __main__ as installer_main
 
 
 # ─────────────────── Profile Tests ───────────────────
@@ -147,6 +149,22 @@ class TestRecommend:
         assert rec.profile.name == "core_memory_appliance"
         assert any("GPU" in w for w in rec.warnings)
 
+    def test_macos_no_gpu_warning_mentions_cpu_mode(self):
+        answers = UserAnswers()
+        rec = recommend(
+            answers,
+            _default_probes(
+                os_name="Darwin",
+                gpu_available=False,
+                gpu_name="",
+                nvidia_runtime=False,
+            ),
+        )
+
+        joined = " ".join(rec.warnings)
+        assert "CPU mode" in joined
+        assert "requires CUDA" not in joined
+
     def test_no_docker_warning(self):
         """No Docker → warning."""
         answers = UserAnswers()
@@ -242,3 +260,101 @@ class TestRenderHybridSettings:
             assert "retrieval:" in content
             assert "mode: hybrid" in content
             assert "fusion_policy: balanced" in content
+
+
+class TestPostInstallGuidance:
+    def test_write_post_install_guide_creates_research_intake_instructions(self):
+        with tempfile.TemporaryDirectory(dir=".") as tmpdir:
+            guide_path = installer_main.write_post_install_guide(Path(tmpdir))
+
+            assert guide_path.exists()
+            content = guide_path.read_text(encoding="utf-8")
+            assert "Research Intake" in content
+            assert "http://127.0.0.1:8788/" in content
+            assert "Open WebUI" in content
+
+
+class TestInstallerComputeMode:
+    def test_macos_auto_resolves_cpu_with_reason(self):
+        result = resolve_compute_mode(
+            requested="auto",
+            probes=_default_probes(
+                os_name="Darwin",
+                gpu_available=False,
+                gpu_name="",
+                nvidia_runtime=False,
+            ),
+        )
+
+        assert result.mode == "cpu"
+        assert result.gpu_device == "cpu"
+        assert "macOS" in result.reason
+
+    def test_linux_with_nvidia_auto_resolves_cuda(self):
+        result = resolve_compute_mode(
+            requested="auto",
+            probes=_default_probes(
+                os_name="Linux",
+                gpu_available=True,
+                nvidia_runtime=True,
+            ),
+        )
+
+        assert result.mode == "cuda"
+        assert result.gpu_device == "cuda"
+
+    def test_cpu_compose_omits_nvidia_runtime(self):
+        profile = get_profile("core_memory_appliance")
+        assert profile is not None
+
+        with tempfile.TemporaryDirectory(dir=".") as tmpdir:
+            compose_path = render_compose(profile, Path(tmpdir), compute_mode="cpu")
+
+            content = compose_path.read_text()
+            assert "runtime: nvidia" not in content
+            assert "driver: nvidia" not in content
+
+    def test_cuda_compose_keeps_nvidia_runtime(self):
+        profile = get_profile("core_memory_appliance")
+        assert profile is not None
+
+        with tempfile.TemporaryDirectory(dir=".") as tmpdir:
+            compose_path = render_compose(profile, Path(tmpdir), compute_mode="cuda")
+
+            assert "runtime: nvidia" in compose_path.read_text()
+
+    def test_cpu_env_sets_gpu_device_cpu(self):
+        profile = get_profile("core_memory_appliance")
+        assert profile is not None
+
+        with tempfile.TemporaryDirectory(dir=".") as tmpdir:
+            env_path = render_env(profile, Path(tmpdir), compute_mode="cpu")
+
+            content = env_path.read_text()
+            assert "MNEMOS_GPU_DEVICE=cpu" in content
+            assert "MNEMOS_GPU_DEVICE=cuda" not in content
+
+    def test_manifest_records_compute_mode_and_reason(self):
+        rec = Recommendation(
+            profile=PROFILES["core_memory_appliance"],
+            confidence="high",
+            reasons=["test"],
+        )
+        answers = UserAnswers()
+        probes = _default_probes(os_name="Darwin", gpu_available=False, nvidia_runtime=False)
+
+        with tempfile.TemporaryDirectory(dir=".") as tmpdir:
+            manifest_path = render_manifest(
+                rec,
+                answers,
+                probes,
+                Path(tmpdir),
+                compute_mode="cpu",
+                compute_reason="macOS - NVIDIA runtime not supported",
+            )
+
+            content = manifest_path.read_text()
+            assert "compute:" in content
+            assert "mode: cpu" in content
+            assert "gpu_device: cpu" in content
+            assert "reason: macOS - NVIDIA runtime not supported" in content

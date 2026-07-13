@@ -1,0 +1,39 @@
+{
+  "record_id": "evidence_admission_and_budgeting_r1_14_failure_baseline_record_v1",
+  "purpose": "Separate post-commit record of the repo-local suite failure shape observed at the R1 pre-formal development baseline.",
+  "recorded_at": "2026-07-02T10:26:51.2830501+12:00",
+  "commit": "91b11a8c5ee377e6176ab9e728231b68d3c881dd",
+  "environment": {
+    "os": "Microsoft Windows 10.0.22631",
+    "python": "Python 3.12.7",
+    "shell": "powershell",
+    "cwd": "G:\\MNEMOS"
+  },
+  "command": "pytest -q tests",
+  "observed_result": "14 failed, 1288 passed, 1 skipped, 952 warnings in 61.55s",
+  "attribution": "14 non-R1 suite failures observed; excluded from the scoped R1 result pending baseline attribution.",
+  "failure_ids": [
+    "tests/test_gatemem_g5_readiness.py::test_packet_contains_no_sealed_corpus_or_labels",
+    "tests/test_governance_explainability.py::test_search_explain_governance_includes_trace_and_suppressed_summary",
+    "tests/test_hierarchy_lineage.py::test_summary_edges_resolve_to_leaf_engrams_via_api",
+    "tests/test_hierarchy_lineage.py::test_root_summary_recursive_lineage",
+    "tests/test_hybrid_runtime_response.py::test_runtime_hybrid_explain_fields_are_typed_and_present",
+    "tests/test_hybrid_runtime_response.py::test_runtime_hybrid_explain_false_omits_explain_fields",
+    "tests/test_hybrid_runtime_response.py::test_runtime_exposes_complexity_and_routing_metadata",
+    "tests/test_hybrid_runtime_response.py::test_runtime_phase2_candidate_envelope_meta_exposed_when_enabled",
+    "tests/test_hybrid_runtime_response.py::test_runtime_phase3_derived_views_generated_when_enabled",
+    "tests/test_hybrid_runtime_response.py::test_runtime_phase4_derived_view_cache_hit_and_invalidate",
+    "tests/test_memory_over_maps_phase1.py::test_search_explain_includes_lineage_when_phase1_enabled",
+    "tests/test_memory_over_maps_phase1.py::test_search_explain_omits_lineage_when_phase1_disabled",
+    "tests/test_retrieval_router_telemetry.py::test_telemetry_emission_and_health",
+    "tests/test_vfr7_api.py::test_gate_5_audit_log_integrity"
+  ],
+  "formal_phase_status": "BLOCKED_UNTIL_INDEPENDENT_FORMAL_PACK_RETURNED_VALIDATED_FROZEN_HASHED",
+  "next_handoff": {
+    "provide_to_independent_author": [
+      "docs/evidence_admission_and_budgeting_r1_corpus_manifest.json",
+      "docs/experiments/evidence_admission_and_budgeting_r1_formal_pack_template.json"
+    ],
+    "do_not_tune_against": "Do not inspect or tune against scored formal-pack content until it is returned, validated, frozen, and hashed."
+  }
+}

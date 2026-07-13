@@ -1,0 +1,36 @@
+{
+  "schema_version": "mnemos-agent-navigation-trial-log-v1",
+  "study_status": "MNEMOS_AGENT_NAVIGATION_DEVELOPMENT_STUDY_READY",
+  "classification": "LOCAL_REPO_AGENT_ORIENTATION_AND_BOUNDARY_RECALL_DEVELOPMENT_STUDY",
+  "task_id": "nav-g4-evidence-chain",
+  "mode": "mnemos_memory_assisted",
+  "subject": "codex",
+  "date": "2026-06-26",
+  "prompt": "Trace the evidence chain for the frozen G4 implementation/corpus composite.",
+  "memory_ids_retrieved": [
+    "mem-g4-frozen-regression-only",
+    "mem-overbroad-provenance-is-authorization"
+  ],
+  "accepted_memory_ids": [
+    "mem-g4-frozen-regression-only"
+  ],
+  "rejected_memory_ids": [
+    "mem-overbroad-provenance-is-authorization"
+  ],
+  "evidence_paths_used": [
+    "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+    "benchmarks/results/gatemem_g4_frozen_reference_manifest.json",
+    "tools/verify_gatemem_g4_frozen.py"
+  ],
+  "files_opened_count": 3,
+  "searches_count": 0,
+  "wrong_turns_or_corrections": [],
+  "boundary_decision": "regression_reference_contract_only",
+  "final_answer": "The evidence chain runs from the G4 closeout document to the frozen manifest and read-only verifier. The composite is regression reference-contract evidence over inspectable synthetic development cases, with no production, security, or deletion conclusion.",
+  "claim_boundary": {
+    "development_evidence_only": true,
+    "gatemem_reopened": false,
+    "sealed_evaluation_claim": false,
+    "general_memory_claim": false
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "schema_version": "gatemem-g0-environment-report-v1",
+  "generated_at": "2026-06-24T09:12:45+12:00",
+  "status": "GATEMEM_G0_PARTIAL_DELETION_GOVERNANCE_GAP_IDENTIFIED",
+  "authorization": "GATEMEM_G0_ENVIRONMENT_AND_COMPATIBILITY_ASSESSMENT_AUTHORIZED",
+  "upstream": {
+    "repository": "https://github.com/rzhub/GateMem.git",
+    "path": "G:\\MNEMOS-research\\gatemem_upstream",
+    "branch": "main",
+    "commit": "603f9f4b4ba4b77f043c20f85687fa016fd720b0",
+    "commit_time": "2026-06-21T15:46:56+08:00",
+    "clone_time": "2026-06-24T09:06:33+12:00",
+    "clean_before": true,
+    "clean_after": true,
+    "software_license": "MIT",
+    "dataset_license_metadata": "CC-BY-4.0",
+    "modified": false
+  },
+  "environment": {
+    "os": "Microsoft Windows 11 Pro 10.0.22631",
+    "architecture": "AMD64",
+    "python": "3.11.9",
+    "venv": "G:\\MNEMOS-research\\gatemem_upstream\\.venv",
+    "requirements_sha256": "EB0A301FAE188952B6A82300983C8F2C67E536D24CC009C17A2F9F87F8CBBCD3",
+    "freeze_path": "G:\\MNEMOS-research\\gatemem_g0_artifacts\\environment.freeze.txt",
+    "freeze_sha256": "7CA390A207A761A7B3535660287762C6BA7E3590AF0B541D09762127E7F00B06",
+    "frozen_package_count": 83,
+    "install_exit_code": 0,
+    "core_imports_exit_code": 0,
+    "hosted_api_keys_configured": false,
+    "llm_judge_run": false
+  },
+  "smoke_runs": [
+    {
+      "name": "gatemem_g0_example_smoke",
+      "agent": "example",
+      "command_variant": "prescribed_exact",
+      "exit_code": 1,
+      "completed": false,
+      "failure_code": "MISSING_OPENAI_API_KEY_AT_ROUTER_CONSTRUCTION",
+      "failure_explained": true,
+      "output_file_count": 0
+    },
+    {
+      "name": "gatemem_g0_long_context_smoke",
+      "agent": "long_context",
+      "command_variant": "prescribed_exact",
+      "exit_code": 1,
+      "completed": false,
+      "failure_code": "MISSING_OPENAI_API_KEY_AT_ROUTER_CONSTRUCTION",
+      "failure_explained": true,
+      "output_file_count": 0
+    },
+    {
+      "name": "gatemem_g0_example_stub_diagnostic",
+      "agent": "example",
+      "command_variant": "supplemental_offline_stub",
+      "exit_code": 0,
+      "completed": true,
+      "checkpoint_count": 579,
+      "runtime_seconds": 0.19232450003619306,
+      "behavioral_evidence": false
+    },
+    {
+      "name": "gatemem_g0_long_context_stub_diagnostic",
+      "agent": "long_context",
+      "command_variant": "supplemental_offline_stub",
+      "exit_code": 0,
+      "completed": true,
+      "checkpoint_count": 579,
+      "runtime_seconds": 0.3904752997041214,
+      "behavioral_evidence": false
+    }
+  ],
+  "capability_summary": {
+    "authorized_utility": "PARTIAL",
+    "multi_principal_scope_enforcement": "SHADOW_TESTABLE",
+    "cross_tenant_isolation": "SHADOW_TESTABLE",
+    "cross_session_isolation": "SHADOW_TESTABLE",
+    "role_enforcement": "UNSUPPORTED",
+    "entitlement_disclosure_enforcement": "SHADOW_TESTABLE",
+    "redaction_correctness": "SHADOW_TESTABLE",
+    "provenance": "SUPPORTED_NOW",
+    "auditability": "SUPPORTED_NOW",
+    "explicit_deletion_handling": "PARTIAL",
+    "post_deletion_non_recoverability": "UNSUPPORTED",
+    "reconstruction_confirmation_resistance": "UNSUPPORTED",
+    "over_refusal_risk": "PARTIAL",
+    "benchmark_output_compatibility": "PARTIAL"
+  },
+  "integrity": {
+    "scoring_only_fields_documented": true,
+    "clean_input_projection_required": true,
+    "native_checkpoint_object_allowed_for_future_adapter": false,
+    "upstream_stub_metrics_treated_as_behavioral_evidence": false,
+    "mnemos_runtime_changes": 0,
+    "benchmark_agent_files_added": 0,
+    "public_submissions": 0
+  }
+}

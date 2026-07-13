@@ -49,7 +49,7 @@ services:
       - MNEMOS_LOG_LEVEL=INFO
       - MNEMOS_GPU_DEVICE=cuda
       - MNEMOS_QDRANT_URL=http://qdrant:6333
-      - MNEMOS_QDRANT_COLLECTION=mnemos_engrams_nomic_mrl
+      - MNEMOS_QDRANT_COLLECTION=mnemos_claude_repo_seed
       - MNEMOS_POSTGRES_DSN=postgresql://mnemos:mnemos@postgres:5432/mnemos
       - NVIDIA_VISIBLE_DEVICES=all
     depends_on:
@@ -64,6 +64,53 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+
+  research-ui:
+    build: .
+    container_name: mnemos-research-ui
+    command: ["python", "tools/mnemos_research_ui.py", "--host", "0.0.0.0", "--port", "8788", "--upload-dir", "/app/data/research_uploads"]
+    ports:
+      - "8788:8788"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - MNEMOS_BASE_URL=http://mnemos:8700
+      - OLLAMA_BASE_URL=http://host.docker.internal:7777
+      - MNEMOS_EVIDENCE_RECEIPT_DIR=/app/logs/evidence_receipts
+    depends_on:
+      mnemos:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8788/')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  openwebui-proxy:
+    build: .
+    container_name: mnemos-openwebui-proxy
+    command: ["python", "tools/mnemos_ollama_openwebui_proxy.py", "--host", "0.0.0.0", "--port", "8790"]
+    ports:
+      - "8790:8790"
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - MNEMOS_BASE_URL=http://mnemos:8700
+      - OLLAMA_BASE_URL=http://host.docker.internal:7777
+      - MNEMOS_EVIDENCE_RECEIPT_DIR=/app/logs/evidence_receipts
+    depends_on:
+      mnemos:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8790/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
 volumes:
   qdrant_data:

@@ -1,0 +1,1 @@
+Distribute only files under packets/. Do not distribute coordinator_manifest.json; it contains the condition key.

@@ -62,12 +62,26 @@ class QdrantTier(BaseRetriever):
     def __init__(self, url: str = "http://localhost:6333",
                  collection_name: str = "mnemos_engrams",
                  embedding_model: str = "all-MiniLM-L6-v2",
-                 embedding_dim: int = 384,
+                 embedding_dim: Optional[int] = None,
                  gpu_device: str = "cuda"):
         self._url = url
         self._collection_name = collection_name
         self._embedding_model_name = embedding_model
-        self._embedding_dim = NOMIC_FULL_DIM if self._uses_nomic_mrl_model(embedding_model) else embedding_dim
+        # Vector dimension policy (generic profile correctness — no
+        # model-specific bypasses beyond the existing nomic-MRL dual-vector
+        # layout):
+        #   * nomic-MRL models: fixed named-vector layout (64 + 768).
+        #   * explicit embedding_dim: honored as repository configuration and
+        #     validated against the loaded model at first embed.
+        #   * otherwise: derived from the embedding model itself before the
+        #     collection is created (never assumed).
+        self._configured_embedding_dim = embedding_dim
+        if self._uses_nomic_mrl_model(embedding_model):
+            self._embedding_dim: Optional[int] = NOMIC_FULL_DIM
+        elif embedding_dim is not None:
+            self._embedding_dim = int(embedding_dim)
+        else:
+            self._embedding_dim = None  # derived in _initialize()
         self._gpu_device = gpu_device
         self._client = None
         self._model = None
@@ -81,11 +95,80 @@ class QdrantTier(BaseRetriever):
     def _uses_nomic_mrl(self) -> bool:
         return self._uses_nomic_mrl_model(self._embedding_model_name)
 
+    def _expected_vectors_config(self, distance: Any) -> Any:
+        from qdrant_client.models import VectorParams
+
+        if self._uses_nomic_mrl:
+            return {
+                "dense_64": VectorParams(size=NOMIC_MRL_DIM, distance=distance),
+                "dense_768": VectorParams(size=NOMIC_FULL_DIM, distance=distance),
+            }
+        return VectorParams(size=self._embedding_dim, distance=distance)
+
+    def _collection_schema_looks_compatible(self, collection_info: Any) -> bool:
+        params = getattr(getattr(collection_info, "config", None), "params", None)
+        vectors = getattr(params, "vectors", None)
+        if self._uses_nomic_mrl:
+            if isinstance(vectors, dict):
+                return {"dense_64", "dense_768"}.issubset(set(vectors))
+            return False
+        if vectors is None:
+            # Schema not introspectable (e.g. mocked client) — preserve the
+            # legacy permissive behavior rather than failing spuriously.
+            return True
+        if isinstance(vectors, dict):
+            # Named-vector layout cannot serve a single-vector profile.
+            return False
+        size = getattr(vectors, "size", None)
+        if size is None or self._embedding_dim is None:
+            return True
+        return int(size) == int(self._embedding_dim)
+
+    def _derive_embedding_dim(self) -> int:
+        """Derive the vector dimension from the active embedding model.
+
+        Never assumes a fallback dimension: asks the loaded model directly,
+        and probes an actual encode as a last resort. Called before the
+        collection is created so the collection schema always matches the
+        embedding profile actually in use.
+        """
+        model = self._get_embedder()
+        dim: Optional[int] = None
+        getter = getattr(model, "get_sentence_embedding_dimension", None)
+        if callable(getter):
+            dim = getter()
+        if not dim:
+            probe = np.asarray(model.encode(["embedding dimension probe"]))
+            dim = int(probe.reshape(1, -1).shape[-1])
+        return int(dim)
+
+    def _dimension_mismatch_error(self, existing_size: Any) -> ValueError:
+        return ValueError(
+            f"Qdrant collection '{self._collection_name}' vector schema "
+            f"(size={existing_size}) is incompatible with the active embedding "
+            f"profile '{self._embedding_model_name}' "
+            f"(expected dim={self._embedding_dim}). Refusing to initialize: "
+            "serving this collection would return misleading retrieval results. "
+            "Recreate the collection via the repository code path, or correct "
+            "MNEMOS_EMBEDDING_MODEL / MNEMOS_EMBEDDING_DIM / MNEMOS_QDRANT_COLLECTION."
+        )
+
     def _initialize(self):
         """Initialize Qdrant client and ensure collection exists."""
         try:
             from qdrant_client import QdrantClient
             from qdrant_client.models import Distance, VectorParams
+
+            # Resolve the vector dimension from the embedding profile BEFORE
+            # any collection is created, so the schema is derived from the
+            # active model rather than assumed.
+            if self._embedding_dim is None:
+                self._embedding_dim = self._derive_embedding_dim()
+                logger.info(
+                    "Derived embedding dimension %d from model '%s'",
+                    self._embedding_dim,
+                    self._embedding_model_name,
+                )
 
             self._client = QdrantClient(url=self._url, timeout=30)
 
@@ -94,12 +177,19 @@ class QdrantTier(BaseRetriever):
             if self._collection_name not in collections:
                 self._client.create_collection(
                     collection_name=self._collection_name,
-                    vectors_config=VectorParams(
-                        size=self._embedding_dim,
-                        distance=Distance.COSINE,
-                    ),
+                    vectors_config=self._expected_vectors_config(Distance.COSINE),
                 )
                 logger.info(f"Created Qdrant collection: {self._collection_name}")
+            else:
+                collection_info = self._client.get_collection(self._collection_name)
+                if not self._collection_schema_looks_compatible(collection_info):
+                    params = getattr(getattr(collection_info, "config", None), "params", None)
+                    existing = getattr(params, "vectors", None)
+                    existing_size = (
+                        sorted(existing) if isinstance(existing, dict)
+                        else getattr(existing, "size", "unknown")
+                    )
+                    raise self._dimension_mismatch_error(existing_size)
 
             # Ensure full-text index on 'content' for hybrid RRF fusion.
             self._text_index_ready = self._ensure_text_index()
@@ -169,7 +259,27 @@ class QdrantTier(BaseRetriever):
                 if self._uses_nomic_mrl:
                     kwargs["trust_remote_code"] = True
                 self._model = SentenceTransformer(self._embedding_model_name, **kwargs)
+            self._validate_model_dim(self._model)
         return self._model
+
+    def _validate_model_dim(self, model: Any) -> None:
+        """Fail clearly if the loaded model's output dimension contradicts the
+        configured/derived collection dimension (e.g. an explicit
+        embedding_dim override that does not match the actual model)."""
+        if self._uses_nomic_mrl:
+            return
+        expected = getattr(self, "_embedding_dim", None)
+        if not expected:
+            return  # dimension not yet resolved — derivation path in flight
+        getter = getattr(model, "get_sentence_embedding_dimension", None)
+        actual = getter() if callable(getter) else None
+        if actual and int(actual) != int(expected):
+            raise ValueError(
+                f"Embedding model '{self._embedding_model_name}' produces "
+                f"{actual}-dimensional vectors but the tier is configured for "
+                f"dim={expected} (collection '{self._collection_name}'). "
+                "Refusing to embed: results would be dimensionally invalid."
+            )
 
     def _embed(self, texts: List[str]) -> List[List[float]]:
         """Generate embeddings for a list of texts."""

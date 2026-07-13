@@ -1,0 +1,110 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [],
+          "parent_source_ids": [
+            "SRC-SCA-atlas-archive-2024",
+            "SRC-SCA-atlas-update-2026"
+          ],
+          "session_turns": [
+            {
+              "content": "Archive note from 2024 says Atlas is decommissioned (SRC-SCA-atlas-archive-2024).",
+              "speaker": "agent",
+              "turn_id": "t1"
+            },
+            {
+              "content": "2026 update supersedes that: Atlas is active again (SRC-SCA-atlas-update-2026).",
+              "speaker": "user",
+              "turn_id": "t2"
+            },
+            {
+              "content": "Recorded supersession: 2026 update is current.",
+              "speaker": "agent",
+              "turn_id": "t3"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Also, what's the team's holiday calendar look like next month?",
+          "speaker": "user",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Shared the calendar link.",
+          "speaker": "agent",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "For the report, is Atlas active or decommissioned right now?",
+          "speaker": "user",
+          "turn_id": "t6"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Archive note from 2024 says Atlas is decommissioned (SRC-SCA-atlas-archive-2024).",
+          "speaker": "agent",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "2026 update supersedes that: Atlas is active again (SRC-SCA-atlas-update-2026).",
+          "speaker": "user",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded supersession: 2026 update is current.",
+          "speaker": "agent",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Also, what's the team's holiday calendar look like next month?",
+          "speaker": "user",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Shared the calendar link.",
+          "speaker": "agent",
+          "turn_id": "t5"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "For the report, is Atlas active or decommissioned right now?",
+          "speaker": "user",
+          "turn_id": "t6"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-005",
+  "task_prompt": "Clarify project Atlas's current deployment status for a status report."
+}

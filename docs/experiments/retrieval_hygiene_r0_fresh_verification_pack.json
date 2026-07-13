@@ -1,0 +1,90 @@
+{
+  "verification_pack_id": "retrieval_hygiene_r0_fresh_verification_pack_v1",
+  "status": "fresh_verification_read_only_after_creation",
+  "created_for": "RETRIEVAL_HYGIENE_AND_REPRODUCIBILITY_R0_CLOSURE",
+  "rules": [
+    "Never use this pack for repair or tuning decisions before executing it.",
+    "Use it only after the R0 regression rerun artifact is frozen.",
+    "Score current-neighborhood responsiveness and abstention behavior, not exact rank identity.",
+    "Record direct-service and MCP-path runs separately."
+  ],
+  "disclosure": {
+    "independence_label": "verification_pack_not_held_out",
+    "reason": "Queries and expected behaviors were inspected while defining the fresh verification procedure and false-abstention safeguard."
+  },
+  "neighborhoods": {
+    "gatemem_frozen_baseline": {
+      "accepted_sources": [
+        "summary://gatemem/g4_alias_frozen_regression_baseline",
+        "summary://gatemem/g4_frozen_baseline",
+        "benchmarks/results/gatemem_g4_frozen_reference_manifest.md"
+      ],
+      "description": "Frozen G4 regression/reference baseline and manifest."
+    },
+    "gatemem_pause_blocker": {
+      "accepted_sources": [
+        "summary://gatemem/pause_and_blocker",
+        "summary://gatemem/alias_no_further_internal_prototyping",
+        "docs/benchmarks/gatemem_program_status.md"
+      ],
+      "description": "Paused GateMem work and blocked next milestone."
+    },
+    "gatemem_claim_boundary": {
+      "accepted_sources": [
+        "summary://gatemem/g4_claim_boundary",
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md"
+      ],
+      "description": "What G4 does and does not justify claiming."
+    },
+    "gatemem_g5_handoff": {
+      "accepted_sources": [
+        "summary://gatemem/g5_blocked_handoff",
+        "docs/benchmarks/gatemem_g5/README.md"
+      ],
+      "description": "Continuation packet and external-handoff readiness."
+    },
+    "abstain_non_gatemem": {
+      "accepted_sources": [],
+      "description": "Expected no relevant GateMem neighborhood; unrelated results should be flagged."
+    }
+  },
+  "queries": [
+    {
+      "query_id": "v01",
+      "category": "unrelated_negative_control",
+      "query": "PCI DSS cardholder segmentation and HIPAA workstation privacy",
+      "expected_behavior": "abstain_non_gatemem"
+    },
+    {
+      "query_id": "v02",
+      "category": "weak_but_relevant_positive",
+      "query": "frozen GateMem result should stay read only",
+      "expected_behavior": "retrieve_gatemem_frozen_baseline"
+    },
+    {
+      "query_id": "v03",
+      "category": "relevant_low_score_query_must_not_abstain",
+      "query": "reference conformance synthetic outcomes exact expected",
+      "expected_behavior": "retrieve_gatemem_claim_boundary_or_frozen_baseline"
+    },
+    {
+      "query_id": "v04",
+      "category": "g4_g5_disambiguation",
+      "query": "paused internal work after G4 but before external custodian handoff",
+      "expected_behavior": "retrieve_gatemem_pause_blocker"
+    },
+    {
+      "query_id": "v05",
+      "category": "g4_g5_disambiguation",
+      "query": "continuation packet ready but execution still externally blocked",
+      "expected_behavior": "retrieve_gatemem_g5_handoff"
+    },
+    {
+      "query_id": "v06",
+      "category": "weak_but_relevant_positive",
+      "query": "what was not proven by the offline authorization reference implementation",
+      "expected_behavior": "retrieve_gatemem_claim_boundary"
+    }
+  ]
+}

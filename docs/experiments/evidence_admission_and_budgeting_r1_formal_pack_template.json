@@ -1,0 +1,153 @@
+{
+  "pack_id": "evidence_admission_and_budgeting_r1_formal_pack_template_v1",
+  "pack_type": "formal_pack_template",
+  "status": "TEMPLATE_ONLY_NO_FORMAL_QUERIES",
+  "author_boundary": {
+    "required_author": "independent_non_implementation_author",
+    "implementation_team_may_edit_scored_queries": false,
+    "implementation_team_may_tune_policy_after_receipt": false,
+    "notes": [
+      "The implementation team may maintain this template before independent authorship.",
+      "The actual formal pack must be returned, validated, frozen, and hashed before evaluation.",
+      "Schema examples are non-scored and cannot be used as formal evidence."
+    ]
+  },
+  "minimum_query_count": 50,
+  "fresh_verification_pack_minimum_query_count": 20,
+  "allowed_enforced_route_labels": [
+    "CUE_ONLY_LOOKUP",
+    "CACHE_ONLY",
+    "BOUNDED_SEMANTIC_RETRIEVAL",
+    "ABSTAIN_OR_REQUEST_SCOPE",
+    "NORMAL_RETRIEVAL_FALLBACK"
+  ],
+  "forbidden_enforced_route_labels": [
+    "HYBRID_RETRIEVAL",
+    "ASSOCIATIVE_EXPANSION_ELIGIBLE",
+    "graph_hybrid_experimental",
+    "derived_facts",
+    "summary_inclusion",
+    "governance_override"
+  ],
+  "query_schema": {
+    "required_fields": [
+      "query_id",
+      "query",
+      "intent_family",
+      "accepted_evidence_neighborhood",
+      "minimum_required_source_lineage",
+      "lower_cost_route_allowed",
+      "allowed_lower_cost_route_labels",
+      "normal_retrieval_fallback_required",
+      "abstention_expected",
+      "freshness_requirement",
+      "scored"
+    ],
+    "rules": [
+      "Every scored query must identify at least one accepted evidence neighborhood entry unless abstention_expected is true.",
+      "Every scored query must declare whether lower-cost enforcement is allowed.",
+      "Every scored query must declare the expected fallback behavior if the lower-cost route cannot satisfy lineage or evidence coverage.",
+      "No scored query may be authored or edited by the implementation team."
+    ]
+  },
+  "accepted_evidence_neighborhood_schema": {
+    "required_fields": [
+      "source_path",
+      "allowed_roles",
+      "required_current_state",
+      "lineage_label",
+      "acceptance_note"
+    ],
+    "allowed_roles": [
+      "current_state_record",
+      "superseded_record",
+      "dependency_blocker_record",
+      "negative_control_material",
+      "duplicate_or_near_duplicate_condition"
+    ]
+  },
+  "lineage_requirement_schema": {
+    "required_fields": [
+      "must_include_family",
+      "must_include_role",
+      "may_include_superseded_context",
+      "reject_if_only_negative_control"
+    ]
+  },
+  "fallback_expectation_schema": {
+    "normal_retrieval_fallback_required_values": [
+      true,
+      false
+    ],
+    "fallback_required_when": [
+      "accepted evidence neighborhood is not satisfied by the lower-cost route",
+      "minimum required source lineage is absent",
+      "freshness requirement cannot be established",
+      "abstention is not expected and no acceptable source is retrieved"
+    ]
+  },
+  "abstention_expectation_schema": {
+    "abstention_expected_values": [
+      true,
+      false
+    ],
+    "abstention_allowed_when": [
+      "the query is intentionally out of corpus scope",
+      "the query requests a current-state claim not represented in the frozen corpus",
+      "the accepted evidence neighborhood explicitly requires no answer"
+    ]
+  },
+  "queries": [],
+  "schema_examples": [
+    {
+      "scored": false,
+      "query_id": "schema_example_exact_cue",
+      "query": "Which document records the R0 closeout posture?",
+      "intent_family": "evidence_admission_status_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/evidence_admission_and_budgeting_r0_closeout.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "r0_closeout",
+          "acceptance_note": "Non-scored example only."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": false,
+      "query_id": "schema_example_abstention",
+      "query": "What is the current production latency of the deployed service?",
+      "intent_family": "out_of_corpus_current_state",
+      "accepted_evidence_neighborhood": [],
+      "minimum_required_source_lineage": {
+        "must_include_family": "none",
+        "must_include_role": "none",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "ABSTAIN_OR_REQUEST_SCOPE"
+      ],
+      "normal_retrieval_fallback_required": false,
+      "abstention_expected": true,
+      "freshness_requirement": "outside_frozen_corpus"
+    }
+  ]
+}

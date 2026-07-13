@@ -18,6 +18,9 @@ Primary objective: move from "benchmark-proven architecture" to "operationally e
 | 6. Optimize candidate-envelope and cache economics | Completed (Phase 7 Matryoshka migration 100% complete; Nomic MRL collection promoted; legacy BGE collection cleaned up after representative replay) | June 11, 2026 |
 | 7. Promote SLO-driven operations and rollback discipline | Completed (budget-aware routing enabled; warmup readiness path documented; representative replay validated cleanup eligibility) | June 11, 2026 |
 | 8. Consolidate benchmark + promotion documentation into an operator playbook | Completed (`docs/mnemos_operator_playbook.md` published; benchmark + whitepaper linked) | March 30, 2026 |
+| 9. Model-assisted A/B/C1 answer-fidelity surrogate | Completed (fixed local model; surrogate-only evidence) | June 24, 2026 |
+| 10. Narrow focused research gates | Completed (path-scoped G4 freeze and assembler jobs) | June 24, 2026 |
+| 11. Release SBOM and dependency hygiene | Implemented; release remains blocked on unpinned dependencies and missing vulnerability scan | June 24, 2026 |
 
 ---
 

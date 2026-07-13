@@ -1,0 +1,138 @@
+{
+  "task_id": "local_issue_tracker_v1",
+  "task_lane": "AI_DEV_MEMORY_QUALITY_E1",
+  "task_slug": "task_01_context_recovery_and_feature_completion",
+  "starter_package_version": "e1-task-01-r1",
+  "starter_repository_identity_sha256": "799f45faaf7d1ac33775057e19cbd149e55d63f5f807729f5b17e1e124b76229",
+  "required_root_entries": [
+    "TASK_BRIEF.md",
+    "ACCEPTANCE_CRITERIA.md",
+    "task_control_manifest.json",
+    "acceptance",
+    "docs",
+    "src",
+    "scripts",
+    "package.json"
+  ],
+  "context_records": [
+    "docs/product_scope.md",
+    "docs/architecture_decisions.md",
+    "docs/data_contract.md",
+    "docs/known_issues.md",
+    "docs/release_constraints.md"
+  ],
+  "acceptance_command": "npm run test:acceptance",
+  "build_command": "npm run build",
+  "starter_framework": "vanilla_js",
+  "starter_persistence": "localStorage",
+  "mnemos_seed_scope": [
+    "docs/product_scope.md",
+    "docs/architecture_decisions.md",
+    "docs/data_contract.md",
+    "docs/known_issues.md",
+    "docs/release_constraints.md"
+  ],
+  "notes": [
+    "Both conditions must begin from the same frozen starter package.",
+    "The starter intentionally lacks completed saved-view behavior.",
+    "The acceptance suite is frozen and must not be modified during a paired run."
+  ],
+  "mnemos_seed_collection_name": "mnemos_ai_dev_e1_task_01",
+  "mnemos_seed_snapshot_id": "0a578569ef136afa",
+  "mnemos_seed_collection_snapshot": "mnemos_ai_dev_e1_task_01:5",
+  "mnemos_seed_schema_version": "ai_dev_task_01_seed_v1",
+  "mnemos_seed_ingestion_source": "seed_mnemos_ai_dev_task_01",
+  "mnemos_seed_query_smoke_checks": [
+    {
+      "query": "Saved views are a local-only productivity feature. No account sync, backend, sharing, or cloud export is in scope.",
+      "result_count": 5,
+      "top_sources": [
+        {
+          "source": "docs/product_scope.md",
+          "source_uri": "docs/product_scope.md",
+          "score": 0.9994
+        },
+        {
+          "source": "docs/architecture_decisions.md",
+          "source_uri": "docs/architecture_decisions.md",
+          "score": 0.4165
+        },
+        {
+          "source": "docs/data_contract.md",
+          "source_uri": "docs/data_contract.md",
+          "score": 0.0163
+        }
+      ]
+    },
+    {
+      "query": "priority_desc tie-break by updatedAt descending, then title ascending, then id ascending",
+      "result_count": 5,
+      "top_sources": [
+        {
+          "source": "docs/known_issues.md",
+          "source_uri": "docs/known_issues.md",
+          "score": 0.9997
+        },
+        {
+          "source": "docs/architecture_decisions.md",
+          "source_uri": "docs/architecture_decisions.md",
+          "score": 0.9993
+        },
+        {
+          "source": "docs/data_contract.md",
+          "source_uri": "docs/data_contract.md",
+          "score": 0.3403
+        }
+      ]
+    },
+    {
+      "query": "Missing priority defaults to low",
+      "result_count": 5,
+      "top_sources": [
+        {
+          "source": "docs/known_issues.md",
+          "source_uri": "docs/known_issues.md",
+          "score": 0.6814
+        },
+        {
+          "source": "docs/product_scope.md",
+          "source_uri": "docs/product_scope.md",
+          "score": 0.6249
+        },
+        {
+          "source": "docs/data_contract.md",
+          "source_uri": "docs/data_contract.md",
+          "score": 0.6245
+        }
+      ]
+    },
+    {
+      "query": "The starter implementation's priority_desc sorting is not compliant with the sorting contract.",
+      "result_count": 5,
+      "top_sources": [
+        {
+          "source": "docs/known_issues.md",
+          "source_uri": "docs/known_issues.md",
+          "score": 0.9998
+        },
+        {
+          "source": "docs/architecture_decisions.md",
+          "source_uri": "docs/architecture_decisions.md",
+          "score": 0.7426
+        },
+        {
+          "source": "docs/data_contract.md",
+          "source_uri": "docs/data_contract.md",
+          "score": 0.0785
+        }
+      ]
+    }
+  ],
+  "mnemos_preferred_collection_name": "mnemos_ai_dev_e1_task_01",
+  "mnemos_collection_override_file": "docker-compose.ai_dev_task_01.override.yml",
+  "mnemos_collection_switch_commands": [
+    "docker compose -f docker-compose.yml -f docker-compose.ai_dev_task_01.override.yml up -d --build mnemos",
+    "python tools/seed_mnemos_ai_dev_task_01.py"
+  ],
+  "mnemos_collection_switch_note": "Use the override compose file to restart MNEMOS on an isolated task collection before the MNEMOS-enabled leg."
+}

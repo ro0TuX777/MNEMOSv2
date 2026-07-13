@@ -23,10 +23,12 @@ class ShadowSearchRunner:
         search_callable: Callable[[str], List[Dict[str, Any]]],
         cache: DerivedViewCache,
         top_k: int = 5,
+        context_provider: Optional[Callable[[str, str], Dict[str, Any]]] = None,
     ) -> None:
         self._search = search_callable
         self._cache = cache
         self._top_k = int(top_k)
+        self._context_provider = context_provider
         self.last_run: Optional[Dict[str, Any]] = None
 
     def run(self, forecast: Dict[str, Any]) -> Dict[str, Any]:
@@ -51,6 +53,11 @@ class ShadowSearchRunner:
             cluster_id=cluster_id,
             view=view,
             dependency_refs={"session_id": session_id},
+            cache_context=(
+                self._context_provider(session_id, query)
+                if self._context_provider is not None
+                else None
+            ),
         )
         self.last_run = {
             "triggered": True,

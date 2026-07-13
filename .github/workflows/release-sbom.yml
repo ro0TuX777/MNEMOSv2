@@ -1,0 +1,37 @@
+name: Release SBOM
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  python-sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install declared environment
+        run: python -m pip install -r requirements.txt pytest
+      - name: Generate SPDX and hygiene report
+        run: python tools/generate_release_sbom.py
+      - name: Validate generator
+        run: python -m pytest -q tests/test_release_sbom.py
+      - name: Upload release-preparation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mnemos-python-sbom
+          path: |
+            docs/sbom/mnemos-python.spdx.json
+            docs/sbom/dependency-hygiene.json
+      - name: Enforce dependency hygiene
+        run: >-
+          python -c "import json,sys;
+          d=json.load(open('docs/sbom/dependency-hygiene.json'));
+          sys.exit(0 if d['release_ready'] else 1)"

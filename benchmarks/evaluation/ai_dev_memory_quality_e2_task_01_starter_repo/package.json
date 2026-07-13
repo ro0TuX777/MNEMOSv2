@@ -1,0 +1,11 @@
+{
+  "name": "ai-dev-memory-quality-e2-task-01-starter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Frozen starter repository for the AI developer memory quality E2 paired task.",
+  "scripts": {
+    "test:acceptance": "node --test acceptance/acceptance.test.js",
+    "build": "node scripts/build.js"
+  }
+}
+

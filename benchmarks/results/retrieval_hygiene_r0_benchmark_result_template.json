@@ -1,0 +1,64 @@
+{
+  "benchmark_id": "retrieval_hygiene_r0_frozen_alias_benchmark_v1",
+  "run_id": "retrieval_hygiene_r0_run_001",
+  "seed_snapshot_id": "replace_with_seed_snapshot",
+  "collection_snapshot": "replace_with_collection_snapshot",
+  "paths_compared": [
+    "direct_service",
+    "mcp_path"
+  ],
+  "cache_state": [
+    "cold",
+    "warm"
+  ],
+  "metrics_recorded": [
+    "top1_neighborhood_correct",
+    "top3_neighborhood_recall",
+    "duplicate_result_rate",
+    "cold_warm_consistency",
+    "cache_hit_provenance_and_compatibility",
+    "direct_mcp_top1_agreement",
+    "seeded_card_vs_full_document_contribution",
+    "abstentions_or_no_result_behavior"
+  ],
+  "per_query_results": [
+    {
+      "query_id": "q01",
+      "query": "GateMem G4 frozen regression baseline",
+      "expected_neighborhood": "gatemem_frozen_baseline",
+      "runs": [
+        {
+          "path": "direct_service",
+          "cache_state": "cold",
+          "top1_neighborhood_correct": true,
+          "top3_neighborhood_recall": 1.0,
+          "duplicate_result_count": 0,
+          "cache": {
+            "hit": false,
+            "compatible": true,
+            "fingerprint": {}
+          },
+          "top_results": [],
+          "seeded_card_contribution": 0,
+          "full_document_contribution": 0,
+          "abstained": false
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "direct_service": {
+      "top1_accuracy": 0.0,
+      "top3_recall": 0.0,
+      "duplicate_result_rate": 0.0
+    },
+    "mcp_path": {
+      "top1_accuracy": 0.0,
+      "top3_recall": 0.0,
+      "duplicate_result_rate": 0.0
+    },
+    "direct_mcp_top1_agreement": 0.0,
+    "cold_warm_consistency": 0.0,
+    "notes": []
+  }
+}

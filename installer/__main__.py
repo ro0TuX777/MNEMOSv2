@@ -13,11 +13,43 @@ import argparse
 import sys
 from pathlib import Path
 
+
+def write_post_install_guide(output_dir: Path) -> Path:
+    """Write a quick-start guide that highlights the local Research Intake page."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    guide_path = output_dir / "MNEMOS_POST_INSTALL_GUIDE.md"
+    guide_path.write_text(
+        """# MNEMOS post-install quick guide
+
+## Local research intake workflow
+
+MNEMOS includes a separate local Research Intake page for uploading files and data that should be indexed for later chat use.
+
+- Open the Research Intake page at http://127.0.0.1:8788/
+- Upload PDFs, documents, markdown, code, or other data files
+- Choose project/capability metadata and optionally summarize with Ollama
+- Then use Open WebUI locally to chat with the indexed material
+
+## Suggested local startup
+
+```bash
+export MNEMOS_BASE_URL=\"http://127.0.0.1:8700\"
+export OLLAMA_BASE_URL=\"http://127.0.0.1:11434\"
+python tools/mnemos_research_ui.py
+```
+
+If you are using the bundled Open WebUI stack helper, it can also start the surrounding local services for you.
+""",
+        encoding="utf-8",
+    )
+    return guide_path
+
 from installer.profiles import PROFILES, list_profiles, get_profile
 from installer.questions import ask_interactive, from_dict, UserAnswers
 from installer.probes import run_probes, ProbeResults
 from installer.recommend import recommend, Recommendation
 from installer.render import render_compose, render_env, render_manifest
+from installer.compute import resolve_compute_mode
 
 FUSION_POLICIES = ["semantic_dominant", "balanced", "lexical_dominant"]
 
@@ -66,6 +98,8 @@ def _print_probes(probes: ProbeResults):
     print(f"    NVIDIA:  {'[OK]' if probes.nvidia_runtime else '[NO]'}")
     print(f"    CPU:     {probes.cpu_cores} cores")
     print(f"    OS:      {probes.os_name}")
+    if probes.arch:
+        print(f"    Arch:    {probes.arch}")
     print()
 
 
@@ -106,6 +140,12 @@ def main():
         "--explain-default", action="store_true",
         help="Set MNEMOS_EXPLAIN_DEFAULT=true in generated .env.mnemos",
     )
+    parser.add_argument(
+        "--compute-mode",
+        choices=["auto", "cuda", "cpu"],
+        default="auto",
+        help="Compute mode for generated deployment files (default: auto)",
+    )
     args = parser.parse_args()
     output_dir = Path(args.output_dir)
 
@@ -118,7 +158,18 @@ def main():
 
     _print_header()
 
-    # Step 1: Get user answers
+    # Step 1: Run system probes before asking questions so unsupported compute
+    # paths can be constrained by platform.
+    print("  Running system probes...")
+    probes = run_probes()
+    _print_probes(probes)
+    compute = resolve_compute_mode(args.compute_mode, probes)
+    if compute.mode == "cpu":
+        print(f"  Compute: CPU ({compute.reason})\n")
+    else:
+        print(f"  Compute: CUDA ({compute.reason})\n")
+
+    # Step 2: Get user answers
     if args.profile:
         print(f"  Using profile: {args.profile}\n")
         profile = get_profile(args.profile)
@@ -128,11 +179,6 @@ def main():
         answers = UserAnswers(prefer_manual=(args.profile == "custom_manual"))
     else:
         answers = ask_interactive()
-
-    # Step 2: Run system probes
-    print("  Running system probes...")
-    probes = run_probes()
-    _print_probes(probes)
 
     # Step 3: Get recommendation
     if args.profile:
@@ -176,7 +222,7 @@ def main():
     # Step 5: Generate files
     print("  Generating configuration files...")
 
-    compose_path = render_compose(rec.profile, output_dir)
+    compose_path = render_compose(rec.profile, output_dir, compute_mode=compute.mode)
     print(f"    [OK] {compose_path}")
 
     env_path = render_env(
@@ -187,6 +233,7 @@ def main():
         lexical_top_k=args.lexical_top_k,
         semantic_top_k=args.semantic_top_k,
         explain_default=args.explain_default,
+        compute_mode=compute.mode,
     )
     print(f"    [OK] {env_path}")
 
@@ -200,17 +247,27 @@ def main():
         lexical_top_k=args.lexical_top_k,
         semantic_top_k=args.semantic_top_k,
         explain_default=args.explain_default,
+        compute_mode=compute.mode,
+        compute_reason=compute.reason,
     )
     print(f"    [OK] {manifest_path}")
 
+    guide_path = write_post_install_guide(output_dir)
+    print(f"    [OK] {guide_path}")
+
     print(f"\n  [OK] Installation complete!")
     print(f"  Profile: {rec.profile.display_name}")
+    print("  Local workflow: use the Research Intake page to upload files/data, then chat with them in Open WebUI")
+    print(f"  Compute: {compute.mode.upper()} ({compute.reason})")
+    print(f"  GPU device: {compute.gpu_device}")
     print(f"  Retrieval mode: {args.retrieval_mode}")
     print(f"  Fusion policy: {args.fusion_policy}")
     print(f"\n  Next steps:")
     print(f"    1. Review: cat {env_path}")
     print(f"    2. Start:  docker compose -f {compose_path} up -d --build")
     print(f"    3. Verify: python tools/mnemos_health_audit.py")
+    print(f"    4. Research Intake: open http://127.0.0.1:8788/ (or run 'python tools/mnemos_research_ui.py')")
+    print(f"    5. Open WebUI workflow: upload content through the Research Intake page, then chat with it in Open WebUI")
     print()
 
 

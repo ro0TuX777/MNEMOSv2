@@ -1,0 +1,32 @@
+{
+  "schema_version": "gatemem-g5-candidate-nomination-v1",
+  "status": "CANDIDATE_NOMINATED_EXTERNAL_ACCEPTANCE_REQUIRED",
+  "candidate_name": "MNEMOS GateMem G4 offline authorization/disclosure reference",
+  "candidate_repository_commit": "c69aa2cf3f7a9f05d45ac1548523cd67dfb372c9",
+  "candidate_composite_sha256": "ed3b5c7672e591b039183eaa2d8c7c7630a655575bfc7866558d53f2eb874c52",
+  "candidate_manifest_path": "benchmarks/results/gatemem_g4_frozen_reference_manifest.json",
+  "candidate_manifest_sha256": "4924b06e5d77c7a5cc1825a77a03d5e1405fdd3d3872dafb758e18418b32f15d",
+  "candidate_classification": "OFFLINE_REFERENCE_AUTHORIZATION_DISCLOSURE_SEMANTICS",
+  "entry_point": "prototype.gatemem_g4.harness.run_reference_harness",
+  "development_evidence": {
+    "synthetic_case_count": 36,
+    "exact_expected_outcomes": 36,
+    "reference_gate_count": 33,
+    "held_out_eligible": false
+  },
+  "scope": {
+    "offline_only": true,
+    "runtime_integration": false,
+    "network_dependency": false,
+    "hosted_model_dependency": false,
+    "deletion_capability": false,
+    "production_authority_claim": false
+  },
+  "custodian_acceptance": {
+    "custodian": null,
+    "accepted": false,
+    "accepted_at": null,
+    "signature_or_attestation_digest": null
+  },
+  "change_rule": "Any source, policy, schema, threshold, configuration, or fixture change creates a new candidate nomination and cannot rewrite the frozen G4 baseline."
+}

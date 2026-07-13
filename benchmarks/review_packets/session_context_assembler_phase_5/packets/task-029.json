@@ -1,0 +1,125 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-205"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-alert-threshold-discussion"
+          ],
+          "session_turns": [
+            {
+              "content": "Proposed alert threshold of 5% error rate over a 5-minute window.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Agreed on the 5-minute window (DEC-SCA-205, scope: window only, NOT the 5% value).",
+              "source_links": [
+                "SRC-SCA-alert-threshold-discussion"
+              ],
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "The 5% value itself is still under debate with the SRE team.",
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Recorded: window decided, error-rate value remains open.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Agreed on the 5-minute window (DEC-SCA-205, scope: window only, NOT the 5% value).",
+          "source_links": [
+            "SRC-SCA-alert-threshold-discussion"
+          ],
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "The 5% value itself is still under debate with the SRE team.",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded: window decided, error-rate value remains open.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Is the new alerting threshold finalized or still being discussed?",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Proposed alert threshold of 5% error rate over a 5-minute window.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Agreed on the 5-minute window (DEC-SCA-205, scope: window only, NOT the 5% value).",
+          "source_links": [
+            "SRC-SCA-alert-threshold-discussion"
+          ],
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "The 5% value itself is still under debate with the SRE team.",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded: window decided, error-rate value remains open.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Is the new alerting threshold finalized or still being discussed?",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-029",
+  "task_prompt": "Is the new alerting threshold finalized or still being discussed?"
+}

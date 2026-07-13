@@ -78,7 +78,12 @@ Policy:
 
 ## SBOM Posture
 
-The repository does not currently publish a generated SBOM artifact. The
-intended release workflow is documented in [docs/sbom/README.md](sbom/README.md).
-Before an external release, generate an SPDX or CycloneDX artifact and link it
-from this document or the release notes.
+The source/Python SPDX 2.3 artifact is
+[mnemos-python.spdx.json](sbom/mnemos-python.spdx.json), with current hygiene
+findings in [dependency-hygiene.json](sbom/dependency-hygiene.json). The release
+workflow regenerates and uploads both, then blocks while dependencies remain
+non-exact or unresolved.
+
+This does not cover container base-image or OS packages. The current dependency
+set uses ranges rather than a hash-pinned lockfile, so the generated hygiene
+report correctly marks `release_ready: false`.

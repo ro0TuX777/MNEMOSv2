@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Local Issue Tracker</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <h1>Local Issue Tracker</h1>
+      </header>
+
+      <section class="toolbar" aria-label="Issue controls">
+        <form id="issue-form" class="issue-form">
+          <label>
+            <span>Title</span>
+            <input id="issue-title" name="title" type="text" required>
+          </label>
+          <label>
+            <span>Status</span>
+            <select id="issue-status" name="status">
+              <option value="todo">To Do</option>
+              <option value="in_progress">In Progress</option>
+              <option value="done">Done</option>
+            </select>
+          </label>
+          <label>
+            <span>Priority</span>
+            <select id="issue-priority" name="priority">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+          <button type="submit">Save Issue</button>
+        </form>
+
+        <div class="filters">
+          <label>
+            <span>Search</span>
+            <input id="search-input" type="search" aria-label="Search issues">
+          </label>
+          <label>
+            <span>Status Filter</span>
+            <select id="status-filter" aria-label="Filter issues by status">
+              <option value="">All statuses</option>
+              <option value="todo">To Do</option>
+              <option value="in_progress">In Progress</option>
+              <option value="done">Done</option>
+            </select>
+          </label>
+          <label>
+            <span>Priority Filter</span>
+            <select id="priority-filter" aria-label="Filter issues by priority">
+              <option value="">All priorities</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="saved-views-panel" aria-label="Saved views">
+        <h2>Saved Views</h2>
+        <p id="saved-view-empty-state">No saved views yet.</p>
+        <ul id="saved-view-list"></ul>
+      </section>
+
+      <section class="issue-results" aria-label="Issue list">
+        <ul id="issue-list"></ul>
+        <p id="issue-empty-state">No issues match the active filters.</p>
+      </section>
+    </main>
+
+    <script src="./logic.js"></script>
+    <script src="./app.js"></script>
+  </body>
+  </html>

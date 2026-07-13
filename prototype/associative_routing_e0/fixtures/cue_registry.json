@@ -1,0 +1,87 @@
+{
+  "schema_version": "1",
+  "description": "Manually curated Cue records for the E0 fixture corpus. Every source_record_ids entry must resolve in fixtures/source_index.json.",
+  "cues": [
+    {
+      "cue_id": "cue:gatemem",
+      "canonical_value": "GateMem",
+      "cue_type": "project",
+      "normalized_value": "gatemem",
+      "aliases": ["gatemem program", "gatemem work"],
+      "source_record_ids": ["doc:gatemem_program_status"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-pause",
+      "canonical_value": "GateMem pause",
+      "cue_type": "state",
+      "normalized_value": "gatemem pause",
+      "aliases": ["gatemem paused", "gatemem work paused", "why is gatemem work paused"],
+      "source_record_ids": ["doc:gatemem_program_status"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-g4",
+      "canonical_value": "GateMem G4",
+      "cue_type": "milestone",
+      "normalized_value": "gatemem g4",
+      "aliases": ["g4"],
+      "source_record_ids": ["doc:gatemem_program_status", "doc:gatemem_g4_implementation"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-g5",
+      "canonical_value": "GateMem G5",
+      "cue_type": "milestone",
+      "normalized_value": "gatemem g5",
+      "aliases": ["g5", "fresh gatemem evaluation", "gatemem evaluation"],
+      "source_record_ids": ["doc:gatemem_program_status", "doc:gatemem_g5_readme"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-g5-handoff",
+      "canonical_value": "GateMem G5 handoff",
+      "cue_type": "artifact",
+      "normalized_value": "gatemem g5 handoff",
+      "aliases": ["g5 handoff", "g5 handoff state"],
+      "source_record_ids": ["doc:gatemem_g5_handoff_state", "doc:gatemem_g5_readme"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:frozen-regression-baseline",
+      "canonical_value": "frozen for regression testing only",
+      "cue_type": "status_label",
+      "normalized_value": "frozen for regression testing only",
+      "aliases": ["frozen regression baseline", "regression testing only"],
+      "source_record_ids": ["doc:gatemem_program_status"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-frozen-baseline",
+      "canonical_value": "GateMem frozen baseline",
+      "cue_type": "status_label",
+      "normalized_value": "gatemem frozen baseline",
+      "aliases": ["what is frozen", "frozen baseline"],
+      "source_record_ids": ["doc:gatemem_program_status"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-g4-implementation",
+      "canonical_value": "GateMem G4 implementation lane",
+      "cue_type": "artifact",
+      "normalized_value": "gatemem g4 implementation lane",
+      "aliases": ["g4 implementation", "g4 implementation lane"],
+      "source_record_ids": ["doc:gatemem_g4_implementation"],
+      "status": "active"
+    },
+    {
+      "cue_id": "cue:gatemem-g4-implementation-proposal",
+      "canonical_value": "GateMem G4 implementation proposal",
+      "cue_type": "artifact",
+      "normalized_value": "gatemem g4 implementation proposal",
+      "aliases": ["g4 proposal", "g4 implementation proposal"],
+      "source_record_ids": ["doc:gatemem_g4_implementation_proposal"],
+      "status": "active"
+    }
+  ]
+}

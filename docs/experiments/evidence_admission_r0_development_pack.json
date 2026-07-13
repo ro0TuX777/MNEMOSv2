@@ -1,0 +1,57 @@
+{
+  "pack_id": "evidence_admission_r0_development_pack_v1",
+  "pack_type": "development",
+  "status": "frozen_read_only_after_creation",
+  "intended_execution_mode": "direct_runtime",
+  "created_for": "EVIDENCE_ADMISSION_AND_BUDGETING_R0_DEVELOPMENT_DEBUGGING",
+  "rules": [
+    "Use for development-pack debugging, deterministic policy inspection, fast local diagnosis, and focused regression support.",
+    "This pack is not sufficient for a deployed-service or HTTP-path claim.",
+    "Report pre-retrieval recommendations separately from post-retrieval sufficiency assessments.",
+    "Do not aggregate direct_runtime and http_service results into one metric."
+  ],
+  "disclosure": {
+    "independence_label": "development_pack_not_held_out",
+    "reason": "Queries were authored while implementing Evidence Admission R0 and may reflect implementation knowledge."
+  },
+  "queries": [
+    {
+      "query_id": "dev01",
+      "category": "direct_factoid",
+      "query": "What is the current status of GateMem G4?",
+      "expected_admission_family": "SEMANTIC_OR_CUE_LOOKUP",
+      "expected_sufficiency_family": "DEPENDS_ON_NORMAL_RETRIEVAL"
+    },
+    {
+      "query_id": "dev02",
+      "category": "weak_underspecified",
+      "query": "g4",
+      "expected_admission_family": "ABSTAIN_OR_REQUEST_SCOPE",
+      "expected_sufficiency_family": "DEPENDS_ON_NORMAL_RETRIEVAL"
+    },
+    {
+      "query_id": "dev03",
+      "category": "multi_source_synthesis",
+      "query": "Compare the current GateMem G4 state with the G5 handoff blocker.",
+      "expected_admission_family": "HYBRID_RETRIEVAL",
+      "expected_sufficiency_family": "DEPENDS_ON_NORMAL_RETRIEVAL"
+    },
+    {
+      "query_id": "dev04",
+      "category": "explicit_artifact_scope",
+      "query": "Summarize the evidence in the requested artifact.",
+      "expected_admission_family": "CUE_ONLY_LOOKUP",
+      "expected_sufficiency_family": "DEPENDS_ON_NORMAL_RETRIEVAL",
+      "filters": {
+        "artifact_id": "doc:gatemem-g4"
+      }
+    },
+    {
+      "query_id": "dev05",
+      "category": "negative_control",
+      "query": "What is the boiling point of water at sea level?",
+      "expected_admission_family": "STANDARD_OR_ABSTAIN",
+      "expected_sufficiency_family": "OUT_OF_SCOPE_OR_INSUFFICIENT"
+    }
+  ]
+}

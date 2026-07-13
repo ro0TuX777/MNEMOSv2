@@ -8,12 +8,15 @@ Flask-based REST API with MFS contract compliance.
 from __future__ import annotations
 
 import datetime as dt
+import json
 import logging
 import os
+import subprocess
 import sys
 import time
+import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from flask import Flask, jsonify, request
 
@@ -27,8 +30,10 @@ from mnemos.memory_over_maps.view_builder import (
     build_requested_views,
 )
 from mnemos.memory_over_maps.view_cache import (
+    CACHE_SCHEMA_VERSION,
     DerivedViewCache,
     build_cache_key,
+    build_retrieval_cache_context,
     governance_state_hash,
     lineage_inputs,
     query_fingerprint,
@@ -42,6 +47,23 @@ from mnemos.retrieval.pulse import (
     build_pulse_payload,
 )
 from mnemos.retrieval.shadow_search import ShadowSearchRunner
+from mnemos.retrieval.associative_shadow import default_adapter as _associative_shadow_adapter
+from mnemos.retrieval.associative_expansion import default_engine as _candidate_expansion_engine
+from mnemos.retrieval.associative_expansion.config import (
+    CANDIDATE_EXPANSION_ENABLE_ENV as _CANDIDATE_EXPANSION_ENABLE_ENV,
+)
+from mnemos.retrieval.evidence_admission import (
+    AdmissionRequestContext,
+    CacheLookupResult,
+    EVIDENCE_ADMISSION_SHADOW_ENABLE_ENV,
+    R1_ENFORCEMENT_ENABLE_ENV,
+    assess_sufficiency as _evidence_admission_assess_sufficiency,
+    bounded_retrieval_overrides as _r1_bounded_retrieval_overrides,
+    decide_enforcement as _r1_decide_enforcement,
+    fallback_required as _r1_fallback_required,
+    recommend_admission as _evidence_admission_recommend,
+)
+from tools.mnemos_seed_manifest import DEFAULT_MANIFEST_PATH
 from mnemos.governance.counterfactuals import compute_counterfactuals
 from mnemos.governance.governor import Governor
 from mnemos.governance.hygiene.volatility import VolatilityEngine, family_key_from_engram
@@ -61,6 +83,31 @@ SUPPORTED_RETRIEVAL_MODES = {"semantic", "hybrid"}
 RESERVED_FILTER_KEYS = {"__mrl_oversample__", "__hnsw_ef__", "__prefetch_only__"}
 
 
+def _service_revision_identity() -> Dict[str, Any]:
+    env_revision = str(os.getenv("MNEMOS_SERVICE_REVISION", "")).strip()
+    env_image = str(os.getenv("MNEMOS_SERVICE_IMAGE_ID", "")).strip()
+    if env_revision:
+        return {"source": "env", "git_revision": env_revision, "image_id": env_image or None}
+    try:
+        git_revision = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            cwd=Path(__file__).resolve().parents[1],
+            text=True,
+            stderr=subprocess.DEVNULL,
+            timeout=2,
+        ).strip()
+        dirty = subprocess.run(
+            ["git", "diff", "--quiet"],
+            cwd=Path(__file__).resolve().parents[1],
+            text=True,
+            stderr=subprocess.DEVNULL,
+            timeout=2,
+        ).returncode != 0
+        return {"source": "git", "git_revision": git_revision, "git_dirty": dirty, "image_id": env_image or None}
+    except Exception:
+        return {"source": "unverified", "git_revision": None, "image_id": env_image or None}
+
+
 def _retrieval_action_name(mode_meta: Dict[str, Any]) -> str:
     mode = mode_meta.get("retrieval_mode", "semantic")
     if mode == "hybrid":
@@ -77,6 +124,63 @@ def _determine_route(governance_mode: str, decisions: list, forecast_advisory: d
     if forecast_advisory and forecast_advisory.get("suggested_plan") == "conservative":
         return "advise"
     return "return"
+
+
+#: Filter keys whose value names an explicit, already-known artifact/source
+#: target. Detected from caller-supplied ``filters`` only — Evidence
+#: Admission R0 deliberately does not consult the E0/E1/E2 fixture cue/tag
+#: registries here, since those are a small, frozen, evaluation-only corpus
+#: (see docs/associative_routing_e2_closeout.md "Known Limitations") and
+#: using them to classify arbitrary live requests would misrepresent their
+#: scope. See the R0 checkpoint report for this boundary.
+_EXPLICIT_ARTIFACT_FILTER_KEY_MARKERS = ("artifact_id", "canonical_source_uri", "source_uri", "engram_id")
+
+
+def _explicit_artifact_ids_from_filters(filters: Optional[Dict[str, Any]]) -> List[str]:
+    if not isinstance(filters, dict):
+        return []
+    ids: List[str] = []
+    for key, value in filters.items():
+        if not isinstance(value, str) or not value:
+            continue
+        key_lower = str(key).lower()
+        if any(marker in key_lower for marker in _EXPLICIT_ARTIFACT_FILTER_KEY_MARKERS):
+            ids.append(value)
+    return ids
+
+
+def _evidence_admission_shadow_globally_enabled() -> bool:
+    return os.environ.get(EVIDENCE_ADMISSION_SHADOW_ENABLE_ENV, "false").lower() == "true"
+
+
+def _evidence_admission_r1_enforcement_globally_enabled() -> bool:
+    """R1's global kill switch. Distinct from R0's shadow gate above: R0 stays
+    on unless this repo operator explicitly opts a deployment into R1's
+    bounded, behavior-changing enforcement. Any value other than exactly
+    "true" (case-insensitive) — absent, empty, malformed, or unsupported —
+    is treated as off, per OPT_IN_KILL_SWITCH_ONLY."""
+    return os.environ.get(R1_ENFORCEMENT_ENABLE_ENV, "false").lower() == "true"
+
+
+def _evidence_admission_disabled_block() -> Dict[str, Any]:
+    """Bounded, neutral block returned when the request flag is set but the
+    global operational gate is off. Distinguishes "R0 not requested" (no
+    key at all) from "R0 requested but operationally disabled"."""
+    return {
+        "status": "unavailable",
+        "recommended_route": None,
+        "candidate_budget": 0,
+        "context_token_budget": 0,
+        "expansion_budget": 0,
+        "latency_budget_ms": None,
+        "stop_condition": None,
+        "reason_codes": ["ADMISSION_SHADOW_GLOBALLY_DISABLED"],
+        "sufficiency": None,
+        "sufficiency_reason_codes": [],
+        "input_snapshot": None,
+        "latency_ms": 0.0,
+        "non_authoritative": True,
+    }
 
 
 app = Flask(__name__)
@@ -180,6 +284,7 @@ class MnemosRuntime:
                     url=self._config.qdrant_url,
                     collection_name=self._config.qdrant_collection,
                     embedding_model=self._config.embedding_model,
+                    embedding_dim=self._config.embedding_dim,
                     gpu_device=self._config.gpu_device,
                 ))
 
@@ -256,6 +361,7 @@ class MnemosRuntime:
             self._shadow_runner = ShadowSearchRunner(
                 search_callable=self._shadow_search_payload,
                 cache=self._view_cache,
+                context_provider=self._pre_cognitive_cache_context,
             )
             self._intent_engine = IntentEngine(
                 harvester=None,
@@ -303,9 +409,180 @@ class MnemosRuntime:
             "contract_version": CONTRACT_VERSION,
             "status": self._status,
             "source": "mnemos-service",
+            "service_revision": _service_revision_identity(),
             "generated_at": _utc_now(),
             "error": self._error,
         }
+
+    def _seed_snapshot_id(self) -> str:
+        manifest_path = Path(
+            os.getenv("MNEMOS_SEED_MANIFEST_PATH", str(DEFAULT_MANIFEST_PATH))
+        )
+        try:
+            if manifest_path.exists():
+                payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+                if isinstance(payload, dict):
+                    snapshot_id = str(payload.get("seed_snapshot_id") or "").strip()
+                    if snapshot_id:
+                        return snapshot_id
+        except Exception:
+            logger.debug("Seed manifest unreadable at %s", manifest_path, exc_info=True)
+        return str(os.getenv("MNEMOS_SEED_SNAPSHOT", "unknown"))
+
+    def _collection_snapshot(self) -> str:
+        if not self._config:
+            return "uninitialized"
+        return f"{self._config.qdrant_collection}:{self._seed_snapshot_id()}"
+
+    def _retrieval_profile(self) -> str:
+        if not self._config:
+            return "unknown"
+        return (
+            f"{self._config.retrieval_mode}|{self._config.fusion_policy}|"
+            f"lexical_top_k={self._config.lexical_top_k}|semantic_top_k={self._config.semantic_top_k}"
+        )
+
+    def _executed_retrieval_profile(
+        self,
+        mode_meta: Optional[Dict[str, Any]] = None,
+        *,
+        retrieval_mode_override: Optional[str] = None,
+        fusion_policy_override: Optional[str] = None,
+    ) -> str:
+        if not self._config:
+            return "unknown"
+        effective_mode = (
+            retrieval_mode_override
+            or (mode_meta or {}).get("retrieval_mode")
+            or self._config.retrieval_mode
+        )
+        effective_policy = fusion_policy_override
+        if effective_policy is None:
+            effective_policy = (mode_meta or {}).get("fusion_policy")
+        if effective_policy is None and effective_mode == "hybrid":
+            effective_policy = self._config.fusion_policy
+        if effective_policy is None:
+            effective_policy = "none"
+        return (
+            f"{effective_mode}|{effective_policy}|"
+            f"lexical_top_k={self._config.lexical_top_k}|semantic_top_k={self._config.semantic_top_k}"
+        )
+
+    def _retrieval_fingerprint(
+        self,
+        mode_meta: Optional[Dict[str, Any]] = None,
+        *,
+        retrieval_mode_override: Optional[str] = None,
+        fusion_policy_override: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        return {
+            "collection_snapshot": self._collection_snapshot(),
+            "retrieval_profile": self._executed_retrieval_profile(
+                mode_meta,
+                retrieval_mode_override=retrieval_mode_override,
+                fusion_policy_override=fusion_policy_override,
+            ),
+            "configured_retrieval_profile": self._retrieval_profile(),
+            "embedding_model_name": self._config.embedding_model if self._config else "unknown",
+            "cache_schema_version": CACHE_SCHEMA_VERSION,
+        }
+
+    @staticmethod
+    def _low_relevance_abstention_meta(
+        results: List[Any],
+        *,
+        mode_meta: Optional[Dict[str, Any]] = None,
+        score_floor: float = 0.01,
+    ) -> Optional[Dict[str, Any]]:
+        if not results:
+            return None
+        top_score = float(getattr(results[0], "score", 0.0) or 0.0)
+        if top_score >= score_floor:
+            return None
+        scores = [float(getattr(item, "score", 0.0) or 0.0) for item in results[:3]]
+        if any(score >= score_floor for score in scores):
+            return None
+        return {
+            "applied": True,
+            "reason_code": "low_relevance_abstention",
+            "score_floor": score_floor,
+            "top_scores": [round(score, 4) for score in scores],
+            "retrieval_mode": (mode_meta or {}).get("retrieval_mode", "semantic"),
+        }
+
+    def _pre_cognitive_cache_context(self, session_id: str, query: str) -> Dict[str, Any]:
+        return build_retrieval_cache_context(
+            query=query,
+            authorized_scope=session_id,
+            collection_snapshot=self._collection_snapshot(),
+            retrieval_profile=self._retrieval_profile(),
+            embedding_model_name=self._config.embedding_model if self._config else "unknown",
+            seed_snapshot=self._seed_snapshot_id(),
+        )
+
+    def _evidence_admission_cache_lookup(
+        self,
+        query: str,
+        cache_context: Dict[str, Any],
+    ) -> Optional[CacheLookupResult]:
+        """Read-only freshness/scope peek for Evidence Admission R0.
+
+        Uses ``DerivedViewCache.peek_pre_cognitive`` (no hit/miss-counter
+        mutation) so the shadow evaluation never perturbs real cache
+        telemetry. Returns ``None`` when no cache is configured.
+        """
+        if self._view_cache is None:
+            return None
+        cluster_id: Optional[int] = None
+        if self._intent_engine is not None:
+            try:
+                cluster_id = self._intent_engine.harvester.map_query(query)
+            except Exception:
+                cluster_id = None
+        try:
+            fresh = self._view_cache.peek_pre_cognitive(
+                query=query,
+                cluster_id=cluster_id,
+                cache_context=cache_context,
+            )
+        except Exception:
+            return None
+        return CacheLookupResult(cache_name="pre_cognitive", fresh_and_scope_matched=fresh)
+
+    def _build_admission_request_context(
+        self,
+        *,
+        top_k: int,
+        latency_budget_ms: Optional[float],
+        filters: Optional[Dict[str, Any]],
+        cache_lookup: Optional[CacheLookupResult],
+        complexity_label: Optional[str] = None,
+        complexity_confidence: Optional[float] = None,
+    ) -> AdmissionRequestContext:
+        collection_scope = self._collection_snapshot()
+        known_scope = collection_scope if collection_scope and collection_scope != "unknown" else None
+        return AdmissionRequestContext(
+            top_k=top_k,
+            latency_budget_ms=latency_budget_ms,
+            known_collection_scope=known_scope,
+            cache_lookup=cache_lookup,
+            complexity_label=complexity_label,
+            complexity_confidence=complexity_confidence,
+            cue_terms_matched=[],
+            tag_terms_matched=[],
+            explicit_artifact_ids=_explicit_artifact_ids_from_filters(filters),
+            associative_expansion_globally_enabled=(
+                os.environ.get(_CANDIDATE_EXPANSION_ENABLE_ENV, "false").lower() == "true"
+            ),
+            prior_verified_context_supplied=False,
+        )
+
+    @staticmethod
+    def _complexity_for_admission(mode_meta: Dict[str, Any]) -> Tuple[Optional[str], Optional[float]]:
+        block = mode_meta.get("complexity_classification") or mode_meta.get("complexity_shadow") or {}
+        if block.get("status") != "ok":
+            return None, None
+        return block.get("label"), block.get("confidence")
 
     @staticmethod
     def _first_metadata_value(metadata: Dict[str, Any], *keys: str) -> Any:
@@ -632,12 +909,16 @@ class MnemosRuntime:
         engrams = []
         for doc in documents:
             engram = Engram(
+                id=str(doc.get("id") or uuid.uuid4()),
                 content=doc.get("content", ""),
                 source=doc.get("source", ""),
                 neuro_tags=doc.get("neuro_tags", []),
                 confidence=doc.get("confidence", 1.0),
                 metadata=doc.get("metadata", {}),
             )
+            created_at = doc.get("created_at")
+            if isinstance(created_at, str) and created_at.strip():
+                engram.created_at = created_at.strip()
             engrams.append(engram)
             if self._volatility_engine is not None:
                 self._volatility_engine.harvester.record_index_update(engram)
@@ -746,6 +1027,10 @@ class MnemosRuntime:
         latency_budget_ms: Optional[float] = None,
         complexity_shadow: bool = False,
         cognitive_cycle: Optional[bool] = None,
+        associative_routing_shadow: bool = False,
+        associative_candidate_expansion: bool = False,
+        evidence_admission_shadow: bool = False,
+        evidence_admission_enforce: bool = False,
     ) -> Dict[str, Any]:
         """Search across tiers and return fused results."""
         import time
@@ -753,6 +1038,63 @@ class MnemosRuntime:
         session_id = "default"
         if isinstance(filters, dict):
             session_id = str(filters.get("session_id") or filters.get("tenant_id") or "default")
+        pre_cognitive_cache_context = self._pre_cognitive_cache_context(session_id, query)
+
+        # ── Evidence Admission and Budgeting R1: pre-retrieval enforcement
+        # decision ───────────────────────────────────────────────────────
+        # Computed before any retrieval call (including the pre-cognitive
+        # cache check below) using only pre-retrieval-available inputs —
+        # complexity_label is deliberately left unset here (it is only known
+        # after a search call runs), which keeps every route this can
+        # produce inside R0's own pre-retrieval-safe rules. Absent request
+        # flag or disabled global gate => this block never runs and
+        # `r1_decision` stays None, so every branch below that reads it is
+        # unreachable and behavior is unchanged, per OPT_IN_KILL_SWITCH_ONLY.
+        r1_enforcement_requested = bool(evidence_admission_enforce)
+        r1_globally_enabled = False
+        r1_decision = None
+        if r1_enforcement_requested:
+            r1_globally_enabled = _evidence_admission_r1_enforcement_globally_enabled()
+            if r1_globally_enabled:
+                _r1_cache_lookup = self._evidence_admission_cache_lookup(query, pre_cognitive_cache_context)
+                _r1_context = self._build_admission_request_context(
+                    top_k=top_k,
+                    latency_budget_ms=latency_budget_ms,
+                    filters=filters,
+                    cache_lookup=_r1_cache_lookup,
+                    complexity_label=None,
+                    complexity_confidence=None,
+                )
+                r1_decision = _r1_decide_enforcement(_evidence_admission_recommend(query, _r1_context))
+
+        if r1_decision is not None and r1_decision.enforced_route == "ABSTAIN_OR_REQUEST_SCOPE":
+            payload = self._base_payload()
+            payload["results"] = []
+            payload["meta"] = {
+                "query": query,
+                "top_k": top_k,
+                "result_count": 0,
+                "latency_s": round(time.time() - t0, 4),
+                "retrieval_mode": "abstained",
+                "fusion_policy": None,
+                "abstention_guard": {
+                    "applied": True,
+                    "reason_code": "evidence_admission_r1_enforced_abstention",
+                    "enforcement_reason_codes": list(r1_decision.enforcement_reason_codes),
+                },
+                "retrieval_fingerprint": self._retrieval_fingerprint(
+                    retrieval_mode_override="abstained",
+                    fusion_policy_override="none",
+                ),
+                "evidence_admission_r1_enforcement": {
+                    "requested": True,
+                    "globally_enabled": True,
+                    "decision": r1_decision.to_dict(),
+                    "fallback_triggered": False,
+                    "final_route_served": "ABSTAIN_OR_REQUEST_SCOPE",
+                },
+            }
+            return payload
 
         if self._view_cache is not None and self._intent_engine is not None:
             try:
@@ -760,6 +1102,7 @@ class MnemosRuntime:
                 cached = self._view_cache.fuzzy_pre_cognitive_get(
                     query=query,
                     cluster_id=cluster_id,
+                    cache_context=pre_cognitive_cache_context,
                 )
                 if cached is not None:
                     self._audit(
@@ -771,6 +1114,7 @@ class MnemosRuntime:
                             "cache": cached.get("_cache", {}),
                             "cluster_id": cluster_id,
                             "session_id": session_id,
+                            "cache_context": pre_cognitive_cache_context,
                         },
                         latency=0.0,
                     )
@@ -785,7 +1129,13 @@ class MnemosRuntime:
                         "fusion_policy": None,
                         "pre_cognitive": True,
                         "cache": cached.get("_cache", {}),
+                        "retrieval_fingerprint": self._retrieval_fingerprint(
+                            retrieval_mode_override="pre_cognitive_cache",
+                            fusion_policy_override="none",
+                        ),
                     }
+                    if associative_routing_shadow:
+                        payload["meta"]["associative_routing_shadow"] = _associative_shadow_adapter.run(query)
                     self._intent_engine.harvester.record_query(
                         session_id=session_id,
                         query=query,
@@ -824,7 +1174,16 @@ class MnemosRuntime:
                 pre_cognitive_cache_hit=False,
             )
 
-        results, mode_meta = self._router.search(
+        _r1_retrieval_overrides: Dict[str, Any] = (
+            _r1_bounded_retrieval_overrides(
+                r1_decision,
+                requested_top_k=top_k,
+                configured_semantic_top_k=self._config.semantic_top_k,
+            )
+            if r1_decision is not None
+            else {}
+        )
+        _default_retrieval_kwargs: Dict[str, Any] = dict(
             query=query,
             top_k=top_k,
             filters=filters,
@@ -839,6 +1198,63 @@ class MnemosRuntime:
             complexity_shadow=complexity_shadow,
             adaptive_routing=bool(getattr(self._config, "adaptive_routing", True)),
         )
+        results, mode_meta = self._router.search(**{**_default_retrieval_kwargs, **_r1_retrieval_overrides})
+        if associative_routing_shadow:
+            mode_meta["associative_routing_shadow"] = _associative_shadow_adapter.run(query)
+
+        # ── Evidence Admission and Budgeting R1: post-attempt fallback ────
+        # Only reachable when r1_decision enforced a bounded retrieval call
+        # above (CUE_ONLY_LOOKUP / BOUNDED_SEMANTIC_RETRIEVAL). Reuses R0's
+        # unmodified assess_sufficiency() against the bounded attempt's own
+        # raw results — deliberately *before* governance runs, so if a
+        # fallback is required the unbounded re-run below fully replaces
+        # `results`/`mode_meta` before any downstream code (governance,
+        # abstention, assembler, response assembly) ever sees the bounded
+        # attempt. This is what makes NORMAL_RETRIEVAL_FALLBACK mandatory-
+        # not-optional: every consumer past this point sees one final,
+        # consistent result set, exactly as if R1 had chosen that route from
+        # the start.
+        r1_fallback_triggered = False
+        if r1_decision is not None and r1_decision.enforced_route in (
+            "CUE_ONLY_LOOKUP",
+            "BOUNDED_SEMANTIC_RETRIEVAL",
+        ):
+            _r1_preliminary_sufficiency = _evidence_admission_assess_sufficiency(results, mode_meta)
+            if _r1_fallback_required(r1_decision.enforced_route, _r1_preliminary_sufficiency.sufficiency):
+                r1_fallback_triggered = True
+                results, mode_meta = self._router.search(**_default_retrieval_kwargs)
+                if associative_routing_shadow:
+                    mode_meta["associative_routing_shadow"] = _associative_shadow_adapter.run(query)
+
+        # ── Evidence Admission and Budgeting R0: pre-retrieval-input-only
+        # shadow recommendation ──────────────────────────────────────────
+        # Computed here (right after the search call returns) for the same
+        # reason E1's shadow block is computed at this point: by
+        # construction it cannot have influenced what already executed.
+        # Its inputs are restricted to query/context/cache/complexity
+        # features only — never `results` (scores, diversity, lineage of
+        # actual hits), which is reserved for assess_sufficiency() below.
+        # Flag-absent requests never enter this branch, so the response is
+        # behaviorally identical for stable retrieval and response-contract
+        # fields when evidence_admission_shadow is not set.
+        evidence_admission_block: Optional[Dict[str, Any]] = None
+        evidence_admission_gate_enabled = False
+        if evidence_admission_shadow:
+            evidence_admission_gate_enabled = _evidence_admission_shadow_globally_enabled()
+            if evidence_admission_gate_enabled:
+                _complexity_label, _complexity_confidence = self._complexity_for_admission(mode_meta)
+                _admission_context = self._build_admission_request_context(
+                    top_k=top_k,
+                    latency_budget_ms=latency_budget_ms,
+                    filters=filters,
+                    cache_lookup=self._evidence_admission_cache_lookup(query, pre_cognitive_cache_context),
+                    complexity_label=_complexity_label,
+                    complexity_confidence=_complexity_confidence,
+                )
+                evidence_admission_block = _evidence_admission_recommend(query, _admission_context).to_dict()
+            else:
+                evidence_admission_block = _evidence_admission_disabled_block()
+
         raw_rank_by_id = {r.engram.id: idx + 1 for idx, r in enumerate(results)}
 
         if _assembler is not None:
@@ -923,6 +1339,78 @@ class MnemosRuntime:
                 candidate_count_post_governance=len(results),
             )
 
+        low_relevance_abstention = self._low_relevance_abstention_meta(
+            results,
+            mode_meta=mode_meta,
+        )
+
+        # ── Evidence Admission and Budgeting R0: post-retrieval-only
+        # sufficiency assessment ──────────────────────────────────────────
+        # Strictly separate inputs/outputs from recommend_admission() above:
+        # consumes the real post-governance `results` and `mode_meta`
+        # (scores, candidate diversity, duplicate state, abstention
+        # outcome) — never the pre-retrieval feature snapshot or admission
+        # reason codes. Only runs when the gate was actually on, so a
+        # caller never sees post-retrieval reason codes attached to a
+        # bounded "globally disabled" block.
+        if evidence_admission_block is not None and evidence_admission_gate_enabled:
+            _sufficiency = _evidence_admission_assess_sufficiency(
+                results,
+                mode_meta,
+                low_relevance_abstention=low_relevance_abstention,
+            )
+            evidence_admission_block["sufficiency"] = _sufficiency.sufficiency
+            evidence_admission_block["sufficiency_reason_codes"] = _sufficiency.reason_codes
+
+        if low_relevance_abstention:
+            results = []
+
+        # ── Associative Routing E2: opt-in, bounded candidate expansion ─────
+        # Runs only after the normal-results governance and abstention
+        # decisions above are final, so expansion can never mask a deserved
+        # abstention or be entangled with normal-candidate suppression.
+        candidate_expansion_block: Optional[Dict[str, Any]] = None
+        expansion_decisions: List[Any] = []
+        if associative_candidate_expansion and not low_relevance_abstention:
+            injected, candidate_expansion_block = _candidate_expansion_engine.expand(
+                query,
+                existing_results=results,
+                retrieval_router=self._router,
+                filters=filters,
+                retrieval_mode=mode_meta.get("retrieval_mode", selected_mode),
+            )
+            if injected:
+                if selected_governance != "off" and self._governor:
+                    governed_injected, expansion_decisions, _ = self._governor.govern(
+                        results=injected,
+                        query=query,
+                        governance_mode=selected_governance,
+                        top_k=len(injected),
+                        governance_profile=selected_profile or None,
+                    )
+                else:
+                    governed_injected = injected
+                rejected_by_governance = len(injected) - len(governed_injected)
+                if rejected_by_governance:
+                    candidate_expansion_block["candidates_added"] -= rejected_by_governance
+                    candidate_expansion_block["candidates_rejected_by_policy"] += rejected_by_governance
+                    if candidate_expansion_block["candidates_added"] <= 0:
+                        candidate_expansion_block["status"] = "resolved_no_new_candidates"
+                results = results + governed_injected
+        elif associative_candidate_expansion and low_relevance_abstention:
+            candidate_expansion_block = {
+                "status": "resolved_no_new_candidates",
+                "projection_snapshot": None,
+                "candidate_paths_considered": 0,
+                "candidate_paths_used": 0,
+                "candidates_added": 0,
+                "candidates_deduplicated": 0,
+                "candidates_rejected_by_policy": 0,
+                "latency_ms": 0.0,
+                "reason_codes": ["normal_retrieval_abstained"],
+                "non_authoritative": True,
+            }
+
         derived_views_payload: List[Dict[str, Any]] = []
         query_cache_hits = 0
         query_cache_misses = 0
@@ -945,6 +1433,8 @@ class MnemosRuntime:
                     governance_state_hash_value=ghash,
                     synthesis_policy_version="default",
                     embedding_model_name=self._config.embedding_model,
+                    seed_snapshot=self._seed_snapshot_id(),
+                    cache_schema_version=CACHE_SCHEMA_VERSION,
                 )
                 if phase4_cache_enabled:
                     cached = self._view_cache.get(cache_key)
@@ -1063,6 +1553,7 @@ class MnemosRuntime:
 
         # ── Build per-result payload ───────────────────────────────────────
         decision_map = {d.engram_id: d for d in decisions}
+        decision_map.update({d.engram_id: d for d in expansion_decisions})
         result_list = []
         include_lineage = bool(getattr(self._config, "memory_over_maps_phase1", False)) and selected_explain
         for idx, r in enumerate(results):
@@ -1074,6 +1565,15 @@ class MnemosRuntime:
                 "tier": r.tier,
                 "tiers": r.metadata.get("tiers", [r.tier]),
             }
+            if associative_candidate_expansion:
+                # Only added to the response contract when expansion was
+                # explicitly requested, so the default (flag-off) response
+                # shape is byte-for-byte unchanged from pre-E2 behavior.
+                entry["candidate_origin"] = r.metadata.get("candidate_origin", "normal_retrieval_candidate")
+                if entry["candidate_origin"] == "associative_expansion":
+                    entry["associative_routing_path"] = r.metadata.get("associative_routing_path")
+                    entry["associative_projection_snapshot"] = r.metadata.get("associative_projection_snapshot")
+                    entry["non_authoritative"] = True
             entry["evidence"] = self._build_evidence_packet(r, rank=rank)
             if selected_explain and mode_meta.get("retrieval_mode") == "hybrid":
                 entry.update({
@@ -1082,6 +1582,12 @@ class MnemosRuntime:
                     "filters_applied": r.metadata.get("filters_applied", filters or {}),
                     "fusion_policy": r.metadata.get("fusion_policy", selected_policy),
                 })
+            if r.metadata.get("duplicate_suppression"):
+                entry["duplicate_suppression"] = r.metadata.get("duplicate_suppression")
+                entry["original_score"] = round(
+                    float(r.metadata.get("original_score", r.score)),
+                    4,
+                )
             dec = decision_map.get(r.engram.id)
             if dec is not None and selected_governance != "off":
                 entry["governed_score"] = round(dec.governed_score, 4)
@@ -1106,6 +1612,7 @@ class MnemosRuntime:
             "lexical_lane_available": mode_meta.get("lexical_available", False),
             "explain": selected_explain,
             "evidence_summary": self._build_evidence_summary(result_list),
+            "retrieval_fingerprint": self._retrieval_fingerprint(mode_meta),
         }
         envelope_ratio = round((env_final / env_initial), 4) if env_initial else 0.0
         cost_units = (
@@ -1130,6 +1637,10 @@ class MnemosRuntime:
             payload["meta"]["hybrid_telemetry"] = mode_meta["telemetry"]
         if mode_meta.get("candidate_envelope"):
             payload["meta"]["candidate_envelope"] = mode_meta["candidate_envelope"]
+        if mode_meta.get("duplicate_suppression"):
+            payload["meta"]["duplicate_suppression"] = mode_meta["duplicate_suppression"]
+        if low_relevance_abstention:
+            payload["meta"]["abstention_guard"] = low_relevance_abstention
         if mode_meta.get("forecast_advisory"):
             payload["meta"]["forecast_advisory"] = mode_meta["forecast_advisory"]
         if mode_meta.get("complexity_classification"):
@@ -1138,6 +1649,24 @@ class MnemosRuntime:
             payload["meta"]["routing_posture"] = mode_meta["routing_posture"]
         if mode_meta.get("complexity_shadow"):
             payload["meta"]["complexity_shadow"] = mode_meta["complexity_shadow"]
+        if mode_meta.get("associative_routing_shadow") is not None:
+            payload["meta"]["associative_routing_shadow"] = mode_meta["associative_routing_shadow"]
+        if candidate_expansion_block is not None:
+            payload["meta"]["associative_candidate_expansion"] = candidate_expansion_block
+        if evidence_admission_block is not None:
+            payload["meta"]["evidence_admission_shadow"] = evidence_admission_block
+        if r1_enforcement_requested:
+            payload["meta"]["evidence_admission_r1_enforcement"] = {
+                "requested": True,
+                "globally_enabled": r1_globally_enabled,
+                "decision": r1_decision.to_dict() if r1_decision is not None else None,
+                "fallback_triggered": r1_fallback_triggered,
+                "final_route_served": (
+                    ("NORMAL_RETRIEVAL_FALLBACK" if r1_fallback_triggered else r1_decision.enforced_route)
+                    if r1_decision is not None
+                    else None
+                ),
+            }
         if selected_governance != "off":
             payload["meta"]["governance_mode"] = selected_governance
             payload["meta"]["governance_profile"] = selected_profile or "default"
@@ -1650,8 +2179,17 @@ def _ensure_runtime():
 def health():
     err = _ensure_runtime()
     if err:
-        return jsonify({"status": "degraded", "service": "mnemos-service"}), 200
-    return jsonify({"status": "ok", "service": "mnemos-service", "contract_version": CONTRACT_VERSION}), 200
+        return jsonify({
+            "status": "degraded",
+            "service": "mnemos-service",
+            "service_revision": _service_revision_identity(),
+        }), 200
+    return jsonify({
+        "status": "ok",
+        "service": "mnemos-service",
+        "contract_version": CONTRACT_VERSION,
+        "service_revision": _service_revision_identity(),
+    }), 200
 
 
 @app.get("/")
@@ -1750,6 +2288,10 @@ def search():
     latency_budget_ms = body.get("latency_budget_ms")
     complexity_shadow = body.get("complexity_shadow", False)
     cognitive_cycle = body.get("cognitive_cycle")
+    associative_routing_shadow = body.get("associative_routing_shadow", False)
+    associative_candidate_expansion = body.get("associative_candidate_expansion", False)
+    evidence_admission_shadow = body.get("evidence_admission_shadow", False)
+    evidence_admission_enforce = body.get("evidence_admission_enforce", False)
 
     if not query:
         return jsonify({"error": "No query provided"}), 400
@@ -1771,6 +2313,18 @@ def search():
 
     if not isinstance(complexity_shadow, bool):
         return jsonify({"error": "complexity_shadow must be a boolean"}), 400
+
+    if not isinstance(associative_routing_shadow, bool):
+        return jsonify({"error": "associative_routing_shadow must be a boolean"}), 400
+
+    if not isinstance(associative_candidate_expansion, bool):
+        return jsonify({"error": "associative_candidate_expansion must be a boolean"}), 400
+
+    if not isinstance(evidence_admission_shadow, bool):
+        return jsonify({"error": "evidence_admission_shadow must be a boolean"}), 400
+
+    if not isinstance(evidence_admission_enforce, bool):
+        return jsonify({"error": "evidence_admission_enforce must be a boolean"}), 400
 
     if governance is not None and governance not in GOVERNANCE_MODES:
         return jsonify({
@@ -1855,6 +2409,10 @@ def search():
             latency_budget_ms,
             complexity_shadow,
             cognitive_cycle,
+            associative_routing_shadow,
+            associative_candidate_expansion,
+            evidence_admission_shadow,
+            evidence_admission_enforce,
         )
 
     derived_cnt = len(res.get("derived_results", []))

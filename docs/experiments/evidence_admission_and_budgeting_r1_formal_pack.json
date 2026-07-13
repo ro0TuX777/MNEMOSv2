@@ -1,0 +1,1768 @@
+{
+  "pack_id": "evidence_admission_and_budgeting_r1_formal_pack_v1",
+  "pack_type": "formal_pack",
+  "status": "FROZEN_INDEPENDENT_FORMAL_PACK",
+  "derived_from_template": "evidence_admission_and_budgeting_r1_formal_pack_template_v1",
+  "authorship": {
+    "author_role": "independent_non_implementation_author",
+    "implementation_involvement": "none",
+    "statement": "This formal pack was authored by an independent non-implementation author. No R1 policy, thresholds, or implementation were modified. No development-pack results were inspected. Queries were not tuned against implementation behavior. No enforcement code was created. Development and formal evidence are not aggregated.",
+    "authored_only_from_inputs": [
+      "docs/evidence_admission_and_budgeting_r1_corpus_manifest.json",
+      "docs/experiments/evidence_admission_and_budgeting_r1_formal_pack_template.json",
+      "docs/evidence_admission_and_budgeting_r1_preregistration.md",
+      "docs/evidence_admission_and_budgeting_r1_design_note.md"
+    ]
+  },
+  "provenance": {
+    "repository_branch": "codex/gatemem-governance-reference-baseline",
+    "committed_baseline": "e7b86c65d3fd0298f915efc00cc8cf6fd7fb7f7e",
+    "manifest_id": "evidence_admission_and_budgeting_r1_corpus_69ad546ba30ed71a",
+    "corpus_status": "FROZEN_BEFORE_R1_ENFORCEMENT",
+    "input_sha256": {
+      "corpus_manifest": "d1a8ad9c9f282b0ef5b427a22eb499014a17440de2a9e4215a04832fa5bd095a",
+      "formal_pack_template": "b4e557ed7a416412ef9a52089f244eaeb6f9c2c6ae0f8be51e400ab5d1a83751",
+      "preregistration": "31af4ee1cac064df983cd173d87e77bfc6448b6935df06f47ff79b1135579c39",
+      "design_note": "7ebd79bfc2da060f242bd8477880e75af41551ba7f28e288febba4f5cd83e00b"
+    }
+  },
+  "allowed_enforced_route_labels": [
+    "CUE_ONLY_LOOKUP",
+    "CACHE_ONLY",
+    "BOUNDED_SEMANTIC_RETRIEVAL",
+    "ABSTAIN_OR_REQUEST_SCOPE",
+    "NORMAL_RETRIEVAL_FALLBACK"
+  ],
+  "forbidden_enforced_route_labels": [
+    "HYBRID_RETRIEVAL",
+    "ASSOCIATIVE_EXPANSION_ELIGIBLE",
+    "graph_hybrid_experimental",
+    "derived_facts",
+    "summary_inclusion",
+    "governance_override"
+  ],
+  "minimum_query_count": 50,
+  "scored_query_count": 54,
+  "non_scored_examples_included": false,
+  "query_schema_reference": {
+    "required_fields": [
+      "query_id",
+      "query",
+      "intent_family",
+      "accepted_evidence_neighborhood",
+      "minimum_required_source_lineage",
+      "lower_cost_route_allowed",
+      "allowed_lower_cost_route_labels",
+      "normal_retrieval_fallback_required",
+      "abstention_expected",
+      "freshness_requirement",
+      "scored"
+    ],
+    "rules": [
+      "Every scored query must identify at least one accepted evidence neighborhood entry unless abstention_expected is true.",
+      "Every scored query must declare whether lower-cost enforcement is allowed.",
+      "Every scored query must declare the expected fallback behavior if the lower-cost route cannot satisfy lineage or evidence coverage.",
+      "No scored query may be authored or edited by the implementation team."
+    ]
+  },
+  "queries": [
+    {
+      "scored": true,
+      "query_id": "r1f-001",
+      "query": "Which document records the current GateMem program status and posture?",
+      "intent_family": "gatemem_status_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/benchmarks/gatemem_program_status.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "gatemem_governance_status:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-002",
+      "query": "What is the current GateMem G4 offline reference implementation of record?",
+      "intent_family": "gatemem_status_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "gatemem_governance_status:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-003",
+      "query": "What result is recorded in the GateMem G4 gate?",
+      "intent_family": "gatemem_gate_result_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "benchmarks/results/gatemem_g4_gate.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "gatemem_governance_status:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-004",
+      "query": "Re-confirm the recorded GateMem G4 gate result.",
+      "intent_family": "gatemem_gate_result_repeat",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "benchmarks/results/gatemem_g4_gate.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "gatemem_governance_status:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CACHE_ONLY"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-005",
+      "query": "Summarize current GateMem governance status across the program status and G4 reference implementation.",
+      "intent_family": "gatemem_status_synthesis",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/benchmarks/gatemem_program_status.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "gatemem_governance_status:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "gatemem_governance_status:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "BOUNDED_SEMANTIC_RETRIEVAL"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-006",
+      "query": "What is the accepted G4 offline reference implementation, rather than the earlier G4 proposal?",
+      "intent_family": "gatemem_supersession",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "gatemem_governance_status:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "docs/benchmarks/gatemem_g4_offline_reference_implementation_proposal.md",
+          "allowed_roles": [
+            "superseded_record"
+          ],
+          "required_current_state": false,
+          "lineage_label": "gatemem_governance_status:superseded_record",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        },
+        {
+          "source_path": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+          "allowed_roles": [
+            "dependency_blocker_record"
+          ],
+          "required_current_state": false,
+          "lineage_label": "gatemem_governance_status:dependency_blocker_record",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": true,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": false,
+      "allowed_lower_cost_route_labels": [
+        "NORMAL_RETRIEVAL_FALLBACK"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-007",
+      "query": "Is the GateMem G2 offline adapter the current reference, or has it been superseded?",
+      "intent_family": "gatemem_supersession",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "gatemem_governance_status:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "docs/benchmarks/gatemem_g2_offline_adapter.md",
+          "allowed_roles": [
+            "superseded_record"
+          ],
+          "required_current_state": false,
+          "lineage_label": "gatemem_governance_status:superseded_record",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        },
+        {
+          "source_path": "benchmarks/results/gatemem_g2_baseline_manifest.md",
+          "allowed_roles": [
+            "superseded_record"
+          ],
+          "required_current_state": false,
+          "lineage_label": "gatemem_governance_status:superseded_record",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": true,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": false,
+      "allowed_lower_cost_route_labels": [
+        "NORMAL_RETRIEVAL_FALLBACK"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-008",
+      "query": "What is the current GateMem governance posture, given the superseded G2a gate record?",
+      "intent_family": "gatemem_supersession",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/benchmarks/gatemem_program_status.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "gatemem_governance_status:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "benchmarks/results/gatemem_g2a_gate.md",
+          "allowed_roles": [
+            "superseded_record"
+          ],
+          "required_current_state": false,
+          "lineage_label": "gatemem_governance_status:superseded_record",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": true,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": false,
+      "allowed_lower_cost_route_labels": [
+        "NORMAL_RETRIEVAL_FALLBACK"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-009",
+      "query": "What dependency blocks GateMem G5, per its README?",
+      "intent_family": "gatemem_dependency_blocker",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/benchmarks/gatemem_g5/README.md",
+          "allowed_roles": [
+            "dependency_blocker_record"
+          ],
+          "required_current_state": false,
+          "lineage_label": "gatemem_governance_status:dependency_blocker_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "dependency_blocker_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-010",
+      "query": "What does the GateMem G5 handoff checklist require?",
+      "intent_family": "gatemem_dependency_blocker",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+          "allowed_roles": [
+            "dependency_blocker_record"
+          ],
+          "required_current_state": false,
+          "lineage_label": "gatemem_governance_status:dependency_blocker_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "dependency_blocker_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-011",
+      "query": "What is the scope of the GateMem G5 preregistration?",
+      "intent_family": "gatemem_dependency_blocker",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/benchmarks/gatemem_g5/preregistration.md",
+          "allowed_roles": [
+            "dependency_blocker_record"
+          ],
+          "required_current_state": false,
+          "lineage_label": "gatemem_governance_status:dependency_blocker_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "dependency_blocker_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-012",
+      "query": "What does ADR 0013 record about the G4 offline reference implementation proposal dependency?",
+      "intent_family": "gatemem_dependency_blocker",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/adr/0013-gatemem-g4-offline-reference-implementation-proposal.md",
+          "allowed_roles": [
+            "dependency_blocker_record"
+          ],
+          "required_current_state": false,
+          "lineage_label": "gatemem_governance_status:dependency_blocker_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "dependency_blocker_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-013",
+      "query": "What current GateMem governance decision is in force? Do not rely on the G5 evaluator protocol or custodian charter.",
+      "intent_family": "gatemem_negative_control_rejection",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/benchmarks/gatemem_program_status.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "gatemem_governance_status:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "docs/benchmarks/gatemem_g5/evaluator_protocol.md",
+          "allowed_roles": [
+            "negative_control_material"
+          ],
+          "required_current_state": false,
+          "lineage_label": "gatemem_governance_status:negative_control_material",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        },
+        {
+          "source_path": "docs/benchmarks/gatemem_g5/custodian_charter.md",
+          "allowed_roles": [
+            "negative_control_material"
+          ],
+          "required_current_state": false,
+          "lineage_label": "gatemem_governance_status:negative_control_material",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": false,
+      "allowed_lower_cost_route_labels": [
+        "NORMAL_RETRIEVAL_FALLBACK"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-014",
+      "query": "What does the frozen GateMem G4 reference manifest state, deduplicated against the G4 gate of record?",
+      "intent_family": "gatemem_dedup_condition",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "benchmarks/results/gatemem_g4_gate.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "gatemem_governance_status:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "benchmarks/results/gatemem_g4_frozen_reference_manifest.md",
+          "allowed_roles": [
+            "duplicate_or_near_duplicate_condition"
+          ],
+          "required_current_state": false,
+          "lineage_label": "gatemem_governance_status:duplicate_or_near_duplicate_condition",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": false,
+      "allowed_lower_cost_route_labels": [
+        "NORMAL_RETRIEVAL_FALLBACK"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-015",
+      "query": "What authorization and disclosure semantics does GateMem G3 define?",
+      "intent_family": "gatemem_dedup_condition",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/benchmarks/gatemem_g3_authorization_disclosure_semantics.md",
+          "allowed_roles": [
+            "duplicate_or_near_duplicate_condition"
+          ],
+          "required_current_state": false,
+          "lineage_label": "gatemem_governance_status:duplicate_or_near_duplicate_condition",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "gatemem_governance_status",
+        "must_include_role": "duplicate_or_near_duplicate_condition",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "BOUNDED_SEMANTIC_RETRIEVAL"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-016",
+      "query": "What posture does the Evidence Admission and Budgeting R0 closeout record?",
+      "intent_family": "evidence_admission_status_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/evidence_admission_and_budgeting_r0_closeout.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-017",
+      "query": "What recommendations does the Evidence Admission and Budgeting R0 design note define?",
+      "intent_family": "evidence_admission_status_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/evidence_admission_and_budgeting_r0_design_note.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-018",
+      "query": "What outcome does the retrieval hygiene R0 closeout record?",
+      "intent_family": "retrieval_hygiene_status_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "benchmarks/results/retrieval_hygiene_r0_closeout.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-019",
+      "query": "What classification does the Associative Routing E2 closeout record?",
+      "intent_family": "associative_routing_status_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/associative_routing_e2_closeout.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-020",
+      "query": "What does the Associative Routing E2 design note describe?",
+      "intent_family": "associative_routing_status_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/associative_routing_e2_design_note.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-021",
+      "query": "What results are recorded in the Associative Routing E2 live comparison run 001?",
+      "intent_family": "associative_routing_result_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "benchmarks/results/associative_routing_e2_live_comparison_run_001.json",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-022",
+      "query": "What results are recorded in the Evidence Admission R0 formal HTTP service run 001?",
+      "intent_family": "evidence_admission_result_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "benchmarks/results/evidence_admission_r0_formal_http_service_run_001.json",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-023",
+      "query": "What results are recorded in the Evidence Admission R0 fresh HTTP service run 001?",
+      "intent_family": "evidence_admission_result_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "benchmarks/results/evidence_admission_r0_fresh_http_service_run_001.json",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-024",
+      "query": "Re-confirm the Evidence Admission R0 formal HTTP service run 001 outcome.",
+      "intent_family": "evidence_admission_result_repeat",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "benchmarks/results/evidence_admission_r0_formal_http_service_run_001.json",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CACHE_ONLY"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-025",
+      "query": "What results are recorded in retrieval hygiene R0 run 003?",
+      "intent_family": "retrieval_hygiene_result_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "benchmarks/results/retrieval_hygiene_r0_run_003.json",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-026",
+      "query": "What queries does the retrieval hygiene R0 fresh verification pack contain?",
+      "intent_family": "retrieval_hygiene_result_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/experiments/retrieval_hygiene_r0_fresh_verification_pack.json",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-027",
+      "query": "Summarize the current retrieval-hygiene evidence-admission R0 state across the R0 closeout and R0 design note.",
+      "intent_family": "evidence_admission_status_synthesis",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/evidence_admission_and_budgeting_r0_closeout.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "docs/evidence_admission_and_budgeting_r0_design_note.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "BOUNDED_SEMANTIC_RETRIEVAL"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-028",
+      "query": "What is the retrieval hygiene R0 run of record - run 003, not the superseded run 001?",
+      "intent_family": "retrieval_hygiene_supersession",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "benchmarks/results/retrieval_hygiene_r0_run_003.json",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "benchmarks/results/retrieval_hygiene_r0_run_001.json",
+          "allowed_roles": [
+            "superseded_record"
+          ],
+          "required_current_state": false,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:superseded_record",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": true,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": false,
+      "allowed_lower_cost_route_labels": [
+        "NORMAL_RETRIEVAL_FALLBACK"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-029",
+      "query": "What is the current associative routing design - E2, not the superseded E0 design note?",
+      "intent_family": "associative_routing_supersession",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/associative_routing_e2_design_note.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "docs/associative_routing_e0_design_note.md",
+          "allowed_roles": [
+            "superseded_record"
+          ],
+          "required_current_state": false,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:superseded_record",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        },
+        {
+          "source_path": "benchmarks/results/associative_routing_e0_benchmark.md",
+          "allowed_roles": [
+            "superseded_record"
+          ],
+          "required_current_state": false,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:superseded_record",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": true,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": false,
+      "allowed_lower_cost_route_labels": [
+        "NORMAL_RETRIEVAL_FALLBACK"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-030",
+      "query": "Is the Associative Routing E0 benchmark the current benchmark of record?",
+      "intent_family": "associative_routing_supersession",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/associative_routing_e2_closeout.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "benchmarks/results/associative_routing_e0_benchmark.md",
+          "allowed_roles": [
+            "superseded_record"
+          ],
+          "required_current_state": false,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:superseded_record",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": true,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": false,
+      "allowed_lower_cost_route_labels": [
+        "NORMAL_RETRIEVAL_FALLBACK"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-031",
+      "query": "Which Evidence Admission R0 results are admissible as formal evidence - not the development direct-runtime run?",
+      "intent_family": "development_evidence_rejection",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "benchmarks/results/evidence_admission_r0_formal_http_service_run_001.json",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "benchmarks/results/evidence_admission_r0_fresh_http_service_run_001.json",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "benchmarks/results/evidence_admission_r0_development_direct_runtime_run_001.json",
+          "allowed_roles": [
+            "negative_control_material"
+          ],
+          "required_current_state": false,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:negative_control_material",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": false,
+      "allowed_lower_cost_route_labels": [
+        "NORMAL_RETRIEVAL_FALLBACK"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-032",
+      "query": "Provide the Evidence Admission R0 formal outcome; do not admit the development direct-runtime run 001 numbers as formal evidence.",
+      "intent_family": "development_evidence_rejection",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "benchmarks/results/evidence_admission_r0_formal_http_service_run_001.json",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "benchmarks/results/evidence_admission_r0_development_direct_runtime_run_001.json",
+          "allowed_roles": [
+            "negative_control_material"
+          ],
+          "required_current_state": false,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:negative_control_material",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": false,
+      "allowed_lower_cost_route_labels": [
+        "NORMAL_RETRIEVAL_FALLBACK"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-033",
+      "query": "What does the retrieval hygiene R0 frozen alias benchmark contain, deduplicated against R0 run 003?",
+      "intent_family": "retrieval_hygiene_dedup_condition",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "benchmarks/results/retrieval_hygiene_r0_run_003.json",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json",
+          "allowed_roles": [
+            "duplicate_or_near_duplicate_condition"
+          ],
+          "required_current_state": false,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:duplicate_or_near_duplicate_condition",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": false,
+      "allowed_lower_cost_route_labels": [
+        "NORMAL_RETRIEVAL_FALLBACK"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-034",
+      "query": "What does the MNEMOS README describe about the project?",
+      "intent_family": "unrelated_documentation_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "README.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "unrelated_mnemos_documentation:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "unrelated_mnemos_documentation",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-035",
+      "query": "What sections does the docs index (docs/README.md) list?",
+      "intent_family": "unrelated_documentation_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/README.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "unrelated_mnemos_documentation:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "unrelated_mnemos_documentation",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-036",
+      "query": "What does the MNEMOS architecture document describe?",
+      "intent_family": "unrelated_documentation_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/architecture.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "unrelated_mnemos_documentation:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "unrelated_mnemos_documentation",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-037",
+      "query": "What does the post-GateMem authorized backlog closeout record?",
+      "intent_family": "unrelated_documentation_lookup",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/reports/post_gatemem_authorized_backlog_closeout.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "unrelated_mnemos_documentation:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "unrelated_mnemos_documentation",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "CUE_ONLY_LOOKUP"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-038",
+      "query": "Summarize the MNEMOS project documentation across the README and architecture docs.",
+      "intent_family": "unrelated_documentation_synthesis",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "README.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "unrelated_mnemos_documentation:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "docs/architecture.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "unrelated_mnemos_documentation:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "unrelated_mnemos_documentation",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "BOUNDED_SEMANTIC_RETRIEVAL"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-039",
+      "query": "What does the MNEMOS whitepaper cover, deduplicated against the README overview?",
+      "intent_family": "unrelated_dedup_condition",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "README.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "unrelated_mnemos_documentation:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "docs/whitepaper.md",
+          "allowed_roles": [
+            "duplicate_or_near_duplicate_condition"
+          ],
+          "required_current_state": false,
+          "lineage_label": "unrelated_mnemos_documentation:duplicate_or_near_duplicate_condition",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "unrelated_mnemos_documentation",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": false,
+      "allowed_lower_cost_route_labels": [
+        "NORMAL_RETRIEVAL_FALLBACK"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-040",
+      "query": "What does ADR 0008 specify about the consumer-neutral read-only shadow adapter implementation?",
+      "intent_family": "unrelated_dedup_condition",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/adr/0008-consumer-neutral-read-only-shadow-adapter-implementation.md",
+          "allowed_roles": [
+            "duplicate_or_near_duplicate_condition"
+          ],
+          "required_current_state": false,
+          "lineage_label": "unrelated_mnemos_documentation:duplicate_or_near_duplicate_condition",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "unrelated_mnemos_documentation",
+        "must_include_role": "duplicate_or_near_duplicate_condition",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "BOUNDED_SEMANTIC_RETRIEVAL"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-041",
+      "query": "What is the current governance decision for evidence admission? The operator playbook is not authoritative for this.",
+      "intent_family": "cross_family_negative_control_rejection",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/evidence_admission_and_budgeting_r0_closeout.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "retrieval_hygiene_associative_evidence_admission:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "docs/mnemos_operator_playbook.md",
+          "allowed_roles": [
+            "negative_control_material"
+          ],
+          "required_current_state": false,
+          "lineage_label": "unrelated_mnemos_documentation:negative_control_material",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "retrieval_hygiene_associative_evidence_admission",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": false,
+      "allowed_lower_cost_route_labels": [
+        "NORMAL_RETRIEVAL_FALLBACK"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-042",
+      "query": "What deployment profile guidance is current? Do not treat ADR 0001 as current evidence-admission policy.",
+      "intent_family": "cross_family_negative_control_rejection",
+      "accepted_evidence_neighborhood": [
+        {
+          "source_path": "docs/architecture.md",
+          "allowed_roles": [
+            "current_state_record"
+          ],
+          "required_current_state": true,
+          "lineage_label": "unrelated_mnemos_documentation:current_state_record",
+          "acceptance_note": "Admissible driver: may satisfy the query's minimum required source lineage."
+        },
+        {
+          "source_path": "docs/adr/0001-deployment-profiles.md",
+          "allowed_roles": [
+            "negative_control_material"
+          ],
+          "required_current_state": false,
+          "lineage_label": "unrelated_mnemos_documentation:negative_control_material",
+          "acceptance_note": "Related-looking context only: must NOT drive the answer; cannot satisfy lineage alone."
+        }
+      ],
+      "minimum_required_source_lineage": {
+        "must_include_family": "unrelated_mnemos_documentation",
+        "must_include_role": "current_state_record",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": false,
+      "allowed_lower_cost_route_labels": [
+        "NORMAL_RETRIEVAL_FALLBACK"
+      ],
+      "normal_retrieval_fallback_required": true,
+      "abstention_expected": false,
+      "freshness_requirement": "frozen_corpus_current_state"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-043",
+      "query": "What is the deployed MNEMOS service's current p95 latency in production?",
+      "intent_family": "out_of_corpus_current_state",
+      "accepted_evidence_neighborhood": [],
+      "minimum_required_source_lineage": {
+        "must_include_family": "none",
+        "must_include_role": "none",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "ABSTAIN_OR_REQUEST_SCOPE"
+      ],
+      "normal_retrieval_fallback_required": false,
+      "abstention_expected": true,
+      "freshness_requirement": "outside_frozen_corpus"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-044",
+      "query": "What is the final Evidence Admission and Budgeting R1 bounded-enforcement result?",
+      "intent_family": "out_of_corpus_current_state",
+      "accepted_evidence_neighborhood": [],
+      "minimum_required_source_lineage": {
+        "must_include_family": "none",
+        "must_include_role": "none",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "ABSTAIN_OR_REQUEST_SCOPE"
+      ],
+      "normal_retrieval_fallback_required": false,
+      "abstention_expected": true,
+      "freshness_requirement": "outside_frozen_corpus"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-045",
+      "query": "What is the current commit hash on the main branch today?",
+      "intent_family": "out_of_corpus_current_state",
+      "accepted_evidence_neighborhood": [],
+      "minimum_required_source_lineage": {
+        "must_include_family": "none",
+        "must_include_role": "none",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "ABSTAIN_OR_REQUEST_SCOPE"
+      ],
+      "normal_retrieval_fallback_required": false,
+      "abstention_expected": true,
+      "freshness_requirement": "outside_frozen_corpus"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-046",
+      "query": "What does the Evidence Admission and Budgeting R2 preregistration require?",
+      "intent_family": "out_of_corpus_current_state",
+      "accepted_evidence_neighborhood": [],
+      "minimum_required_source_lineage": {
+        "must_include_family": "none",
+        "must_include_role": "none",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "ABSTAIN_OR_REQUEST_SCOPE"
+      ],
+      "normal_retrieval_fallback_required": false,
+      "abstention_expected": true,
+      "freshness_requirement": "outside_frozen_corpus"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-047",
+      "query": "How many vectors are currently stored in the live Qdrant collection right now?",
+      "intent_family": "out_of_corpus_current_state",
+      "accepted_evidence_neighborhood": [],
+      "minimum_required_source_lineage": {
+        "must_include_family": "none",
+        "must_include_role": "none",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "ABSTAIN_OR_REQUEST_SCOPE"
+      ],
+      "normal_retrieval_fallback_required": false,
+      "abstention_expected": true,
+      "freshness_requirement": "outside_frozen_corpus"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-048",
+      "query": "Which paying customers run MNEMOS in production?",
+      "intent_family": "out_of_corpus_scope",
+      "accepted_evidence_neighborhood": [],
+      "minimum_required_source_lineage": {
+        "must_include_family": "none",
+        "must_include_role": "none",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "ABSTAIN_OR_REQUEST_SCOPE"
+      ],
+      "normal_retrieval_fallback_required": false,
+      "abstention_expected": true,
+      "freshness_requirement": "outside_frozen_corpus"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-049",
+      "query": "What enforced route did the R1 implementation choose for a specific live request?",
+      "intent_family": "out_of_corpus_current_state",
+      "accepted_evidence_neighborhood": [],
+      "minimum_required_source_lineage": {
+        "must_include_family": "none",
+        "must_include_role": "none",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "ABSTAIN_OR_REQUEST_SCOPE"
+      ],
+      "normal_retrieval_fallback_required": false,
+      "abstention_expected": true,
+      "freshness_requirement": "outside_frozen_corpus"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-050",
+      "query": "What is the measured wall-clock latency of the enforced R1 route versus normal retrieval?",
+      "intent_family": "out_of_corpus_current_state",
+      "accepted_evidence_neighborhood": [],
+      "minimum_required_source_lineage": {
+        "must_include_family": "none",
+        "must_include_role": "none",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "ABSTAIN_OR_REQUEST_SCOPE"
+      ],
+      "normal_retrieval_fallback_required": false,
+      "abstention_expected": true,
+      "freshness_requirement": "outside_frozen_corpus"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-051",
+      "query": "What do today's live MNEMOS service logs show?",
+      "intent_family": "out_of_corpus_current_state",
+      "accepted_evidence_neighborhood": [],
+      "minimum_required_source_lineage": {
+        "must_include_family": "none",
+        "must_include_role": "none",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "ABSTAIN_OR_REQUEST_SCOPE"
+      ],
+      "normal_retrieval_fallback_required": false,
+      "abstention_expected": true,
+      "freshness_requirement": "outside_frozen_corpus"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-052",
+      "query": "What is the scored result of the R1 fresh verification pack?",
+      "intent_family": "out_of_corpus_current_state",
+      "accepted_evidence_neighborhood": [],
+      "minimum_required_source_lineage": {
+        "must_include_family": "none",
+        "must_include_role": "none",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "ABSTAIN_OR_REQUEST_SCOPE"
+      ],
+      "normal_retrieval_fallback_required": false,
+      "abstention_expected": true,
+      "freshness_requirement": "outside_frozen_corpus"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-053",
+      "query": "What GPU hardware is the production inference stack running on right now?",
+      "intent_family": "out_of_corpus_scope",
+      "accepted_evidence_neighborhood": [],
+      "minimum_required_source_lineage": {
+        "must_include_family": "none",
+        "must_include_role": "none",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "ABSTAIN_OR_REQUEST_SCOPE"
+      ],
+      "normal_retrieval_fallback_required": false,
+      "abstention_expected": true,
+      "freshness_requirement": "outside_frozen_corpus"
+    },
+    {
+      "scored": true,
+      "query_id": "r1f-054",
+      "query": "What is the MNEMOS product roadmap commitment for next quarter?",
+      "intent_family": "out_of_corpus_scope",
+      "accepted_evidence_neighborhood": [],
+      "minimum_required_source_lineage": {
+        "must_include_family": "none",
+        "must_include_role": "none",
+        "may_include_superseded_context": false,
+        "reject_if_only_negative_control": true
+      },
+      "lower_cost_route_allowed": true,
+      "allowed_lower_cost_route_labels": [
+        "ABSTAIN_OR_REQUEST_SCOPE"
+      ],
+      "normal_retrieval_fallback_required": false,
+      "abstention_expected": true,
+      "freshness_requirement": "outside_frozen_corpus"
+    }
+  ]
+}

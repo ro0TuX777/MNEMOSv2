@@ -1,0 +1,106 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "All phase-gate regressions must block promotion automatically, no manual override.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Recorded: CI gates are hard blocks (DEC-SCA-103).",
+          "source_links": [
+            "SRC-SCA-ci-gate-policy"
+          ],
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What should we name the new benchmark output folder?",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Suggest benchmarks/outputs/new_gate/.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "OK, and should this new gate also be a hard CI block?",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What should we name the new benchmark output folder?",
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Suggest benchmarks/outputs/new_gate/.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "OK, and should this new gate also be a hard CI block?",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-103"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-ci-gate-policy"
+          ],
+          "session_turns": [
+            {
+              "content": "All phase-gate regressions must block promotion automatically, no manual override.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Recorded: CI gates are hard blocks (DEC-SCA-103).",
+              "source_links": [
+                "SRC-SCA-ci-gate-policy"
+              ],
+              "speaker": "agent",
+              "turn_id": "t2"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "artifact_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-003",
+  "task_prompt": "Add a new benchmark gate; confirm it should block CI like the others."
+}

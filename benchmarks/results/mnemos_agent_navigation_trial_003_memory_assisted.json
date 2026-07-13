@@ -1,0 +1,34 @@
+{
+  "schema_version": "mnemos-agent-navigation-trial-log-v1",
+  "study_status": "MNEMOS_AGENT_NAVIGATION_DEVELOPMENT_STUDY_READY",
+  "classification": "LOCAL_REPO_AGENT_ORIENTATION_AND_BOUNDARY_RECALL_DEVELOPMENT_STUDY",
+  "task_id": "nav-gatemem-status-blocker",
+  "mode": "mnemos_memory_assisted",
+  "subject": "codex",
+  "date": "2026-06-26",
+  "prompt": "Find the current GateMem status and identify what blocks further meaningful evaluation.",
+  "memory_ids_retrieved": [
+    "mem-gatemem-current-status",
+    "mem-g4-frozen-regression-only"
+  ],
+  "accepted_memory_ids": [
+    "mem-gatemem-current-status",
+    "mem-g4-frozen-regression-only"
+  ],
+  "rejected_memory_ids": [],
+  "evidence_paths_used": [
+    "docs/benchmarks/gatemem_program_status.md",
+    "docs/benchmarks/gatemem_g5/README.md"
+  ],
+  "files_opened_count": 2,
+  "searches_count": 0,
+  "wrong_turns_or_corrections": [],
+  "boundary_decision": "sealed_evaluation_blocked_external_inputs_required",
+  "final_answer": "GateMem is paused after the frozen G4 reference-contract baseline. Further meaningful evaluation is blocked until an independent custodian, a newly sealed or independent corpus, completed preregistration, candidate acceptance, and one-shot authorization are in place.",
+  "claim_boundary": {
+    "development_evidence_only": true,
+    "gatemem_reopened": false,
+    "sealed_evaluation_claim": false,
+    "general_memory_claim": false
+  }
+}

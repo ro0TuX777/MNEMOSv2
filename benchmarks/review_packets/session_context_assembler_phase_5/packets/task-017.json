@@ -1,0 +1,125 @@
+{
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "artifact_type": "synthetic_context",
+          "label": "synthetic_context",
+          "non_authoritative": true,
+          "non_promotable": true,
+          "parent_engram_ids": [
+            "DEC-SCA-108"
+          ],
+          "parent_source_ids": [
+            "SRC-SCA-embedding-migration"
+          ],
+          "session_turns": [
+            {
+              "content": "[old] Using a 384-dim BGE collection for embeddings.",
+              "speaker": "user",
+              "turn_id": "t1"
+            },
+            {
+              "content": "Noted, legacy collection.",
+              "speaker": "agent",
+              "turn_id": "t2"
+            },
+            {
+              "content": "[recent] Migrated to Nomic MRL collection (DEC-SCA-108); legacy BGE collection cleaned up after representative replay.",
+              "source_links": [
+                "SRC-SCA-embedding-migration"
+              ],
+              "speaker": "user",
+              "turn_id": "t3"
+            },
+            {
+              "content": "Migration complete and verified.",
+              "speaker": "agent",
+              "turn_id": "t4"
+            }
+          ],
+          "synthetic_context": true
+        }
+      ],
+      "condition_code": "PACKAGE-1",
+      "presentation": "artifact_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Noted, legacy collection.",
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "[recent] Migrated to Nomic MRL collection (DEC-SCA-108); legacy BGE collection cleaned up after representative replay.",
+          "source_links": [
+            "SRC-SCA-embedding-migration"
+          ],
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Migration complete and verified.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What embedding model is live right now?",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-2",
+      "presentation": "conversation_context"
+    },
+    {
+      "artifacts": [
+        {
+          "artifact_type": "conversation_turn",
+          "content": "[old] Using a 384-dim BGE collection for embeddings.",
+          "speaker": "user",
+          "turn_id": "t1"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Noted, legacy collection.",
+          "speaker": "agent",
+          "turn_id": "t2"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "[recent] Migrated to Nomic MRL collection (DEC-SCA-108); legacy BGE collection cleaned up after representative replay.",
+          "source_links": [
+            "SRC-SCA-embedding-migration"
+          ],
+          "speaker": "user",
+          "turn_id": "t3"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "Migration complete and verified.",
+          "speaker": "agent",
+          "turn_id": "t4"
+        },
+        {
+          "artifact_type": "conversation_turn",
+          "content": "What embedding model is live right now?",
+          "speaker": "user",
+          "turn_id": "t5"
+        }
+      ],
+      "condition_code": "PACKAGE-3",
+      "presentation": "conversation_context"
+    }
+  ],
+  "review_instruction": "Review each package independently before making the comparative rating. Package codes do not identify their construction condition.",
+  "schema": "sca_phase5_review_packet_v1",
+  "study_id": "SCA-PHASE5-R1-S1",
+  "task_code": "TASK-017",
+  "task_prompt": "Which embedding model are we using for retrieval right now?"
+}

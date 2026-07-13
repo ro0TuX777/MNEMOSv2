@@ -1,0 +1,79 @@
+{
+  "pack_id": "associative_routing_e1_fresh_verification_pack_v1",
+  "path": "direct_service_warm_only",
+  "per_query_results": [
+    {
+      "query_id": "v01",
+      "query": "How does TLS certificate pinning work?",
+      "semantic_top3_sources": [],
+      "associative_candidate_source_ids": [],
+      "associative_status": "abstained"
+    },
+    {
+      "query_id": "v02",
+      "query": "paused GateMem effort waiting on an external party",
+      "semantic_top3_sources": [
+        "docs/benchmarks/gatemem_g5/README.md",
+        "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+        "benchmarks/evaluation/gatemem_g5_handoff_state.json"
+      ],
+      "associative_candidate_source_ids": [
+        "docs/benchmarks/gatemem_g5/README.md",
+        "docs/benchmarks/gatemem_program_status.md"
+      ],
+      "associative_status": "resolved"
+    },
+    {
+      "query_id": "v03",
+      "query": "What is currently blocking the G5 evaluation from proceeding?",
+      "semantic_top3_sources": [
+        "docs/benchmarks/gatemem_g5/README.md",
+        "docs/benchmarks/gatemem_g5/handoff_checklist.md",
+        "benchmarks/evaluation/gatemem_g5_handoff_state.json"
+      ],
+      "associative_candidate_source_ids": [
+        "docs/benchmarks/gatemem_g5/handoff_checklist.md"
+      ],
+      "associative_status": "resolved"
+    },
+    {
+      "query_id": "v04",
+      "query": "What is the current state of GateMem G4 today?",
+      "semantic_top3_sources": [
+        "docs/benchmarks/gatemem_program_status.md",
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md",
+        "docs/benchmarks/gatemem_g5/handoff_checklist.md"
+      ],
+      "associative_candidate_source_ids": [
+        "docs/benchmarks/gatemem_g4_offline_reference_implementation.md"
+      ],
+      "associative_status": "resolved"
+    },
+    {
+      "query_id": "v05",
+      "query": "What is the current state of Retrieval Hygiene R0 today?",
+      "semantic_top3_sources": [
+        "benchmarks/results/retrieval_hygiene_r0_closeout.md",
+        "docs/experiments/retrieval_hygiene_r0_fresh_verification_pack.json",
+        "docs/experiments/retrieval_hygiene_r0_frozen_alias_benchmark.json"
+      ],
+      "associative_candidate_source_ids": [
+        "benchmarks/results/retrieval_hygiene_r0_closeout.md"
+      ],
+      "associative_status": "resolved"
+    },
+    {
+      "query_id": "v06",
+      "query": "What is the latest record of the AI developer memory trial?",
+      "semantic_top3_sources": [
+        "benchmarks/results/ai_dev_memory_trial_comparison_001.md",
+        "benchmarks/results/ai_dev_memory_trial_comparison_002.md",
+        "docs/known_regression.md"
+      ],
+      "associative_candidate_source_ids": [
+        "benchmarks/results/ai_dev_memory_trial_comparison_002.md"
+      ],
+      "associative_status": "resolved"
+    }
+  ]
+}

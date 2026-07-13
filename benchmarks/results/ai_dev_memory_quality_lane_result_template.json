@@ -1,0 +1,139 @@
+{
+  "schema_version": "ai-dev-memory-quality-lane-result-v1",
+  "benchmark_lane": "ai_dev_memory_trial_pair",
+  "claim_boundary": {
+    "local_development_evidence_only": true,
+    "general_memory_claim": false
+  },
+  "conditions": {
+    "mnemos_enabled": {
+      "condition": "mnemos_enabled",
+      "task_outcome": {
+        "final_status": "completed",
+        "task_completion_rate": 1.0,
+        "acceptance_test_pass_rate": 1.0,
+        "time_to_passing_tests_seconds": 0.0,
+        "elapsed_seconds": 0.0,
+        "required_constraints_satisfied": true,
+        "regressions_introduced": 0
+      },
+      "workflow_efficiency": {
+        "estimated_input_tokens": 0,
+        "estimated_output_tokens": 0,
+        "total_estimated_tokens": 0,
+        "tool_calls_logged": 0,
+        "memory_tool_calls": 0,
+        "command_rows": 0,
+        "search_rows": 0,
+        "failed_test_count": 0,
+        "wrong_turn_count": 0,
+        "files_changed": 0,
+        "change_churn_rows": 0,
+        "rework_after_first_implementation": null,
+        "route_log_rows": 0,
+        "repo_activity_rows": 0
+      },
+      "memory_quality": {
+        "correct_source_or_decision_neighborhood": true,
+        "provenance_retained": 1.0,
+        "irrelevant_context_rate": 0.0,
+        "retrieval_precision": 1.0,
+        "abstentions_correct": null,
+        "abstentions_missed": null,
+        "false_abstention_rate": null,
+        "retrieved_context_usefulness": 1.0,
+        "memory_helpfulness_breakdown": {
+          "useful": 0,
+          "neutral": 0,
+          "harmful": 0
+        },
+        "verified_against_primary_evidence_count": 0,
+        "neutral_context_count": 0
+      },
+      "retrieval_integrity_controls": {
+        "seed_snapshot": null,
+        "executed_route_fingerprint": null,
+        "cache_state": null,
+        "duplicate_suppression_count": null,
+        "retrieval_profile_or_path": "mnemos_memory_assisted",
+        "retrieval_path": "mcp"
+      },
+      "validation": {}
+    },
+    "no_memory": {
+      "condition": "no_memory",
+      "task_outcome": {
+        "final_status": "completed",
+        "task_completion_rate": 1.0,
+        "acceptance_test_pass_rate": 1.0,
+        "time_to_passing_tests_seconds": 0.0,
+        "elapsed_seconds": 0.0,
+        "required_constraints_satisfied": true,
+        "regressions_introduced": 0
+      },
+      "workflow_efficiency": {
+        "estimated_input_tokens": 0,
+        "estimated_output_tokens": 0,
+        "total_estimated_tokens": 0,
+        "tool_calls_logged": 0,
+        "memory_tool_calls": 0,
+        "command_rows": 0,
+        "search_rows": 0,
+        "failed_test_count": 0,
+        "wrong_turn_count": 0,
+        "files_changed": 0,
+        "change_churn_rows": 0,
+        "rework_after_first_implementation": null,
+        "route_log_rows": 0,
+        "repo_activity_rows": 0
+      },
+      "memory_quality": {
+        "correct_source_or_decision_neighborhood": null,
+        "provenance_retained": null,
+        "irrelevant_context_rate": null,
+        "retrieval_precision": null,
+        "abstentions_correct": null,
+        "abstentions_missed": null,
+        "false_abstention_rate": null,
+        "retrieved_context_usefulness": null,
+        "memory_helpfulness_breakdown": {},
+        "verified_against_primary_evidence_count": 0,
+        "neutral_context_count": 0
+      },
+      "retrieval_integrity_controls": {
+        "seed_snapshot": null,
+        "executed_route_fingerprint": null,
+        "cache_state": null,
+        "duplicate_suppression_count": null,
+        "retrieval_profile_or_path": "none",
+        "retrieval_path": "no_memory_control"
+      },
+      "validation": {}
+    }
+  },
+  "pairwise_summary": {
+    "task_outcome": {
+      "both_completed": true,
+      "acceptance_parity": true,
+      "constraint_satisfaction_parity": true
+    },
+    "workflow_efficiency": {
+      "token_estimate_delta_mnemos_minus_no_memory": 0,
+      "wrong_turn_delta_mnemos_minus_no_memory": 0,
+      "repo_activity_delta_mnemos_minus_no_memory": 0,
+      "failed_test_delta_mnemos_minus_no_memory": 0
+    },
+    "memory_quality": {
+      "mnemos_used_required_memory_tools": true,
+      "mnemos_had_irrelevant_context": false,
+      "mnemos_retrieved_context_usefulness": 1.0,
+      "mnemos_provenance_retained": 1.0
+    },
+    "retrieval_integrity_controls": {
+      "mnemos_path": "mcp",
+      "no_memory_path": "no_memory_control",
+      "seed_snapshot_present": false,
+      "executed_route_fingerprint_present": false
+    }
+  }
+}

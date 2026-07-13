@@ -10,6 +10,7 @@ build/
 .venv/
 venv/
 env/
+mcp_servers/mnemos/.venv/
 
 # IDE
 .vscode/
@@ -45,6 +46,10 @@ benchmarks/outputs/
 benchmarks/results/ebir_refinement_benchmark.json
 migration_checkpoint.json
 
+# Restricted reviewer unblinding keys (never publish)
+benchmarks/review_packets/session_context_assembler_phase_5/coordinator_manifest.json
+benchmarks/review_packets/session_context_assembler_phase_5a_owner_manifest.json
+
 # Runtime telemetry sinks (operational data, not source)
 logs/retrieval_telemetry.jsonl
 
@@ -61,5 +66,9 @@ temp_paper*.txt
 eval_results/ebir_r2/
 eval_results/ebir_r2_full/
 
-# External application assets (belong outside MNEMOS)
-sam/
+# Runtime-generated storage and run artifacts (vector DB storage, timestamped runs)
+runtime/
+
+# Local dev scratch scripts/outputs (not source)
+tools/dev_scratch/
+benchmarks/mg_test_2c.out
