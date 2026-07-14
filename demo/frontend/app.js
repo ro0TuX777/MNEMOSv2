@@ -117,8 +117,7 @@ function useCaseIdFromHash() {
   return validUseCaseId(useCaseId) ? useCaseId : null;
 }
 
-function activateUseCase(useCaseId, options = {}) {
-  const selectedId = validUseCaseId(useCaseId) ? useCaseId : DEFAULT_USE_CASE_ID;
+function setActiveUseCase(selectedId) {
   for (const trigger of elements.useCaseTriggers) {
     const isSelected = trigger.dataset.useCaseTarget === selectedId;
     trigger.setAttribute("aria-expanded", String(isSelected));
@@ -131,8 +130,21 @@ function activateUseCase(useCaseId, options = {}) {
   for (const panel of elements.useCasePanels) {
     panel.hidden = panel.id !== selectedId;
   }
+}
+
+function activateUseCase(useCaseId, options = {}) {
+  const selectedId = validUseCaseId(useCaseId) ? useCaseId : DEFAULT_USE_CASE_ID;
+  setActiveUseCase(selectedId);
   if (options.updateHash) {
     window.history.replaceState(null, "", `#${selectedId}`);
+  }
+}
+
+function collapseUseCases(options = {}) {
+  setActiveUseCase(null);
+  if (options.updateHash) {
+    const pathWithoutHash = `${window.location.pathname}${window.location.search}`;
+    window.history.replaceState(null, "", pathWithoutHash);
   }
 }
 
@@ -150,6 +162,10 @@ function syncUseCaseFromHash() {
 function setupUseCases() {
   for (const trigger of elements.useCaseTriggers) {
     trigger.addEventListener("click", () => {
+      if (trigger.getAttribute("aria-expanded") === "true") {
+        collapseUseCases({ updateHash: true });
+        return;
+      }
       activateUseCase(trigger.dataset.useCaseTarget, { updateHash: true });
     });
   }

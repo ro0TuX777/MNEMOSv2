@@ -208,8 +208,11 @@ def main() -> int:
         'document.querySelectorAll("[data-tab-link]")',
         'const DEFAULT_USE_CASE_ID = "use-case-bill"',
         "function activateUseCase(useCaseId, options = {})",
+        "function collapseUseCases(options = {})",
         "function syncUseCaseFromHash()",
         'window.addEventListener("hashchange", syncUseCaseFromHash)',
+        'trigger.getAttribute("aria-expanded") === "true"',
+        "collapseUseCases({ updateHash: true })",
         "setupUseCases()",
     ]
     for fragment in required_loader_fragments:
