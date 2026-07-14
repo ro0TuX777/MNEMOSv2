@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+from decimal import Decimal
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -36,6 +37,24 @@ USE_CASE_IDS = (
     "use-case-healthcare",
     "use-case-education",
     "use-case-journalism",
+)
+
+BILL_AMOUNTS = {
+    "previous_total": Decimal("89.00"),
+    "current_total": Decimal("102.40"),
+    "plan_change": Decimal("5.00"),
+    "usage_change": Decimal("8.40"),
+}
+
+REQUIRED_BILL_FRAGMENTS = (
+    "Why did my bill increase this month?",
+    "current-month-statement.pdf",
+    "prior-month-statement.pdf",
+    "rate-change-notice.pdf",
+    "+$13.40 total increase",
+    "cause of out-of-plan usage",
+    "illustrative_static_example",
+    "No financial, tax, or legal advice",
 )
 
 REQUIRED_USE_CASE_BOUNDARIES = (
@@ -75,6 +94,10 @@ class StaticDemoHTMLParser(HTMLParser):
         self.anchor_targets: list[str] = []
         self.tab_targets: list[str] = []
         self.tab_links: list[str] = []
+        self.use_case_targets: list[str] = []
+        self.use_case_controls: dict[str, str] = {}
+        self.expanded_use_cases: list[str] = []
+        self.use_case_panels: dict[str, tuple[str, str | None, bool]] = {}
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
@@ -86,6 +109,18 @@ class StaticDemoHTMLParser(HTMLParser):
             self.tab_targets.append(tab_target)
         if tab_link := attributes.get("data-tab-link"):
             self.tab_links.append(tab_link)
+        if tag == "button" and (target := attributes.get("data-use-case-target")):
+            self.use_case_targets.append(target)
+            if controls := attributes.get("aria-controls"):
+                self.use_case_controls[target] = controls
+            if attributes.get("aria-expanded") == "true":
+                self.expanded_use_cases.append(target)
+        if "data-use-case-panel" in attributes and (panel_id := attributes.get("id")):
+            self.use_case_panels[panel_id] = (
+                attributes.get("role", ""),
+                attributes.get("aria-labelledby"),
+                "hidden" in attributes,
+            )
 
 
 def load_json(path: Path) -> dict:
@@ -156,11 +191,26 @@ def main() -> int:
     if set(parser.tab_targets) != expected_tabs:
         errors.append(f"tab targets mismatch: {sorted(parser.tab_targets)}")
 
+    if parser.use_case_targets != list(USE_CASE_IDS):
+        errors.append(f"use-case trigger order mismatch: {parser.use_case_targets}")
+
+    if parser.expanded_use_cases != ["use-case-bill"]:
+        errors.append(f"default expanded use case mismatch: {parser.expanded_use_cases}")
+
     for use_case_id in USE_CASE_IDS:
+        expected_trigger_id = f"{use_case_id}-trigger"
         if use_case_id not in parser.ids:
             errors.append(f"missing use-case detail panel: {use_case_id}")
-        if parser.anchor_targets.count(use_case_id) != 1:
-            errors.append(f"use-case anchor count mismatch: {use_case_id}")
+        if parser.use_case_controls.get(use_case_id) != use_case_id:
+            errors.append(f"use-case control mismatch: {use_case_id}")
+        role, labelled_by, is_hidden = parser.use_case_panels.get(
+            use_case_id, ("", None, False)
+        )
+        if role != "region" or labelled_by != expected_trigger_id:
+            errors.append(f"use-case region mismatch: {use_case_id}")
+        expected_hidden = use_case_id != "use-case-bill"
+        if is_hidden != expected_hidden:
+            errors.append(f"use-case default visibility mismatch: {use_case_id}")
 
     if parser.tab_links.count("trace-demo") != len(USE_CASE_IDS):
         errors.append("each use case must link back to the Trace Explorer")
@@ -172,6 +222,15 @@ def main() -> int:
 
     if "mnemos fully solves this workflow today" in normalized_html:
         errors.append("unsupported fully-solves claim found")
+
+    for fragment in REQUIRED_BILL_FRAGMENTS:
+        if fragment.lower() not in normalized_html:
+            errors.append(f"missing fictional bill fragment: {fragment}")
+
+    calculated_increase = BILL_AMOUNTS["current_total"] - BILL_AMOUNTS["previous_total"]
+    explained_increase = BILL_AMOUNTS["plan_change"] + BILL_AMOUNTS["usage_change"]
+    if calculated_increase != Decimal("13.40") or calculated_increase != explained_increase:
+        errors.append("fictional bill arithmetic mismatch")
 
     if errors:
         print("\n".join(errors))

@@ -167,77 +167,98 @@
           </div>
         </section>
 
-        <nav class="use-case-grid" aria-label="MNEMOS use cases">
-          <a class="use-case-card featured" href="#use-case-bill">
-            <span class="use-case-audience">Personal documents</span>
-            <strong>Understand a bill without losing the source</strong>
-            <span>See what changed and where each explanation came from.</span>
-          </a>
-          <a class="use-case-card featured" href="#use-case-compliance">
-            <span class="use-case-audience">Compliance / audit</span>
-            <strong>Build evidence-backed compliance answers</strong>
-            <span>Keep control statements connected to supporting artifacts.</span>
-          </a>
-          <a class="use-case-card featured" href="#use-case-legal">
-            <span class="use-case-audience">Legal review</span>
-            <strong>Trace contract answers back to clauses</strong>
-            <span>Inspect the source language before professional review.</span>
-          </a>
-          <a class="use-case-card" href="#use-case-research">
-            <span class="use-case-audience">Research</span>
-            <strong>Keep research claims attached to sources</strong>
-            <span>Show support, disagreement, and unresolved evidence gaps.</span>
-          </a>
-          <a class="use-case-card" href="#use-case-proposal">
-            <span class="use-case-audience">Business proposals</span>
-            <strong>Avoid unsupported proposal claims</strong>
-            <span>Review statements against approved past performance evidence.</span>
-          </a>
-          <a class="use-case-card" href="#use-case-healthcare">
-            <span class="use-case-audience">Healthcare documents</span>
-            <strong>Organize health documents with source-backed explanations</strong>
-            <span>Compare records while keeping professional boundaries clear.</span>
-          </a>
-          <a class="use-case-card" href="#use-case-education">
-            <span class="use-case-audience">Education</span>
-            <strong>Study from sources, not guesses</strong>
-            <span>Connect explanations back to assigned lesson material.</span>
-          </a>
-          <a class="use-case-card" href="#use-case-journalism">
-            <span class="use-case-audience">Journalism</span>
-            <strong>Trace claims back to documents</strong>
-            <span>Keep sourced records and unresolved claims visible.</span>
-          </a>
-        </nav>
+        <div class="use-case-accordion" aria-label="MNEMOS use cases">
+          <section class="use-case-item bill-use-case is-expanded">
+            <button
+              id="use-case-bill-trigger"
+              class="use-case-trigger"
+              type="button"
+              data-use-case-target="use-case-bill"
+              aria-expanded="true"
+              aria-controls="use-case-bill"
+            >
+              <span><span class="use-case-audience">Personal documents</span><strong>Understand a bill without losing the source</strong></span>
+              <span class="use-case-toggle" aria-hidden="true">−</span>
+            </button>
+            <article
+              id="use-case-bill"
+              class="use-case-panel"
+              data-use-case-panel
+              role="region"
+              aria-labelledby="use-case-bill-trigger"
+            >
+              <div class="bill-experience-header">
+                <div>
+                  <p class="eyebrow">Personal document understanding — bill</p>
+                  <h3>Understand a bill without losing the source</h3>
+                  <p class="question">Why did my bill increase this month?</p>
+                </div>
+                <span class="bill-static-badge">Illustrative static example</span>
+              </div>
 
-        <div class="use-case-details">
-          <article id="use-case-bill" class="use-case-detail panel">
-            <p class="eyebrow">Personal document understanding — bill</p>
-            <h3>Understand a bill without losing the source</h3>
-            <dl class="use-case-facts">
-              <dt>Audience</dt>
-              <dd>People reviewing household or service bills</dd>
-              <dt>Typical question</dt>
-              <dd>Why did my bill increase this month?</dd>
-              <dt>Documents involved</dt>
-              <dd>Current and prior bills, rate notices, and account statements</dd>
-              <dt>What MNEMOS shows</dt>
-              <dd>Charge changes, the source lines behind them, and unsupported explanations that need review</dd>
-            </dl>
-            <h4>Example evidence trace</h4>
-            <ol class="mini-trace">
-              <li>Bill statement</li>
-              <li>Charge comparison</li>
-              <li>Source-backed explanation</li>
-            </ol>
-            <h4>What MNEMOS does not claim</h4>
-            <p class="use-case-boundary">MNEMOS does not provide financial, tax, or legal advice.</p>
-            <h4>Why this matters</h4>
-            <p class="use-case-why">A clear source trail makes an unfamiliar charge easier to question or verify.</p>
-            <a class="use-case-cta" href="#trace-demo" data-tab-link="trace-demo">Explore the evidence demo</a>
-          </article>
+              <div class="bill-review-grid">
+                <section class="bill-document" aria-labelledby="bill-comparison-heading">
+                  <p class="eyebrow">Fictional statement comparison</p>
+                  <h4 id="bill-comparison-heading">This month versus last month</h4>
+                  <table class="bill-table">
+                    <thead><tr><th scope="col">Item</th><th scope="col">Previous</th><th scope="col">Current</th><th scope="col">Change</th></tr></thead>
+                    <tbody>
+                      <tr><th scope="row">Monthly plan</th><td>$89.00</td><td>$94.00</td><td class="bill-change">+$5.00</td></tr>
+                      <tr><th scope="row">Out-of-plan usage</th><td>$0.00</td><td>$8.40</td><td class="bill-change">+$8.40</td></tr>
+                      <tr class="bill-total"><th scope="row">Total</th><td>$89.00</td><td>$102.40</td><td class="bill-change">+$13.40</td></tr>
+                    </tbody>
+                  </table>
+                </section>
 
-          <article id="use-case-compliance" class="use-case-detail panel">
+                <section class="bill-answer" aria-labelledby="bill-answer-heading">
+                  <p class="eyebrow">Source-backed explanation</p>
+                  <h4 id="bill-answer-heading">What shaped the answer</h4>
+                  <p>The bill increased by $13.40. The statement shows a $5.00 monthly plan-rate adjustment and $8.40 in out-of-plan usage.</p>
+                  <p class="bill-unsupported">The documents establish the charges, but they do not establish why the extra usage occurred.</p>
+                </section>
+              </div>
+
+              <div class="bill-evidence-grid">
+                <section class="bill-sources" aria-labelledby="bill-sources-heading">
+                  <p class="eyebrow">Evidence used</p>
+                  <h4 id="bill-sources-heading">Public-safe fictional documents</h4>
+                  <ul>
+                    <li><code>current-month-statement.pdf</code><span>Plan, usage, and total-due lines</span></li>
+                    <li><code>prior-month-statement.pdf</code><span>Previous plan and total amounts</span></li>
+                    <li><code>rate-change-notice.pdf</code><span>Documented $5.00 plan adjustment</span></li>
+                  </ul>
+                </section>
+
+                <section class="bill-receipt" aria-labelledby="bill-receipt-heading">
+                  <p class="eyebrow">Illustrative receipt</p>
+                  <h4 id="bill-receipt-heading">What is supported—and what is not</h4>
+                  <dl>
+                    <dt>Question</dt><dd>Why did my bill increase this month?</dd>
+                    <dt>Supported result</dt><dd><code>+$13.40 total increase</code></dd>
+                    <dt>Unsupported result</dt><dd><code>cause of out-of-plan usage</code></dd>
+                    <dt>Decision state</dt><dd><code>illustrative_static_example</code></dd>
+                    <dt>Boundary</dt><dd><code>No financial, tax, or legal advice</code></dd>
+                  </dl>
+                </section>
+              </div>
+
+              <h4>Evidence path</h4>
+              <ol class="mini-trace"><li>Bill statement</li><li>Charge comparison</li><li>Bounded explanation</li></ol>
+              <p class="use-case-boundary">MNEMOS does not provide financial, tax, or legal advice.</p>
+              <p class="use-case-why"><strong>Why this matters:</strong> A visible source trail separates documented charge changes from explanations the documents cannot support.</p>
+              <div class="use-case-actions">
+                <a class="use-case-cta" href="#trace-demo" data-tab-link="trace-demo">Explore the evidence demo</a>
+                <a class="use-case-secondary-cta" href="demo_index.json" data-demo-index-link>Inspect demo JSON</a>
+              </div>
+            </article>
+          </section>
+
+          <section class="use-case-item">
+            <button id="use-case-compliance-trigger" class="use-case-trigger" type="button" data-use-case-target="use-case-compliance" aria-expanded="false" aria-controls="use-case-compliance">
+              <span><span class="use-case-audience">Compliance / audit</span><strong>Build evidence-backed compliance answers</strong></span>
+              <span class="use-case-toggle" aria-hidden="true">+</span>
+            </button>
+            <article id="use-case-compliance" class="use-case-panel" data-use-case-panel role="region" aria-labelledby="use-case-compliance-trigger" hidden>
             <p class="eyebrow">Compliance / audit / governance</p>
             <h3>Build evidence-backed compliance answers</h3>
             <dl class="use-case-facts">
@@ -261,9 +282,15 @@
             <h4>Why this matters</h4>
             <p class="use-case-why">Evidence remains attached when an answer moves between owners or review stages.</p>
             <a class="use-case-cta" href="#trace-demo" data-tab-link="trace-demo">Explore the evidence demo</a>
-          </article>
+            </article>
+          </section>
 
-          <article id="use-case-legal" class="use-case-detail panel">
+          <section class="use-case-item">
+            <button id="use-case-legal-trigger" class="use-case-trigger" type="button" data-use-case-target="use-case-legal" aria-expanded="false" aria-controls="use-case-legal">
+              <span><span class="use-case-audience">Legal review</span><strong>Trace contract answers back to clauses</strong></span>
+              <span class="use-case-toggle" aria-hidden="true">+</span>
+            </button>
+            <article id="use-case-legal" class="use-case-panel" data-use-case-panel role="region" aria-labelledby="use-case-legal-trigger" hidden>
             <p class="eyebrow">Legal document review</p>
             <h3>Trace contract answers back to clauses</h3>
             <dl class="use-case-facts">
@@ -287,9 +314,15 @@
             <h4>Why this matters</h4>
             <p class="use-case-why">Reviewers can inspect the clause that shaped an answer before relying on it.</p>
             <a class="use-case-cta" href="#trace-demo" data-tab-link="trace-demo">Explore the evidence demo</a>
-          </article>
+            </article>
+          </section>
 
-          <article id="use-case-research" class="use-case-detail panel">
+          <section class="use-case-item">
+            <button id="use-case-research-trigger" class="use-case-trigger" type="button" data-use-case-target="use-case-research" aria-expanded="false" aria-controls="use-case-research">
+              <span><span class="use-case-audience">Research</span><strong>Keep research claims attached to sources</strong></span>
+              <span class="use-case-toggle" aria-hidden="true">+</span>
+            </button>
+            <article id="use-case-research" class="use-case-panel" data-use-case-panel role="region" aria-labelledby="use-case-research-trigger" hidden>
             <p class="eyebrow">Research and academic work</p>
             <h3>Keep research claims attached to sources</h3>
             <dl class="use-case-facts">
@@ -313,9 +346,15 @@
             <h4>Why this matters</h4>
             <p class="use-case-why">Claims remain connected to the literature instead of becoming detached summaries.</p>
             <a class="use-case-cta" href="#trace-demo" data-tab-link="trace-demo">Explore the evidence demo</a>
-          </article>
+            </article>
+          </section>
 
-          <article id="use-case-proposal" class="use-case-detail panel">
+          <section class="use-case-item">
+            <button id="use-case-proposal-trigger" class="use-case-trigger" type="button" data-use-case-target="use-case-proposal" aria-expanded="false" aria-controls="use-case-proposal">
+              <span><span class="use-case-audience">Business proposals</span><strong>Avoid unsupported proposal claims</strong></span>
+              <span class="use-case-toggle" aria-hidden="true">+</span>
+            </button>
+            <article id="use-case-proposal" class="use-case-panel" data-use-case-panel role="region" aria-labelledby="use-case-proposal-trigger" hidden>
             <p class="eyebrow">Business proposal</p>
             <h3>Avoid unsupported proposal claims</h3>
             <dl class="use-case-facts">
@@ -339,9 +378,15 @@
             <h4>Why this matters</h4>
             <p class="use-case-why">Teams can catch unsupported language before it becomes part of a formal submission.</p>
             <a class="use-case-cta" href="#trace-demo" data-tab-link="trace-demo">Explore the evidence demo</a>
-          </article>
+            </article>
+          </section>
 
-          <article id="use-case-healthcare" class="use-case-detail panel">
+          <section class="use-case-item">
+            <button id="use-case-healthcare-trigger" class="use-case-trigger" type="button" data-use-case-target="use-case-healthcare" aria-expanded="false" aria-controls="use-case-healthcare">
+              <span><span class="use-case-audience">Healthcare documents</span><strong>Organize health documents with source-backed explanations</strong></span>
+              <span class="use-case-toggle" aria-hidden="true">+</span>
+            </button>
+            <article id="use-case-healthcare" class="use-case-panel" data-use-case-panel role="region" aria-labelledby="use-case-healthcare-trigger" hidden>
             <p class="eyebrow">Healthcare documents</p>
             <h3>Organize health documents with source-backed explanations</h3>
             <dl class="use-case-facts">
@@ -365,9 +410,15 @@
             <h4>Why this matters</h4>
             <p class="use-case-why">Source-backed comparisons can make complex records easier to discuss with the right professional.</p>
             <a class="use-case-cta" href="#trace-demo" data-tab-link="trace-demo">Explore the evidence demo</a>
-          </article>
+            </article>
+          </section>
 
-          <article id="use-case-education" class="use-case-detail panel">
+          <section class="use-case-item">
+            <button id="use-case-education-trigger" class="use-case-trigger" type="button" data-use-case-target="use-case-education" aria-expanded="false" aria-controls="use-case-education">
+              <span><span class="use-case-audience">Education</span><strong>Study from sources, not guesses</strong></span>
+              <span class="use-case-toggle" aria-hidden="true">+</span>
+            </button>
+            <article id="use-case-education" class="use-case-panel" data-use-case-panel role="region" aria-labelledby="use-case-education-trigger" hidden>
             <p class="eyebrow">Education</p>
             <h3>Study from sources, not guesses</h3>
             <dl class="use-case-facts">
@@ -391,9 +442,15 @@
             <h4>Why this matters</h4>
             <p class="use-case-why">Students can inspect why an answer follows from the assigned source.</p>
             <a class="use-case-cta" href="#trace-demo" data-tab-link="trace-demo">Explore the evidence demo</a>
-          </article>
+            </article>
+          </section>
 
-          <article id="use-case-journalism" class="use-case-detail panel">
+          <section class="use-case-item">
+            <button id="use-case-journalism-trigger" class="use-case-trigger" type="button" data-use-case-target="use-case-journalism" aria-expanded="false" aria-controls="use-case-journalism">
+              <span><span class="use-case-audience">Journalism</span><strong>Trace claims back to documents</strong></span>
+              <span class="use-case-toggle" aria-hidden="true">+</span>
+            </button>
+            <article id="use-case-journalism" class="use-case-panel" data-use-case-panel role="region" aria-labelledby="use-case-journalism-trigger" hidden>
             <p class="eyebrow">Journalism / fact-checking</p>
             <h3>Trace claims back to documents</h3>
             <dl class="use-case-facts">
@@ -417,7 +474,8 @@
             <h4>Why this matters</h4>
             <p class="use-case-why">A visible evidence trail helps reviewers distinguish sourced reporting from unsupported assertion.</p>
             <a class="use-case-cta" href="#trace-demo" data-tab-link="trace-demo">Explore the evidence demo</a>
-          </article>
+            </article>
+          </section>
         </div>
       </section>
 
