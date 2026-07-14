@@ -63,6 +63,11 @@ and illustrative receipt. The remaining use cases preserve their public-safe
 detail content in compact expandable rows. These examples do not add live
 workflow, upload, inference, professional authority, or runtime capabilities.
 
+Business Proposals uses a fictional RFP response to show how approved
+past-performance evidence can support, qualify, or fail to support proposal
+claims before submission. It remains a static illustration and does not add
+proposal upload, live review, submission approval, or delivery guarantees.
+
 Local preview from the repository root:
 
 ```bash

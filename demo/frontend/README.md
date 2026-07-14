@@ -14,6 +14,11 @@ source-backed answer, unsupported-cause boundary, and illustrative receipt.
 The example contains no real provider or customer data and performs no live
 document processing.
 
+`Business Proposals` presents a fictional IT service-platform RFP claim matrix
+with supported, qualified, unsupported, and evidence-gap states. Its static
+receipt demonstrates proposal review boundaries without approving a submission
+or guaranteeing delivery outcomes.
+
 It does not run live inference, accept uploads, run OCR, implement graphs, or
 change MNEMOS runtime behavior.
 
@@ -89,7 +94,8 @@ First deployment:
 - Demo receipt and provenance fields
 - Eight accessible use-case accordion controls with one expanded panel
 - A fictional Personal Documents bill comparison and static evidence receipt
-- Generic detail panels for the seven use cases awaiting separate visual themes
+- Dedicated fictional Personal Documents and Business Proposals evidence reviews
+- Generic detail panels for the six use cases awaiting separate visual themes
 - In-page links from each use case back to the precomputed Trace Explorer
 - Static Research Intake page styled after the local MNEMOS intake UI
 - Precomputed PDF Q/A receipt walkthrough using `research_intake_ocr`
