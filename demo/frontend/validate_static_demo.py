@@ -57,6 +57,29 @@ REQUIRED_BILL_FRAGMENTS = (
     "No financial, tax, or legal advice",
 )
 
+PROPOSAL_CLAIM_STATES = (
+    "supported",
+    "needs_qualification",
+    "unsupported",
+    "evidence_gap",
+)
+
+REQUIRED_PROPOSAL_FRAGMENTS = (
+    "Review proposal claims before submission",
+    "Which proposal claims are supported by approved past-performance evidence?",
+    "three comparable service-platform migrations",
+    "six-week transition timeline",
+    "zero service disruption",
+    "24/7 cutover support",
+    "rfp-requirements.pdf",
+    "draft-technical-proposal.pdf",
+    "approved-case-study-alpha.pdf",
+    "approved-case-study-beta.pdf",
+    "transition-plan.pdf",
+    "Human proposal review required",
+    "no submission approval or delivery guarantee",
+)
+
 REQUIRED_USE_CASE_BOUNDARIES = (
     "does not provide financial, tax, or legal advice",
     "does not certify compliance or replace an auditor",
@@ -98,6 +121,7 @@ class StaticDemoHTMLParser(HTMLParser):
         self.use_case_controls: dict[str, str] = {}
         self.expanded_use_cases: list[str] = []
         self.use_case_panels: dict[str, tuple[str, str | None, bool]] = {}
+        self.proposal_claim_states: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
@@ -109,6 +133,8 @@ class StaticDemoHTMLParser(HTMLParser):
             self.tab_targets.append(tab_target)
         if tab_link := attributes.get("data-tab-link"):
             self.tab_links.append(tab_link)
+        if proposal_state := attributes.get("data-proposal-claim-state"):
+            self.proposal_claim_states.append(proposal_state)
         if tag == "button" and (target := attributes.get("data-use-case-target")):
             self.use_case_targets.append(target)
             if controls := attributes.get("aria-controls"):
@@ -240,6 +266,20 @@ def main() -> int:
     for fragment in REQUIRED_BILL_FRAGMENTS:
         if fragment.lower() not in normalized_html:
             errors.append(f"missing fictional bill fragment: {fragment}")
+
+    if parser.proposal_claim_states != list(PROPOSAL_CLAIM_STATES):
+        errors.append(
+            f"proposal claim-state order mismatch: {parser.proposal_claim_states}"
+        )
+
+    for fragment in REQUIRED_PROPOSAL_FRAGMENTS:
+        if fragment.lower() not in normalized_html:
+            errors.append(f"missing fictional proposal fragment: {fragment}")
+
+    for state in PROPOSAL_CLAIM_STATES:
+        summary_fragment = f"1 {state.replace('_', ' ')}"
+        if summary_fragment not in normalized_html:
+            errors.append(f"proposal summary count mismatch: {summary_fragment}")
 
     calculated_increase = BILL_AMOUNTS["current_total"] - BILL_AMOUNTS["previous_total"]
     explained_increase = BILL_AMOUNTS["plan_change"] + BILL_AMOUNTS["usage_change"]

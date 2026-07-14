@@ -349,35 +349,136 @@
             </article>
           </section>
 
-          <section class="use-case-item">
+          <section class="use-case-item proposal-use-case">
             <button id="use-case-proposal-trigger" class="use-case-trigger" type="button" data-use-case-target="use-case-proposal" aria-expanded="false" aria-controls="use-case-proposal">
               <span><span class="use-case-audience">Business proposals</span><strong>Avoid unsupported proposal claims</strong></span>
               <span class="use-case-toggle" aria-hidden="true">+</span>
             </button>
             <article id="use-case-proposal" class="use-case-panel" data-use-case-panel role="region" aria-labelledby="use-case-proposal-trigger" hidden>
-            <p class="eyebrow">Business proposal</p>
-            <h3>Avoid unsupported proposal claims</h3>
-            <dl class="use-case-facts">
-              <dt>Audience</dt>
-              <dd>Proposal, capture, and business-development teams</dd>
-              <dt>Typical question</dt>
-              <dd>Which proposal statements are supported by past performance evidence?</dd>
-              <dt>Documents involved</dt>
-              <dd>Requests for proposal, drafts, approved case studies, and past performance records</dd>
-              <dt>What MNEMOS shows</dt>
-              <dd>Supported statements, evidence gaps, and claims that need qualification</dd>
-            </dl>
-            <h4>Example evidence trace</h4>
-            <ol class="mini-trace">
-              <li>Proposal claim</li>
-              <li>Past performance evidence</li>
-              <li>Support or gap flag</li>
-            </ol>
-            <h4>What MNEMOS does not claim</h4>
-            <p class="use-case-boundary">MNEMOS supports proposal review; it does not approve submissions.</p>
-            <h4>Why this matters</h4>
-            <p class="use-case-why">Teams can catch unsupported language before it becomes part of a formal submission.</p>
-            <a class="use-case-cta" href="#trace-demo" data-tab-link="trace-demo">Explore the evidence demo</a>
+            <div class="proposal-experience-header">
+              <div>
+                <p class="eyebrow">Business proposal — RFP response review</p>
+                <h3>Review proposal claims before submission</h3>
+                <p class="question">Which proposal claims are supported by approved past-performance evidence?</p>
+              </div>
+              <span class="proposal-static-badge">Illustrative static example</span>
+            </div>
+
+            <div class="proposal-review-layout">
+              <section class="proposal-matrix" aria-labelledby="proposal-matrix-heading">
+                <p class="eyebrow">Fictional IT service-platform migration</p>
+                <h4 id="proposal-matrix-heading">Claim review matrix</h4>
+
+                <article class="proposal-claim-row" data-proposal-claim-state="supported">
+                  <div class="proposal-claim-heading">
+                    <span class="proposal-status supported">Supported</span>
+                    <strong>The team has completed three comparable service-platform migrations.</strong>
+                  </div>
+                  <dl>
+                    <dt>Evidence result</dt>
+                    <dd>Two approved case studies support comparable delivery experience.</dd>
+                    <dt>Sources</dt>
+                    <dd><code>approved-case-study-alpha.pdf</code> and <code>approved-case-study-beta.pdf</code></dd>
+                    <dt>Required action</dt>
+                    <dd>Keep the claim attached to both approved case studies.</dd>
+                  </dl>
+                </article>
+
+                <article class="proposal-claim-row" data-proposal-claim-state="needs_qualification">
+                  <div class="proposal-claim-heading">
+                    <span class="proposal-status qualification">Needs qualification</span>
+                    <strong>The migration can be completed within a six-week transition timeline.</strong>
+                  </div>
+                  <dl>
+                    <dt>Evidence result</dt>
+                    <dd>The approved transition plan supports an eight-week baseline; no approved source supports six weeks.</dd>
+                    <dt>Source</dt>
+                    <dd><code>transition-plan.pdf</code></dd>
+                    <dt>Required action</dt>
+                    <dd>Qualify the timeline or obtain approved six-week evidence.</dd>
+                  </dl>
+                </article>
+
+                <article class="proposal-claim-row" data-proposal-claim-state="unsupported">
+                  <div class="proposal-claim-heading">
+                    <span class="proposal-status unsupported">Unsupported</span>
+                    <strong>The migration will cause zero service disruption.</strong>
+                  </div>
+                  <dl>
+                    <dt>Evidence result</dt>
+                    <dd>No approved artifact establishes a zero-disruption guarantee.</dd>
+                    <dt>Source reviewed</dt>
+                    <dd><code>draft-technical-proposal.pdf</code></dd>
+                    <dt>Required action</dt>
+                    <dd>Remove the guarantee or replace it with bounded transition language.</dd>
+                  </dl>
+                </article>
+
+                <article class="proposal-claim-row" data-proposal-claim-state="evidence_gap">
+                  <div class="proposal-claim-heading">
+                    <span class="proposal-status gap">Evidence gap</span>
+                    <strong>The transition team provides 24/7 cutover support.</strong>
+                  </div>
+                  <dl>
+                    <dt>Evidence result</dt>
+                    <dd>The draft makes the claim, but the approved evidence set contains no staffing or coverage record.</dd>
+                    <dt>Requirement source</dt>
+                    <dd><code>rfp-requirements.pdf</code></dd>
+                    <dt>Required action</dt>
+                    <dd>Obtain an approved support plan or remove the claim.</dd>
+                  </dl>
+                </article>
+              </section>
+
+              <aside class="proposal-summary" aria-labelledby="proposal-summary-heading">
+                <p class="eyebrow">Review summary</p>
+                <h4 id="proposal-summary-heading">Evidence state counts</h4>
+                <ul>
+                  <li><span class="proposal-status supported">Supported</span><strong>1 supported</strong></li>
+                  <li><span class="proposal-status qualification">Needs qualification</span><strong>1 needs qualification</strong></li>
+                  <li><span class="proposal-status unsupported">Unsupported</span><strong>1 unsupported</strong></li>
+                  <li><span class="proposal-status gap">Evidence gap</span><strong>1 evidence gap</strong></li>
+                </ul>
+                <p>Human proposal review remains required. These counts are not a readiness score, win probability, or submission decision.</p>
+              </aside>
+            </div>
+
+            <div class="proposal-evidence-grid">
+              <section class="proposal-sources" aria-labelledby="proposal-sources-heading">
+                <p class="eyebrow">Evidence reviewed</p>
+                <h4 id="proposal-sources-heading">Public-safe fictional proposal packet</h4>
+                <ul>
+                  <li><code>rfp-requirements.pdf</code><span>Client requirements and cutover-support request</span></li>
+                  <li><code>draft-technical-proposal.pdf</code><span>Claims under review before submission</span></li>
+                  <li><code>approved-case-study-alpha.pdf</code><span>Comparable migration evidence</span></li>
+                  <li><code>approved-case-study-beta.pdf</code><span>Additional past-performance evidence</span></li>
+                  <li><code>transition-plan.pdf</code><span>Approved eight-week delivery baseline</span></li>
+                </ul>
+              </section>
+
+              <section class="proposal-receipt" aria-labelledby="proposal-receipt-heading">
+                <p class="eyebrow">Illustrative receipt</p>
+                <h4 id="proposal-receipt-heading">What is supported—and what still needs review</h4>
+                <dl>
+                  <dt>Question</dt><dd>Which proposal claims are supported by approved past-performance evidence?</dd>
+                  <dt>Supported result</dt><dd><code>three comparable migrations</code></dd>
+                  <dt>Qualified result</dt><dd><code>six-week transition timeline</code></dd>
+                  <dt>Unsupported result</dt><dd><code>zero service disruption</code></dd>
+                  <dt>Evidence gap</dt><dd><code>24/7 cutover support</code></dd>
+                  <dt>Decision state</dt><dd><code>illustrative_static_example</code></dd>
+                  <dt>Boundary</dt><dd><code>Human proposal review required; no submission approval or delivery guarantee</code></dd>
+                </dl>
+              </section>
+            </div>
+
+            <h4>Evidence path</h4>
+            <ol class="mini-trace"><li>Proposal claim</li><li>Approved past-performance evidence</li><li>Support or gap flag</li></ol>
+            <p class="use-case-boundary">MNEMOS can help organize proposal claims and supporting evidence. It does not approve submissions or proposals, and it does not guarantee delivery timelines or service outcomes.</p>
+            <p class="use-case-why"><strong>Why this matters:</strong> Teams can qualify or remove unsupported language while preserving the evidence behind claims that remain in the response.</p>
+            <div class="use-case-actions">
+              <a class="use-case-cta" href="#trace-demo" data-tab-link="trace-demo">Explore the evidence demo</a>
+              <a class="use-case-secondary-cta" href="demo_index.json" data-demo-index-link>Inspect demo JSON</a>
+            </div>
             </article>
           </section>
 
