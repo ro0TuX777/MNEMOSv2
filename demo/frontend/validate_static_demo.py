@@ -178,6 +178,11 @@ def main() -> int:
         "tracePathForItem",
         "function activateTab(targetId)",
         'document.querySelectorAll("[data-tab-link]")',
+        'const DEFAULT_USE_CASE_ID = "use-case-bill"',
+        "function activateUseCase(useCaseId, options = {})",
+        "function syncUseCaseFromHash()",
+        'window.addEventListener("hashchange", syncUseCaseFromHash)',
+        "setupUseCases()",
     ]
     for fragment in required_loader_fragments:
         if fragment not in app_js:

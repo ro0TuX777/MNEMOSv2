@@ -709,9 +709,9 @@ code {
 }
 
 .use-cases-demo,
-.use-case-details {
+.use-case-accordion {
   display: grid;
-  gap: 22px;
+  gap: 14px;
 }
 
 .use-cases-intro {
@@ -728,36 +728,49 @@ code {
   font-size: 1.08rem;
 }
 
-.use-case-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.use-case-card {
-  display: grid;
-  align-content: start;
-  gap: 9px;
-  min-height: 190px;
+.use-case-item {
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--panel);
-  color: var(--ink);
-  padding: 18px;
-  text-decoration: none;
   box-shadow: var(--shadow);
-  transition: border-color 150ms ease, transform 150ms ease;
 }
 
-.use-case-card:hover,
-.use-case-card:focus-visible {
-  border-color: var(--accent);
-  transform: translateY(-2px);
+.use-case-trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 0;
+  background: var(--panel);
+  color: var(--ink);
+  padding: 16px 18px;
+  text-align: left;
 }
 
-.use-case-card.featured {
-  border-top: 4px solid var(--copper);
-  background: linear-gradient(145deg, var(--accent-soft), var(--panel) 48%);
+.use-case-trigger > span:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.use-case-trigger:hover,
+.use-case-trigger:focus-visible,
+.use-case-item.is-expanded > .use-case-trigger {
+  background: var(--accent-soft);
+}
+
+.use-case-toggle {
+  display: grid;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--accent);
+  font-size: 1.2rem;
+  font-weight: 800;
 }
 
 .use-case-audience {
@@ -768,26 +781,25 @@ code {
   text-transform: uppercase;
 }
 
-.use-case-card strong {
-  font-size: 1.08rem;
-  line-height: 1.2;
-}
-
-.use-case-card span:last-child,
 .use-case-facts dd,
 .use-case-why {
   color: var(--muted);
 }
 
-.use-case-detail {
-  scroll-margin-top: 24px;
+.use-case-panel {
+  border-top: 1px solid var(--line-soft);
+  padding: 22px;
 }
 
-.use-case-detail h3 {
+.use-case-panel[hidden] {
+  display: none;
+}
+
+.use-case-panel h3 {
   font-size: clamp(1.4rem, 2.5vw, 2rem);
 }
 
-.use-case-detail h4 {
+.use-case-panel h4 {
   margin: 18px 0 0;
 }
 
@@ -847,6 +859,167 @@ code {
   border-radius: 8px;
   background: var(--accent);
   color: var(--accent-ink);
+  padding: 9px 14px;
+  font-weight: 760;
+  text-decoration: none;
+}
+
+.bill-use-case {
+  --bill-navy: #112337;
+  --bill-deep-blue: #00194c;
+  --bill-blue: #204ce5;
+  --bill-source-green: #0b7f66;
+  --bill-source-soft: #d9f99d;
+  --bill-paper: #f3f8f6;
+}
+
+.bill-use-case > .use-case-trigger,
+.bill-use-case.is-expanded > .use-case-trigger,
+.bill-use-case > .use-case-trigger:hover,
+.bill-use-case > .use-case-trigger:focus-visible {
+  background: var(--bill-navy);
+  color: #ffffff;
+}
+
+.bill-use-case .use-case-audience,
+.bill-use-case .use-case-toggle {
+  color: var(--bill-source-soft);
+}
+
+.bill-use-case .use-case-toggle {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.bill-experience-header,
+.bill-review-grid,
+.bill-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.bill-experience-header {
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.bill-static-badge {
+  width: fit-content;
+  justify-self: end;
+  border-radius: 999px;
+  background: var(--bill-source-soft);
+  color: #244600;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 780;
+}
+
+.bill-document,
+.bill-sources {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bill-paper);
+  padding: 18px;
+}
+
+.bill-answer,
+.bill-receipt {
+  border-radius: 12px;
+  background: var(--bill-deep-blue);
+  color: #ffffff;
+  padding: 18px;
+}
+
+.bill-answer .eyebrow,
+.bill-receipt .eyebrow,
+.bill-answer h4,
+.bill-receipt h4 {
+  color: var(--bill-source-soft);
+}
+
+.bill-table {
+  width: 100%;
+  margin-top: 14px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.bill-table th,
+.bill-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 9px 6px;
+  text-align: right;
+}
+
+.bill-table th:first-child {
+  text-align: left;
+}
+
+.bill-change {
+  color: var(--bill-blue);
+  font-weight: 800;
+}
+
+.bill-total th,
+.bill-total td {
+  border-top: 2px solid var(--bill-blue);
+  font-weight: 800;
+}
+
+.bill-unsupported {
+  border-left: 3px solid var(--warn);
+  padding-left: 10px;
+  color: #ffe4a8;
+}
+
+.bill-evidence-grid {
+  margin-top: 16px;
+}
+
+.bill-sources ul {
+  display: grid;
+  gap: 9px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bill-sources li {
+  display: grid;
+  gap: 3px;
+  border-left: 3px solid var(--bill-source-green);
+  padding-left: 10px;
+}
+
+.bill-sources li span,
+.bill-receipt dt {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.bill-receipt dl {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 9px 12px;
+  margin: 14px 0 0;
+}
+
+.bill-receipt dd {
+  margin: 0;
+}
+
+.use-case-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.use-case-secondary-cta {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--accent);
   padding: 9px 14px;
   font-weight: 760;
   text-decoration: none;
@@ -974,8 +1147,14 @@ label.field textarea {
     position: static;
   }
 
-  .use-case-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .bill-review-grid,
+  .bill-evidence-grid,
+  .bill-experience-header {
+    grid-template-columns: 1fr;
+  }
+
+  .bill-static-badge {
+    justify-self: start;
   }
 }
 
@@ -988,9 +1167,24 @@ label.field textarea {
 
   .definition-list,
   .definition-list.compact,
-  .use-case-grid,
   .use-case-facts,
   .mini-trace {
+    grid-template-columns: 1fr;
+  }
+
+  .use-case-panel {
+    padding: 16px;
+  }
+
+  .bill-document {
+    overflow-x: auto;
+  }
+
+  .bill-table {
+    min-width: 520px;
+  }
+
+  .bill-receipt dl {
     grid-template-columns: 1fr;
   }
 
@@ -1000,5 +1194,12 @@ label.field textarea {
 
   .mini-trace li:not(:last-child)::after {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .use-case-trigger,
+  .use-case-toggle {
+    transition: none;
   }
 }

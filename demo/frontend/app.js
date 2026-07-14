@@ -11,6 +11,8 @@ const dataLayouts = [
   },
 ];
 
+const DEFAULT_USE_CASE_ID = "use-case-bill";
+
 const state = {
   index: null,
   traces: new Map(),
@@ -20,6 +22,9 @@ const state = {
 const elements = {
   tabButtons: document.querySelectorAll(".tab-button"),
   tabPanels: document.querySelectorAll(".tab-panel"),
+  useCaseTriggers: document.querySelectorAll("[data-use-case-target]"),
+  useCasePanels: document.querySelectorAll("[data-use-case-panel]"),
+  demoIndexLinks: document.querySelectorAll("[data-demo-index-link]"),
   inspectDemoJson: document.querySelector("#inspectDemoJson"),
   scenarioCards: document.querySelector("#scenarioCards"),
   loadingState: document.querySelector("#loadingState"),
@@ -100,6 +105,57 @@ function setupTabs() {
   }
   for (const link of document.querySelectorAll("[data-tab-link]")) {
     link.addEventListener("click", () => activateTab(link.dataset.tabLink));
+  }
+}
+
+function validUseCaseId(useCaseId) {
+  return Array.from(elements.useCasePanels).some((panel) => panel.id === useCaseId);
+}
+
+function useCaseIdFromHash() {
+  const useCaseId = decodeURIComponent(window.location.hash.slice(1));
+  return validUseCaseId(useCaseId) ? useCaseId : null;
+}
+
+function activateUseCase(useCaseId, options = {}) {
+  const selectedId = validUseCaseId(useCaseId) ? useCaseId : DEFAULT_USE_CASE_ID;
+  for (const trigger of elements.useCaseTriggers) {
+    const isSelected = trigger.dataset.useCaseTarget === selectedId;
+    trigger.setAttribute("aria-expanded", String(isSelected));
+    trigger.closest(".use-case-item")?.classList.toggle("is-expanded", isSelected);
+    const indicator = trigger.querySelector(".use-case-toggle");
+    if (indicator) {
+      indicator.textContent = isSelected ? "−" : "+";
+    }
+  }
+  for (const panel of elements.useCasePanels) {
+    panel.hidden = panel.id !== selectedId;
+  }
+  if (options.updateHash) {
+    window.history.replaceState(null, "", `#${selectedId}`);
+  }
+}
+
+function syncUseCaseFromHash() {
+  const useCaseId = useCaseIdFromHash();
+  if (!useCaseId) {
+    activateUseCase(DEFAULT_USE_CASE_ID);
+    return false;
+  }
+  activateTab("use-cases-demo");
+  activateUseCase(useCaseId);
+  return true;
+}
+
+function setupUseCases() {
+  for (const trigger of elements.useCaseTriggers) {
+    trigger.addEventListener("click", () => {
+      activateUseCase(trigger.dataset.useCaseTarget, { updateHash: true });
+    });
+  }
+  window.addEventListener("hashchange", syncUseCaseFromHash);
+  if (!syncUseCaseFromHash()) {
+    activateUseCase(DEFAULT_USE_CASE_ID);
   }
 }
 
@@ -350,10 +406,14 @@ function selectTrace(traceId) {
 async function init() {
   try {
     setupTabs();
+    setupUseCases();
     const loaded = await loadIndexWithFallback();
     state.index = loaded.index;
     state.dataLayout = loaded.layout;
     elements.inspectDemoJson.href = loaded.layout.indexPath;
+    for (const link of elements.demoIndexLinks) {
+      link.href = loaded.layout.indexPath;
+    }
     for (const item of state.index.traces || []) {
       const trace = await fetchJson(tracePathForItem(item));
       state.traces.set(item.trace_id, trace);
