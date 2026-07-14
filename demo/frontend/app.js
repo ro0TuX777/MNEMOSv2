@@ -85,17 +85,21 @@ function appendDefinitionList(container, entries) {
   }
 }
 
+function activateTab(targetId) {
+  for (const tabButton of elements.tabButtons) {
+    tabButton.classList.toggle("active", tabButton.dataset.tabTarget === targetId);
+  }
+  for (const panel of elements.tabPanels) {
+    panel.classList.toggle("active", panel.id === targetId);
+  }
+}
+
 function setupTabs() {
   for (const button of elements.tabButtons) {
-    button.addEventListener("click", () => {
-      const targetId = button.dataset.tabTarget;
-      for (const tabButton of elements.tabButtons) {
-        tabButton.classList.toggle("active", tabButton === button);
-      }
-      for (const panel of elements.tabPanels) {
-        panel.classList.toggle("active", panel.id === targetId);
-      }
-    });
+    button.addEventListener("click", () => activateTab(button.dataset.tabTarget));
+  }
+  for (const link of document.querySelectorAll("[data-tab-link]")) {
+    link.addEventListener("click", () => activateTab(link.dataset.tabLink));
   }
 }
 

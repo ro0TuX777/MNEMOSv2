@@ -141,6 +141,8 @@ def main() -> int:
         'traceBasePath: ""',
         'traceBasePath: "../"',
         "tracePathForItem",
+        "function activateTab(targetId)",
+        'document.querySelectorAll("[data-tab-link]")',
     ]
     for fragment in required_loader_fragments:
         if fragment not in app_js:
