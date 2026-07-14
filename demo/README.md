@@ -57,6 +57,11 @@ requiring a live MNEMOS service.
 
 The checked-in static frontend lives in `demo/frontend/`.
 
+The frontend also includes a static `Where MNEMOS helps` tab. It presents
+eight illustrative use cases with source-oriented evidence paths and explicit
+professional-authority boundaries. These pages do not add live workflow or
+runtime capabilities.
+
 Local preview from the repository root:
 
 ```bash

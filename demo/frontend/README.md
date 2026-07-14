@@ -1,9 +1,11 @@
 # MNEMOS Static Demo Frontend Prototype
 
 This is a static-only prototype that renders the precomputed demo traces in
-`demo/demo_index.json` and `demo/traces/*.json`. It includes two tabs:
+`demo/demo_index.json` and `demo/traces/*.json`. It includes three tabs:
 
 - `Trace Explorer` for selectable precomputed scenarios.
+- `Where MNEMOS helps` for eight static, public-safe use cases spanning
+  personal documents, enterprise evidence work, and professional review.
 - `Research Intake + Receipt` for a static copy of the PDF intake/receipt flow.
 
 It does not run live inference, accept uploads, run OCR, implement graphs, or
@@ -79,6 +81,8 @@ First deployment:
 - Excluded or unsupported claims
 - Limitations
 - Demo receipt and provenance fields
+- Eight static use-case cards with full detail panels and authority boundaries
+- In-page links from each use case back to the precomputed Trace Explorer
 - Static Research Intake page styled after the local MNEMOS intake UI
 - Precomputed PDF Q/A receipt walkthrough using `research_intake_ocr`
 
