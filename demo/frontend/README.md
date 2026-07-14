@@ -8,6 +8,12 @@ This is a static-only prototype that renders the precomputed demo traces in
   personal documents, enterprise evidence work, and professional review.
 - `Research Intake + Receipt` for a static copy of the PDF intake/receipt flow.
 
+The use-case tab uses a single-open accordion to keep the page compact.
+`Personal Documents` opens by default with a fictional bill comparison,
+source-backed answer, unsupported-cause boundary, and illustrative receipt.
+The example contains no real provider or customer data and performs no live
+document processing.
+
 It does not run live inference, accept uploads, run OCR, implement graphs, or
 change MNEMOS runtime behavior.
 
@@ -81,7 +87,9 @@ First deployment:
 - Excluded or unsupported claims
 - Limitations
 - Demo receipt and provenance fields
-- Eight static use-case cards with full detail panels and authority boundaries
+- Eight accessible use-case accordion controls with one expanded panel
+- A fictional Personal Documents bill comparison and static evidence receipt
+- Generic detail panels for the seven use cases awaiting separate visual themes
 - In-page links from each use case back to the precomputed Trace Explorer
 - Static Research Intake page styled after the local MNEMOS intake UI
 - Precomputed PDF Q/A receipt walkthrough using `research_intake_ocr`
