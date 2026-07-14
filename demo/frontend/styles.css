@@ -1018,6 +1018,7 @@ code {
   --proposal-blue: #204ce5;
   --proposal-green: #0b7f66;
   --proposal-amber: #b45309;
+  --proposal-gold: #9a6700;
   --proposal-rust: #a33a2b;
   --proposal-paper: #f5f7fa;
   --proposal-line: #dbe3ea;
@@ -1092,7 +1093,7 @@ code {
 .proposal-claim-row[data-proposal-claim-state="supported"] { border-left-color: var(--proposal-green); }
 .proposal-claim-row[data-proposal-claim-state="needs_qualification"] { border-left-color: var(--proposal-amber); }
 .proposal-claim-row[data-proposal-claim-state="unsupported"] { border-left-color: var(--proposal-rust); }
-.proposal-claim-row[data-proposal-claim-state="evidence_gap"] { border-left-color: var(--proposal-blue); }
+.proposal-claim-row[data-proposal-claim-state="evidence_gap"] { border-left-color: var(--proposal-gold); }
 
 .proposal-claim-heading {
   display: flex;
@@ -1133,7 +1134,7 @@ code {
 .proposal-status.supported { background: #dff7ed; color: #075d47; }
 .proposal-status.qualification { background: #fff1d6; color: #7a3f00; }
 .proposal-status.unsupported { background: #fde4df; color: #7f2419; }
-.proposal-status.gap { background: #e5ecff; color: #173da8; }
+.proposal-status.gap { background: #fff4cc; color: #7a5700; }
 
 .proposal-summary,
 .proposal-receipt {

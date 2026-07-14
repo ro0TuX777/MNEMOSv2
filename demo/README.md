@@ -59,8 +59,9 @@ The checked-in static frontend lives in `demo/frontend/`.
 
 The frontend also includes a static `Where MNEMOS helps` accordion. Personal
 Documents opens by default with a fictional, provider-neutral bill comparison
-and illustrative receipt. The remaining use cases preserve their public-safe
-detail content in compact expandable rows. These examples do not add live
+and illustrative receipt. The six remaining use cases retain compact
+expandable rows because Personal Documents and Business Proposals now have
+dedicated experiences. These examples do not add live
 workflow, upload, inference, professional authority, or runtime capabilities.
 
 Business Proposals uses a fictional RFP response to show how approved

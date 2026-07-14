@@ -78,6 +78,7 @@ REQUIRED_PROPOSAL_FRAGMENTS = (
     "transition-plan.pdf",
     "Human proposal review required",
     "no submission approval or delivery guarantee",
+    "MNEMOS does not replace proposal-owner, legal, commercial, or executive review.",
 )
 
 REQUIRED_USE_CASE_BOUNDARIES = (
