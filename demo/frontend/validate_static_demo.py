@@ -170,6 +170,7 @@ def main() -> int:
             errors.append(f"missing frontend file: {path.relative_to(ROOT)}")
 
     app_js = (FRONTEND / "app.js").read_text(encoding="utf-8")
+    styles_css = (FRONTEND / "styles.css").read_text(encoding="utf-8")
     required_loader_fragments = [
         'indexPath: "demo_index.json"',
         'indexPath: "../demo_index.json"',
@@ -187,6 +188,14 @@ def main() -> int:
     for fragment in required_loader_fragments:
         if fragment not in app_js:
             errors.append(f"frontend loader missing fragment: {fragment}")
+
+    bill_text_rules = (
+        r"\.bill-document,\s*\.bill-sources\s*\{[^}]*color:\s*#000000;",
+        r"\.bill-sources li span\s*\{[^}]*color:\s*#000000;",
+    )
+    for rule in bill_text_rules:
+        if not re.search(rule, styles_css, re.DOTALL):
+            errors.append(f"frontend styles missing black bill text rule: {rule}")
 
     index_html = (FRONTEND / "index.html").read_text(encoding="utf-8")
     parser = StaticDemoHTMLParser()

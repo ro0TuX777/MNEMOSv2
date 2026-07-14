@@ -919,6 +919,7 @@ code {
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--bill-paper);
+  color: #000000;
   padding: 18px;
 }
 
@@ -991,7 +992,11 @@ code {
   padding-left: 10px;
 }
 
-.bill-sources li span,
+.bill-sources li span {
+  color: #000000;
+  font-size: 0.82rem;
+}
+
 .bill-receipt dt {
   color: var(--muted);
   font-size: 0.82rem;
