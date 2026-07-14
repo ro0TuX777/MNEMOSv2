@@ -1013,6 +1013,184 @@ code {
   margin: 0;
 }
 
+.proposal-use-case {
+  --proposal-navy: #112337;
+  --proposal-blue: #204ce5;
+  --proposal-green: #0b7f66;
+  --proposal-amber: #b45309;
+  --proposal-rust: #a33a2b;
+  --proposal-paper: #f5f7fa;
+  --proposal-line: #dbe3ea;
+}
+
+.proposal-use-case > .use-case-trigger,
+.proposal-use-case.is-expanded > .use-case-trigger,
+.proposal-use-case > .use-case-trigger:hover,
+.proposal-use-case > .use-case-trigger:focus-visible {
+  background: var(--proposal-navy);
+  color: #ffffff;
+}
+
+.proposal-use-case .use-case-audience,
+.proposal-use-case .use-case-toggle {
+  color: #d9f99d;
+}
+
+.proposal-use-case .use-case-toggle {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.proposal-experience-header,
+.proposal-review-layout,
+.proposal-evidence-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.proposal-experience-header {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.proposal-static-badge {
+  border-radius: 999px;
+  background: #d9f99d;
+  color: #244600;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 780;
+}
+
+.proposal-review-layout {
+  grid-template-columns: minmax(0, 1fr) 320px;
+  align-items: start;
+}
+
+.proposal-matrix,
+.proposal-sources {
+  border: 1px solid var(--proposal-line);
+  border-radius: 12px;
+  background: var(--proposal-paper);
+  color: #000000;
+  padding: 18px;
+}
+
+.proposal-claim-row {
+  border: 1px solid var(--proposal-line);
+  border-left-width: 5px;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #000000;
+  padding: 15px;
+}
+
+.proposal-claim-row + .proposal-claim-row {
+  margin-top: 10px;
+}
+
+.proposal-claim-row[data-proposal-claim-state="supported"] { border-left-color: var(--proposal-green); }
+.proposal-claim-row[data-proposal-claim-state="needs_qualification"] { border-left-color: var(--proposal-amber); }
+.proposal-claim-row[data-proposal-claim-state="unsupported"] { border-left-color: var(--proposal-rust); }
+.proposal-claim-row[data-proposal-claim-state="evidence_gap"] { border-left-color: var(--proposal-blue); }
+
+.proposal-claim-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.proposal-claim-row dl,
+.proposal-receipt dl {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 8px 12px;
+  margin: 13px 0 0;
+}
+
+.proposal-claim-row dt,
+.proposal-receipt dt {
+  font-size: 0.8rem;
+  font-weight: 760;
+}
+
+.proposal-claim-row dd,
+.proposal-receipt dd {
+  margin: 0;
+}
+
+.proposal-status {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.proposal-status.supported { background: #dff7ed; color: #075d47; }
+.proposal-status.qualification { background: #fff1d6; color: #7a3f00; }
+.proposal-status.unsupported { background: #fde4df; color: #7f2419; }
+.proposal-status.gap { background: #e5ecff; color: #173da8; }
+
+.proposal-summary,
+.proposal-receipt {
+  border-radius: 12px;
+  background: var(--proposal-navy);
+  color: #ffffff;
+  padding: 18px;
+}
+
+.proposal-summary .eyebrow,
+.proposal-summary h4,
+.proposal-receipt .eyebrow,
+.proposal-receipt h4 {
+  color: #d9f99d;
+}
+
+.proposal-summary ul,
+.proposal-sources ul {
+  display: grid;
+  gap: 9px;
+  margin: 14px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.proposal-summary li {
+  display: grid;
+  gap: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 9px;
+}
+
+.proposal-summary p {
+  color: #d8e2ee;
+}
+
+.proposal-evidence-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 16px;
+}
+
+.proposal-sources li {
+  display: grid;
+  gap: 3px;
+  border-left: 3px solid var(--proposal-green);
+  padding-left: 10px;
+}
+
+.proposal-sources li span {
+  color: #000000;
+  font-size: 0.82rem;
+}
+
+.proposal-receipt dt {
+  color: #b9c9d8;
+}
+
 .use-case-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1161,6 +1339,20 @@ label.field textarea {
   .bill-static-badge {
     justify-self: start;
   }
+
+  .proposal-experience-header,
+  .proposal-review-layout,
+  .proposal-evidence-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .proposal-review-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .proposal-static-badge {
+    justify-self: start;
+  }
 }
 
 @media (max-width: 560px) {
@@ -1191,6 +1383,16 @@ label.field textarea {
 
   .bill-receipt dl {
     grid-template-columns: 1fr;
+  }
+
+  .proposal-claim-row dl,
+  .proposal-receipt dl {
+    grid-template-columns: 1fr;
+  }
+
+  .proposal-claim-row dt,
+  .proposal-receipt dt {
+    margin-top: 6px;
   }
 
   .definition-list dt {

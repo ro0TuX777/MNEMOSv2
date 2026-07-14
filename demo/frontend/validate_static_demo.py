@@ -223,6 +223,16 @@ def main() -> int:
         if not re.search(rule, styles_css, re.DOTALL):
             errors.append(f"frontend styles missing black bill text rule: {rule}")
 
+    proposal_style_rules = (
+        r"\.proposal-use-case\s*\{[^}]*--proposal-navy:\s*#112337;",
+        r"\.proposal-review-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*320px;",
+        r"\.proposal-claim-row\s*\{[^}]*color:\s*#000000;",
+        r"@media\s*\(max-width:\s*900px\)[\s\S]*\.proposal-review-layout\s*\{[^}]*grid-template-columns:\s*1fr;",
+    )
+    for rule in proposal_style_rules:
+        if not re.search(rule, styles_css, re.DOTALL):
+            errors.append(f"frontend styles missing proposal rule: {rule}")
+
     index_html = (FRONTEND / "index.html").read_text(encoding="utf-8")
     parser = StaticDemoHTMLParser()
     parser.feed(index_html)
