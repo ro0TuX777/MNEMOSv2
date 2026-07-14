@@ -227,7 +227,7 @@ def main() -> int:
         r"\.proposal-use-case\s*\{[^}]*--proposal-navy:\s*#112337;",
         r"\.proposal-review-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*320px;",
         r"\.proposal-claim-row\s*\{[^}]*color:\s*#000000;",
-        r"@media\s*\(max-width:\s*900px\)[\s\S]*\.proposal-review-layout\s*\{[^}]*grid-template-columns:\s*1fr;",
+        r"@media\s*\(max-width:\s*900px\)[\s\S]*\.proposal-experience-header,\s*\.proposal-review-layout,\s*\.proposal-evidence-grid\s*\{[^}]*grid-template-columns:\s*1fr;",
     )
     for rule in proposal_style_rules:
         if not re.search(rule, styles_css, re.DOTALL):

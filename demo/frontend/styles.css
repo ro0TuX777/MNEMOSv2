@@ -1346,10 +1346,6 @@ label.field textarea {
     grid-template-columns: 1fr;
   }
 
-  .proposal-review-layout {
-    grid-template-columns: 1fr;
-  }
-
   .proposal-static-badge {
     justify-self: start;
   }
