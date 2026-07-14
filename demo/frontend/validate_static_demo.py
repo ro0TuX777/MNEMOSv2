@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+from html.parser import HTMLParser
 from pathlib import Path
 
 
@@ -26,6 +27,28 @@ REQUIRED_TRACE_FIELDS = {
     "demo_panels",
 }
 
+USE_CASE_IDS = (
+    "use-case-bill",
+    "use-case-compliance",
+    "use-case-legal",
+    "use-case-research",
+    "use-case-proposal",
+    "use-case-healthcare",
+    "use-case-education",
+    "use-case-journalism",
+)
+
+REQUIRED_USE_CASE_BOUNDARIES = (
+    "does not provide financial, tax, or legal advice",
+    "does not certify compliance or replace an auditor",
+    "does not provide legal advice or replace attorney judgment",
+    "does not establish settled truth",
+    "does not approve submissions",
+    "does not provide medical advice, diagnosis, or treatment guidance",
+    "does not replace teacher judgment or academic integrity rules",
+    "does not replace editorial judgment",
+)
+
 LOCAL_PATH_PATTERNS = [
     re.compile(r"(?<![A-Za-z])[A-Za-z]:[\\/]"),
     re.compile(r"/Users/"),
@@ -43,6 +66,26 @@ SECRET_PATTERNS = [
     re.compile(r"api[_-]?key\s*[:=]\s*[^\s,}]+", re.IGNORECASE),
     re.compile(r"credential\s*[:=]\s*[^\s,}]+", re.IGNORECASE),
 ]
+
+
+class StaticDemoHTMLParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.ids: set[str] = set()
+        self.anchor_targets: list[str] = []
+        self.tab_targets: list[str] = []
+        self.tab_links: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attributes = dict(attrs)
+        if element_id := attributes.get("id"):
+            self.ids.add(element_id)
+        if tag == "a" and (href := attributes.get("href", "")).startswith("#"):
+            self.anchor_targets.append(href[1:])
+        if tab_target := attributes.get("data-tab-target"):
+            self.tab_targets.append(tab_target)
+        if tab_link := attributes.get("data-tab-link"):
+            self.tab_links.append(tab_link)
 
 
 def load_json(path: Path) -> dict:
@@ -102,6 +145,31 @@ def main() -> int:
     for fragment in required_loader_fragments:
         if fragment not in app_js:
             errors.append(f"frontend loader missing fragment: {fragment}")
+
+    index_html = (FRONTEND / "index.html").read_text(encoding="utf-8")
+    parser = StaticDemoHTMLParser()
+    parser.feed(index_html)
+
+    expected_tabs = {"trace-demo", "intake-demo", "use-cases-demo"}
+    if set(parser.tab_targets) != expected_tabs:
+        errors.append(f"tab targets mismatch: {sorted(parser.tab_targets)}")
+
+    for use_case_id in USE_CASE_IDS:
+        if use_case_id not in parser.ids:
+            errors.append(f"missing use-case detail panel: {use_case_id}")
+        if parser.anchor_targets.count(use_case_id) != 1:
+            errors.append(f"use-case anchor count mismatch: {use_case_id}")
+
+    if parser.tab_links.count("trace-demo") != len(USE_CASE_IDS):
+        errors.append("each use case must link back to the Trace Explorer")
+
+    normalized_html = " ".join(index_html.lower().split())
+    for boundary in REQUIRED_USE_CASE_BOUNDARIES:
+        if boundary not in normalized_html:
+            errors.append(f"missing use-case boundary: {boundary}")
+
+    if "mnemos fully solves this workflow today" in normalized_html:
+        errors.append("unsupported fully-solves claim found")
 
     if errors:
         print("\n".join(errors))
