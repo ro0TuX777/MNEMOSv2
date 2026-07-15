@@ -34,6 +34,16 @@ def _stack_ready() -> bool:
     try:
         if requests.get(f"{BASE_URL}/health", timeout=3).status_code != 200:
             return False
+        stats = requests.get(f"{BASE_URL}/v1/mnemos/stats", timeout=3).json()
+        active_collection = (
+            stats.get("stats", {})
+            .get("retrieval", {})
+            .get("tiers", {})
+            .get("qdrant", {})
+            .get("collection")
+        )
+        if active_collection != COLLECTION:
+            return False
         info = requests.get(f"{QDRANT_URL}/collections/{COLLECTION}", timeout=3).json()
         return info.get("result", {}).get("points_count", 0) > 100
     except Exception:

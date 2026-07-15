@@ -1,6 +1,7 @@
 import pytest
 from mnemos.retrieval.retrieval_router import RetrievalRouter
 from mnemos.retrieval.base import SearchResult
+from mnemos.engram.model import Engram
 import json
 from pathlib import Path
 
@@ -8,10 +9,10 @@ from pathlib import Path
 class MockFusion:
     @property
     def tier_names(self): return ["qdrant"]
-    def search(self, query, top_k, filters, tiers):
+    def search(self, query, top_k, filters, tiers, query_vector=None):
         return [
-            SearchResult(engram=type("Engram", (), {"id": "1", "content": "mock content"})(), score=0.9, tier="qdrant", metadata={}),
-            SearchResult(engram=type("Engram", (), {"id": "2", "content": "mock content"})(), score=0.8, tier="qdrant", metadata={})
+            SearchResult(engram=Engram(id="1", content="mock content", source="fixture://one"), score=0.9, tier="qdrant", metadata={}),
+            SearchResult(engram=Engram(id="2", content="mock content", source="fixture://two"), score=0.8, tier="qdrant", metadata={})
         ]
 
 class MockCrossEncoder:

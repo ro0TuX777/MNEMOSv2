@@ -229,6 +229,8 @@ def test_owner_pack_is_blinded_stratified_and_not_run(verification):
 
 
 def test_written_owner_pack_matches_restricted_manifest_hash():
+    if not OWNER_MANIFEST.exists() or not OWNER_PACK.exists():
+        pytest.skip("local Phase 5A owner review artifacts are not available")
     owner_manifest = json.loads(OWNER_MANIFEST.read_text(encoding="utf-8"))
     assert _sha256(OWNER_PACK) == owner_manifest["pack_sha256"]
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 
 
@@ -45,8 +46,14 @@ def test_r1_corpus_manifest_is_non_empty_frozen_and_hash_verified() -> None:
     }.issubset(roles)
 
     source_by_path = {source["path"]: source for source in sources}
+    frozen_revision = manifest["service_revision"]
     for path, source in source_by_path.items():
-        raw = (ROOT / path).read_bytes()
+        raw = subprocess.run(
+            ["git", "show", f"{frozen_revision}:{path}"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+        ).stdout
         assert hashlib.sha256(raw).hexdigest() == source["sha256"]
 
     valid_paths = set(source_by_path)

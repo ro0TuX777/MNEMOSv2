@@ -13,6 +13,8 @@ def test_support_retrieval_and_scoring():
     lance_tier = LanceDBTier(db_dir=db_dir, table_name=table_name)
     fusion = TierFusion([lance_tier])
     lance_tier._initialize()
+    if lance_tier._table is None:
+        pytest.skip("local PIT-11A LanceDB fixture is not available")
 
     # Find a real ID from the guide to use as our "known" ID
     df = lance_tier._table.to_pandas()
@@ -56,6 +58,8 @@ def test_semantic_support_rendering_q3():
     lance_tier = LanceDBTier(db_dir=db_dir, table_name=table_name)
     fusion = TierFusion([lance_tier])
     lance_tier._initialize()
+    if lance_tier._table is None:
+        pytest.skip("local PIT-11A LanceDB fixture is not available")
 
     # Find the specific chunk from the Intelligence Oversight Guide that contains the purpose statement
     df = lance_tier._table.to_pandas()

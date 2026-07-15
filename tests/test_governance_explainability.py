@@ -50,6 +50,8 @@ def _mk_runtime(router, governor):
         explain_default=False,
         lexical_top_k=25,
         semantic_top_k=25,
+        qdrant_collection="test_collection",
+        embedding_model="test_embedding_model",
         has_compression=False,
         quant_bits=4,
         memory_over_maps_phase1=False,

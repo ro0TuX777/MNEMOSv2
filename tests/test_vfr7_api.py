@@ -47,7 +47,11 @@ def test_gate_5_audit_log_integrity(env):
         "query": "test", 
         "operator_override": True, 
         "enable_fact_awareness": True,
-        "evaluation_mode_acknowledged": True
+        "evaluation_mode_acknowledged": True,
+        "dataset_id": "dataset_alpha",
+        "workload_type": "retrospective_capability_audit",
+        "approval_ticket_id": "VFR7-TEST",
+        "case_id": "gate-5-audit-integrity",
     }
     
     sidecar.execute_fact_aware_query.return_value = ({"context": []}, {"derived_fact_count": 2})
@@ -61,7 +65,14 @@ def test_gate_5_audit_log_integrity(env):
     assert auditor.events[0]["payload"]["sidecar_run_id"] == run_id
     
     # Export
-    export_payload = {"sidecar_run_id": run_id, "data": {}}
+    export_payload = {
+        "sidecar_run_id": run_id,
+        "data": {},
+        "dataset_id": "dataset_alpha",
+        "workload_type": "retrospective_capability_audit",
+        "approval_ticket_id": "VFR7-TEST",
+        "export_purpose": "audit_integrity_test",
+    }
     api.export(session, export_payload)
     
     assert auditor.events[1]["event_type"] == "SIDECAR_OUTPUT_RELIED_UPON"

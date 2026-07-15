@@ -30,6 +30,8 @@ def _mk_runtime_with_flag(flag_value: bool, hits):
         explain_default=False,
         lexical_top_k=25,
         semantic_top_k=25,
+        qdrant_collection="test_collection",
+        embedding_model="test_embedding_model",
         memory_over_maps_phase1=flag_value,
         governance_mode="off",
     )

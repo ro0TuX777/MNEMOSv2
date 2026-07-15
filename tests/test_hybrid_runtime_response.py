@@ -53,6 +53,7 @@ def _mk_runtime_with_router(router):
         explain_default=False,
         lexical_top_k=25,
         semantic_top_k=25,
+        qdrant_collection="test_collection",
         has_compression=False,
         quant_bits=4,
         memory_over_maps_phase2=False,
