@@ -11,6 +11,10 @@ from .packet import validate_packet
 
 
 _TOKEN = re.compile(r"[A-Za-z0-9_]+")
+_STOPWORDS = {
+    "a", "an", "and", "are", "by", "does", "for", "from", "how", "in",
+    "is", "of", "or", "the", "to", "what", "where", "which", "why",
+}
 _STRUCTURED_TYPES = {
     "python_symbol",
     "python_config_constant",
@@ -25,7 +29,22 @@ _STRUCTURED_TYPES = {
 
 
 def _tokens(value: str) -> set[str]:
-    return {item.lower() for item in _TOKEN.findall(value) if item}
+    tokens: set[str] = set()
+    for raw in _TOKEN.findall(value):
+        token = raw.lower()
+        tokens.add(token)
+        tokens.update(part for part in token.split("_") if part)
+    return {token for token in tokens if token and token not in _STOPWORDS}
+
+
+def _prefix_matches(left: set[str], right: set[str]) -> set[tuple[str, str]]:
+    return {
+        (first, second)
+        for first in left
+        for second in right
+        if first != second and min(len(first), len(second)) >= 5
+        and (first.startswith(second) or second.startswith(first))
+    }
 
 
 def _strings(value: Any) -> Iterable[str]:
@@ -122,12 +141,22 @@ class ProjectMemoryIndex:
                 components["exact_heading"] = 60
                 reasons.append("exact_heading")
 
-            identity_matches = query_tokens & _tokens(
-                f"{artifact.qualified_name} {artifact.file_path}"
-            )
+            identity_tokens = _tokens(f"{artifact.qualified_name} {artifact.file_path}")
+            identity_matches = query_tokens & identity_tokens
             if identity_matches:
                 components["identity_tokens"] = 20 * len(identity_matches)
                 reasons.append("identity_tokens")
+            if artifact.language == "python" and artifact.artifact_type in {"python_symbol", "python_config_constant"}:
+                symbol_name = str(artifact.metadata.get("symbol_name") or artifact.qualified_name.rsplit(".", 1)[-1])
+                symbol_matches = query_tokens & _tokens(symbol_name)
+                if symbol_matches:
+                    weight = 30 if artifact.artifact_type == "python_symbol" else 10
+                    components["symbol_tokens"] = weight * len(symbol_matches)
+                    reasons.append("symbol_tokens")
+            stem_matches = _prefix_matches(query_tokens - identity_matches, identity_tokens - identity_matches)
+            if stem_matches:
+                components["identity_stems"] = 30 * len(stem_matches)
+                reasons.append("identity_stems")
             content_matches = query_tokens & _tokens(artifact.content)
             if content_matches:
                 components["content_tokens"] = 10 * len(content_matches)

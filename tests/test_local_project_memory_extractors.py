@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import builtins
+import json
 import subprocess
 from pathlib import Path
 
@@ -70,6 +71,18 @@ def test_python_emits_classes_methods_imports_constants_and_tests(tmp_path: Path
     assert any(item.artifact_type == "python_config_constant" and item.qualified_name.endswith("LIMIT") for item in artifacts)
 
 
+def test_python_set_constant_metadata_is_deterministic_json(tmp_path: Path) -> None:
+    root, manifest, snapshot_file = _fixture(
+        tmp_path,
+        "selected/constants.py",
+        "ALLOWED = {'degraded', 'healthy'}\n",
+    )
+    artifacts = extract_python(root, manifest, snapshot_file)
+    constant = next(item for item in artifacts if item.artifact_type == "python_config_constant")
+    assert constant.metadata["literal_value"] == ["degraded", "healthy"]
+    assert json.loads(json.dumps(constant.to_dict()))["metadata"]["literal_value"] == ["degraded", "healthy"]
+
+
 def test_python_does_not_import_or_execute_source(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     root, manifest, snapshot_file = _fixture(
         tmp_path,
@@ -93,6 +106,16 @@ def test_python_syntax_error_is_structurally_incomplete(tmp_path: Path) -> None:
     with pytest.raises(ProjectMemoryError) as exc:
         extract_python(root, manifest, snapshot_file)
     assert exc.value.code is ErrorCode.STRUCTURED_PARSE_INCOMPLETE
+
+
+def test_python_utf8_bom_is_parsed_without_losing_file_identity(tmp_path: Path) -> None:
+    root, manifest, snapshot_file = _fixture(tmp_path, "selected/bom.py", "\ufeffVALUE = 1\n")
+    artifacts = extract_python(root, manifest, snapshot_file)
+    module = next(item for item in artifacts if item.artifact_type == "python_module")
+    constant = next(item for item in artifacts if item.artifact_type == "python_config_constant")
+    assert module.content == "VALUE = 1\n"
+    assert module.file_hash == snapshot_file.file_hash
+    assert constant.span == SourceSpan(1, 1)
 
 
 def test_changed_file_is_rejected_before_extraction(tmp_path: Path) -> None:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -122,3 +123,54 @@ def test_missing_configuration_is_non_sensitive(monkeypatch: pytest.MonkeyPatch)
     assert response["status"] == "unavailable"
     assert response["reason_code"] == "PROJECT_ROOT_REQUIRED"
     assert "error" not in json.dumps(response).lower()
+
+
+def test_stdio_transport_lists_only_read_tools_and_returns_fresh_evidence(configured_server) -> None:
+    repo, _, packet_path, packet = configured_server
+    env = dict(os.environ)
+    env.update(
+        {
+            "MNEMOS_PROJECT_PACKET": str(packet_path),
+            "MNEMOS_PROJECT_ROOT": str(repo),
+            "MNEMOS_PROJECT_REPO_ID": "fixture",
+        }
+    )
+    requests = [
+        {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {},
+                "clientInfo": {"name": "pytest", "version": "1"},
+            },
+        },
+        {"jsonrpc": "2.0", "method": "notifications/initialized", "params": {}},
+        {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}},
+        {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "method": "tools/call",
+            "params": {
+                "name": "search_project_memory",
+                "arguments": {"query": "verify snapshot", "top_k": 1},
+            },
+        },
+    ]
+    completed = subprocess.run(
+        [os.sys.executable, str(Path(server.__file__))],
+        input="".join(json.dumps(item) + "\n" for item in requests),
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=20,
+        check=True,
+    )
+    responses = {item["id"]: item for line in completed.stdout.splitlines() if (item := json.loads(line)).get("id")}
+    names = {tool["name"] for tool in responses[2]["result"]["tools"]}
+    payload = responses[3]["result"]["structuredContent"]
+    assert names == server.READ_ONLY_TOOL_NAMES
+    assert payload["status"] == "ok"
+    assert payload["snapshot_id"] == packet.snapshot.snapshot_id
+    assert payload["results"][0]["file_hash"].startswith("sha256:")

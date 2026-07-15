@@ -40,6 +40,21 @@ def packet(tmp_path: Path):
             "Status: Accepted\n\n"
             "Reject stale source hashes before returning project evidence.\n"
         ),
+        "pkg/bridge.py": (
+            "def search_memory(query):\n"
+            "    return {'evidence': query}\n"
+        ),
+        "docs/bridge.md": (
+            "# Bridge Search\n\nHow does the bridge search memory for evidence?\n"
+        ),
+        "pkg/config.py": (
+            "def from_env():\n"
+            "    default_collection = 'project-memory'\n"
+            "    return default_collection\n"
+        ),
+        "docs/configuration.md": (
+            "# Configuration\n\nThe default collection is configured by the operator.\n"
+        ),
     }
     for relative, content in files.items():
         path = repo / relative
@@ -90,6 +105,20 @@ def test_exact_path_receives_path_boost(packet) -> None:
     hits = ProjectMemoryIndex(value).search("tests/test_worker.py", top_k=3)
     assert hits[0].artifact.file_path == "tests/test_worker.py"
     assert hits[0].score_components["exact_path"] == 90
+
+
+def test_natural_language_query_prefers_matching_snake_case_symbol(packet) -> None:
+    _, value = packet
+    hits = ProjectMemoryIndex(value).search("how does the bridge search memory", top_k=5)
+    assert hits[0].artifact.qualified_name == "pkg.bridge.search_memory"
+    assert "symbol_tokens" in hits[0].match_reasons
+
+
+def test_configured_query_can_match_config_path_stem(packet) -> None:
+    _, value = packet
+    hits = ProjectMemoryIndex(value).search("where is the default collection configured", top_k=5)
+    assert hits[0].artifact.qualified_name == "pkg.config.from_env"
+    assert "identity_stems" in hits[0].match_reasons
 
 
 def test_cross_scope_artifact_is_never_indexed(packet) -> None:

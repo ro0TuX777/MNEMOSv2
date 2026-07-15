@@ -79,9 +79,33 @@ def _node_span(node: ast.AST, *, include_decorators: bool = False) -> SourceSpan
 
 def _literal_value(node: ast.AST) -> Any:
     try:
-        return ast.literal_eval(node)
+        return _json_safe_literal(ast.literal_eval(node))
     except (ValueError, TypeError, SyntaxError, MemoryError, RecursionError):
         return None
+
+
+def _json_safe_literal(value: Any) -> Any:
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value
+    if isinstance(value, (list, tuple)):
+        return [_json_safe_literal(item) for item in value]
+    if isinstance(value, (set, frozenset)):
+        converted = [_json_safe_literal(item) for item in value]
+        return sorted(converted, key=repr)
+    if isinstance(value, dict):
+        if all(isinstance(key, str) for key in value):
+            return {key: _json_safe_literal(item) for key, item in sorted(value.items())}
+        return {
+            "literal_type": "mapping",
+            "entries": sorted(
+                [
+                    [_json_safe_literal(key), _json_safe_literal(item)]
+                    for key, item in value.items()
+                ],
+                key=repr,
+            ),
+        }
+    return {"literal_type": type(value).__name__, "repr": repr(value)}
 
 
 def _decorator_name(node: ast.AST) -> str:
@@ -292,8 +316,8 @@ def extract_python(
             "Python source no longer matches the snapshot",
         )
     try:
-        source = raw.decode("utf-8", errors="strict")
-        tree = ast.parse(source, filename=snapshot_file.path, type_comments=True)
+        source = raw.decode("utf-8-sig", errors="strict")
+        tree = ast.parse(raw, filename=snapshot_file.path, type_comments=True)
     except (UnicodeDecodeError, SyntaxError) as exc:
         raise ProjectMemoryError(
             ErrorCode.STRUCTURED_PARSE_INCOMPLETE,
