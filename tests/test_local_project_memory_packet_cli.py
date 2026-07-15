@@ -10,6 +10,7 @@ from prototype.local_project_memory_r0.errors import ErrorCode, ProjectMemoryErr
 from prototype.local_project_memory_r0.models import ScopeSpec
 from prototype.local_project_memory_r0.packet import (
     BEGIN_SENTINEL,
+    END_SENTINEL,
     build_packet,
     load_packet,
     write_packet,
@@ -150,6 +151,23 @@ def test_tampered_packet_is_rejected(tmp_path: Path) -> None:
     with pytest.raises(ProjectMemoryError) as exc:
         load_packet(path)
     assert exc.value.code is ErrorCode.PACKET_INTEGRITY_INVALID
+
+
+def test_packet_round_trip_allows_container_sentinel_in_source(tmp_path: Path) -> None:
+    repo = _repo(
+        tmp_path,
+        {"selected/constants.py": f'END_SENTINEL = "{END_SENTINEL}"\n'},
+    )
+    packet = build_packet(
+        repo,
+        "fixture",
+        ScopeSpec(roots=("selected",), files=(), excludes=()),
+    )
+    path = tmp_path / "packet.md"
+    write_packet(path, packet)
+    loaded = load_packet(path)
+    assert loaded.packet_sha256 == packet.packet_sha256
+    assert any(END_SENTINEL in artifact.content for artifact in loaded.artifacts)
 
 
 def test_packet_contains_boundaries_exclusions_and_approval(tmp_path: Path) -> None:

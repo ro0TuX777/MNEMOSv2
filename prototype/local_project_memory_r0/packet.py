@@ -314,7 +314,7 @@ def load_packet(path: Path) -> ProjectPacket:
     try:
         text = Path(path).read_text(encoding="utf-8")
         start = text.index(BEGIN_SENTINEL) + len(BEGIN_SENTINEL)
-        end = text.index(END_SENTINEL, start)
+        end = text.rindex(END_SENTINEL, start)
         fenced = text[start:end].strip()
         if not fenced.startswith("```json\n") or not fenced.endswith("```"):
             raise ValueError("invalid JSON fence")
