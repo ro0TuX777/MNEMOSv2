@@ -1,0 +1,93 @@
+{
+  "receipt_id": "chatcmpl-mnemos-0719a54feb5347f6aef9db992c4874da",
+  "created": 1783833299,
+  "query": "Lets discuss Observational Biases and Improved Modelling of Off-axis Relativistic Jets",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "The research paper \"Observational Biases and Improved Modelling of Off-axis Relativistic Jets\" [1-5] discusses the significant impact of relativistic Doppler boosting on the observed emission from astrophysical jets, leading to observational biases. The authors aim to investigate these biases and explore improved modeling opportunities.\n\n### Key Points:\n\n1. **Relativistic Doppler Boosting**:\n   - Relativistic Doppler boosting significantly affects the observed emission from astrophysical jets.\n   - This effect can lead to substantial observational biases in the interpretation of jet properties, such as their geometry, composition, and dynamics [1-5].\n\n2. **Observational Biases**:\n   - The paper highlights that the observed flux from off-axis jets is highly dependent on the viewing angle due to relativistic effects.\n   - Jets viewed at different angles can appear significantly different in terms of their apparent brightness and morphology [1-5].\n\n3. **Modeling Opportunities**:\n   - The authors propose improved modeling techniques to account for these observational biases, particularly focusing on off-axis jets.\n   - They suggest using advanced numerical simulations and theoretical models that incorporate relativistic effects more accurately [1-5].\n\n4. **Implications for Observations**:\n   - The study emphasizes the importance of considering the full range of viewing angles when interpreting observations of astrophysical jets.\n   - It also underscores the need for high-sensitivity, high-resolution observations to capture both approaching and receding jet components at different times [1-5].\n\n### Conclusion:\n\nThe research paper provides a comprehensive analysis of observational biases in off-axis relativistic jets and proposes methods to improve modeling. Understanding these biases is crucial for accurate interpretation of astrophysical jet phenomena observed from various perspectives.\n\nWould you like to delve deeper into any specific aspect of this topic, such as the implications for particular types of observations or the methodologies used in the research?",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::75f9a842f36d13368ba5",
+      "source": "/app/data/research_uploads/2606.13806v1-1.pdf",
+      "score": 0.8744
+    },
+    {
+      "index": 2,
+      "engram_id": "research::f447d76806dc92ad1348",
+      "source": "/app/data/research_uploads/2606.13806v1-2.pdf",
+      "score": 0.8744
+    },
+    {
+      "index": 3,
+      "engram_id": "research::bc13571b6062de508dab",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2606.13806v1-2.pdf",
+      "score": 0.8744
+    },
+    {
+      "index": 4,
+      "engram_id": "research::eb7f51ffa333530c5441",
+      "source": "/app/data/research_uploads/2606.13806v1.pdf",
+      "score": 0.8744
+    },
+    {
+      "index": 5,
+      "engram_id": "research::b2e39bce0c9accd5bbe7",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2606.13806v1-2.pdf",
+      "score": 0.7535
+    }
+  ],
+  "evidence_block": "[1] source=/app/data/research_uploads/2606.13806v1-1.pdf score=0.8744\n\nMNRAS000, 1–10 (2026) Preprint 15 June 2026 Compiled using MNRAS L ATEX style file v3.3 Observational Biases and Improved Modelling of Off-axis Relativistic Jets A. J. Cooper1 ★, A. P. Scott1,2, L. Rhodes3,4 , F. Carotenuto5 , A. K. Hughes1 , J. H. Matthews1 , K. Savard1 , F. J. Cowie1 , E. L. Elley1 , C. Lilje1 , R. Fender1,6 1Astrophysics, The University of Oxford, Keble Road, Oxford, OX1 3RH, UK 2Astrophysics Research Centre, School of Mathematics and Physics, Queen’s University Belfast, BT7 1NN, UK 3Trottier Space Institute at McGill, 3550 Rue University, Montreal, Quebec H3A 2A7, Canada 4Department of Physics, McGill University, 3600 Rue University, Montreal, Quebec H3A 2T8, Canada 5INAF-Osservatorio Astronomico di Roma, Via Frascati 33, I-00078, Monte Porzio Catone (RM), Italy 6Department of Astronomy, University of Cape Town, Private Bag X3, Rondebosch 7701, South Africa Accepted XXX. Received YYY; in original form ZZZ ABSTRACT Relativistic Doppler boosting significantly affects the observed emission of astrophysical jets resulting in observational biases. In this work we investigate the observational biases and modelling opportunities which arise due to relativistic boostin...\n\n[2] source=/app/data/research_uploads/2606.13806v1-2.pdf score=0.8744\n\nMNRAS000, 1–10 (2026) Preprint 15 June 2026 Compiled using MNRAS L ATEX style file v3.3 Observational Biases and Improved Modelling of Off-axis Relativistic Jets A. J. Cooper1 ★, A. P. Scott1,2, L. Rhodes3,4 , F. Carotenuto5 , A. K. Hughes1 , J. H. Matthews1 , K. Savard1 , F. J. Cowie1 , E. L. Elley1 , C. Lilje1 , R. Fender1,6 1Astrophysics, The University of Oxford, Keble Road, Oxford, OX1 3RH, UK 2Astrophysics Research Centre, School of Mathematics and Physics, Queen’s University Belfast, BT7 1NN, UK 3Trottier Space Institute at McGill, 3550 Rue University, Montreal, Quebec H3A 2A7, Canada 4Department of Physics, McGill University, 3600 Rue University, Montreal, Quebec H3A 2T8, Canada 5INAF-Osservatorio Astronomico di Roma, Via Frascati 33, I-00078, Monte Porzio Catone (RM), Italy 6Department of Astronomy, University of Cape Town, Private Bag X3, Rondebosch 7701, South Africa Accepted XXX. Received YYY; in original form ZZZ ABSTRACT Relativistic Doppler boosting significantly affects the observed emission of astrophysical jets resulting in observational biases. In this work we investigate the observational biases and modelling opportunities which arise due to relativistic boostin...\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2606.13806v1-2.pdf score=0.8744\n\nMNRAS000, 1–10 (2026) Preprint 15 June 2026 Compiled using MNRAS L ATEX style file v3.3 Observational Biases and Improved Modelling of Off-axis Relativistic Jets A. J. Cooper1 ★, A. P. Scott1,2, L. Rhodes3,4 , F. Carotenuto5 , A. K. Hughes1 , J. H. Matthews1 , K. Savard1 , F. J. Cowie1 , E. L. Elley1 , C. Lilje1 , R. Fender1,6 1Astrophysics, The University of Oxford, Keble Road, Oxford, OX1 3RH, UK 2Astrophysics Research Centre, School of Mathematics and Physics, Queen’s University Belfast, BT7 1NN, UK 3Trottier Space Institute at McGill, 3550 Rue University, Montreal, Quebec H3A 2A7, Canada 4Department of Physics, McGill University, 3600 Rue University, Montreal, Quebec H3A 2T8, Canada 5INAF-Osservatorio Astronomico di Roma, Via Frascati 33, I-00078, Monte Porzio Catone (RM), Italy 6Department of Astronomy, University of Cape Town, Private Bag X3, Rondebosch 7701, South Africa Accepted XXX. Received YYY; in original form ZZZ ABSTRACT Relativistic Doppler boosting significantly affects the observed emission of astrophysical jets resulting in observational biases. In this work we investigate the observational biases and modelling opportunities which arise due to relativistic boostin...\n\n[4] source=/app/data/research_uploads/2606.13806v1.pdf score=0.8744\n\nMNRAS000, 1–10 (2026) Preprint 15 June 2026 Compiled using MNRAS L ATEX style file v3.3 Observational Biases and Improved Modelling of Off-axis Relativistic Jets A. J. Cooper1 ★, A. P. Scott1,2, L. Rhodes3,4 , F. Carotenuto5 , A. K. Hughes1 , J. H. Matthews1 , K. Savard1 , F. J. Cowie1 , E. L. Elley1 , C. Lilje1 , R. Fender1,6 1Astrophysics, The University of Oxford, Keble Road, Oxford, OX1 3RH, UK 2Astrophysics Research Centre, School of Mathematics and Physics, Queen’s University Belfast, BT7 1NN, UK 3Trottier Space Institute at McGill, 3550 Rue University, Montreal, Quebec H3A 2A7, Canada 4Department of Physics, McGill University, 3600 Rue University, Montreal, Quebec H3A 2T8, Canada 5INAF-Osservatorio Astronomico di Roma, Via Frascati 33, I-00078, Monte Porzio Catone (RM), Italy 6Department of Astronomy, University of Cape Town, Private Bag X3, Rondebosch 7701, South Africa Accepted XXX. Received YYY; in original form ZZZ ABSTRACT Relativistic Doppler boosting significantly affects the observed emission of astrophysical jets resulting in observational biases. In this work we investigate the observational biases and modelling opportunities which arise due to relativistic boostin...\n\n[5] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2606.13806v1-2.pdf score=0.7535\n\nThe large-scale jet ejecta from MAXI J1820 are consistent with an intrinsic powerlaw flux of𝐹𝜈 ∝𝑡 −3.6 , with receding ejecta flux being produced much earlier in the jet rest frame despite Figure 7.Predicted MAXI J1820-like emission from the approaching (left panels)andreceding(rightpanels)asafunctionoftimeandΓ 0 forthreeview- ingangles(𝜃 v =[15,45,75]deg).Notethepowerlawcolourscalechangesfor eachrow.Cyandashedcontoursagaincorrespondto𝐹 𝜈 =150𝜇Jyflux,with the white hatched region excluding regions of lower flux. The shape of the observable region shows how observations at different times are sensitive to ejectawithdifferinginitialLorentzfactorsinamannerthatstronglydepends on the viewing angle. arriving to the observer at much later times. (iii) Approaching high-Γ0 jet ejecta can go undetected unless both early-time and late-time observations are conducted. (iv) Sensitive,high-spatialresolutionobservationsarerequiredat latetimes(≳200days)todetecttherecedingejectaofevenmoderate- Γ0 ejecta. For much of the parameter space, this component is only visible weeks or months after the approaching jet has faded below detectable levels. To maximise scientific output from multi-wavelength, kin...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "history_turns": 2,
+    "query_condensed": true,
+    "retrieval_query": "Discuss Observational Biases and Improved Modelling of Off-axis Relativistic Jets",
+    "original_query": "Lets discuss Observational Biases and Improved Modelling of Off-axis Relativistic Jets",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "semantic",
+    "fusion_policy": null,
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.126
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null,
+  "citation_check": {
+    "cited_indices": [],
+    "invalid_indices": [],
+    "uncited_evidence_indices": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "evidence_count": 5,
+    "coverage": 0.0,
+    "verdict": "no_citations_in_answer"
+  },
+  "generation": {
+    "done_reason": "stop",
+    "truncated": false,
+    "prompt_eval_count": 2212,
+    "eval_count": 384
+  },
+  "score_stats": {
+    "count": 5,
+    "max": 0.8744,
+    "min": 0.7535,
+    "mean": 0.8502
+  },
+  "content_hash": "sha256:879ea187c379160b36e791af7d50c9681a1d112e1f248433517b63c70b9fd450"
+}

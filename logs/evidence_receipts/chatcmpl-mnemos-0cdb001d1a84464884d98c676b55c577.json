@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-0cdb001d1a84464884d98c676b55c577",
+  "created": 1783226043,
+  "query": "teach me about Large Language Models",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "Large Language Models (LLMs) are a class of artificial intelligence models designed to understand and generate human-like text based on the patterns learned from vast amounts of textual data. Here’s an overview:\n\n### Key Characteristics\n\n1. **Scale**: LLMs are typically very large, containing billions or even trillions of parameters. This scale allows them to capture complex linguistic structures and nuances.\n\n2. **Pre-training**: These models are often pre-trained on a wide variety of text data from the internet, books, articles, etc., using techniques like autoregressive language modeling (predicting the next word in a sequence).\n\n3. **Fine-tuning**: After pre-training, LLMs can be fine-tuned for specific tasks such as translation, question answering, or text generation by adjusting their parameters based on task-specific data.\n\n### Recent Developments\n\n1. **Energy-Based Fine-Tuning (EBFT)**: This is a method introduced to optimize sequence-level statistics of the completion distribution without requiring a task-specific verifier or preference model [2]. It uses strided block-parallel sampling and policy-gradient updates, providing dense semantic feedback for fine-tuning.\n\n2. **Contrastive Preference Optimization**: This approach aims to push the boundaries of LLM performance in machine translation by optimizing contrastive preferences between different translations [1].\n\n3. **Quiet-Star**: This method allows language models to learn to think before speaking, potentially improving their coherence and relevance [5].\n\n4. **RLHF (Reinforcement Learning from Human Feedback)**: This involves training LLMs using human feedback to improve their performance on specific tasks by aligning them with human preferences [4].\n\n### Applications\n\n- **Translation**: Enhancing the accuracy and fluency of machine translations.\n- **Question Answering**: Improving the ability to understand complex queries and provide accurate answers.\n- **Text Generation**: Generating coherent and contextually relevant text for various applications like creative writing, summarization, etc.\n\n### Challenges\n\n- **Bias and Fairness**: LLMs can inherit biases present in their training data, leading to unfair or discriminatory outputs. Techniques like feature-matching objectives are being explored to mitigate these issues [2].\n- **Privacy Concerns**: The use of large datasets for training raises privacy concerns. Methods like differential privacy are employed to protect user data during the training process.\n\n### Future Directions\n\nResearch is ongoing to improve the efficiency, effectiveness, and ethical implications of LLMs. Techniques such as energy-based modeling, reinforcement learning from human feedback (RLHF), and fine-tuning methods like EBFT continue to evolve, aiming to enhance the performance and reliability of these models in various applications.\n\nFor more detailed information on specific techniques or datasets used in training and evaluating LLMs, you can refer to the cited papers [1-5].",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "demo_corpus::2603.12248v1.pdf::chunk026",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.8229
+    },
+    {
+      "index": 2,
+      "engram_id": "demo_corpus::2603.12248v1.pdf::chunk000",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.3999
+    },
+    {
+      "index": 3,
+      "engram_id": "demo_corpus::2603.12237v1.pdf::chunk047",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.0715
+    },
+    {
+      "index": 4,
+      "engram_id": "demo_corpus::2603.12248v1.pdf::chunk025",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.0139
+    },
+    {
+      "index": 5,
+      "engram_id": "demo_corpus::2603.12248v1.pdf::chunk024",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.0092
+    }
+  ],
+  "evidence_block": "[1] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.8229\n\nf, A., and Awadalla, H. H. A paradigm shift in machine translation: Boosting transla- tion performance of large language models, 2023. Xu, H., Sharaf, A., Chen, Y ., Tan, W., Shen, L., Durme, B. V ., Murray, K., and Kim, Y . J. Contrastive preference optimization: Pushing the boundaries of llm performance in machine translation, 2024a. Xu, M., Geffner, T., Kreis, K., Nie, W., Xu, Y ., Leskovec, J., Ermon, S., and Vahdat, A. Energy-based diffusion lan- guage models for text generation. InICLR 2025, 2024b. arXiv:2410.21357. Zelikman, E., Harik, G., Shao, Y ., Jayasiri, V ., Haber, N., and Goodman, N. D. Quiet-star: Language models can teach themselves to think before speaking.arXiv preprint arXiv:2403.09629, 2024. Zhang, T., Kishore, V ., Wu, F., Weinberger, K. Q., and Artzi, Y . Bertscore: Evaluating text generation with bert.arXiv preprint arXiv:1904.09675, 2019. Zhao, R., Meterez, A., Kakade, S., Pehlevan, C., Jelassi, S., and Malach, E. Echo chamber: Rl post-training am- plifies behaviors learned in pretraining.arXiv preprint arXiv:2504.07912, 2025. Zhu, X., Cheng, D., Zhang, D., Li, H., Zhang, K., Jiang, C., Sun, Y ., Hua, E., Zuo, Y ., Lv, X., Zhang, Q., Chen, L., Shao, F., Xue...\n\n[2] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.3999\n\nMatching Features, Not Tokens: Energy-Based Fine-Tuning of Language Models Samy Jelassi *1 Mujin Kwun *1 Rosie Zhao *1 Yuanzhi Li2 Nicolo Fusi 3 Yilun Du 1 Sham M. Kakade 1 Carles Domingo-Enrich *3 Abstract Cross-entropy (CE) training provides dense and scalable supervision for language models, but it optimizes next-token prediction under teacher forcing rather than sequence-level behavior under model rollouts. We introduce a feature-matching objective for language-model fine-tuning that tar- gets sequence-level statistics of the completion distribution, providing dense semantic feedback without requiring a task-specific verifier or pref- erence model. To optimize this objective ef- ficiently, we proposeenergy-based fine-tuning (EBFT), which uses strided block-parallel sam- pling to generate multiple rollouts from nested prefixes concurrently, batches feature extraction over these rollouts, and uses the resulting embed- dings to perform an on-policy policy-gradient up- date. We present a theoretical perspective connect- ing EBFT to KL-regularized feature-matching and energy-based modeling. Empirically, across Q&A coding, unstructured coding, and transla- tion, EBFT matches RLVR and...\n\n[3] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.0715\n\ncy of large lan- guage models (llms): A survey.arXiv preprint arXiv:2403.05156. Yelp, Inc. 2025. Yelp open dataset. Xiang Zhang, Junbo Zhao, and Yann LeCun. 2015. Character-level convolutional networks for text clas- sification. InAdvances in Neural Information Pro- cessing Systems, volume 28. Dataset: AG’s News Topic Classification. 11 Appendix Index This appendix provides supplementary material ref- erenced in the main text: • Threat Model (§A) • Privacy Guarantees: Detailed Proofs (§B) –Proof of Theorem 1 – Proof of Theorem 2 (Sequence-level composition) –Proof of Theorem 3 (vMF isκ-mLDP) – Proof of Proposition 1 (Cosine decoding is MLE under vMF) • Additional Experimental Results (§C) A Threat Model Setting.Each user holds a private text input C. Before transmission or use for task T, the user ap- plies the local mechanism M to obtain a perturbed output ˜C=M(C, T)and only ˜Cis shared. Aggregator model (honest-but-curious).The central server follows the protocol (collects ˜C) but may attempt to infer information about the original inputsCfrom ˜C. Adversary’s goals.Infer sensitive content or at- tributes ofC, including: 1. identifying specific sensitive tokens/spans (e.g., names,...\n\n[4] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.0139\n\nng, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C. L., Mishkin, P., Zhang, C., Agarwal, S., Slama, K., Ray, A., et al. Training language models to fol- low instructions with human feedback.arXiv preprint arXiv:2203.02155, 2022. Qwen, :, Yang, A., Yang, B., Zhang, B., Hui, B., Zheng, B., Yu, B., Li, C., Liu, D., Huang, F., Wei, H., Lin, H., Yang, J., Tu, J., Zhang, J., Yang, J., Yang, J., Zhou, J., Lin, J., Dang, K., Lu, K., Bao, K., Yang, K., Yu, L., Li, M., Xue, M., Zhang, P., Zhu, Q., Men, R., Lin, R., Li, T., Tang, T., Xia, T., Ren, X., Ren, X., Fan, Y ., Su, Y ., Zhang, Y ., Wan, Y ., Liu, Y ., Cui, Z., Zhang, Z., and Qiu, Z. Qwen2.5 technical report, 2025. URL https: //arxiv.org/abs/2412.15115. Rafailov, R., Sharma, A., Mitchell, E., Ermon, S., and Man- ning, C. D. Direct preference optimization: Your lan- guage model is secretly a reward model.arXiv preprint arXiv:2305.18290, 2023. Ranzato, M., Chopra, S., Auli, M., and Zaremba, W. Se- quence level training with recurrent neural networks. arXiv preprint arXiv:1511.06732, 2016. Rennie, S. J., Marcheret, E., Mroueh, Y ., Ross, J., and Goel, V . Self-critical sequence training for image captioning. In Proceedings of the IEEE...\n\n[5] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.0092\n\nian, A., Al-Dahle, A., Letman, A., Mathur, A., Schelten, A., Vaughan, A., et al. The llama 3 herd of models.arXiv preprint arXiv:2407.21783, 2024. Hatamizadeh, A., Akter, S. N., Prabhumoye, S., Kautz, J., Patwary, M., Shoeybi, M., Catanzaro, B., and Choi, Y . Rlp: Reinforcement as a pretraining objective.arXiv preprint arXiv:2510.01265, 2025. Hu, J., Wu, X., Zhu, Z., Xianyu, Wang, W., Zhang, D., and Cao, Y . Openrlhf: An easy-to-use, scalable and high-performance rlhf framework.arXiv preprint arXiv:2405.11143, 2024. Kaplan, J., McCandlish, S., Henighan, T., Brown, T. B., Chess, B., Child, R., Gray, S., Radford, A., Wu, J., and Amodei, D. Scaling laws for neural language models. arXiv preprint arXiv:2001.08361, 2020. 11 Energy-Based Fine-Tuning Lamb, A. M., Goyal, A., Zhang, Y ., Zhang, S., Courville, A., and Bengio, Y . Professor forcing: A new algo- rithm for training recurrent networks.arXiv preprint arXiv:1610.09038, 2016. Li, S., Li, K., Xu, Z., Huang, G., Yang, E., Li, K., Wu, H., Wu, J., Zheng, Z., Zhang, C., Shi, K., Deng, K., Yi, Q., Xiong, R., Xu, T., Jiang, Y ., Yan, J., Zeng, Y ., Xu, G., Xue, J., Xu, Z., Fang, Z., Wang, B. C., Liu, Q., Li, X., and Tao, Y . Reinforcement...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "hybrid",
+    "fusion_policy": "lexical_dominant",
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "hybrid|lexical_dominant|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.372
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

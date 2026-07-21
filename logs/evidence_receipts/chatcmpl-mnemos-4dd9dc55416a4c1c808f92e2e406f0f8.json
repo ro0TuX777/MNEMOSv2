@@ -1,0 +1,19 @@
+{
+  "receipt_id": "chatcmpl-mnemos-4dd9dc55416a4c1c808f92e2e406f0f8",
+  "created": 1783225572,
+  "query": "lets discuss Long-context autoregressive decoding, we decoding remains expensive because each decoding step must repeatedly process a growing history. We observe a consistent pattern during decoding: within a sentence, and more generally within a short semantically coherent span, the dominant attention support often remains largely stable",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "MNEMOS search failed (status=unavailable, error=HTTPConnectionPool(host='127.0.0.1', port=8700): Max retries exceeded with url: /v1/mnemos/search (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000018F455882C0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))); Ollama was not called.",
+  "status": "mnemos_error",
+  "citations": [],
+  "evidence_block": "",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "unavailable",
+    "response_error": "HTTPConnectionPool(host='127.0.0.1', port=8700): Max retries exceeded with url: /v1/mnemos/search (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000018F455882C0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": "MNEMOS search failed (status=unavailable, error=HTTPConnectionPool(host='127.0.0.1', port=8700): Max retries exceeded with url: /v1/mnemos/search (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000018F455882C0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))); Ollama was not called."
+}

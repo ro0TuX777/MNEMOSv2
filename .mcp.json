@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "engram": {
+      "command": "C:\\Python313\\python.exe",
+      "args": [
+        "-m",
+        "engram.mcp_server"
+      ],
+      "env": {
+        "ENGRAM_SQLITE_PATH": "G:\\MNEMOS\\.engram\\engram.db",
+        "ENGRAM_QDRANT_URL": "http://localhost:9473",
+        "ENGRAM_QDRANT_COLLECTION": "engram_mnemos",
+        "ENGRAM_DEFAULT_TOKEN_BUDGET": "1600"
+      }
+    }
+  }
+}

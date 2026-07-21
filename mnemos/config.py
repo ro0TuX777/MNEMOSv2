@@ -68,6 +68,7 @@ class MnemosConfig:
     fusion_policy: str = "balanced"
     lexical_top_k: int = 25
     semantic_top_k: int = 25
+    max_evidence_items_per_response: int = 0
     explain_default: bool = False
     adaptive_routing: bool = True
 
@@ -179,6 +180,11 @@ class MnemosConfig:
         fusion_policy = cls._parse_fusion_policy()
         lexical_top_k = cls._parse_int("MNEMOS_LEXICAL_TOP_K", "25", min_value=1)
         semantic_top_k = cls._parse_int("MNEMOS_SEMANTIC_TOP_K", "25", min_value=1)
+        max_evidence_items_per_response = cls._parse_int(
+            "MNEMOS_MAX_EVIDENCE_ITEMS_PER_RESPONSE",
+            "0",
+            min_value=0,
+        )
         explain_default = cls._parse_bool("MNEMOS_EXPLAIN_DEFAULT", "false")
 
         governance_mode = cls._parse_governance_mode()
@@ -242,6 +248,7 @@ class MnemosConfig:
             fusion_policy=fusion_policy,
             lexical_top_k=lexical_top_k,
             semantic_top_k=semantic_top_k,
+            max_evidence_items_per_response=max_evidence_items_per_response,
             explain_default=explain_default,
             adaptive_routing=cls._parse_bool("MNEMOS_ADAPTIVE_ROUTING", "true"),
             governance_mode=governance_mode,

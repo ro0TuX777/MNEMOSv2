@@ -1,0 +1,94 @@
+{
+  "receipt_id": "chatcmpl-mnemos-e1a214299599460588f88ac813b4f257",
+  "created": 1783715287,
+  "query": "What limitations do they mention about it?",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "The indexed papers highlight a limitation regarding mechanisms that allocate a uniform privacy budget, such as those discussed in [5]. These mechanisms ignore the downstream task context, leading to potential misallocation of privacy budgets. Specifically:\n\n- **Static Partitioning**: Mechanisms like the one described in [5] partition tokens based on static criteria (e.g., explicit sensitivity) without considering the dynamic importance of tokens relative to the specific task or query at hand. This can result in unnecessary noise being added to important tokens, thereby reducing utility, or insufficient protection for less critical information.\n\n- **Inadequate Context Awareness**: The papers suggest that a token's privacy sensitivity and its relevance to the downstream task are context-dependent. For instance, \"Einstein\" might be crucial for one query but irrelevant for another [4]. Mechanisms that do not account for this variability can lead to suboptimal trade-offs between privacy and utility.\n\nThese limitations underscore the need for more sophisticated approaches like STAMP (Selective Task-Aware Mechan",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "demo_corpus::2603.12237v1.pdf::chunk023",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.9588
+    },
+    {
+      "index": 2,
+      "engram_id": "demo_corpus::2603.12237v1.pdf::chunk000",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.928
+    },
+    {
+      "index": 3,
+      "engram_id": "research::d2d61150596549337a38",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1-1.pdf",
+      "score": 0.928
+    },
+    {
+      "index": 4,
+      "engram_id": "research::b4ae5a49023c382ac2e7",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1-1.pdf",
+      "score": 0.4888
+    },
+    {
+      "index": 5,
+      "engram_id": "demo_corpus::2603.12237v1.pdf::chunk018",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.2085
+    }
+  ],
+  "evidence_block": "[1] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.9588\n\ncher et al., 2024) redistributes the privacy budgetϵ using scores from intrinsic text properties (information content, POS tags, semantic deviation within con- textC), but remains largelytask-agnostic. In contrast, STAMP addresses these limitations by explicitly modeling both a token’s privacy sen- sitivity and its task relevance. Rather than treat- ing privacy as a uniform property of the entire sequence, STAMP reflects the view that privacy is not merely an intrinsic property of text, but a contextual choice regarding which attributes must be concealed versus which are essential for utility. Consequently, this enables a selective privatization that achieves a superior privacy-utility trade-off. Furthermore, we rigorously distinguish theallo- cation strategyfrom theperturbation mechanism. While STAMP is instantiated here with the Polar mechanism to leverage the directional geometry of embedding spaces, it is inherently a modular frame- work; other discrete or substitution-based mecha- nisms (Carvalho et al., 2023; Feyisetan et al., 2020) could in principle be integrated into the allocation scheme, provided they expose a tunable parame- ter for perturbation strength. In this way, S...\n\n[2] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.9280\n\nSTAMP: Selective Task-Aware Mechanism for Text Privacy Fengwei Tian1, Payel Bhattacharjee1, Heidi Hanson2, Geoffrey D. Rubin1, Joseph Y. Lo3, Ravi Tandon1 1University of Arizona, 2Oak Ridge National Laboratory, 3Duke University {fengtian, payelb, grubin, tandonr}@arizona.edu, hansonha@ornl.gov, joseph.lo@duke.edu Abstract We present STAMP (Selective Task-Aware Mechanism for Text Privacy), a new framework for task-aware text privatization that achieves an improved privacy–utility trade-off. STAMP selectively allocates privacy budgets across to- kens by jointly considering (i) each token’s importance to the downstream task (as mea- sured via a task- or query-specific representa- tion), and (ii) its privacy sensitivity (e.g., names, dates, identifiers). This token-level partition- ing enables fine-grained, group-wise control over the level of noise applied to different parts of the input, balancing privacy protection with task relevance. To privatize individual token embeddings, we introduce the polar mecha- nism, which perturbs only the direction of em- beddings on the unit sphere while preserving their magnitude. Decoding is performed via cosine nearest-neighbor search, aligning the...\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1-1.pdf score=0.9280\n\nSTAMP: Selective Task-Aware Mechanism for Text Privacy Fengwei Tian1, Payel Bhattacharjee1, Heidi Hanson2, Geoffrey D. Rubin1, Joseph Y. Lo3, Ravi Tandon1 1University of Arizona, 2Oak Ridge National Laboratory, 3Duke University {fengtian, payelb, grubin, tandonr}@arizona.edu, hansonha@ornl.gov, joseph.lo@duke.edu Abstract We present STAMP (Selective Task-Aware Mechanism for Text Privacy), a new framework for task-aware text privatization that achieves an improved privacy–utility trade-off. STAMP selectively allocates privacy budgets across to- kens by jointly considering (i) each token’s importance to the downstream task (as mea- sured via a task- or query-specific representa- tion), and (ii) its privacy sensitivity (e.g., names, dates, identifiers). This token-level partition- ing enables fine-grained, group-wise control over the level of noise applied to different parts of the input, balancing privacy protection with task relevance. To privatize individual token embeddings, we introduce the polar mecha- nism, which perturbs only the direction of em- beddings on the unit sphere while preserving their magnitude. Decoding is performed via cosine nearest-neighbor search, aligning the...\n\n[4] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1-1.pdf score=0.4888\n\n3 The STAMP Framework Unlike mechanisms that allocate a uniform privacy budget, STAMPpartitions tokens along two binary axes:explicit sensitivity(e.g., PII or NER labels) andtask-dependent importance. While sensitivity can often be identified from metadata or entity type, importance depends on the specific downstream task—the same token or phrase may be crucial for one query yet irrelevant for another. STAMP captures this by grouping tokens according to their similarity to a task or query representation. This task-aware selective design yields four to- ken categories (illustrated in Table 1) governed by two principles: (i) sensitive tokens receive the strongest protection, and (ii) among non-sensitive tokens, those with higher task importance are per- turbed the least to preserve utility. STAMPassigns each token w to a group c=g T (w)∈ {1,2,3,4} via a public, task-specific mapping gT , and allo- cates privacy budgets at thegrouplevel. This se- lective allocation protects consequential attributes without erasing essential task information. For- mally, STAMPinstantiates a task-aware metric- LDP mechanism in which budgets are assigned and perturbations applied within each group. Defin...\n\n[5] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.2085\n\nqs9FAOLvvFkltxFyDrxMtICTI0+sWv3iBmaYTSMEG17npuYvwpVYYzgbNCL9WYUDamQ+xaKmmE2p8uTp2RC6sMSBgrW9KQhfp7YkojrSdRYDsjakZ61ZuL/3nd1ITX/pTLJDUo2XJRmApiYjL/mwy4QmbExBLKFLe3EjaiijJj0ynYELzVl9dJq1rxapXafbVUv8viyMMZnEMZPLiCOtxCA5rAYAjP8ApvjnBenHfnY9mac7KZU/gD5/MHkL6NYA==</latexit> (b) Figure 1:Overview of the STAMP framework: Tokens are categorized according to their task and privacy relevance, and then perturbed using adaptively assigned privacy budgets via the polar mechanism. Figure (a) (left) illustrates the overall token perturbation pipeline with group-wise privacy budget allocation; (b) (right) details the grouping and budget assignment process based on task and privacy importance. Meisenbacher et al., 2024) —but these ignore the downstream task context. A token may be es- sential for one query yet irrelevant for another, so its importance varies dynamically across con- texts. Such static partitions misallocate privacy, leading to unnecessary noise or insufficient protec- tion. For example, in a question-answering task, the token “Einstein” is essential when answering “Who developed the theory of relativity?” but irrelevant when the query is “ When was the Nobel Prize established? ”. In...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "history_turns": 2,
+    "query_condensed": true,
+    "retrieval_query": "What limitations do the indexed papers mention regarding selective task-aware mechanism for privacy (STAMP)?",
+    "original_query": "What limitations do they mention about it?",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "semantic",
+    "fusion_policy": null,
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.14
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null,
+  "citation_check": {
+    "cited_indices": [
+      5,
+      4
+    ],
+    "invalid_indices": [],
+    "uncited_evidence_indices": [
+      1,
+      2,
+      3
+    ],
+    "evidence_count": 5,
+    "coverage": 0.4,
+    "verdict": "partial_evidence_cited"
+  },
+  "generation": {
+    "done_reason": "length",
+    "truncated": true,
+    "prompt_eval_count": 1979,
+    "eval_count": 200
+  },
+  "score_stats": {
+    "count": 5,
+    "max": 0.9588,
+    "min": 0.2085,
+    "mean": 0.7024
+  },
+  "content_hash": "sha256:3b8f6d56cf8f761c4b5a06226387e19023c9e766e84a355cf0f5d68468b9b86c"
+}

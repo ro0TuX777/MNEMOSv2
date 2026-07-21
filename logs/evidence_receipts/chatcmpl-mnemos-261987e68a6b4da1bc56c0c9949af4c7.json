@@ -1,0 +1,50 @@
+{
+  "receipt_id": "chatcmpl-mnemos-261987e68a6b4da1bc56c0c9949af4c7",
+  "created": 1783142009,
+  "query": "Using only MNEMOS evidence, briefly identify one indexed source and cite it.",
+  "requested_model": "mnemos.hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "Based on the provided MNEMOS evidence, here is an identified indexed source:\n\nA paper discussing research workflows and the introduction of tools like OpenAlex as a fully open index of works, authors, institutions, venues, and concepts, which provides a programmable substrate for literature discovery, citation traversal, and bibliometric filtering [2].",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::0b51e8341e78920dee78",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2606.10053v1-1.pdf",
+      "score": 0.5833
+    },
+    {
+      "index": 2,
+      "engram_id": "research::da6c1f3809d1493a0528",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2604.24658v3-1.pdf",
+      "score": 0.5788
+    },
+    {
+      "index": 3,
+      "engram_id": "research::3d4054dc3d7fa5213a75",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2604.20622v1-1.pdf",
+      "score": 0.5783
+    },
+    {
+      "index": 4,
+      "engram_id": "research::697bd6bc72dffde50ca1",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2604.20795v1-1.pdf",
+      "score": 0.5738
+    },
+    {
+      "index": 5,
+      "engram_id": "ollama-smoke-001",
+      "source": "docs/integrations/ollama_mnemos_mfs.md",
+      "score": 0.5731
+    }
+  ],
+  "evidence_block": "[1] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2606.10053v1-1.pdf score=0.5833\n\n=𝑥𝑖′, then the utility of publisher𝑖is0. (2) If a strategy profile 𝑥is a Nash equilibrium in 𝐺, then 𝑥𝑖 ≠𝑥𝑖′. The intuition is simple. Under the xMMR ranking, any publisher whose document is identical to at least one previously ranked doc- ument results in a zero novelty score. When all documents are identical, as is the case in the relevance profile, it is straightforward to see that only publisher 1 (i.e., the first in lexicographic order) receives strictly positive utility (under lexicographical tie-breaking), while any other publisher can deviate and benefit a strictly posi- tive gain in utility. A full proof of the observation can be found in Appendix A.4. While Observation 2 rules out the possibility that the relevance strategy is a dominant strategy forallpublishers, it is still true that the relevance strategy is dominant for publisher 1: Lemma 3.In any xMMR publisher game, the relevance strategy is a dominant strategy for publisher 1. Note that Lemma 3 does not require the symmetry of the aspect distribution. A full proof of the lemma can be found in Appendix A.5. Relying on Observation 2 and Lemma 3, one can derive a complete equilibrium characterization for the two-publi...\n\n[2] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2604.24658v3-1.pdf score=0.5788\n\nal., 2018), Weights & Biases (Biewald, 2020))simultaneouslyleaves the knowledge siloed in three unlinked formats with no cross-referencing between claims, the code that tests them, the evidence produced, and the decisions that selected it. ARAcloses this gap not by replacing these tools but by pro- viding the missing structural layer: an executable epistemic graph whose cross-layer bindings make these connections explicit and machine-traversable. Machine-readable research artifacts.A growing line of work argues that scientific knowledge should be authored in machine-readable form during the research process rather than recovered post-hoc: the FAIR principles (Wilkinson et al., 2016) standardize data metadata, the W3C PROV ontology (Lebo et al., 2013) formalizes provenance for sci- entific outputs, Canini (2026) reframes the paper as a “com- pression format for human readers” that should yield to structured knowledge objects, and Stocker et al. (2025); Booeshaghi et al. (2026) advocate authoring-time machine readability as a first principle. Concrete formats instan- tiate parts of this vision—nanopublications (Groth et al., 2010) atomize claims with provenance, the Open Research Kno...\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2604.20622v1-1.pdf score=0.5783\n\na history of stronger anchoring. Before multi- agent research workflows became feasible, the main bottlenecks were access to machine-readable scholarly corpora, citation graphs, and interfaces for grounding generated text in evidence. At the corpus level, Lo et al. [74] introduced S2ORC, a large-scale structured corpus that made citation-aware retrieval and document-level text mining practical at scale. At the catalog and graph level, Priem et al. [75] introduced OpenAlex as a fully open index of works, authors, institutions, venues, and concepts, giving later systems a programmable substrate forliterature discovery, citation traversal, and bibliometric filtering. These resources matter because many later “research agents” inherit their apparent capability from the quality of the scholarly substrate underneath them. A first wave of LLM-era work then focused on citation-grounded text generation rather than full research automation. Gao et al. [76] introduced ALCE, a benchmark and evaluation framework for end-to-end gen- eration of text with citations, emphasizing fluency, correctness, and citation quality rather than stylistic quality alone. Funkquist et al. [53] similarly proposed...\n\n[4] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2604.20795v1-1.pdf score=0.5738\n\n--> IDX[SPARQL + neighborhood indexing] IDX --> RET[Graph-aware retrieval] RET --> LLM[LLM response] LLM --> FACT[Fact extraction from response] FACT --> NORM LLM --> LOGS[Logs and embeddings] LOGS --> I Stage 1 — Ingest and Segmentation Sources enter the system in heterogeneous form: documents, PDFs, tables, transcripts, API responses, and dialogues. For texts and logs, standard RAG-like chunking and embedding indexing are performed, providing inexpensive recall via similarity. A P.Salovskii’s perspective is useful here: RAG is not rejected but interpreted as connecting external memory, which remains useful as long as corpus recall solves part of the problem. However, already at this stage it is crucial to preserve provenance: which chunk, from which source, in which context produced a future entity or relation. 9 Stage 2 — NER and Entity Typing The system extracts candidate entities, assigns preliminary types and aliases, and then converts detected entities into vocabulary candidates for the future ontology. Ontology engineering literature emphasizes that most future errors originate at this step: incomplete classes, confusion between instance and type, ambiguous aliases, incorre...\n\n[5] source=docs/integrations/ollama_mnemos_mfs.md score=0.5731\n\nMNEMOS Ollama integration smoke result: the adapter retrieves MNEMOS evidence through the MFS SDK/API boundary, sends bounded context to Ollama, and returns citations without changing retrieval or enforcement policy.",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

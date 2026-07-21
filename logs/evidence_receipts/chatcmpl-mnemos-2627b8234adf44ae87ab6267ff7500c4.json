@@ -1,0 +1,20 @@
+{
+  "receipt_id": "chatcmpl-mnemos-2627b8234adf44ae87ab6267ff7500c4",
+  "created": 1783680436,
+  "query": "What about its abstention gap?",
+  "requested_model": "qwen3-coder-next:latest",
+  "actual_model": "qwen3-coder-next:latest",
+  "answer": "Follow-up answered. [1]",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "source": "workflow.pdf",
+      "score": 0.9
+    }
+  ],
+  "evidence_block": "",
+  "retrieval_metadata": {},
+  "claim_boundary": "boundary",
+  "warning": null
+}

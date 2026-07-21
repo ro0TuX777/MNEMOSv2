@@ -1,0 +1,89 @@
+{
+  "receipt_id": "chatcmpl-mnemos-ccc4eab70d324a6f95c5df05309ae554",
+  "created": 1783715328,
+  "query": "Summarize privacy-preserving context handling",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "Privacy-preserving context handling involves techniques designed to protect user text inputs from being identifiable by remote models or observers while maintaining utility for downstream tasks. Key aspects include:\n\n1. **Local Differential Privacy (L",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "demo_corpus::2603.12237v1.pdf::chunk019",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.853
+    },
+    {
+      "index": 2,
+      "engram_id": "demo_corpus::2603.12237v1.pdf::chunk001",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.4599
+    },
+    {
+      "index": 3,
+      "engram_id": "demo_corpus::2603.12237v1.pdf::chunk044",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.0922
+    },
+    {
+      "index": 4,
+      "engram_id": "research::d2d61150596549337a38",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1-1.pdf",
+      "score": 0.0061
+    },
+    {
+      "index": 5,
+      "engram_id": "demo_corpus::2603.12237v1.pdf::chunk000",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.0061
+    }
+  ],
+  "evidence_block": "[1] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.8530\n\nes. This joint assessment enables group-wise privacy budgetingthat balances util- ity preservation and privacy protection. 2. Geometry-aligned perturbation via the Po- lar Mechanism.We introduce thepolar mech- anism, which privatizes token embeddings by perturbing only theirdirectionon the unit sphere while preserving magnitude. Decoding is per- formed usingcosine nearest-neighbor search, aligning the perturbation geometry with the de- coding geometry. Unlike isotropic Gaussian or Laplace noise, this approach preservesseman- tic neighborhoodsand minimizes distortion of meaning. 3. Comprehensive empirical evaluation.Exper- iments onSQuAD,Yelp, andAG Newsdemon- strate that STAMP, combined with the normal- ized polar mechanism, consistently achievessu- perior privacy–utility trade-offsacross a range of per-token privacy budgets. 2 Preliminaries and Related Work 2.1 Preliminaries on LDP for Text Inputs We consider the problem ofinference-time context privacy, where a user wishes to privatize their text input before sending it to a remote model (e.g., an LLM) for inference. Given a user-supplied con- text c= (w 1, . . . , wn) consisting of tokens from a finite vocabulary V, alocal priva...\n\n[2] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.4599\n\nal., 2024; Pan et al., 2020). This setting encompasses bothinference- time context privacy—where the user’s text is pri- vatized immediately before being sent to a remote model—andprivacy-preserving rewriting, where the text is locally transformed prior to transmis- sion, storage, sharing, or other downstream use. In this work, we adopt the framework of local dif- ferential privacy (LDP) (Arachchige et al., 2019), wherein randomization occurs locally at the user side, ensuring that the server, model owner, or any downstream observer only sees a privatized version of the text. Informally, the released text should not allow an observer to reliably determine whether any specific token was present in the original text. The Need for Selective, Task-Aware Privacy.Prior approaches to local text privatization face several fundamental limitations. Classical randomized re- sponse (Warner, 1965) achieves privacy by ran- domly replacing each input token with another from the same domain. In natural language, such random substitutions often produce unnatural or incoherent text, severely degrading utility. Adding coordinate-wise Laplace noise (or isotropic Gaus- sian noise) (Feyisetan and Kasivi...\n\n[3] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.0922\n\nUS government retains and the pub- lisher, by accepting the article for publication, acknowledges that the US government retains a nonexclusive, paid-up, irrevocable, worldwide li- cense to publish or reproduce the published form of this manuscript, or allow others to do so, for US government purposes. DOE will pro- vide public access to these results of federally sponsored research in accordance with the DOE Public Access Plan ( https://www.energy.gov/ doe-public-access-plan). References Pathum Chamikara Mahawaga Arachchige, Peter Bertok, Ibrahim Khalil, Dongxi Liu, Seyit Camtepe, and Mohammed Atiquzzaman. 2019. Local differ- ential privacy for deep learning.IEEE Internet of Things Journal, 7(7):5827–5842. Stefan Arnold, Dilara Yesilbas, and Sven Weinzierl. 2023. Driving context into text-to-text privatization. arXiv preprint arXiv:2306.01457. Ricardo Silva Carvalho, Theodore Vasiloudis, Oluwaseyi Feyisetan, and Ke Wang. 2023. Tem: High utility metric differential privacy on text. InProceedings of the 2023 SIAM International Conference on Data Mining (SDM), pages 883–890. SIAM. Konstantinos Chatzikokolakis, Miguel E Andrés, Nicolás Emilio Bordenabe, and Catuscia Palamidessi. 2013....\n\n[4] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1-1.pdf score=0.0061\n\nSTAMP: Selective Task-Aware Mechanism for Text Privacy Fengwei Tian1, Payel Bhattacharjee1, Heidi Hanson2, Geoffrey D. Rubin1, Joseph Y. Lo3, Ravi Tandon1 1University of Arizona, 2Oak Ridge National Laboratory, 3Duke University {fengtian, payelb, grubin, tandonr}@arizona.edu, hansonha@ornl.gov, joseph.lo@duke.edu Abstract We present STAMP (Selective Task-Aware Mechanism for Text Privacy), a new framework for task-aware text privatization that achieves an improved privacy–utility trade-off. STAMP selectively allocates privacy budgets across to- kens by jointly considering (i) each token’s importance to the downstream task (as mea- sured via a task- or query-specific representa- tion), and (ii) its privacy sensitivity (e.g., names, dates, identifiers). This token-level partition- ing enables fine-grained, group-wise control over the level of noise applied to different parts of the input, balancing privacy protection with task relevance. To privatize individual token embeddings, we introduce the polar mecha- nism, which perturbs only the direction of em- beddings on the unit sphere while preserving their magnitude. Decoding is performed via cosine nearest-neighbor search, aligning the...\n\n[5] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.0061\n\nSTAMP: Selective Task-Aware Mechanism for Text Privacy Fengwei Tian1, Payel Bhattacharjee1, Heidi Hanson2, Geoffrey D. Rubin1, Joseph Y. Lo3, Ravi Tandon1 1University of Arizona, 2Oak Ridge National Laboratory, 3Duke University {fengtian, payelb, grubin, tandonr}@arizona.edu, hansonha@ornl.gov, joseph.lo@duke.edu Abstract We present STAMP (Selective Task-Aware Mechanism for Text Privacy), a new framework for task-aware text privatization that achieves an improved privacy–utility trade-off. STAMP selectively allocates privacy budgets across to- kens by jointly considering (i) each token’s importance to the downstream task (as mea- sured via a task- or query-specific representa- tion), and (ii) its privacy sensitivity (e.g., names, dates, identifiers). This token-level partition- ing enables fine-grained, group-wise control over the level of noise applied to different parts of the input, balancing privacy protection with task relevance. To privatize individual token embeddings, we introduce the polar mecha- nism, which perturbs only the direction of em- beddings on the unit sphere while preserving their magnitude. Decoding is performed via cosine nearest-neighbor search, aligning the...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "hybrid",
+    "fusion_policy": "lexical_dominant",
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "hybrid|lexical_dominant|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.387
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null,
+  "citation_check": {
+    "cited_indices": [],
+    "invalid_indices": [],
+    "uncited_evidence_indices": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "evidence_count": 5,
+    "coverage": 0.0,
+    "verdict": "no_citations_in_answer"
+  },
+  "generation": {
+    "done_reason": "length",
+    "truncated": true,
+    "prompt_eval_count": 1709,
+    "eval_count": 40
+  },
+  "score_stats": {
+    "count": 5,
+    "max": 0.853,
+    "min": 0.0061,
+    "mean": 0.2835
+  },
+  "content_hash": "sha256:eead32aed5e2c6b5375c73ddae6f27c90b40c27289c5abcd87e87c11a64811a2"
+}

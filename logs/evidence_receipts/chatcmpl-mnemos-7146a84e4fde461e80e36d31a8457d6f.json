@@ -1,0 +1,90 @@
+{
+  "receipt_id": "chatcmpl-mnemos-7146a84e4fde461e80e36d31a8457d6f",
+  "created": 1784582845,
+  "query": "Shortly after the ratification of the U.S. Constitution, the Founding generation added what?",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "Shortly after the ratification of the U.S. Constitution, the Founding generation added the first 10 amendments, known as the Bill of Rights [1]. These amendments were proposed by Congress and ratified by the Legislatures of the several States, pursuant to the fifth Article of the original Constitution. The evidence provided confirms that these amendments were ratified on December 15, 1791 [1].",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::6d94d7c58213e185a22f",
+      "source": "/app/data/research_uploads/constitution-3.pdf",
+      "score": 0.7353
+    },
+    {
+      "index": 2,
+      "engram_id": "research::998447c381954eb686ab",
+      "source": "/app/data/research_uploads/constitution-1.pdf",
+      "score": 0.7353
+    },
+    {
+      "index": 3,
+      "engram_id": "research::7f2c88dc53bf43f02f5d",
+      "source": "/app/data/research_uploads/constitution-2.pdf",
+      "score": 0.7353
+    },
+    {
+      "index": 4,
+      "engram_id": "research::48826f42a30e9cbe876b",
+      "source": "/app/data/research_uploads/Bill_of_Rights-1.pdf",
+      "score": 0.7282
+    },
+    {
+      "index": 5,
+      "engram_id": "research::676c2b156a249cfcd873",
+      "source": "/app/data/research_uploads/Bill_of_Rights-3.pdf",
+      "score": 0.7282
+    }
+  ],
+  "evidence_block": "[1] source=/app/data/research_uploads/constitution-3.pdf score=0.7353\n\nas part of the said Constitution; viz. ARTICLES in addition to, and Amendment of the Constitution of the United States of America, proposed by Congress, and ratified by the Legislatures of the several States, pursuant to the fifth Article of the original Constitution. (Note: The first 10 amendments to the Constitution were ratified December 15, 1791, and form what is known as the “Bill of Rights.”) Amendment I. Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridg- ing the freedom of speech, or of the press, or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances. Amendment II. A well regulated Militia, being necessary to the security of a free State, the right of the people to keep and bear Arms, shall not be infringed. Amendment III. No Soldier shall, in time of peace be quartered in any house, without the consent of the Owner, nor in time of war, but in a manner to be prescribed by law. Amendment IV. The right of the people to be secure in their persons, hous- es, papers, and effects, against unreasonable searches and seizures, shall not be violated, and no Warr...\n\n[2] source=/app/data/research_uploads/constitution-1.pdf score=0.7353\n\nas part of the said Constitution; viz. ARTICLES in addition to, and Amendment of the Constitution of the United States of America, proposed by Congress, and ratified by the Legislatures of the several States, pursuant to the fifth Article of the original Constitution. (Note: The first 10 amendments to the Constitution were ratified December 15, 1791, and form what is known as the “Bill of Rights.”) Amendment I. Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridg- ing the freedom of speech, or of the press, or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances. Amendment II. A well regulated Militia, being necessary to the security of a free State, the right of the people to keep and bear Arms, shall not be infringed. Amendment III. No Soldier shall, in time of peace be quartered in any house, without the consent of the Owner, nor in time of war, but in a manner to be prescribed by law. Amendment IV. The right of the people to be secure in their persons, hous- es, papers, and effects, against unreasonable searches and seizures, shall not be violated, and no Warr...\n\n[3] source=/app/data/research_uploads/constitution-2.pdf score=0.7353\n\nas part of the said Constitution; viz. ARTICLES in addition to, and Amendment of the Constitution of the United States of America, proposed by Congress, and ratified by the Legislatures of the several States, pursuant to the fifth Article of the original Constitution. (Note: The first 10 amendments to the Constitution were ratified December 15, 1791, and form what is known as the “Bill of Rights.”) Amendment I. Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridg- ing the freedom of speech, or of the press, or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances. Amendment II. A well regulated Militia, being necessary to the security of a free State, the right of the people to keep and bear Arms, shall not be infringed. Amendment III. No Soldier shall, in time of peace be quartered in any house, without the consent of the Owner, nor in time of war, but in a manner to be prescribed by law. Amendment IV. The right of the people to be secure in their persons, hous- es, papers, and effects, against unreasonable searches and seizures, shall not be violated, and no Warr...\n\n[4] source=/app/data/research_uploads/Bill_of_Rights-1.pdf score=0.7282\n\na bill of rights. 5. Describe how the 14th Amendment and later Supreme Court decisions transformed the Bill of Rights through the process of incorporation. 5.1 Activity: Dissenters at the Constitutional Convention Purpose Despite Benjamin Franklin’s closing speech calling for all delegates to unite in signing the new Constitution, the dissenters refused to sign it on September 17, 1787—the final day of the Constitutional Convention. They worried that the delegates had created a new national government with too much power. As part of this decision, they criticized the delegates for leaving out a bill of rights. This act of dissent was central to the later framing and ratification of the Bill of Rights. Think back to our earlier discussions about the Constitutional Convention in CONSTITUTION 101 Module 5: The Bill of Rights Lesson Plan light of these objections. Do you think that you would have joined George Mason, Elbridge Gerry, and Edmund Randolph in dissenting? Process Think about the significance of the U.S. Constitution. Share the first idea or part of the Constitution that comes to mind. Then, look at the Visual Info Brief: Three Delegates image of three delegates to the Const...\n\n[5] source=/app/data/research_uploads/Bill_of_Rights-3.pdf score=0.7282\n\na bill of rights. 5. Describe how the 14th Amendment and later Supreme Court decisions transformed the Bill of Rights through the process of incorporation. 5.1 Activity: Dissenters at the Constitutional Convention Purpose Despite Benjamin Franklin’s closing speech calling for all delegates to unite in signing the new Constitution, the dissenters refused to sign it on September 17, 1787—the final day of the Constitutional Convention. They worried that the delegates had created a new national government with too much power. As part of this decision, they criticized the delegates for leaving out a bill of rights. This act of dissent was central to the later framing and ratification of the Bill of Rights. Think back to our earlier discussions about the Constitutional Convention in CONSTITUTION 101 Module 5: The Bill of Rights Lesson Plan light of these objections. Do you think that you would have joined George Mason, Elbridge Gerry, and Edmund Randolph in dissenting? Process Think about the significance of the U.S. Constitution. Share the first idea or part of the Constitution that comes to mind. Then, look at the Visual Info Brief: Three Delegates image of three delegates to the Const...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "semantic",
+    "fusion_policy": null,
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 2.799
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null,
+  "citation_check": {
+    "cited_indices": [
+      1
+    ],
+    "invalid_indices": [],
+    "uncited_evidence_indices": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "evidence_count": 5,
+    "coverage": 0.2,
+    "verdict": "partial_evidence_cited"
+  },
+  "generation": {
+    "done_reason": "stop",
+    "truncated": false,
+    "prompt_eval_count": 1538,
+    "eval_count": 84
+  },
+  "score_stats": {
+    "count": 5,
+    "max": 0.7353,
+    "min": 0.7282,
+    "mean": 0.7325
+  },
+  "content_hash": "sha256:bcceba0f2c40bbb1ffcded2daf796e8444655560ab8ef102108241b49bc12c1f"
+}

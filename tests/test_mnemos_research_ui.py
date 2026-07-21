@@ -301,3 +301,75 @@ def test_intake_endpoint_saves_uploaded_files_and_calls_runner(tmp_path):
     assert calls["batch_size"] == 12
     assert calls["output_path"] == Path("docs/research/packet.md")
     assert os.environ["MNEMOS_TIMEOUT_S"] == "180"
+
+
+def test_intake_endpoint_returns_json_when_runner_raises(tmp_path):
+    def failing_runner(**kwargs):
+        raise RuntimeError("ollama summary timed out")
+
+    app = create_app(upload_dir=tmp_path, intake_runner=failing_runner)
+    client = app.test_client()
+
+    response = client.post(
+        "/api/intake",
+        data={
+            "files": (io.BytesIO(b"%PDF-1.4\nfake pdf"), "paper.pdf"),
+            "mnemos_base_url": "http://127.0.0.1:8700",
+            "ollama_base_url": "http://127.0.0.1:7777",
+            "project": "MNEMOS",
+            "capability": "local research memory",
+            "status": "reviewed",
+            "tags": "workflow, pdf",
+            "summarize": "true",
+            "ollama_model": "llama3.1",
+            "mnemos_timeout_s": "180",
+            "batch_size": "12",
+        },
+        content_type="multipart/form-data",
+    )
+
+    body = response.get_json()
+    assert response.status_code == 500
+    assert body["ok"] is False
+    assert "ollama summary timed out" in body["error"]
+    assert body["uploaded_files"] == [str(tmp_path / "paper.pdf")]
+
+
+def test_intake_endpoint_returns_ok_when_summary_fails_after_indexing(tmp_path):
+    def warning_runner(**kwargs):
+        return {
+            "status": "ok",
+            "indexed": 3,
+            "summary": None,
+            "summary_status": "failed",
+            "summary_error": "ollama summary timed out",
+            "claim_boundary": "boundary",
+        }
+
+    app = create_app(upload_dir=tmp_path, intake_runner=warning_runner)
+    client = app.test_client()
+
+    response = client.post(
+        "/api/intake",
+        data={
+            "files": (io.BytesIO(b"%PDF-1.4\nfake pdf"), "paper.pdf"),
+            "mnemos_base_url": "http://127.0.0.1:8700",
+            "ollama_base_url": "http://127.0.0.1:7777",
+            "project": "MNEMOS",
+            "capability": "local research memory",
+            "status": "reviewed",
+            "tags": "workflow, pdf",
+            "summarize": "true",
+            "ollama_model": "llama3.1",
+            "mnemos_timeout_s": "180",
+            "batch_size": "12",
+        },
+        content_type="multipart/form-data",
+    )
+
+    body = response.get_json()
+    assert response.status_code == 200
+    assert body["ok"] is True
+    assert body["result"]["status"] == "ok"
+    assert body["result"]["summary_status"] == "failed"
+    assert body["result"]["summary_error"] == "ollama summary timed out"

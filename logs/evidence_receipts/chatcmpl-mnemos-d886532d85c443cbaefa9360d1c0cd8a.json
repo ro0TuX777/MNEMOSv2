@@ -1,0 +1,35 @@
+{
+  "receipt_id": "chatcmpl-mnemos-d886532d85c443cbaefa9360d1c0cd8a",
+  "created": 1783833269,
+  "query": "Lets discuss Observational Biases and Improved Modelling of Off-axis Relativistic Jets",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "MNEMOS search failed (status=unavailable, error=HTTPConnectionPool(host='mnemos', port=8700): Read timed out. (read timeout=5.0)); Ollama was not called.",
+  "status": "mnemos_error",
+  "citations": [],
+  "evidence_block": "",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "unavailable",
+    "response_error": "HTTPConnectionPool(host='mnemos', port=8700): Read timed out. (read timeout=5.0)"
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": "MNEMOS search failed (status=unavailable, error=HTTPConnectionPool(host='mnemos', port=8700): Read timed out. (read timeout=5.0)); Ollama was not called.",
+  "citation_check": {
+    "cited_indices": [],
+    "invalid_indices": [],
+    "uncited_evidence_indices": [],
+    "evidence_count": 0,
+    "coverage": null,
+    "verdict": "no_evidence_available"
+  },
+  "generation": {
+    "done_reason": null,
+    "truncated": false,
+    "prompt_eval_count": null,
+    "eval_count": null
+  },
+  "score_stats": null,
+  "content_hash": "sha256:38a25d66559e67008cc1ae2e15a94ff8979b1147de1baf1326ee49ea69ba1548"
+}

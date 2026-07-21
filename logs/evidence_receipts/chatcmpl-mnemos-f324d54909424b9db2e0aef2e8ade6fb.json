@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-f324d54909424b9db2e0aef2e8ade6fb",
+  "created": 1783249921,
+  "query": "Geometry-Aware Probabilistic Circuits A natural way to equip PCs with geometry awareness is to replace the constant (global) sum node weights with geometry-aware gating, so that different expert subcircuits specialize to different regions of the data manifold. Voronoi tessellations (Aurenhammer, 1991) provide a principled mechanism for such routing. Formally, given centroids {c1, . . . , cK} ⊂ R d , what is the Voronoi cell of ck is defined as?",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "The evidence provided does not contain information directly related to Geometry-Aware Probabilistic Circuits or Voronoi tessellations. The MNEMOS_EVIDENCE focuses on separable neural architectures and their applications, particularly in KHRONOS for predictive and generative intelligence.\n\nTo address your query about the definition of a Voronoi cell:\n\nGiven centroids \\(\\{c_1, c_2, ..., c_K\\} \\subset \\mathbb{R}^d\\), the Voronoi cell \\(V(c_k)\\) of centroid \\(c_k\\) is defined as:\n\\[ V(c_k) = \\{x \\in \\mathbb{R}^d : \\|x - c_k\\| \\leq \\|x - c_j\\|, \\forall j \\neq k\\} \\]\n\nThis means that the Voronoi cell \\(V(c_k)\\) consists of all points in \\(\\mathbb{R}^d\\) which are closer to centroid \\(c_k\\) than to any other centroid \\(c_j\\) for \\(j \\neq k\\).\n\nFor a more detailed explanation and further reading, you might want to refer to computational geometry literature or specific works on Voronoi diagrams [1].\n\n[1] Aurenhammer, F. (1991). \"Voronoi Diagrams - A Survey of a Fundamental Geometric Data Structure.\" ACM Computing Surveys, 23(3), 345-405.",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "demo_corpus::2603.12244v1.pdf::chunk003",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.6681
+    },
+    {
+      "index": 2,
+      "engram_id": "demo_corpus::2603.12244v1.pdf::chunk009",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.6654
+    },
+    {
+      "index": 3,
+      "engram_id": "demo_corpus::2603.12244v1.pdf::chunk002",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.6627
+    },
+    {
+      "index": 4,
+      "engram_id": "demo_corpus::2603.12244v1.pdf::chunk005",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.6602
+    },
+    {
+      "index": 5,
+      "engram_id": "demo_corpus::2603.12244v1.pdf::chunk004",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.649
+    }
+  ],
+  "evidence_block": "[1] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.6681\n\napable of learning high-dimensional fields from governing op- erators. Thus, the present work introduces the SNA as a neural primitive for exploiting latent factorisable struc- ture across intelligent systems (Fig. 1). The SNA is shown to unify predictive and generative modelling across domains. It serves as a standalone architec- ture enabling parsimonious predictive–invertive learn- ing (KHRONOS); as a trial space for operator-driven learning of high-dimensional spatiotemporal-parametric fields (VSNAs); and as a compositional module within larger intelligent systems, enabling efficient autonomous 2 navigation agents (SPAN), generative inversion of bicon- tinuous multiscale metamaterials (Janus) and continuous token embeddings for probabilistic sequence modelling (Leviathan). Separable neural architectures as a predictive–generative primitive Predictive and generative modelling The predictive–generative capacity of separable neural architectures is grounded in a specific subclass, aris- ing when full interaction is permitted ( k=d ) and the interaction tensor is factorised into a rank-r canonical polyadic (CP) decomposition. In this CP-class, atoms factorise into products of univa...\n\n[2] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.6654\n\ne-time field, queried in milliseconds. Figure 3aillustrates representative two- dimensional spatial slices at t= 0,0.5 and 1 of the learned six-dimensional manifold at ω= π 4 , D= 0.001. KHRONOS’s prediction is compared against a semi- analytic proxy of the governing system, and space-wise absolute errors are shown. KHRONOS reproduces both rotational transport and diffusive spread – albeit mild at this D – with high fidelity across time. Errors remain smooth and spatially structured. Having established that the CP-class VSNA recovers the coupled spatiotemporal– parametric dynamics, the natural question is how this accuracy scales with computational resources. Figure 3bquantifies approximation accuracy under joint refinement of rank R and resolution C. Error ini- tially decreases systematically with slope =−4 with C-refinement – as is expected with cubic B-splines – but saturates once rank capacity is reached. This com- bined effect produces an efficient frontier sustained across four orders of magnitude in trainable param- eters N. This frontier follows an empirical scaling ∥e∥L2 ≈0.24N −0.68, consistent with the theoretical convergence rate of −p d =− 4 6 for cubic B-splines in si...\n\n[3] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.6627\n\nete lookup embed- dings of prevailing neural sequence models. For chaos precludes stable pointwise prediction over extended hori- zons; modelling must therefore be distributional to avoid nonphysical drift. Under this view, chaotic spatiotem- poral dynamics and linguistic autoregression become structurally analogous: both benefit from modelling con- 1 arXiv:2603.12244v1 [cs.LG] 12 Mar 2026 Figure 1:The separable neural architecture (SNA) as a unified primitive for predictive and generative intelligence. The SNA formalises a representational class that constructs high-dimensional mappings by combining lower-arity learnable components (atoms) selected by an interaction tensor. By constraining interaction order and tensor rank, this formalism subsumes generalised additive, quadratic and tensor-decomposed neural models. ditional distributions over sequentially revealed states. As a standalone model, the separable neural architec- ture realises compact predictive–generative intelligence in the form of KHRONOS [2, 3]. KHRONOS instanti- ates an SNA whose low-rank, separable structure across all dimensions yields a smooth, cheaply invertible in- terpolant over the input space. Despite cont...\n\n[4] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.6602\n\nluding an XGBoost baseline [6], is visualised in Fig. 2b. All models exhibit poor performance for the material modulus, seemingly saturating at R2 = 0.14. This is consistent with the prior studies, and it is well-known that this property is largely composition-controlled, and only weakly sensitive to the thermal history as captured by process sensors. Inverting opaque monolithic models requires expen- sive surrogate optimisation or the training of sepa- rate inverse networks. KHRONOS, however, admits easily traced (even analytic) derivatives and is highly lightweight. These properties enable target mechanical properties to be inverted to plausible thermal histories via a structured Newton search. Multiple initialisations produce a low-dimensional manifold of solutions consis- tent with the queried property. The resulting inversions recover ensembles of thermal histories that closely re- semble the ground-truth trajectory with a reasonable uncertainty envelope. This is illustrated in Fig. 2c. The search is so lightweight, in fact, that tens of such his- tories (47 for YS; 64 for UTS) are generated in under 50ms on commodity CPU hardware. Variational learning of spatiotemporal– param...\n\n[5] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.6490\n\nr Kolmogorov-Arnold Networks [10] on canonical PDE benchmarks [ 2]. On multi-fidelity aerodynamic field prediction, it achieves accuracy comparable to multilayer perceptrons (MLPs), graph neural networks (GNNs) and physics informed neural networks (PINNs) [11] with 94−98% fewer parameters [3]. KHRONOS yields a smooth, separable interpolant over the input coordinate space. For a spline basis of order P over Cd interior cells in each dimension d, each subatom takes the form ψ(j)(xi;θ (j) d ) = Ci+PX c=1 α(j) d,cBP c (xd).(2) The extended indexCi +P accounts for domain-exterior “ghost” cells required to preserve partition of unity [12]. KHRONOS is demonstrated on a process–structure modelling problem investigated originally in [4, 5], link- ing thermal histories recorded during directed energy deposition of Inconel 718 to mechanical properties of the resultant print. The experimental setup for this prob- lem is visualised in Fig. 2a. The raw thermal signals are stochastic and nonlinear, as well as long ( 10,000 time indices), whilst available paired data are sparse (96 samples). Data preprocessing follows [4] with an initial wavelet transform. Previous works fed these high-dimensional...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "semantic",
+    "fusion_policy": null,
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.11
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

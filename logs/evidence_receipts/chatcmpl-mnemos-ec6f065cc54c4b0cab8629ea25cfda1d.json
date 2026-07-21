@@ -1,0 +1,31 @@
+{
+  "receipt_id": "chatcmpl-mnemos-ec6f065cc54c4b0cab8629ea25cfda1d",
+  "created": 1783660047,
+  "query": "What specific resistance thresholds or patterns define the boundaries of the optimal operating interval?",
+  "requested_model": "hf.co/cloudbjorn/Qwen3.6-35B-A3B_Opus-4.6-Reasoning-3300x-GGUF:Q4_K_M",
+  "actual_model": "hf.co/cloudbjorn/Qwen3.6-35B-A3B_Opus-4.6-Reasoning-3300x-GGUF:Q4_K_M",
+  "answer": "MNEMOS returned no evidence; Ollama was not called.",
+  "status": "no_evidence",
+  "citations": [],
+  "evidence_block": "",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "hybrid",
+    "fusion_policy": "lexical_dominant",
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "hybrid|lexical_dominant|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 0,
+    "latency_s": 4.73
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": "MNEMOS returned no evidence; Ollama was not called."
+}

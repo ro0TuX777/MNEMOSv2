@@ -1,0 +1,43 @@
+{
+  "receipt_id": "chatcmpl-mnemos-9841e8a7849049bc83bfd7f392ec9e93",
+  "created": 1784150284,
+  "query": "Find workflow evidence",
+  "requested_model": "qwen3-coder-next:latest",
+  "actual_model": "qwen3-coder-next:latest",
+  "answer": "MNEMOS found the workflow evidence. [1]",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "source": "workflow.pdf",
+      "score": 0.9
+    }
+  ],
+  "evidence_block": "",
+  "retrieval_metadata": {},
+  "claim_boundary": "boundary",
+  "warning": null,
+  "citation_check": {
+    "cited_indices": [
+      1
+    ],
+    "invalid_indices": [],
+    "uncited_evidence_indices": [],
+    "evidence_count": 1,
+    "coverage": 1.0,
+    "verdict": "all_evidence_cited"
+  },
+  "generation": {
+    "done_reason": null,
+    "truncated": false,
+    "prompt_eval_count": null,
+    "eval_count": null
+  },
+  "score_stats": {
+    "count": 1,
+    "max": 0.9,
+    "min": 0.9,
+    "mean": 0.9
+  },
+  "content_hash": "sha256:862d24862fe1add5db2df52bd9a009184e775e329b51ce1213690a283af3c7a1"
+}

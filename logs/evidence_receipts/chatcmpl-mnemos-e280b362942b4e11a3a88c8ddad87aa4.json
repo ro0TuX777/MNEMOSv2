@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-e280b362942b4e11a3a88c8ddad87aa4",
+  "created": 1783292552,
+  "query": "to answer your question, i’d like to download 5-10 PDFs at at time.\nNo periodic updates\nthe contents of the PDF files will contain enough meta data\nNo other meta data is needed\nhandle retries, yes wait or pause download for 30-45 seconds /backoff automatically\nall papers, all categories\noutput is dumped into same folder \"C:\\Users\\vin\\Downloads\\ToLearn\"\nError Handling & Logging, no retry, yes log of successes/failures, yes delete corrupted PDFs\nEnvironment Constraints, local only\nlanguage preference Python",
+  "requested_model": "qwen3-coder-next:latest",
+  "actual_model": "qwen3-coder-next:latest",
+  "answer": "Based on the MNEMOS_EVIDENCE provided, there is **no direct information** about existing tools, scripts, or libraries for downloading batches of PDFs with your specified requirements (e.g., retry/backoff logic, logging, corruption cleanup, folder output, etc.). The evidence only contains fragments from research paper appendices and agent behavior logs—not infrastructure or download tooling.\n\nHowever, I can help you **design a robust Python script** that meets all your criteria:\n\n---\n\n### ✅ Requirements Recap:\n- Download 5–10 PDFs at a time (batch concurrency)\n- No periodic updates (i.e., no polling; one-shot batch run)\n- PDFs contain sufficient metadata internally (no external lookup needed)\n- Retry with exponential backoff: wait 30–45 seconds, then retry\n- All categories/papers accepted\n- Output folder: `C:\\Users\\vin\\Downloads\\ToLearn`\n- Error handling:\n  - Log successes/failures\n  - Delete corrupted PDFs (e.g., invalid MIME type or size = 0)\n  - No retries on final failure\n- Local-only, Python-based\n\n---\n\n### 🛠️ Suggested Implementation Plan (Python)\n\n#### Dependencies (standard + minimal external):\n```bash\npip install requests tqdm\n```\n\n#### Core Features:\n| Feature | Approach |\n|--------|----------|\n| Batch concurrency | `concurrent.futures.ThreadPoolExecutor(max_workers=10)` |\n| Retry/backoff | Custom wrapper around `requests.get()` with exponential backoff (e.g., base 30s, cap at 45s) |\n| Corruption detection | Check `Content-Type`, file size > 0, and optionally validate PDF header (`%PDF-`) |\n| Logging | Use Python’s built-in `logging` module to write to `download.log` |\n| Output folder | Ensure exists: `os.makedirs(output_dir, exist_ok=True)` |\n\n#### Sample Skeleton Code:\n```python\nimport os\nimport logging\nimport time\nfrom pathlib import Path\nfrom concurrent.futures import ThreadPoolExecutor, as_completed\n\nimport requests\nfrom tqdm import tqdm\n\n# --- Config ---\nOUTPUT_DIR = r\"C:\\Users\\vin\\Downloads\\ToLearn\"\nMAX_WORKERS = 10\nPDF_URLS = [\n    # ← list of PDF URLs here (e.g., arXiv IDs or direct links)\n]\n\n# --- Logging setup ---\nlogging.basicConfig(\n    filename=\"download.log\",\n    level=logging.INFO,\n    format=\"%(asctime)s [%(levelname)s] %(message)s\"\n)\n\nPath(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)\n\ndef is_corrupted(filepath: Path) -> bool:\n    if not filepath.exists():\n        return True\n    size = filepath.stat().st_size\n    if size == 0:\n        logging.warning(f\"Zero-size file: {filepath}\")\n        return True\n    try:\n        with open(filepath, \"rb\") as f:\n            header = f.read(4)\n            if header != b\"%PDF\":\n                logging.warning(f\"Not a PDF (bad header): {filepath}\")\n                return True\n    except Exception as e:\n        logging.error(f\"Failed to read file {filepath}: {e}\")\n        return True\n    return False\n\ndef download_pdf(url: str, retries=3) -> bool:\n    filepath = Path(OUTPUT_DIR) / f\"{hash(url)}.pdf\"",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::8aabffb7b5c9b09ac320",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2604.24658v3-2.pdf",
+      "score": 0.0499
+    },
+    {
+      "index": 2,
+      "engram_id": "research::f82990fd6b095ccc51ea",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2604.24658v3-2.pdf",
+      "score": 0.0174
+    },
+    {
+      "index": 3,
+      "engram_id": "1758a220-dbb3-4b24-afc2-5fc760d953b6",
+      "source": "unknown",
+      "score": 0.0088
+    },
+    {
+      "index": 4,
+      "engram_id": "research::526abcbbdc983626d7b2",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2604.24658v3-2.pdf",
+      "score": 0.0038
+    },
+    {
+      "index": 5,
+      "engram_id": "research::b7a09d2012efe1a48047",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12038v1-1.pdf",
+      "score": 0.0011
+    }
+  ],
+  "evidence_block": "[1] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2604.24658v3-2.pdf score=0.0499\n\nnaive re-implementation: weight freezing schedules, initialization from prior checkpoints, gradient clipping thresholds, nor- malization details, optimizer switching strategies. These are the hardest items to recover from a PDF because they ap- pear as parenthetical remarks, footnotes, or single sentences buried in dense paragraphs. Examples: • self-composing-policies: “Single CNN encoder per policy; new encoder initialized with weights of the previous one” (Appendix E.2); “Reset critic network at the beginning of each task”; “Normalize summed vectors for continuous action spaces.” • fre: “The transformer does not use a causal mask on its attention”; “Positional embeddings are not used in the transformer”; “States sampled for decoding and encoding are sampled separately.” • pinn: “At the end of training, the L-BFGS directions, steps, and inverse of inner products are saved” (Ap- pendix C.2); “Strong Wolfe line search is used with L- BFGS.” ARAadvantage.The heuristics.md file isspecifi- cally designedto capture these items. Each heuristic entry includes Rationale (why it matters), Sensitivity (how much performance degrades without it), and Code ref(where in the code to apply it). 9....\n\n[2] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2604.24658v3-2.pdf score=0.0174\n\nthrough solution_v5.py–v8.py between t= 23 min and t= 268 min, tuning temperature, candi- date count, retry budget, and JSON-mode parsing. The full-test-set evaluations track this divergence: ARA’s scores move 49→56→78 at t= 161,214,269 min (every evaluation reflects newly added library entries), while the paper agent’s stall at 33→33→38→39→39 across t= 68–231 min—the prompt-engineering ceiling that H15 explicitly warns against. Independent rediscovery, six hours later.The paper agent eventually reaches the same conclusion. At t= 395 min, while inspecting the workdir, it notices the ex- isting few_shots/ directory referenced by the scaffold’s get_few_shots function; over the next six minutes its ThinkingBlock reverse-engineers the cache format and starts populating it with hand-coded solutions for problems the AI pipeline failed. 39 hand-write commands in the fi- nal 45 minutes lift the score from 39 to 68 in a single late evaluation at t= 445 min. What differs between agents is not which approach works but how many hours of com- pute precede the recognition that it does: the ARAagent’s first canonical evaluation already reflects a hand-coded li- brary and lands at 49/165, well abo...\n\n[3] source=unknown score=0.0088\n\nSESSION HANDOFF (local_issue_tracker_v1, MNEMOS-enabled trial): Built a zero-dependency vanilla-JS Local Issue Tracker (index.html/app.js/styles.css) with pure logic in logic.js (UMD) covering create/edit/delete, status todo|in_progress|done, priority low|medium|high, text search + status/priority filters, localStorage persistence, empty states, responsive UI, and status-aware sorting. Tests: 12/12 via node --test; npm run build passes; UI verified live via Playwright. MNEMOS: REST verified healthy; orientation search returned off-topic seed engrams (rejected); decision+observation written via /index and round-trip-verified (decision retrieved at 0.9987). MCP tools were not exposed; REST fallback used throughout. Next steps if resumed: add due dates/labels, keyboard shortcuts, and bulk actions.\n\n[4] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2604.24658v3-2.pdf score=0.0038\n\nlands at 0.38, having spent the early wall clock reading the polished writeup and reasoning from first principles. The ARAagent leads on best-so-far through t≈75 min, then the paper agent overtakes via an int8 input compression intro- duced at t= 47.7 min (motivated by the scorer’s [−10,9] input range fitting in 8 bits) which, combined with a parity- tracking per-block aggregate, drops total memory traffic from ∼2 GB to 0.5 GB; it iterates on this design through the rest of the run. The ARAagent meanwhile commits to a chained-scan-with-decoupled-lookback redesign and spends late-phase compute on boundary-correctness debugging, an- chored by heuristic H13 and a trace-reported MALT ceiling. int8 appears once in the ARAagent’s trace at t= 40.5 min as a passing thought and is never implemented. Reading.The ARAartifact contributes two qualitatively different things at two phases of the run. Early, it acts as an initialiser: the agent shortcuts the diagnostic phase, picks autotune knobs the paper agent misses, and lands an improved kernel within minutes. Later, it acts as an anchor: the agent leans on the trace-recommended design and the trace-reported ceiling, and spends compute confirm...\n\n[5] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12038v1-1.pdf score=0.0011\n\nplot reports the average end-to-end throughput gain across the Qwen series, from 0.6B to 235B, and shows that the advantage of this slow-fast schedule grows with context length. decoding framework that alternates frequent low-costfast stepswith occasional denseslow steps(Figure 1B). During fast steps, the model attends only to a compact cache composed ofsink + selected + recenttokens: a small set of sink tokens that provide stable global anchors (Xiao et al., 2024b), a recent window updated at every step to preserve local continuity, and a selected memory that captures reusable long-range dependencies across multiple consecutive steps. During slow steps, the model revisits the accessible history with dense full attention and uses the resulting attention logits to refresh the selected memory. Slow steps are triggered primarily near sentence boundaries or other semantic transitions, and are additionally enforced once a fixed refresh budget is reached. This design concentrates dense full attention at positions where support transitions are more likely, while allowing most decoding steps to remain low-cost. To turn dense full-attention evidence from each slow step into reusable sparse...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "hybrid",
+    "fusion_policy": "lexical_dominant",
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "hybrid|lexical_dominant|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 2.828
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

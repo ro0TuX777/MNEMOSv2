@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-57899ff7fa8947a79d032dae3ec1c934",
+  "created": 1783226174,
+  "query": "Can you explain how large language models are trained?",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "Large language models can be trained using various methods, but two prominent approaches mentioned in the provided evidence are cross-entropy (CE) training and energy-based fine-tuning.\n\n1. **Cross-Entropy Training**: This is a common method for training large language models [1]. It provides dense and scalable supervision by optimizing next-token prediction under teacher forcing rather than sequence-level behavior during model rollouts. However, this approach focuses on predicting the next token in a sequence without fully capturing the broader context or sequence-level behaviors.\n\n2. **Energy-Based Fine-Tuning (EBFT)**: This method aims to address some of the limitations of cross-entropy training by focusing on matching features rather than tokens [4]. EBFT introduces an objective that targets sequence-level statistics of the completion distribution, providing dense semantic feedback without requiring a task-specific verifier or preference model. It uses strided block-parallel sampling to generate multiple rollouts from nested prefixes concurrently and batches feature extraction over these rollouts to perform on-policy policy-gradient updates.\n\nThese methods highlight different aspects of training large language models: CE training is effective for next-token prediction, while EBFT focuses more on sequence-level behavior and provides a way to fine-tune the model with dense semantic feedback. Both approaches are part of ongoing research in improving the performance and utility of large language models [1][4].\n\nFor further details or specific techniques not covered here, additional sources would be needed as the provided evidence does not cover all training methods comprehensively.",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "demo_corpus::2603.12248v1.pdf::chunk023",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.7572
+    },
+    {
+      "index": 2,
+      "engram_id": "demo_corpus::2603.12248v1.pdf::chunk022",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.1392
+    },
+    {
+      "index": 3,
+      "engram_id": "demo_corpus::2603.12248v1.pdf::chunk026",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.1076
+    },
+    {
+      "index": 4,
+      "engram_id": "demo_corpus::2603.12248v1.pdf::chunk000",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.0812
+    },
+    {
+      "index": 5,
+      "engram_id": "demo_corpus::2603.12248v1.pdf::chunk025",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.0232
+    }
+  ],
+  "evidence_block": "[1] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.7572\n\n3. Chen, M., Tworek, J., Jun, H., Yuan, Q., de Oliveira Pinto, H. P., Kaplan, J., Edwards, H., Burda, Y ., Joseph, N., Brockman, G., Ray, A., Puri, R., Krueger, G., Petrov, M., Khlaaf, H., Sastry, G., Mishkin, P., Chan, B., Gray, S., Ryder, N., Pavlov, M., Power, A., Kaiser, L., Bavar- ian, M., Winter, C., Tillet, P., Such, F. P., Cummings, D., Plappert, M., Chantzis, F., Barnes, E., Herbert-V oss, A., Guss, W. H., Nichol, A., Paino, A., Tezak, N., Tang, J., Babuschkin, I., Balaji, S., Jain, S., Saunders, W., Hesse, C., Carr, A. N., Leike, J., Achiam, J., Misra, V ., Morikawa, E., Radford, A., Knight, M., Brundage, M., Murati, M., Mayer, K., Welinder, P., McGrew, B., Amodei, D., McCandlish, S., Sutskever, I., and Zaremba, W. Evaluating large language models trained on code. arXiv preprint arXiv:2107.03374, 2021. Christiano, P. F., Leike, J., Brown, T. B., Martic, M., Legg, S., and Amodei, D. Deep reinforcement learning from human preferences.arXiv preprint arXiv:1706.03741, 2017. Domingo-Enrich, C., Bietti, A., Gabri´e, M., Bruna, J., and Vanden-Eijnden, E. Dual training of energy-based models with overparametrized shallow neural networks.arXiv preprint arXiv:2107.05134, 2022. Dong...\n\n[2] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.1392\n\n0 Energy-Based Fine-Tuning it most suitable as a fine-tuning stage applied after cross- entropy training. It also requires a frozen feature network and has so far been evaluated on models up to 7B param- eters with short rollout horizons. Scaling both axes, and exploring learned or adaptive feature networks, are promis- ing directions for future work. More broadly, we view feature matching as a complementary training signal that may help bridge likelihood-based training and rollout-based optimization. References Ahmad, W. U., Ficek, A., Samadi, M., Huang, J., Noroozi, V ., Majumdar, S., and Ginsburg, B. Opencodeinstruct: A large-scale instruction tuning dataset for code llms.arXiv preprint arXiv:2504.04030, 2025. Austin, J., Odena, A., Nye, M., Bosma, M., Michalewski, H., Dohan, D., Jiang, E., Cai, C., Terry, M., Le, Q., et al. Program synthesis with large language models.arXiv preprint arXiv:2108.07732, 2021. Bengio, S., Vinyals, O., Jaitly, N., and Shazeer, N. Sched- uled sampling for sequence prediction with recurrent neu- ral networks. InAdvances in Neural Information Process- ing Systems, 2015. Braverman, M., Chen, X., Kakade, S. M., Narasimhan, K., Zhang, C., and Zhang, Y . C...\n\n[3] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.1076\n\nf, A., and Awadalla, H. H. A paradigm shift in machine translation: Boosting transla- tion performance of large language models, 2023. Xu, H., Sharaf, A., Chen, Y ., Tan, W., Shen, L., Durme, B. V ., Murray, K., and Kim, Y . J. Contrastive preference optimization: Pushing the boundaries of llm performance in machine translation, 2024a. Xu, M., Geffner, T., Kreis, K., Nie, W., Xu, Y ., Leskovec, J., Ermon, S., and Vahdat, A. Energy-based diffusion lan- guage models for text generation. InICLR 2025, 2024b. arXiv:2410.21357. Zelikman, E., Harik, G., Shao, Y ., Jayasiri, V ., Haber, N., and Goodman, N. D. Quiet-star: Language models can teach themselves to think before speaking.arXiv preprint arXiv:2403.09629, 2024. Zhang, T., Kishore, V ., Wu, F., Weinberger, K. Q., and Artzi, Y . Bertscore: Evaluating text generation with bert.arXiv preprint arXiv:1904.09675, 2019. Zhao, R., Meterez, A., Kakade, S., Pehlevan, C., Jelassi, S., and Malach, E. Echo chamber: Rl post-training am- plifies behaviors learned in pretraining.arXiv preprint arXiv:2504.07912, 2025. Zhu, X., Cheng, D., Zhang, D., Li, H., Zhang, K., Jiang, C., Sun, Y ., Hua, E., Zuo, Y ., Lv, X., Zhang, Q., Chen, L., Shao, F., Xue...\n\n[4] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.0812\n\nMatching Features, Not Tokens: Energy-Based Fine-Tuning of Language Models Samy Jelassi *1 Mujin Kwun *1 Rosie Zhao *1 Yuanzhi Li2 Nicolo Fusi 3 Yilun Du 1 Sham M. Kakade 1 Carles Domingo-Enrich *3 Abstract Cross-entropy (CE) training provides dense and scalable supervision for language models, but it optimizes next-token prediction under teacher forcing rather than sequence-level behavior under model rollouts. We introduce a feature-matching objective for language-model fine-tuning that tar- gets sequence-level statistics of the completion distribution, providing dense semantic feedback without requiring a task-specific verifier or pref- erence model. To optimize this objective ef- ficiently, we proposeenergy-based fine-tuning (EBFT), which uses strided block-parallel sam- pling to generate multiple rollouts from nested prefixes concurrently, batches feature extraction over these rollouts, and uses the resulting embed- dings to perform an on-policy policy-gradient up- date. We present a theoretical perspective connect- ing EBFT to KL-regularized feature-matching and energy-based modeling. Empirically, across Q&A coding, unstructured coding, and transla- tion, EBFT matches RLVR and...\n\n[5] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.0232\n\nng, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C. L., Mishkin, P., Zhang, C., Agarwal, S., Slama, K., Ray, A., et al. Training language models to fol- low instructions with human feedback.arXiv preprint arXiv:2203.02155, 2022. Qwen, :, Yang, A., Yang, B., Zhang, B., Hui, B., Zheng, B., Yu, B., Li, C., Liu, D., Huang, F., Wei, H., Lin, H., Yang, J., Tu, J., Zhang, J., Yang, J., Yang, J., Zhou, J., Lin, J., Dang, K., Lu, K., Bao, K., Yang, K., Yu, L., Li, M., Xue, M., Zhang, P., Zhu, Q., Men, R., Lin, R., Li, T., Tang, T., Xia, T., Ren, X., Ren, X., Fan, Y ., Su, Y ., Zhang, Y ., Wan, Y ., Liu, Y ., Cui, Z., Zhang, Z., and Qiu, Z. Qwen2.5 technical report, 2025. URL https: //arxiv.org/abs/2412.15115. Rafailov, R., Sharma, A., Mitchell, E., Ermon, S., and Man- ning, C. D. Direct preference optimization: Your lan- guage model is secretly a reward model.arXiv preprint arXiv:2305.18290, 2023. Ranzato, M., Chopra, S., Auli, M., and Zaremba, W. Se- quence level training with recurrent neural networks. arXiv preprint arXiv:1511.06732, 2016. Rennie, S. J., Marcheret, E., Mroueh, Y ., Ross, J., and Goel, V . Self-critical sequence training for image captioning. In Proceedings of the IEEE...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "hybrid",
+    "fusion_policy": "lexical_dominant",
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "hybrid|lexical_dominant|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.325
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

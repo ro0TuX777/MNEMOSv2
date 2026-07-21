@@ -1,0 +1,43 @@
+{
+  "receipt_id": "chatcmpl-mnemos-75158bd2b30d42c3b5f9dca5fc9d51d5",
+  "created": 1784588324,
+  "query": "Find workflow evidence",
+  "requested_model": "mnemos.qwen3-coder-next:latest",
+  "actual_model": "qwen3-coder-next:latest",
+  "answer": "Nested Ollama route answer. [1]",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "source": "workflow.pdf",
+      "score": 0.9
+    }
+  ],
+  "evidence_block": "",
+  "retrieval_metadata": {},
+  "claim_boundary": "boundary",
+  "warning": null,
+  "citation_check": {
+    "cited_indices": [
+      1
+    ],
+    "invalid_indices": [],
+    "uncited_evidence_indices": [],
+    "evidence_count": 1,
+    "coverage": 1.0,
+    "verdict": "all_evidence_cited"
+  },
+  "generation": {
+    "done_reason": null,
+    "truncated": false,
+    "prompt_eval_count": null,
+    "eval_count": null
+  },
+  "score_stats": {
+    "count": 1,
+    "max": 0.9,
+    "min": 0.9,
+    "mean": 0.9
+  },
+  "content_hash": "sha256:3229159b6d1b42b36606f2fa49333720038609fca85dcd5838f01c6274a3049b"
+}

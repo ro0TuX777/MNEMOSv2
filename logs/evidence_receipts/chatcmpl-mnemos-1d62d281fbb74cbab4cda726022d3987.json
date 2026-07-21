@@ -1,0 +1,89 @@
+{
+  "receipt_id": "chatcmpl-mnemos-1d62d281fbb74cbab4cda726022d3987",
+  "created": 1783835250,
+  "query": "### Task:\nSuggest 3-5 relevant follow-up questions or prompts that the user might naturally ask next in this conversation as a **user**, based on the chat history, to help continue or deepen the discussion.\n### Guidelines:\n- Write all follow-up questions from the user’s point of view, directed to the assistant.\n- Make questions concise, clear, and directly related to the discussed topic(s).\n- Only suggest follow-ups that make sense given the chat content and do not repeat what was already covered.\n- If the conversation is very short or not specific, suggest more general (but relevant) follow-ups the user might ask.\n- Use the conversation's primary language; default to English if multilingual.\n- Response must be a JSON object with a \"follow_ups\" key containing an array of strings, no extra text or formatting.\n### Output:\nJSON format: { \"follow_ups\": [\"Question 1?\", \"Question 2?\", \"Question 3?\"] }\n### Chat History:\n<chat_history>\nUSER: Lets discuss Observational Biases and Improved Modelling of Off-axis Relativistic Jets\nASSISTANT: \nUSER: Lets discuss Observational Biases and Improved Modelling of Off-axis Relativistic Jets\nASSISTANT: \nUSER: In the paper, to study the XRB jet ejecta population more broadly, the researchers fit a simple powerlaw to the rest-frame emission of the approaching and receding components of MAXI J1820, excluding what?\nASSISTANT: \n</chat_history>",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "{\n  \"follow_ups\": [\n    \"What criteria were used to exclude certain data points in the analysis?\",\n    \"How does this exclusion affect the overall model accuracy for off-axis relativistic jets?\",\n    \"Can you explain how the powerlaw fit was applied to both approaching and receding components?\"\n  ]\n}",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::e357b928c83499589756",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2605.06716v1-2.pdf",
+      "score": 0.4571
+    },
+    {
+      "index": 2,
+      "engram_id": "research::21d59ae85b205e2f0bb3",
+      "source": "/app/data/research_uploads/2605.06716v1-1.pdf",
+      "score": 0.4179
+    },
+    {
+      "index": 3,
+      "engram_id": "research::183a4812f81ec6c15e4c",
+      "source": "/app/data/research_uploads/2605.06716v1.pdf",
+      "score": 0.4179
+    },
+    {
+      "index": 4,
+      "engram_id": "research::0b115b46acca3d22da65",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2502.12110v11-2.pdf",
+      "score": 0.4117
+    },
+    {
+      "index": 5,
+      "engram_id": "research::6fa6f1f628330b68c559",
+      "source": "/app/data/research_uploads/2604.20779v1-1.pdf",
+      "score": 0.2235
+    }
+  ],
+  "evidence_block": "[1] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2605.06716v1-2.pdf score=0.4571\n\n194 Answer questions by recalling pertinent information and summarizing user traits across a history of interactions spanning ten days to evaluate the precision of retrieval and the maintenance of user portraits for long-term dialogues. BABILong Kuratov et al. (2024) Scalable Answer questions by performing reasoning on facts scattered across extremely long documents of natural language to test the limits of memory and retrieval for contexts with length up to one million tokens. DialSim Kim et al. (2024b) 1.3k Evaluate the precision of retrieval for memory by answering spontaneous questions across sessions of dialogue involving multiple parties with long durations. LongMemEval Maharana et al. (2024) 500 Answer questions through the extraction of information from histories of interactive chat with multiple sessions for the purpose of evaluating the performance of retrieval and reasoning across dependencies of long range. BEAM Tavakoli et al. (2025) 100 Evaluate the capacity of memory and the precision of retrieval by answering questions based on coherent and topically diverse conversations with length up to ten million tokens. MPR Zhang et al. (2025k) 108k Answer complex questions by...\n\n[2] source=/app/data/research_uploads/2605.06716v1-1.pdf score=0.4179\n\n(2023) 194 Answer questions by recalling pertinent information and summarizing user traits across a history of interactions spanning ten days to evaluate the precision of retrieval and the maintenance of user portraits for long-term dialogues. BABILong Kuratov et al. (2024) Scalable Answer questions by performing reasoning on facts scattered across extremely long documents of natural language to test the limits of memory and retrieval for contexts with length up to one million tokens. DialSim Kim et al. (2024b) 1.3k Evaluate the precision of retrieval for memory by answering spontaneous questions across sessions of dialogue involving multiple parties with long durations. LongMemEval Maharana et al. (2024) 500 Answer questions through the extraction of information from histories of interactive chat with multiple sessions for the purpose of evaluating the performance of retrieval and reasoning across dependencies of long range. BEAM Tavakoli et al. (2025) 100 Evaluate the capacity of memory and the precision of retrieval by answering questions based on coherent and topically diverse conversations with length up to ten million tokens. MPR Zhang et al. (2025k) 108k Answer complex quest...\n\n[3] source=/app/data/research_uploads/2605.06716v1.pdf score=0.4179\n\n(2023) 194 Answer questions by recalling pertinent information and summarizing user traits across a history of interactions spanning ten days to evaluate the precision of retrieval and the maintenance of user portraits for long-term dialogues. BABILong Kuratov et al. (2024) Scalable Answer questions by performing reasoning on facts scattered across extremely long documents of natural language to test the limits of memory and retrieval for contexts with length up to one million tokens. DialSim Kim et al. (2024b) 1.3k Evaluate the precision of retrieval for memory by answering spontaneous questions across sessions of dialogue involving multiple parties with long durations. LongMemEval Maharana et al. (2024) 500 Answer questions through the extraction of information from histories of interactive chat with multiple sessions for the purpose of evaluating the performance of retrieval and reasoning across dependencies of long range. BEAM Tavakoli et al. (2025) 100 Evaluate the capacity of memory and the precision of retrieval by answering questions based on coherent and topically diverse conversations with length up to ten million tokens. MPR Zhang et al. (2025k) 108k Answer complex quest...\n\n[4] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2502.12110v11-2.pdf score=0.4117\n\ncontinuous updates and new connections, mimicking human learning processes. As the system processes more memories over time, it develops increasingly sophisticated knowledge structures, discovering higher-order patterns and concepts across multiple memories. This creates a foundation for autonomous memory learning where knowledge organization becomes progressively richer through the ongoing interaction between new experiences and existing memories. 3.4 Retrieve Relative Memory In each interaction, our A-MEMperforms context-aware memory retrieval to provide the agent with relevant historical information. Given a query text q from the current interaction, we first compute its dense vector representation using the same text encoder used for memory notes: eq =f enc(q)(8) The system then computes similarity scores between the query embedding and all existing memory notes inMusing cosine similarity: sq,i = eq ⋅e i ∣eq∣∣ei∣,wheree i ∈m i,∀m i ∈M(9) Then we retrieve the k most relevant memories from the historical memory storage to construct a contextually appropriate prompt. Mretrieved ={m i∣rank(sq,i)≤k, mi ∈M}(10) These retrieved memories provide relevant historical context that helps t...\n\n[5] source=/app/data/research_uploads/2604.20779v1-1.pdf score=0.2235\n\nin the steep trajectory shown in Figure 1. We plan to update our Website and Data frequently as we continue to collect new data. An example SWE-chat session is shown in Figure 3 to illustrate the session structure. Because SWE-chat captures only developers who actively opt into Entire’s public checkpoint logging, the dataset re- flects an early-adopter population and may not generalize to all coding agent users; we discuss this and other limitations in Appendix A. 2.2 Data statistics Implement plugin from the plan document(plan → read → implement → ﬁx) Simplify Go plugin to JS-only (55 tool calls) Implement new feature, then debug errors(106 tool calls total) Docker compose deployment, but then undo release (106 tool calls total) Agent answers a clarification question(no ﬁle reads / edits needed) Where should I create the test repo?(reads .go ﬁle) Remove all traces of `task_timeout`(ﬁle read + grep → ﬁle edits) My python trading bot won’t exit on Ctrl+C(grep `_state.*=|ThreadSafeState`) Add a new copy icon buton(edit .css) Figure 4: SWE-chat user-agent interaction statistics. (a) Distribution of turns per session. (b) Distribution of agent tool calls per turn. (c) Top 15 file types...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "hybrid",
+    "fusion_policy": "lexical_dominant",
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "hybrid|lexical_dominant|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.223
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null,
+  "citation_check": {
+    "cited_indices": [],
+    "invalid_indices": [],
+    "uncited_evidence_indices": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "evidence_count": 5,
+    "coverage": 0.0,
+    "verdict": "no_citations_in_answer"
+  },
+  "generation": {
+    "done_reason": "stop",
+    "truncated": false,
+    "prompt_eval_count": 1898,
+    "eval_count": 65
+  },
+  "score_stats": {
+    "count": 5,
+    "max": 0.4571,
+    "min": 0.2235,
+    "mean": 0.3856
+  },
+  "content_hash": "sha256:1204676de9da630f698608ca8f251a1650b09f361740443c1776be5e57fc5022"
+}

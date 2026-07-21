@@ -11,6 +11,7 @@ def _clear_mnemos_env(monkeypatch):
         "MNEMOS_FUSION_POLICY",
         "MNEMOS_LEXICAL_TOP_K",
         "MNEMOS_SEMANTIC_TOP_K",
+        "MNEMOS_MAX_EVIDENCE_ITEMS_PER_RESPONSE",
         "MNEMOS_EXPLAIN_DEFAULT",
         "MNEMOS_QUANT_BITS",
         "MNEMOS_AUDIT_ENABLED",
@@ -31,6 +32,7 @@ def test_config_hybrid_defaults_preserve_semantic(monkeypatch):
     assert cfg.fusion_policy == "balanced"
     assert cfg.lexical_top_k == 25
     assert cfg.semantic_top_k == 25
+    assert cfg.max_evidence_items_per_response == 0
     assert cfg.explain_default is False
 
 
@@ -40,6 +42,7 @@ def test_config_hybrid_valid_values(monkeypatch):
     monkeypatch.setenv("MNEMOS_FUSION_POLICY", "lexical_dominant")
     monkeypatch.setenv("MNEMOS_LEXICAL_TOP_K", "40")
     monkeypatch.setenv("MNEMOS_SEMANTIC_TOP_K", "30")
+    monkeypatch.setenv("MNEMOS_MAX_EVIDENCE_ITEMS_PER_RESPONSE", "12")
     monkeypatch.setenv("MNEMOS_EXPLAIN_DEFAULT", "true")
     monkeypatch.setenv("MNEMOS_MEMORY_OVER_MAPS_PHASE2", "true")
     monkeypatch.setenv("MNEMOS_MEMORY_OVER_MAPS_PHASE3", "true")
@@ -51,6 +54,7 @@ def test_config_hybrid_valid_values(monkeypatch):
     assert cfg.fusion_policy == "lexical_dominant"
     assert cfg.lexical_top_k == 40
     assert cfg.semantic_top_k == 30
+    assert cfg.max_evidence_items_per_response == 12
     assert cfg.explain_default is True
     assert cfg.memory_over_maps_phase2 is True
     assert cfg.memory_over_maps_phase3 is True
@@ -65,6 +69,7 @@ def test_config_hybrid_valid_values(monkeypatch):
         ("MNEMOS_FUSION_POLICY", "aggressive", "MNEMOS_FUSION_POLICY"),
         ("MNEMOS_LEXICAL_TOP_K", "0", "MNEMOS_LEXICAL_TOP_K"),
         ("MNEMOS_SEMANTIC_TOP_K", "-1", "MNEMOS_SEMANTIC_TOP_K"),
+        ("MNEMOS_MAX_EVIDENCE_ITEMS_PER_RESPONSE", "-1", "MNEMOS_MAX_EVIDENCE_ITEMS_PER_RESPONSE"),
         ("MNEMOS_EXPLAIN_DEFAULT", "sometimes", "MNEMOS_EXPLAIN_DEFAULT"),
     ],
 )

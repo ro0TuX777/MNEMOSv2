@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-0e0ae5d543c6400fb6682810de7e3472",
+  "created": 1783288373,
+  "query": "Help me write the instructions for my AI Dev to follow for building an app that will download from arxiv.org the PDFs into a local file path. Lets discuss what you need to know before writing out these instructions or clarification.",
+  "requested_model": "hf.co/DavidAU/DeepSeek-MOE-4X8B-R1-Distill-Llama-3.1-Deep-Thinker-Uncensored-24B-GGUF:Q6_K",
+  "actual_model": "hf.co/DavidAU/DeepSeek-MOE-4X8B-R1-Distill-Llama-3.1-Deep-Thinker-Uncensored-24B-GGUF:Q6_K",
+  "answer": "<think>",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::651e91d94f89d845bbae",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12118v1-1.pdf",
+      "score": 0.6472
+    },
+    {
+      "index": 2,
+      "engram_id": "research::5079b142d3af3d74b844",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12145v1-1.pdf",
+      "score": 0.6398
+    },
+    {
+      "index": 3,
+      "engram_id": "research::a26da956e7b7b4195752",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11582v1-1.pdf",
+      "score": 0.6173
+    },
+    {
+      "index": 4,
+      "engram_id": "research::1151e19f4abd49fcad32",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11582v1-1.pdf",
+      "score": 0.6166
+    },
+    {
+      "index": 5,
+      "engram_id": "research::1435030f247939d22e80",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11582v1-1.pdf",
+      "score": 0.6127
+    }
+  ],
+  "evidence_block": "[1] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12118v1-1.pdf score=0.6472\n\na per-GPU daemon process, forwards tensor data between executors following data dependencies. Deployment Lifecycle.An administrator 1 registers an app by submitting a Python source file to the Gateway. The Gateway validates the app, identifies its task definitions, and 2 invokes the Resource Manager. The Resource Manager 3 spawns Task Managers, which in turn 4 spawn Task Executor replicas on the allocated GPUs. Request Lifecycle.When 1 an inference request arrives at the Gateway, it 2 identifies the specific components in- voked by the request using arecord-and-replayapproach (§2.2) and 3 forwards them to the Task Dispatcher, which dispatches these to the Task Executors. Intermediate data 4 flows through Sidecars, bypassing the control plane, and the final result is 5 returned to the client. All component invo- cations are dispatched simultaneously, and Task Executors wait for intermediate tensors to arrive through the Sidecar. 2.2 Task Abstraction and Model Fission Any-to-Any models exhibit request and computation path heterogeneity: depending on the request type, the model 2 Cornserve: A Distributed Serving System for Any-to-Any Multimodal Models may invoke different components i...\n\n[2] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12145v1-1.pdf score=0.6398\n\nagent compute cost, complementing these libraries by enabling fast versions of environments they do not cover. High-throughput RL systems.Gymnasium [ 22] standardizes the environment interface used by most RL libraries. EnvPool [23] achieves high throughput via C++ async batching; PufferLib [20] provides a unified interface for C environments; Sample Factory [15] maximizes GPU utilization. Our work is complementary: reducing per-step time lets these systems fully exploit their parallelism. Even PufferLib’s optimized C Pong achieves a42×PPO speedup when translated to a JAX pipeline. LLM-assisted code generation.Neural code translation [8], AlphaCode [10], and SWE-bench [4] address function- or API-level tasks. Ziftci et al.[26] report ∼50%effort reduction from LLM- assisted migration at Google. Eureka [13] and Text2Reward [24] use LLMs to generate reward functions. Our setting differs: we preserve exact semantics across interacting subsystems over thousands of timesteps, where silent errors corrupt training signals. Our hierarchical verification addresses this by providing structured, localized error signals. ScalingRL.FoundationRLarchitectures[ 2,16]thattrainacrossmanyenvironmentsa...\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11582v1-1.pdf score=0.6173\n\ncentralized training and decentralized execution (CTDE) framework using a multi- agent deep reinforcement learning (MARL) algorithm. Our approach efficiently localizes an emitter while accounting for practical considerations, including sensor noise, wind turbu- lence, UA V dynamics, collision avoidance, formation control, and source declaration conditions, making it suitable for real- time implementation. The envisioned multi-UA V scenario is illustrated in Fig. 2. The agents execute the three key CPSL phases: seek, trace, and declare. In the source declaration phase, the emitter’s location is estimated based on the centroid of the virtual surface formed by the UA Vs. Contributions:This work makes four key contributions: •We identify the key challenges in developing a coop- erative sensing strategy for CPSL, focusing on envi- ronmental stochasticity, formation control, and collision avoidance. •We develop an efficient and robust MARL framework for real-world complexities, including wind dynamics and transient sensor readings. •The proposed MARL framework is evaluated against the fluxotaxis method and demonstrates superior performance in both efficiency and accuracy. •We use animati...\n\n[4] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11582v1-1.pdf score=0.6166\n\nwhere the fluxotaxis trajectories (solid red lines) exhibit substantial lateral deviations and erratic move- ment, particularly as wind meandering increases. In contrast, the MARL trajectories (solid blue lines) are smoother and more directed toward the emitter. Subplots (d)–(f) display the time evolution of the centroid’s distance to the emitter. The MARL agents consistently maintain tighter approach paths and show greater adaptability to wind disturbances. Notably, the MARL trajectories exhibit an initial plateau phase corre- sponding to a stationary period, during which agents await sufficient plume concentration to initiate movement. After this phase, the MARL-controlled agents rapidly converge on the target location. Fig. 14 presents the cumulative distribution function (CDF) of the final distances to the emitter for both methods under varying wind conditions. Across all scenarios, the MARL method achieves a steeper and more left-shifted CDF, indicat- ing a greater proportion of trials with shorter final distances. This highlights the superior precision and consistency of the MARL approach in target localization. Although both methods exhibit similar overall trends in approach...\n\n[5] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11582v1-1.pdf score=0.6127\n\nap- proaches for CPSL with advancements in AI. In particular, reinforcement learning (RL) enables robots to learn plume- tracing policies through trial and error in simulations or real- world experiments. Instead of manually coding surge-and-cast behaviors or defining an information gain function, the robot’s controller—often a deep neural network in deep RL [24]— is trained to process sensor inputs (e.g., recent concentration readings, wind direction) and generate movement actions that maximize a reward [25]–[27]. MARL extends this framework by training multiple agents to collaborate toward a shared goal. These learning methods can be model-free, meaning they do not rely on an explicit plume model. The key advantage of learning-based approaches is their adaptability. An RL agent can, in theory, learn optimal behaviors for given conditions by training on a diverse set of plume scenarios. Additionally, learned policies can exhibit robustness to sensor noise and delays, as the agent incorporates these uncertainties into its decision-making process if they were present during training. Once trained, executing the learned policy is computationally lightweight—requiring only a feed-forw...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "semantic",
+    "fusion_policy": null,
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 2.141
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

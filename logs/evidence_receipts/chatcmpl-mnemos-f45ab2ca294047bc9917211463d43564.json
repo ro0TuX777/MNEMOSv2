@@ -1,0 +1,19 @@
+{
+  "receipt_id": "chatcmpl-mnemos-f45ab2ca294047bc9917211463d43564",
+  "created": 1783280933,
+  "query": "Geometry-Aware Probabilistic Circuits A natural way to equip PCs with geometry awareness is to replace the constant (global) sum node weights with geometry-aware gating, so that different expert subcircuits specialize to different regions of the data manifold. Voronoi tessellations (Aurenhammer, 1991) provide a principled mechanism for such routing. Formally, given centroids {c1, . . . , cK} ⊂ R d , what is the Voronoi cell of ck is defined as?",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "MNEMOS search failed (status=unavailable, error=HTTPConnectionPool(host='127.0.0.1', port=8700): Read timed out. (read timeout=5.0)); Ollama was not called.",
+  "status": "mnemos_error",
+  "citations": [],
+  "evidence_block": "",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "unavailable",
+    "response_error": "HTTPConnectionPool(host='127.0.0.1', port=8700): Read timed out. (read timeout=5.0)"
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": "MNEMOS search failed (status=unavailable, error=HTTPConnectionPool(host='127.0.0.1', port=8700): Read timed out. (read timeout=5.0)); Ollama was not called."
+}

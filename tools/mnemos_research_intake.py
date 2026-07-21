@@ -433,7 +433,10 @@ def run_intake(
         }
 
     summary = None
+    summary_status = "not_requested"
+    summary_error = None
     if summarize:
+        summary_status = "ok"
         ollama = ollama_client or OllamaChatClient(
             normalize_base_url(os.getenv("OLLAMA_BASE_URL", DEFAULT_OLLAMA_BASE_URL))
         )
@@ -443,22 +446,29 @@ def run_intake(
             status=status,
             documents=documents,
         )
-        summary = _answer_from_response(ollama.chat(_ollama_payload(ollama_model, prompt)))
-        if output_path is not None:
-            _write_packet(
-                Path(output_path),
-                project=project,
-                capability=capability,
-                status=status,
-                indexed=indexed,
-                summary=summary,
-            )
+        try:
+            summary = _answer_from_response(ollama.chat(_ollama_payload(ollama_model, prompt)))
+        except Exception as exc:
+            summary_status = "failed"
+            summary_error = str(exc)
+        else:
+            if output_path is not None:
+                _write_packet(
+                    Path(output_path),
+                    project=project,
+                    capability=capability,
+                    status=status,
+                    indexed=indexed,
+                    summary=summary,
+                )
 
     return {
         "status": "ok",
         "indexed": indexed,
         "document_count": len(documents),
         "summary": summary,
+        "summary_status": summary_status,
+        "summary_error": summary_error,
         "claim_boundary": CLAIM_BOUNDARY,
         "files": [str(Path(path)) for path in files],
         "files_without_content": files_without_content,

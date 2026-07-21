@@ -683,6 +683,20 @@ class MnemosRuntime:
             "sources": list(grouped.values()),
         }
 
+    def _apply_response_evidence_limit(
+        self,
+        results: List[Any],
+    ) -> Tuple[List[Any], Optional[Dict[str, Any]]]:
+        configured_limit = int(getattr(self._config, "max_evidence_items_per_response", 0) or 0)
+        if configured_limit <= 0:
+            return results, None
+        truncated_count = max(0, len(results) - configured_limit)
+        return results[:configured_limit], {
+            "configured_max_items": configured_limit,
+            "applied": truncated_count > 0,
+            "truncated_count": truncated_count,
+        }
+
     @staticmethod
     def _build_governance_trace(
         *,
@@ -1411,6 +1425,8 @@ class MnemosRuntime:
                 "non_authoritative": True,
             }
 
+        results, response_evidence_limit = self._apply_response_evidence_limit(results)
+
         derived_views_payload: List[Dict[str, Any]] = []
         query_cache_hits = 0
         query_cache_misses = 0
@@ -1655,6 +1671,8 @@ class MnemosRuntime:
             payload["meta"]["associative_candidate_expansion"] = candidate_expansion_block
         if evidence_admission_block is not None:
             payload["meta"]["evidence_admission_shadow"] = evidence_admission_block
+        if response_evidence_limit is not None:
+            payload["meta"]["response_evidence_limit"] = response_evidence_limit
         if r1_enforcement_requested:
             payload["meta"]["evidence_admission_r1_enforcement"] = {
                 "requested": True,

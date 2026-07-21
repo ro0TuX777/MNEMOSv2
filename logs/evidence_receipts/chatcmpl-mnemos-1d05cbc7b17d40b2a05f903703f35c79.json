@@ -1,0 +1,35 @@
+{
+  "receipt_id": "chatcmpl-mnemos-1d05cbc7b17d40b2a05f903703f35c79",
+  "created": 1783833285,
+  "query": "### Task:\nSuggest 3-5 relevant follow-up questions or prompts that the user might naturally ask next in this conversation as a **user**, based on the chat history, to help continue or deepen the discussion.\n### Guidelines:\n- Write all follow-up questions from the user’s point of view, directed to the assistant.\n- Make questions concise, clear, and directly related to the discussed topic(s).\n- Only suggest follow-ups that make sense given the chat content and do not repeat what was already covered.\n- If the conversation is very short or not specific, suggest more general (but relevant) follow-ups the user might ask.\n- Use the conversation's primary language; default to English if multilingual.\n- Response must be a JSON object with a \"follow_ups\" key containing an array of strings, no extra text or formatting.\n### Output:\nJSON format: { \"follow_ups\": [\"Question 1?\", \"Question 2?\", \"Question 3?\"] }\n### Chat History:\n<chat_history>\nUSER: Lets discuss Observational Biases and Improved Modelling of Off-axis Relativistic Jets\nASSISTANT: \n</chat_history>",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "MNEMOS search failed (status=unavailable, error=HTTPConnectionPool(host='mnemos', port=8700): Read timed out. (read timeout=5.0)); Ollama was not called.",
+  "status": "mnemos_error",
+  "citations": [],
+  "evidence_block": "",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "unavailable",
+    "response_error": "HTTPConnectionPool(host='mnemos', port=8700): Read timed out. (read timeout=5.0)"
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": "MNEMOS search failed (status=unavailable, error=HTTPConnectionPool(host='mnemos', port=8700): Read timed out. (read timeout=5.0)); Ollama was not called.",
+  "citation_check": {
+    "cited_indices": [],
+    "invalid_indices": [],
+    "uncited_evidence_indices": [],
+    "evidence_count": 0,
+    "coverage": null,
+    "verdict": "no_evidence_available"
+  },
+  "generation": {
+    "done_reason": null,
+    "truncated": false,
+    "prompt_eval_count": null,
+    "eval_count": null
+  },
+  "score_stats": null,
+  "content_hash": "sha256:5b51e8cfe217cef4544eb787bfb94e616fcf838d0ca819613c4e72dd7acc1980"
+}

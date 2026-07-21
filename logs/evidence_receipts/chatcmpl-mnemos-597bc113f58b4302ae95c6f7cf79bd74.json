@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-597bc113f58b4302ae95c6f7cf79bd74",
+  "created": 1783667560,
+  "query": "What theoretical assumptions underpin the consistency guarantees when applying PFNs to causal inference tasks?",
+  "requested_model": "hf.co/cloudbjorn/Qwen3.6-35B-A3B_Opus-4.6-Reasoning-3300x-GGUF:Q4_K_M",
+  "actual_model": "hf.co/cloudbjorn/Qwen3.6-35B-A3B_Opus-4.6-Reasoning-3300x-GGUF:Q4_K_M",
+  "answer": "",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::10b82243c9c07c09fc00",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12037v1-1.pdf",
+      "score": 0.6716
+    },
+    {
+      "index": 2,
+      "engram_id": "research::6f8fd5a3a99d5df62bf8",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12037v1-1.pdf",
+      "score": 0.5583
+    },
+    {
+      "index": 3,
+      "engram_id": "research::2fbfba3f27ad1ca3ef20",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12037v1-1.pdf",
+      "score": 0.3976
+    },
+    {
+      "index": 4,
+      "engram_id": "research::4d2fa49706ede020f539",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12037v1-1.pdf",
+      "score": 0.2053
+    },
+    {
+      "index": 5,
+      "engram_id": "research::14d00d52a6d3f7d2b315",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12037v1-1.pdf",
+      "score": 0.151
+    }
+  ],
+  "evidence_block": "[1] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12037v1-1.pdf score=0.6716\n\nFrequentist Consistency of Prior-Data Fitted Networks for Causal Inference Valentyn Melnychuk1 Vahid Balazadeh2 Stefan Feuerriegel 1 Rahul G. Krishnan 2 Abstract Foundation models based on prior-data fitted net- works (PFNs) have shown strong empirical per- formance in causal inference by framing the task as an in-context learning problem. However, it is unclear whether PFN-based causal estimators pro- vide uncertainty quantification that is consistent with classical frequentist estimators. In this work, we address this gap by analyzing the frequentist consistency of PFN-based estimators for the av- erage treatment effect (ATE). (1) We show that existing PFNs, when interpreted as Bayesian ATE estimators, can exhibit prior-induced confounding bias: the prior is not asymptotically overwritten by data, which, in turn, prevents frequentist con- sistency. (2) As a remedy, we suggest employ- ing a calibration procedure based on a one-step posterior correction (OSPC). We show that the OSPC helps to restore frequentist consistency and can yield a semi-parametric Bernstein–von Mises theorem for calibrated PFNs (i.e., both the cal- ibrated PFN-based estimators and the classical semi-parametr...\n\n[2] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12037v1-1.pdf score=0.5583\n\nNetworks for Causal Inference which quantifies how the ATE differs from the difference in means. Fig. 2 illustrates the prior-induced confounding bias for different PFNs. We observed that, although the amount of the observed confounding ∆ remains relatively fixed with increasing covariate dimensionalitydx (e. g., unlike the Gaussian processes (Linero & Antonelli, 2023)), ∆ is still concentrated around zero for all the PFNs. This means that the PFNs rarely encounter the observed confounding during their training and thus mightunderestimate the uncertainty of the ATE for datasets with large∆. Importantly, we here distinguish between (i) a(general) con- sistencyand (ii) afrequentist consistency. While (i) can be achieved by PFN-based plug-in estimators with sufficiently expressive priors (Balazadeh et al., 2025) so that the de- gree of observed confounding ∆ has a wide enough support, (ii) is a stronger property and depends on the shape of the prior distribution of∆. Takeaway:The prior-induced confounding bias is, therefore, amain obstaclefor the frequentist consistency of the PFNs. That is, we cannot, in general, guarantee the BvM theorem as the prior influences the plug-in ATE poste...\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12037v1-1.pdf score=0.3976\n\nwhether PFN-based estimators asymptotically converge in distribution to classical semi- parametric frequentist estimators). Our paper aims to fill this gap. Here, westudy the frequentist consistency of PFNs for ATE estimation. While we focus on the ATE, our results naturally extend to other finite-dimensional causal estimands. Overall, our paper makes the following contributions: 1 arXiv:2603.12037v1 [cs.LG] 12 Mar 2026 Frequentist Consistency of Prior-Data Fitted Networks for Causal Inference Table 1.Overview of prior-fitted networks (PFNs) that are suitable for ATE estimation. PFN POF 1 PICB Posterior distribution,P(⋄ | D, x)Posterior means 2 Viable for the OSPC 3 Viable for MPsY[a] Y[1]−Y[0] µa A µa π τ TabPFN (Hollmann et al., 2023)✓† ✓ ✗ ✓∗ ✓ ✓ ✓ ✓ ✓ ✓ Do-PFN (Robertson et al., 2025)✗ ‡ ✓ ✗ ✗‡ ✗ ✓ ✗ ✓ ✗ ✗‡ CausalPFN (Balazadeh et al., 2025)✓ ✗ ✗ ✓ ✗ ✓ ✗ ✓ ✗ ✗× CausalFM (Ma et al., 2026) ✓ ✗ ✓ ✗ ✗ ✗ ✗ ✓ ✗ ✗× POF: potential outcomes framework; PICB: prior-induced confounding bias; MPs: martingale posteriors; OSPC: one-step posterior correction †: when used as a S- or T-learner;‡: struggles with non-identifiability;∗: can be recovered trough MPs;×: do not provide a full PPD. 1 (→...\n\n[4] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12037v1-1.pdf score=0.2053\n\nfor ATE estimation together with an S- or T-learner (K ¨unzel et al., 2019)). PFNs for causal inference.Recent work has extended the PFN paradigm to train PFNsdirectlyfor causal esti- mands by simulating causal structures during pretraining. Notable examples include Do-PFN (Robertson et al., 2025), CausalPFN (Balazadeh et al., 2025), and CausalFM (Ma et al., 2026). These works differ (i) in their underlying causal formulations (e. g., whether they adopt the potential outcomes framework); and (ii) in what posterior predictive densities (PPDs) and, consequently, what nuisance functions they are able to model. We provide a detailed comparison in Table 1. We later exclude Do-PFN from our analysis, as it overestimates uncertainty due to the fact that it relies on a non-identifiableformulation (Ma et al., 2026). Uncertainty quantification with PFNs.A key motivation for PFNs is that they can quantify an approximate total un- certainty of the outcome in the form of a PPD,3 which can then be used for downstream tasks (Jesson et al., 2025; Na- gler & R¨ugamer, 2025). However, deriving the uncertainty of the downstream estimands (such as conditional means or quantiles) is more challenging and...\n\n[5] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12037v1-1.pdf score=0.1510\n\nΠ(η| D)directly, and there is nota unique way to reconstruct a functional posterior from the same collection of pointwise PPDs (see Fig. 1 for illustrative examples). This motivates our use of martingale posteriors in Appendix A.2. PFNs for causal inference and the outputs in Table 1.Recent work trains PFNs directly for causal estimands by simulating causal structures during pretraining, including Do-PFN (Robertson et al., 2025), CausalPFN (Balazadeh et al., 2025), and CausalFM (Ma et al., 2026). These methods differ in whatposterior distributionthey output in the sense of Table 1: • TabPFN.TabPFN (Hollmann et al., 2023; 2025) is a general-purpose PFN for tabular prediction. When used as a nuisance learner in causal inference settings (marked by † in Table 1), we treat (X, A)as inputs and Y as the label, so the PFN provides an outcome PPD P(y| D, x, a),(20) which we interpret as a pointwise predictive distribution for Y[a] given (x, a). Its posterior mean yields ˆµa(x) =R Y ydP(y| D, x, a)and the plug-in CATE mean ˆτ(x) = ˆµ1(x)−ˆµ0(x). In addition, by running TabPFN in classification mode with label A and features X, we obtain a pointwise treatment PPD, P(A=a| D, x), and hence ˆπ(...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "hybrid",
+    "fusion_policy": "lexical_dominant",
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "hybrid|lexical_dominant|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 1.141
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

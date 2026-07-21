@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-718833378896477cb4cad7e23f2cbdb7",
+  "created": 1783681240,
+  "query": "### Task:\nSuggest 3-5 relevant follow-up questions or prompts that the user might naturally ask next in this conversation as a **user**, based on the chat history, to help continue or deepen the discussion.\n### Guidelines:\n- Write all follow-up questions from the user’s point of view, directed to the assistant.\n- Make questions concise, clear, and directly related to the discussed topic(s).\n- Only suggest follow-ups that make sense given the chat content and do not repeat what was already covered.\n- If the conversation is very short or not specific, suggest more general (but relevant) follow-ups the user might ask.\n- Use the conversation's primary language; default to English if multilingual.\n- Response must be a JSON object with a \"follow_ups\" key containing an array of strings, no extra text or formatting.\n### Output:\nJSON format: { \"follow_ups\": [\"Question 1?\", \"Question 2?\", \"Question 3?\"] }\n### Chat History:\n<chat_history>\nUSER: Lets discuss Synthetic Nearest Neighbors (SNN) provides a principled solution to causal matrix completion under missing-not-at-random (MNAR) by exploiting local low-rank structure through fully observed anchor submatrices\nASSISTANT: \n</chat_history>",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "{\n  \"follow_ups\": [\"How does SNN handle MNAR data specifically?\", \"Can you explain the role of anchor submatrices in SNN's approach?\", \"What are some practical applications of SNN in real-world scenarios?\"]\n}",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::21539ab27b314f2e2d98",
+      "source": "/app/data/research_uploads/2502.12110v11.pdf",
+      "score": 0.4582
+    },
+    {
+      "index": 2,
+      "engram_id": "research::947dc596e2255f34074c",
+      "source": "/app/data/research_uploads/2502.12110v11-1.pdf",
+      "score": 0.4582
+    },
+    {
+      "index": 3,
+      "engram_id": "research::0b115b46acca3d22da65",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2502.12110v11-2.pdf",
+      "score": 0.4037
+    },
+    {
+      "index": 4,
+      "engram_id": "research::e885225a5052d69c06b4",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2605.13486v1-2.pdf",
+      "score": 0.3494
+    },
+    {
+      "index": 5,
+      "engram_id": "research::99cfecbf51fe55d00470",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2308.10144v3-2.pdf",
+      "score": 0.3251
+    }
+  ],
+  "evidence_block": "[1] source=/app/data/research_uploads/2502.12110v11.pdf score=0.4582\n\nand new connections, mimicking human learning processes. As the system processes more memories over time, it develops increasingly sophisticated knowledge structures, discovering higher-order patterns and concepts across multiple memories. This creates a foundation for autonomous memory learning where knowledge organization becomes progressively richer through the ongoing interaction between new experiences and existing memories. 3.4 Retrieve Relative Memory In each interaction, our A-MEMperforms context-aware memory retrieval to provide the agent with relevant historical information. Given a query text q from the current interaction, we first compute its dense vector representation using the same text encoder used for memory notes: eq =f enc(q)(8) The system then computes similarity scores between the query embedding and all existing memory notes inMusing cosine similarity: sq,i = eq⋅e i ∣eq∣∣ei∣ ,wheree i∈m i,∀m i∈M(9) Then we retrieve the k most relevant memories from the historical memory storage to construct a contextually appropriate prompt. Mretrieved={m i∣rank(sq,i)≤k, m i∈M}(10) These retrieved memories provide relevant historical context that helps the agent better unders...\n\n[2] source=/app/data/research_uploads/2502.12110v11-1.pdf score=0.4582\n\nand new connections, mimicking human learning processes. As the system processes more memories over time, it develops increasingly sophisticated knowledge structures, discovering higher-order patterns and concepts across multiple memories. This creates a foundation for autonomous memory learning where knowledge organization becomes progressively richer through the ongoing interaction between new experiences and existing memories. 3.4 Retrieve Relative Memory In each interaction, our A-MEMperforms context-aware memory retrieval to provide the agent with relevant historical information. Given a query text q from the current interaction, we first compute its dense vector representation using the same text encoder used for memory notes: eq =f enc(q)(8) The system then computes similarity scores between the query embedding and all existing memory notes inMusing cosine similarity: sq,i = eq⋅e i ∣eq∣∣ei∣ ,wheree i∈m i,∀m i∈M(9) Then we retrieve the k most relevant memories from the historical memory storage to construct a contextually appropriate prompt. Mretrieved={m i∣rank(sq,i)≤k, m i∈M}(10) These retrieved memories provide relevant historical context that helps the agent better unders...\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2502.12110v11-2.pdf score=0.4037\n\ncontinuous updates and new connections, mimicking human learning processes. As the system processes more memories over time, it develops increasingly sophisticated knowledge structures, discovering higher-order patterns and concepts across multiple memories. This creates a foundation for autonomous memory learning where knowledge organization becomes progressively richer through the ongoing interaction between new experiences and existing memories. 3.4 Retrieve Relative Memory In each interaction, our A-MEMperforms context-aware memory retrieval to provide the agent with relevant historical information. Given a query text q from the current interaction, we first compute its dense vector representation using the same text encoder used for memory notes: eq =f enc(q)(8) The system then computes similarity scores between the query embedding and all existing memory notes inMusing cosine similarity: sq,i = eq ⋅e i ∣eq∣∣ei∣,wheree i ∈m i,∀m i ∈M(9) Then we retrieve the k most relevant memories from the historical memory storage to construct a contextually appropriate prompt. Mretrieved ={m i∣rank(sq,i)≤k, mi ∈M}(10) These retrieved memories provide relevant historical context that helps t...\n\n[4] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2605.13486v1-2.pdf score=0.3494\n\nAlgorithm 2:Deep Search with Experience Augmentation Input:QuestionQ, memory storeM, planning bankD P , reflection bankD R Output:Final answerans Initializeq 1 ←Q,m 1 ← ∅,i←1; whileTruedo cP i ←q i, σP i ←LLM σ(cP i ); EP i ←TopKSim \u0000 ϕ(cP i +σ P i ), ϕ(cj +σ j) \u0001 ,(c j +σ j, ej)∈ DP ; ;// planning experience retrieval ({qi1, . . . , qin}, pi)←f plan(qi, mi,E P i ); Ri ←f search(pi, M); mi+1 ←f integrate(qi, mi, Ri); ;// experience-guided planning and memory update cR i ←[Q+m i+1], σR i ←LLM σ(cR i ); ER i ←TopKSim \u0000 ϕ(cR i +σ R i ), ϕ(cj +σ j) \u0001 ,(c j +σ j, ej)∈ DR ; ;// reflection experience retrieval flag←f stop reflect(mi+1, Q,ER i ); ifflag=truethen break ; qi+1 ←f next reflect(qi, mi+1,E R i ); ;// experience-guided reflection i←i+ 1; ans←f answer(Q, mi+1); returnans; B Detailed Experimental Settings Our detailed experimental results and code are available at: https://github.com/ NeurIPS-2026-code/Reflective-Experience-for-Memory-Search. 14 B.1 Details of Datasets LoCoMo.LoCoMo is a comprehensive benchmark designed to evaluate an agent’s capability to maintain, retrieve, and reason over information throughout extended, multi-session dialogues. Moving beyond traditional short-...\n\n[5] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2308.10144v3-2.pdf score=0.3251\n\nChatGPT for Multimodal Reasoning and Action. arXiv preprint. Yang, Z.; Qi, P.; Zhang, S.; Bengio, Y .; Cohen, W.; Salakhut- dinov, R.; and Manning, C. D. 2018. HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering. In EMNLP. Association for Computational Linguistics. Yao, S.; Chen, H.; Yang, J.; and Narasimhan, K. 2022. Web- Shop: Towards Scalable Real-World Web Interaction with Grounded Language Agents. In NeurIPS. Yao, S.; Yu, D.; Zhao, J.; Shafran, I.; Griffiths, T. L.; Cao, Y .; and Narasimhan, K. 2023a. Tree of Thoughts: Deliberate Problem Solving with Large Language Models. NeurIPS. Yao, S.; Zhao, J.; Yu, D.; Du, N.; Shafran, I.; Narasimhan, K.; and Cao, Y . 2023b. ReAct: Synergizing Reasoning and Acting in Language Models. In ICLR. Yao, W.; Heinecke, S.; Niebles, J. C.; Liu, Z.; Feng, Y .; Xue, L.; Murthy, R.; Chen, Z.; Zhang, J.; Arpit, D.; Xu, R.; Mui, P.; Wang, H.; Xiong, C.; and Savarese, S. 2023c. Retro- former: Retrospective Large Language Agents with Policy Gradient Optimization. Yue, Y .; Kang, B.; Ma, X.; Huang, G.; Song, S.; and Yan, S. 2023. Offline Prioritized Experience Replay. arXiv preprint. Zeng, A.; Liu, M.; Lu, R.; Wang, B.; Liu, X.; Don...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "hybrid",
+    "fusion_policy": "lexical_dominant",
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "hybrid|lexical_dominant|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.292
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

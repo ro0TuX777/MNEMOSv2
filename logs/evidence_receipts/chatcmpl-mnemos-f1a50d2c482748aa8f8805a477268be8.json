@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-f1a50d2c482748aa8f8805a477268be8",
+  "created": 1783280974,
+  "query": "Geometry-Aware Probabilistic Circuits A natural way to equip PCs with geometry awareness is to replace the constant (global) sum node weights with geometry-aware gating, so that different expert subcircuits specialize to different regions of the data manifold. Voronoi tessellations (Aurenhammer, 1991) provide a principled mechanism for such routing. Formally, given centroids {c1, . . . , cK} ⊂ R d , what is the Voronoi cell of ck is defined as?",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "The Voronoi cell of \\( c_k \\) (where \\( k \\) ranges from 1 to K and each \\( c_i \\) is a centroid in \\( \\mathbb{R}^d \\)) is formally defined as the set of points that are closer to \\( c_k \\) than to any other centroid. Mathematically, it can be expressed as:\n\n\\[ V(c_k) = \\{ x \\in \\mathbb{R}^d : \\|x - c_k\\| \\leq \\|x - c_i\\| \\text{ for all } i \\neq k \\} \\]\n\nThis means that the Voronoi cell \\( V(c_k) \\) consists of all points in the d-dimensional space that are closer to the centroid \\( c_k \\) than to any other centroid \\( c_i \\). This definition ensures a partitioning of the input space into regions, each associated with one of the centroids.\n\n[1] Aurenhammer, F. (1991). Voronoi diagrams—a survey of a fundamental geometric data structure. ACM Computing Surveys, 23(3), 345-405.",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::8b68137929666fe7e38a",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11946v1-1.pdf",
+      "score": 0.8955
+    },
+    {
+      "index": 2,
+      "engram_id": "research::e9e8a3989bcd4f603134",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11946v1-1.pdf",
+      "score": 0.8648
+    },
+    {
+      "index": 3,
+      "engram_id": "research::8e1e33e00b99b9375129",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11946v1-1.pdf",
+      "score": 0.8602
+    },
+    {
+      "index": 4,
+      "engram_id": "research::55f7fe3a1725af4d4801",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11946v1-1.pdf",
+      "score": 0.8552
+    },
+    {
+      "index": 5,
+      "engram_id": "research::dc5121c65b4130f2ce2a",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11946v1-1.pdf",
+      "score": 0.849
+    }
+  ],
+  "evidence_block": "[1] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11946v1-1.pdf score=0.8955\n\nGeometry-Aware Probabilistic Circuits via Voronoi Tessellations Sahil Sidheekh 1 Sriraam Natarajan 1 Abstract Probabilistic circuits (PCs) enable exact and tractable inference but employ data independent mixture weights that limit their ability to cap- ture local geometry of the data manifold. We propose V oronoi tessellations (VT) as a natural way to incorporate geometric structure directly into the sum nodes of a PC. However, na¨ıvely in- troducing such structure breaks tractability. We formalize this incompatibility and develop two complementary solutions: (1) an approximate in- ference framework that provides guaranteed lower and upper bounds for inference, and (2) a struc- tural condition for VT under which exact tractable inference is recovered. Finally, we introduce a dif- ferentiable relaxation for VT that enables gradient- based learning and empirically validate the result- ing approach on standard density estimation tasks. 1. Introduction Probabilistic circuits (PCs) have emerged as a powerful class of generative models that can learn and reason about complex data distributions under uncertainty. By enforcing structural properties, PCs enable exact and linear time infer-...\n\n[2] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11946v1-1.pdf score=0.8648\n\n+. 5 Geometry-Aware Probabilistic Circuits via Voronoi Tessellations Algorithm 2 summarizes the bound computation. The only non-standard operation is integrating a decomposable sub- circuit over a box, which as we show in Theorem3.14 can be implemented recursively by applying interval integration at leaves and factorization at product nodes. We can apply the same machinery to bound marginals and conditionals. Corollary 3.11(Marginal Bounds).For p(xA) =R p(x)dx ¯A we obtain bounds (p−(xA), p+(xA)) by prop- agating box restricted bounds through the circuit after re- stricting each box approximation to the ¯Adimensions. Corollary 3.12(Conditional Bounds).For disjoint A, B and p(xA |x B) =p(x A,x B)/p(xB), if we have bounds p−(xA,x B)≤p(x A,x B)≤p +(xA,x B) and p−(xB)≤ p(xB)≤p +(xB) with p−(xB)>0 , then p−(xA,xB) p+(xB) ≤ p(xA |x B)≤ p+(xA,xB) p−(xB) . Certified bounds provide guaranteed inference in settings where exact computation is intractable, but they have clear limitations. In high dimensions the initial inner boxes may capture only a small fraction of each V oronoi cell, leading to loose initial bounds. Tight bounds require many refinements, and the refinement cost grows quickl...\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11946v1-1.pdf score=0.8602\n\ncells with tractable axis-aligned box approxi- mations and propagating bounds through the circuit. Sec- ond, we identify a structural condition under which exact tractable inference can be recovered. By factorizing the V oronoi tessellation in a manner that aligns with the circuit decomposition, we obtain a class of geometry-aware circuits that support exact inference. This construction, which we 1 arXiv:2603.11946v1 [cs.LG] 12 Mar 2026 Geometry-Aware Probabilistic Circuits via Voronoi Tessellations refer to asHierarchical Factorized Voronoi(HFV) prob- abilistic circuits, enforces a shared factorization between the gating mechanism and the expert distributions, thereby restoring recursive integrability. Learning V oronoi tessel- lated PCs introduces an additional challenge: hard region assignments are typically non-differentiable. To enable end- to-end gradient-based learning, we introduce a soft gating mechanism based on temperature-scaled distance weight- ing and employ annealing during training. At test time we revert to hard V oronoi assignments, recovering the exact inference guarantees. We prove that this soft-to-hard transi- tion is well-behaved, with exponentially fast conv...\n\n[4] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11946v1-1.pdf score=0.8552\n\nof Texas at Dallas. Correspondence to: Sahil Sidheekh<sahil.sidheekh@utdallas.edu>. manifold. In many real-world distributions, the underlying structure varies across regions of the input space, exhibiting piecewise behavior or locality that cannot be adequately modeled using globally shared mixture weights. A natural question that arises is:Can we introduce geometry- aware, input dependent routing into PCs while maintaining tractable inference?V oronoi tessellations (VT) (Aurenham- mer, 1991) offer an appealing geometric mechanism for such routing and have been studied in the context of other generative models such as normalizing flows (Chen et al., 2022). By partitioning the input space into convex polyhe- dral regions based on proximity to a learned set of centroids, V oronoi cells provide a principled way to assign the inputs to local experts. Incorporating VT within PCs could thus help achieve geometric interpretability and adaptive routing, making it a promising approach for modeling distributions with spatially varying structure. However, naively incorporating V oronoi-based gating into probabilistic circuits creates a fundamental conflict with tractable inference: V oronoi...\n\n[5] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11946v1-1.pdf score=0.8490\n\net al., 2022) and optimization strategies (Suresh et al., 2026; Karanam et al., 2025) have also been proposed to improve generalization. 2 Geometry-Aware Probabilistic Circuits via Voronoi Tessellations A complementary direction to increase the expressivity of PCs involves relaxing classical assumptions and extending their representational language. This has resulted in hybrid models that integrate PCs with neural components (Correia et al., 2023; Gala et al., 2024), invertible transformations (Sidheekh et al., 2023), or non-standard mixture construc- tions (Loconte et al., 2024; 2025b). While these models have expanded the representational scope of PCs, they also reveal a recurring challenge: introducing additional depen- dencies or operations inside the circuit can silently break tractability unless they are carefully aligned with the cir- cuit’s factorization structure. For example, in Sidheekh et al. 2023, tractability is recovered by enforcing the neural transformations to satisfy decomposability. Allowing mixture weights to depend on the input is a natural way to increase model expressivity and enable local spe- cialization, for example, mixture-of-experts (MoE) models (Jacob...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "semantic",
+    "fusion_policy": null,
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.096
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

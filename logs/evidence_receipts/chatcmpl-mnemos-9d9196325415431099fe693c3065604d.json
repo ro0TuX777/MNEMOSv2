@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-9d9196325415431099fe693c3065604d",
+  "created": 1783667611,
+  "query": "### Task:\nSuggest 3-5 relevant follow-up questions or prompts that the user might naturally ask next in this conversation as a **user**, based on the chat history, to help continue or deepen the discussion.\n### Guidelines:\n- Write all follow-up questions from the user’s point of view, directed to the assistant.\n- Make questions concise, clear, and directly related to the discussed topic(s).\n- Only suggest follow-ups that make sense given the chat content and do not repeat what was already covered.\n- If the conversation is very short or not specific, suggest more general (but relevant) follow-ups the user might ask.\n- Use the conversation's primary language; default to English if multilingual.\n- Response must be a JSON object with a \"follow_ups\" key containing an array of strings, no extra text or formatting.\n### Output:\nJSON format: { \"follow_ups\": [\"Question 1?\", \"Question 2?\", \"Question 3?\"] }\n### Chat History:\n<chat_history>\nUSER: lets discuss Frequentist Consistency of Prior-Data Fitted Networks for Causal Inference\nASSISTANT: \nUSER: What theoretical assumptions underpin the consistency guarantees when applying PFNs to causal inference tasks?\nASSISTANT: \n</chat_history>",
+  "requested_model": "hf.co/cloudbjorn/Qwen3.6-35B-A3B_Opus-4.6-Reasoning-3300x-GGUF:Q4_K_M",
+  "actual_model": "hf.co/cloudbjorn/Qwen3.6-35B-A3B_Opus-4.6-Reasoning-3300x-GGUF:Q4_K_M",
+  "answer": "",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::6613a936f360ac2bea0b",
+      "source": "/app/data/research_uploads/2308.10144v3.pdf",
+      "score": 0.6733
+    },
+    {
+      "index": 2,
+      "engram_id": "research::e357b928c83499589756",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2605.06716v1-2.pdf",
+      "score": 0.4582
+    },
+    {
+      "index": 3,
+      "engram_id": "research::183a4812f81ec6c15e4c",
+      "source": "/app/data/research_uploads/2605.06716v1.pdf",
+      "score": 0.4054
+    },
+    {
+      "index": 4,
+      "engram_id": "research::21d59ae85b205e2f0bb3",
+      "source": "/app/data/research_uploads/2605.06716v1-1.pdf",
+      "score": 0.4054
+    },
+    {
+      "index": 5,
+      "engram_id": "research::0b115b46acca3d22da65",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2502.12110v11-2.pdf",
+      "score": 0.3949
+    }
+  ],
+  "evidence_block": "[1] source=/app/data/research_uploads/2308.10144v3.pdf score=0.6733\n\nincrement if subsequent operators UPVOTE or EDIT are applied to it and will decrement when DOWNVOTE is ap- plied to it. If an insight’s importance count reaches zero, it will be removed. This particular design choice robustifies the process since even successful trajectories can be suboptimal and mislead the generated insights. The prompt template we used can be found in Fig. 2. We kept the maximum size for a list of successes to L and used gpt-4-0613 as the default LLMinsights. Weempirically found that gpt-4-0613 is bet- ter than gpt-3.5-turbo-0613 at following instructions on how to use the insight extraction operators and halluci- nated less. Pseudo-code for this process can be found in Alg. 2. Finally, ExpeL utilizes these generated insights ˆι in the task inference phase, described next. 4.3 Task Inference After the agent gathers experiences, extracts insights from them, and sets up a vectorstore of successful trajectories, it can proceed to the evaluation. For each task, the task specifi- cations will be augmented with the concatenation of the full list of extracted insights ˆι = concat(ι1, ι2, ι3, ...), and the top-k trajectories with the highest task similarity will be re-...\n\n[2] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2605.06716v1-2.pdf score=0.4582\n\n194 Answer questions by recalling pertinent information and summarizing user traits across a history of interactions spanning ten days to evaluate the precision of retrieval and the maintenance of user portraits for long-term dialogues. BABILong Kuratov et al. (2024) Scalable Answer questions by performing reasoning on facts scattered across extremely long documents of natural language to test the limits of memory and retrieval for contexts with length up to one million tokens. DialSim Kim et al. (2024b) 1.3k Evaluate the precision of retrieval for memory by answering spontaneous questions across sessions of dialogue involving multiple parties with long durations. LongMemEval Maharana et al. (2024) 500 Answer questions through the extraction of information from histories of interactive chat with multiple sessions for the purpose of evaluating the performance of retrieval and reasoning across dependencies of long range. BEAM Tavakoli et al. (2025) 100 Evaluate the capacity of memory and the precision of retrieval by answering questions based on coherent and topically diverse conversations with length up to ten million tokens. MPR Zhang et al. (2025k) 108k Answer complex questions by...\n\n[3] source=/app/data/research_uploads/2605.06716v1.pdf score=0.4054\n\n(2023) 194 Answer questions by recalling pertinent information and summarizing user traits across a history of interactions spanning ten days to evaluate the precision of retrieval and the maintenance of user portraits for long-term dialogues. BABILong Kuratov et al. (2024) Scalable Answer questions by performing reasoning on facts scattered across extremely long documents of natural language to test the limits of memory and retrieval for contexts with length up to one million tokens. DialSim Kim et al. (2024b) 1.3k Evaluate the precision of retrieval for memory by answering spontaneous questions across sessions of dialogue involving multiple parties with long durations. LongMemEval Maharana et al. (2024) 500 Answer questions through the extraction of information from histories of interactive chat with multiple sessions for the purpose of evaluating the performance of retrieval and reasoning across dependencies of long range. BEAM Tavakoli et al. (2025) 100 Evaluate the capacity of memory and the precision of retrieval by answering questions based on coherent and topically diverse conversations with length up to ten million tokens. MPR Zhang et al. (2025k) 108k Answer complex quest...\n\n[4] source=/app/data/research_uploads/2605.06716v1-1.pdf score=0.4054\n\n(2023) 194 Answer questions by recalling pertinent information and summarizing user traits across a history of interactions spanning ten days to evaluate the precision of retrieval and the maintenance of user portraits for long-term dialogues. BABILong Kuratov et al. (2024) Scalable Answer questions by performing reasoning on facts scattered across extremely long documents of natural language to test the limits of memory and retrieval for contexts with length up to one million tokens. DialSim Kim et al. (2024b) 1.3k Evaluate the precision of retrieval for memory by answering spontaneous questions across sessions of dialogue involving multiple parties with long durations. LongMemEval Maharana et al. (2024) 500 Answer questions through the extraction of information from histories of interactive chat with multiple sessions for the purpose of evaluating the performance of retrieval and reasoning across dependencies of long range. BEAM Tavakoli et al. (2025) 100 Evaluate the capacity of memory and the precision of retrieval by answering questions based on coherent and topically diverse conversations with length up to ten million tokens. MPR Zhang et al. (2025k) 108k Answer complex quest...\n\n[5] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2502.12110v11-2.pdf score=0.3949\n\ncontinuous updates and new connections, mimicking human learning processes. As the system processes more memories over time, it develops increasingly sophisticated knowledge structures, discovering higher-order patterns and concepts across multiple memories. This creates a foundation for autonomous memory learning where knowledge organization becomes progressively richer through the ongoing interaction between new experiences and existing memories. 3.4 Retrieve Relative Memory In each interaction, our A-MEMperforms context-aware memory retrieval to provide the agent with relevant historical information. Given a query text q from the current interaction, we first compute its dense vector representation using the same text encoder used for memory notes: eq =f enc(q)(8) The system then computes similarity scores between the query embedding and all existing memory notes inMusing cosine similarity: sq,i = eq ⋅e i ∣eq∣∣ei∣,wheree i ∈m i,∀m i ∈M(9) Then we retrieve the k most relevant memories from the historical memory storage to construct a contextually appropriate prompt. Mretrieved ={m i∣rank(sq,i)≤k, mi ∈M}(10) These retrieved memories provide relevant historical context that helps t...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "hybrid",
+    "fusion_policy": "lexical_dominant",
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "hybrid|lexical_dominant|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 4.408
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

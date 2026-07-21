@@ -1,0 +1,66 @@
+{
+  "receipt_id": "chatcmpl-mnemos-0e4aa7381cd8459f8c61919366652a22",
+  "created": 1783681737,
+  "query": "while treatment assignment may affect observed outcomes, the underlying latent characteristics associated with each row remain invariant, what assumption does this mirror?",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "The statement \"while treatment assignment may affect observed outcomes, the underlying latent characteristics associated with each row remain invariant\" mirrors Assumption 2.5 in the provided evidence [1]. Specifically, this assumption states that the latent factors (row factors) are shared across different treatments. Formally, it is expressed as:\n\n\\[ u(d')_i = \\sum_{l \\in I(d)(i)} \\beta(l | I(d)(i)) u(d')_l \\]\n\nfor any valid index set \\(I(d)(i)\\) and coefficients \\(\\beta(l | I(d)(i))\\), where \\(u(d')_i\\) represents the latent factor for row \\(i\\) under treatment \\(d'\\). This assumption implies that despite different treatments potentially leading to varying observed outcomes, the intrinsic characteristics or latent factors of each row remain consistent across these treatments.\n\nThis invariant nature of latent factors is crucial for the identification and estimation of potential outcomes in settings with multiple treatments. It allows the method to leverage information from one treatment level to infer outcomes under another, thereby addressing data sparsity issues inherent in MNAR scenarios.",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::3ffc87ffd386c23e1290",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11942v1-1.pdf",
+      "score": 0.2881
+    },
+    {
+      "index": 2,
+      "engram_id": "research::459ff925d334852f209a",
+      "source": "/app/data/research_uploads/2606.14533v1-1.pdf",
+      "score": 0.0021
+    },
+    {
+      "index": 3,
+      "engram_id": "research::2de3d481211827b24c41",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2606.14533v1-2.pdf",
+      "score": 0.0021
+    },
+    {
+      "index": 4,
+      "engram_id": "research::408c9fe7ed927252d3fc",
+      "source": "/app/data/research_uploads/2606.14533v1.pdf",
+      "score": 0.0021
+    },
+    {
+      "index": 5,
+      "engram_id": "research::e8b80d7bd6cd9303137b",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11942v1-1.pdf",
+      "score": 0.0016
+    }
+  ],
+  "evidence_block": "[1] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11942v1-1.pdf score=0.2881\n\n. We consider general MNAR regime: D⊥ ⊥Y|A, meaning that the assignment mechanism depends on the latent at- tributes but not on the random noise. Only the observed outcome ˜Y under the assigned treatment D is observed: ˜Yij = ( Y (Dij) ij , Dij ≥1 ∗, D ij = 0 . Here ∗ means this entry is non-observable (missing), where ˜Yij = 0 under Dij = 0 reflects that non-exposed items contribute no benefit. Problem Statement.Given noisy observation ˜Y with the treatment assignment D, under causal model D⊥ ⊥Y|A, we are tasked to find an estimator of the latent expected po- tential outcome A from ˜Y , and provide an entry-wise upper bound of error of estimation and ground truth: ˆA−A ∞ . Assumptions.Below we introduces basic assumptions for our low-rank multiple matrix completion model. Assumption 2.1.(Low-rank factorization per layer). For each (i, j, d)∈Rm ×R n × L, Y (d) ij = D u(d) i , v(d) j E +ϵ (d) ij , where u(d) i , v(d) j ∈R r are latent factors specific to treat- ment level d. This is equal to the expression of Y (d) = U(d)V (d)⊤ +E (d), where u(d) i , v(d) j are the ith and jth rows ofU (d) ∈R m×r,V (d) ∈R n×r respectively. Below we denote U,V and E as the collection of U(d),V (d),E...\n\n[2] source=/app/data/research_uploads/2606.14533v1-1.pdf score=0.0021\n\nentirely in directions carrying negligible variance. When such a configuration occurs, PCA faithfully preserves the geometry of the data while simultaneously destroying the information required for the decision task. The resulting representation may appear statistically excellent according to classical variance-retention criteria while being operationally useless. This phenomenon is particularly severe in rare-event learning. Across modern high-stakes systems, the most con- sequential events are often extremely infrequent. Financial crashes [31] occupy tiny portions of market trajectories. Fraud- ulent transactions constitute a minute fraction of all payments. Early-stage diseases may appear as weak perturbations hidden beneath dominant physiological variability [30]. Safety-critical failures in autonomous systems arise from rare combinations of environmental conditions [32]. In all these situations, the signals carrying the highest operational value frequently con- tribute only a negligible fraction of the total variance. As a consequence, maximizing explained variance can become arXiv:2606.14533v1 [cs.LG] 12 Jun 2026 2 fundamentally misaligned with minimizing catastrophic errors....\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2606.14533v1-2.pdf score=0.0021\n\nentirely in directions carrying negligible variance. When such a configuration occurs, PCA faithfully preserves the geometry of the data while simultaneously destroying the information required for the decision task. The resulting representation may appear statistically excellent according to classical variance-retention criteria while being operationally useless. This phenomenon is particularly severe in rare-event learning. Across modern high-stakes systems, the most con- sequential events are often extremely infrequent. Financial crashes [31] occupy tiny portions of market trajectories. Fraud- ulent transactions constitute a minute fraction of all payments. Early-stage diseases may appear as weak perturbations hidden beneath dominant physiological variability [30]. Safety-critical failures in autonomous systems arise from rare combinations of environmental conditions [32]. In all these situations, the signals carrying the highest operational value frequently con- tribute only a negligible fraction of the total variance. As a consequence, maximizing explained variance can become arXiv:2606.14533v1 [cs.LG] 12 Jun 2026 2 fundamentally misaligned with minimizing catastrophic errors....\n\n[4] source=/app/data/research_uploads/2606.14533v1.pdf score=0.0021\n\nentirely in directions carrying negligible variance. When such a configuration occurs, PCA faithfully preserves the geometry of the data while simultaneously destroying the information required for the decision task. The resulting representation may appear statistically excellent according to classical variance-retention criteria while being operationally useless. This phenomenon is particularly severe in rare-event learning. Across modern high-stakes systems, the most con- sequential events are often extremely infrequent. Financial crashes [31] occupy tiny portions of market trajectories. Fraud- ulent transactions constitute a minute fraction of all payments. Early-stage diseases may appear as weak perturbations hidden beneath dominant physiological variability [30]. Safety-critical failures in autonomous systems arise from rare combinations of environmental conditions [32]. In all these situations, the signals carrying the highest operational value frequently con- tribute only a negligible fraction of the total variance. As a consequence, maximizing explained variance can become arXiv:2606.14533v1 [cs.LG] 12 Jun 2026 2 fundamentally misaligned with minimizing catastrophic errors....\n\n[5] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11942v1-1.pdf score=0.0016\n\nby latent row factor (Assumption 2.5). Lemma 2.6.Under Assumption 2.4 and 2.5, the in- dex set I(d)(i) and coefficient β(d) \u0000 I(d)(i) \u0001 are ir- relevant to treatment d, i.e. ∀d′ ∈ L, u(d′) i =P l∈I(d)(i) β(d) l \u0000 I(d)(i) \u0001 u(d′) l for any valid I(d)(i) and β(d) l \u0000 I(d)(i) \u0001 . Proof is presented in Appendix C.1. Due to this lemma, the index set and coefficient are shared across treatments, and thus we omit the index (d) for I(d)(i) and β(d) in the derivation below. Theorem 2.7.Under Assumptions 2.1, 2.2, 2.4, 2.5, given (i, j, d)andI(i)∈[m]\\{i}such thatD lj,l∈I(i) =d, then A(d) ij = P l∈I(i) βl (I(i))E h ˜Ylj U,V,D i . Proof is presented in Appendix C.1. Similar to the identifica- tion theorem in Agarwal et al. (2023b), one can estimate the potential outcome A(d) ij through the linear model parameter β. The main difference under multiple treatment is that, here the estimation of a valid β does not require the data from the same treatment level. 3. From SNN to MSNN: Data Integration across Treatment levels In this section, we introduce MSNN (Mixed Synthetic Near- est Neighbors) to address the lack of data in multiple treat- ment setting. 3.1. SNN under multiple treatment Denote x(d)...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "history_turns": 2,
+    "query_condensed": true,
+    "retrieval_query": "What assumption does the invariance of underlying latent characteristics associated with each row despite treatment assignment affecting observed outcomes mirror?",
+    "original_query": "while treatment assignment may affect observed outcomes, the underlying latent characteristics associated with each row remain invariant, what assumption does this mirror?",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "hybrid",
+    "fusion_policy": "lexical_dominant",
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "hybrid|lexical_dominant|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.211
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

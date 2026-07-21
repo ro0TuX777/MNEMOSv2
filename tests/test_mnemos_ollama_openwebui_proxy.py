@@ -9,6 +9,7 @@ from tools.mnemos_ollama_openwebui_proxy import (
     generation_info,
     normalize_openwebui_model_id,
     receipt_content_hash,
+    render_evidence_receipt_html,
     should_append_footer,
     split_query_and_history,
     strip_evidence_footer,
@@ -512,6 +513,41 @@ def test_footer_warns_when_answer_truncated_at_token_limit():
     )
     assert "done_reason=length" in answer
     assert "citations may be incomplete" in answer
+
+
+def test_render_evidence_receipt_html_embeds_receipt_and_provenance_ui():
+    receipt = {
+        "receipt_id": "chatcmpl-mnemos-render1",
+        "created": 123,
+        "query": "What did they add?",
+        "requested_model": "m",
+        "actual_model": "m",
+        "answer": "They added the Bill of Rights [1].",
+        "status": "ok",
+        "citations": [
+            {"index": 1, "source": "a.pdf", "score": 0.9, "engram_id": "e-1"},
+            {"index": 2, "source": "b.pdf", "score": 0.5, "engram_id": "e-2"},
+        ],
+        "evidence_block": "[1] source=a.pdf score=0.9\n\ntext one\n\n[2] source=b.pdf score=0.5\n\ntext two",
+        "citation_check": verify_citations("They added the Bill of Rights [1].", []),
+        "claim_boundary": "boundary text",
+        "content_hash": "sha256:abc",
+    }
+    page = render_evidence_receipt_html(receipt)
+    assert "MNEMOS Evidence Receipt" in page
+    # The full receipt is embedded as JSON for the client-side provenance UI.
+    assert '<script type="application/json" id="receipt-data">' in page
+    embedded = page.split('id="receipt-data">', 1)[1].split("</script>", 1)[0]
+    assert json.loads(embedded) == receipt
+    assert "provenance graph" in page
+
+
+def test_render_evidence_receipt_html_escapes_script_close_tag():
+    receipt = {"receipt_id": "r1", "answer": "bad </script><script>alert(1)</script>"}
+    page = render_evidence_receipt_html(receipt)
+    embedded = page.split('id="receipt-data">', 1)[1].split("</script>", 1)[0]
+    assert "</script>" not in embedded
+    assert json.loads(embedded)["answer"] == "bad </script><script>alert(1)</script>"
 
 
 def test_write_evidence_receipt_records_verification_and_hash(tmp_path):

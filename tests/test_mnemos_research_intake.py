@@ -108,6 +108,50 @@ def test_run_intake_indexes_documents_and_writes_summary_packet(tmp_path):
     assert "Useful for MNEMOS" in output.read_text(encoding="utf-8")
 
 
+def test_run_intake_returns_ok_when_summary_generation_fails(tmp_path):
+    source = tmp_path / "capability.md"
+    source.write_text("This GitHub project proposes local agent memory retrieval.", encoding="utf-8")
+
+    class RecordingMnemos:
+        def __init__(self):
+            self.documents = None
+
+        def index(self, documents, *, tiers=None):
+            self.documents = documents
+            return type(
+                "Resp",
+                (),
+                {
+                    "ok": True,
+                    "status": "healthy",
+                    "error": None,
+                    "data": {"result": {"indexed": len(documents), "tiers": {"qdrant": len(documents)}}},
+                },
+            )()
+
+    class FailingOllama:
+        def chat(self, payload):
+            raise RuntimeError("ollama summary timed out")
+
+    mnemos = RecordingMnemos()
+    result = intake.run_intake(
+        files=[source],
+        project="MNEMOS",
+        capability="agent memory",
+        summarize=True,
+        mnemos_client=mnemos,
+        ollama_client=FailingOllama(),
+        ollama_model="llama3.1",
+    )
+
+    assert result["status"] == "ok"
+    assert result["indexed"] == 1
+    assert result["summary"] is None
+    assert result["summary_status"] == "failed"
+    assert result["summary_error"] == "ollama summary timed out"
+    assert mnemos.documents is not None
+
+
 def test_run_intake_indexes_documents_in_batches(tmp_path):
     source = tmp_path / "many_chunks.md"
     source.write_text(" ".join(f"word{i}" for i in range(45)), encoding="utf-8")

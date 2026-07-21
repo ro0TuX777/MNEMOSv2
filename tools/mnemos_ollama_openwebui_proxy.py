@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import html
 import json
 import logging
 import os
@@ -407,60 +406,350 @@ def write_evidence_receipt(
     return path
 
 
-def render_evidence_receipt_html(receipt: dict[str, Any]) -> str:
-    verification_json = json.dumps(
-        {
-            "citation_check": receipt.get("citation_check"),
-            "generation": receipt.get("generation"),
-            "score_stats": receipt.get("score_stats"),
-        },
-        indent=2,
-        ensure_ascii=False,
-    )
-    citations = receipt.get("citations") or []
-    citation_rows = "\n".join(
-        "<tr>"
-        f"<td>{html.escape(str(item.get('index', '')))}</td>"
-        f"<td>{html.escape(str(item.get('source', 'unknown')))}</td>"
-        f"<td>{html.escape(str(item.get('score', '')))}</td>"
-        f"<td>{html.escape(str(item.get('engram_id', '')))}</td>"
-        "</tr>"
-        for item in citations
-    )
-    return f"""<!doctype html>
+# The receipt page is fully self-contained (inline CSS/JS, no CDN) so it keeps
+# working on air-gapped/local-only deployments. All dynamic content is drawn
+# client-side from the embedded receipt JSON; the server only escapes and
+# injects that JSON, which keeps the template free of per-field escaping bugs.
+_RECEIPT_PAGE_TEMPLATE = """<!doctype html>
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MNEMOS Evidence Receipt</title>
   <style>
-    body {{ font-family: system-ui, sans-serif; margin: 32px; max-width: 1120px; }}
-    pre {{ white-space: pre-wrap; overflow-wrap: anywhere; background: #f5f5f5; padding: 12px; border-radius: 6px; }}
-    table {{ border-collapse: collapse; width: 100%; }}
-    th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }}
-    th {{ background: #f5f5f5; }}
+    :root {
+      --bg: #f6f7f9; --card: #ffffff; --ink: #1f2937; --muted: #6b7280;
+      --line: #e5e7eb; --green: #16a34a; --green-soft: #dcfce7;
+      --amber: #d97706; --amber-soft: #fef3c7; --red: #dc2626; --red-soft: #fee2e2;
+      --gray-soft: #f3f4f6; --blue: #2563eb; --blue-soft: #dbeafe;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 24px 64px; }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    h2 { font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 32px 0 12px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+    .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px 24px; font-size: 13px; }
+    .meta-grid dt { color: var(--muted); }
+    .meta-grid dd { margin: 2px 0 8px; overflow-wrap: anywhere; font-family: ui-monospace, monospace; font-size: 12px; }
+    .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .pill.ok, .pill.all_evidence_cited { background: var(--green-soft); color: var(--green); }
+    .pill.partial_evidence_cited { background: var(--amber-soft); color: var(--amber); }
+    .pill.no_citations_in_answer, .pill.cites_missing_evidence,
+    .pill.mnemos_error, .pill.ollama_error { background: var(--red-soft); color: var(--red); }
+    .pill.no_evidence, .pill.no_evidence_available { background: var(--gray-soft); color: var(--muted); }
+    .verdict-row { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+    .coverage-bar { flex: 1 1 220px; height: 10px; border-radius: 999px; background: var(--gray-soft); overflow: hidden; min-width: 160px; }
+    .coverage-bar > div { height: 100%; background: var(--green); }
+    .counts { display: flex; gap: 14px; font-size: 13px; color: var(--muted); }
+    .counts b { color: var(--ink); }
+    .legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12px; color: var(--muted); margin-top: 10px; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .swatch { width: 22px; height: 0; border-top: 3px solid; border-radius: 2px; }
+    svg text { font-family: system-ui, sans-serif; }
+    .node rect { cursor: pointer; }
+    .node.dim, .edge.dim { opacity: 0.18; }
+    .answer-body { font-size: 15px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .cite-chip { display: inline-block; padding: 0 7px; border-radius: 6px; font-size: 12px; font-weight: 700;
+                 font-family: ui-monospace, monospace; cursor: pointer; vertical-align: 1px; }
+    .cite-chip.valid { background: var(--green-soft); color: var(--green); }
+    .cite-chip.invalid { background: var(--red-soft); color: var(--red); }
+    .ev-card { border: 1px solid var(--line); border-left-width: 4px; border-radius: 10px; background: var(--card);
+               padding: 12px 16px; margin-bottom: 12px; scroll-margin-top: 16px; }
+    .ev-card.cited { border-left-color: var(--green); }
+    .ev-card.uncited { border-left-color: #cbd5e1; }
+    .ev-card.flash { box-shadow: 0 0 0 3px var(--blue-soft); }
+    .ev-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 13px; }
+    .ev-index { font-family: ui-monospace, monospace; font-weight: 700; }
+    .ev-source { font-weight: 600; overflow-wrap: anywhere; }
+    .ev-id { color: var(--muted); font-family: ui-monospace, monospace; font-size: 11px; }
+    .score-wrap { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+    .score-bar { width: 90px; height: 6px; border-radius: 999px; background: var(--gray-soft); overflow: hidden; }
+    .score-bar > div { height: 100%; background: var(--blue); }
+    .score-num { font-family: ui-monospace, monospace; font-size: 12px; }
+    details.ev-text { margin-top: 8px; }
+    details.ev-text summary { cursor: pointer; font-size: 12px; color: var(--muted); }
+    details.ev-text pre, pre.plain { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--gray-soft);
+                     padding: 12px; border-radius: 6px; font-size: 12.5px; margin: 8px 0 0; }
+    pre.plain { margin: 0; }
+    a { color: var(--blue); }
+    .topbar { display: flex; align-items: center; gap: 16px; }
+    .topbar h1 { flex: 1; }
+    .export-btn { border: 1px solid var(--line); background: var(--card); color: var(--ink);
+                  padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .export-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .coverage-note { font-size: 12px; color: var(--muted); margin: 10px 0 0; line-height: 1.5; }
+    .print-only { display: none; }
+    @media print {
+      .no-print { display: none !important; }
+      .print-only { display: block; font-size: 11px; color: #555; margin-top: 6px; }
+      body { background: #fff; }
+      .wrap { max-width: none; padding: 0; }
+      .card, .ev-card { break-inside: avoid; box-shadow: none; }
+      a { color: inherit; text-decoration: none; }
+      details.ev-text summary { display: none; }
+    }
   </style>
 </head>
 <body>
-  <h1>MNEMOS Evidence Receipt</h1>
-  <p><strong>Receipt:</strong> {html.escape(str(receipt.get("receipt_id", "")))}</p>
-  <p><strong>Status:</strong> {html.escape(str(receipt.get("status", "")))}</p>
-  <p><strong>Model:</strong> {html.escape(str(receipt.get("requested_model", "")))}</p>
-  <p><strong>Integrity:</strong> {html.escape(str(receipt.get("content_hash", "not recorded")))}</p>
-  <h2>Verification</h2>
-  <pre>{html.escape(verification_json)}</pre>
-  <h2>Query</h2>
-  <pre>{html.escape(str(receipt.get("query", "")))}</pre>
-  <h2>Citations</h2>
-  <table>
-    <thead><tr><th>#</th><th>Source</th><th>Score</th><th>Engram ID</th></tr></thead>
-    <tbody>{citation_rows}</tbody>
-  </table>
-  <h2>Evidence Block Sent To Ollama</h2>
-  <pre>{html.escape(str(receipt.get("evidence_block", "")))}</pre>
-  <h2>Boundary</h2>
-  <pre>{html.escape(str(receipt.get("claim_boundary", "")))}</pre>
+<div class="wrap">
+  <div class="topbar">
+    <h1>MNEMOS Evidence Receipt</h1>
+    <button type="button" id="export-pdf" class="export-btn no-print" title="Export this receipt as a PDF via the browser print dialog">Export PDF</button>
+  </div>
+  <div class="print-only" id="print-stamp"></div>
+  <div id="page"></div>
+</div>
+<script type="application/json" id="receipt-data">__RECEIPT_JSON__</script>
+<script>
+(function () {
+  var receipt = JSON.parse(document.getElementById("receipt-data").textContent);
+  var citations = receipt.citations || [];
+  var check = receipt.citation_check || {};
+  var citedSet = {};
+  (check.cited_indices || []).forEach(function (i) { citedSet[i] = true; });
+  var invalidSet = {};
+  (check.invalid_indices || []).forEach(function (i) { invalidSet[i] = true; });
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function baseName(p) {
+    var parts = String(p || "unknown").split(/[\\/]/);
+    return parts[parts.length - 1] || String(p);
+  }
+  function trunc(s, n) { s = String(s || ""); return s.length > n ? s.slice(0, n - 1) + "\\u2026" : s; }
+
+  // ---- evidence excerpts, parsed from the block actually sent to the model ----
+  var excerpts = {};
+  var block = String(receipt.evidence_block || "");
+  var re = /\\[(\\d{1,3})\\] source=[^\\n]*\\n\\n?([\\s\\S]*?)(?=\\n\\n\\[\\d{1,3}\\] source=|$)/g;
+  var m;
+  while ((m = re.exec(block)) !== null) { excerpts[parseInt(m[1], 10)] = m[2].trim(); }
+
+  // ---- verdict banner ----
+  var verdict = check.verdict || "unknown";
+  var coverage = typeof check.coverage === "number" ? check.coverage : null;
+  var validCount = (check.cited_indices || []).filter(function (i) { return !invalidSet[i]; }).length;
+  var html = "";
+  html += '<div class="card" style="margin-top:14px">';
+  html += '<div class="verdict-row">';
+  html += '<span class="pill ' + esc(verdict) + '">' + esc(verdict.replace(/_/g, " ")) + "</span>";
+  if (coverage !== null) {
+    html += '<div class="coverage-bar" title="citation coverage"><div style="width:' + Math.round(coverage * 100) + '%"></div></div>';
+    html += "<b>" + Math.round(coverage * 100) + "% coverage</b>";
+  }
+  html += '<div class="counts">';
+  html += "<span><b>" + citations.length + "</b> retrieved</span>";
+  html += "<span><b>" + validCount + "</b> cited</span>";
+  html += "<span><b>" + (check.uncited_evidence_indices || []).length + "</b> uncited</span>";
+  if ((check.invalid_indices || []).length) {
+    html += '<span style="color:var(--red)"><b>' + check.invalid_indices.length + "</b> invalid</span>";
+  }
+  html += "</div></div>";
+  if (coverage !== null) {
+    html += '<p class="coverage-note">Coverage = evidence chunks the answer validly cited \\u00f7 chunks sent to the model (' +
+      validCount + " of " + (check.evidence_count || citations.length) + " here). It measures how much of the retrieved " +
+      "evidence the answer actually drew on \\u2014 it is <b>not</b> a correctness or confidence score. Low coverage is " +
+      "normal when retrieved chunks overlap or duplicate each other; the verdict above and any red edges in the graph " +
+      "are the integrity signals.</p>";
+  }
+
+  // ---- provenance graph ----
+  var invalidCited = check.invalid_indices || [];
+  var rows = citations.map(function (c) { return { kind: "evidence", c: c }; })
+    .concat(invalidCited.map(function (i) { return { kind: "missing", index: i }; }));
+  if (rows.length) {
+    var W = 1120, rowH = 74, topPad = 46, nodeW = 300, nodeH = 56;
+    var H = Math.max(230, topPad + rows.length * rowH + 20);
+    var evX = (W - nodeW) / 2, qX = 20, aX = W - 220 - 20;
+    var midY = topPad + ((rows.length - 1) * rowH) / 2 + nodeH / 2;
+    var scores = citations.map(function (c) { return typeof c.score === "number" ? c.score : 0; });
+    var maxS = Math.max.apply(null, scores.concat([0.0001]));
+    var minS = Math.min.apply(null, scores.concat([maxS]));
+    var svg = '<svg viewBox="0 0 ' + W + " " + H + '" style="width:100%;height:auto;margin-top:18px" role="img" aria-label="provenance graph">';
+    function edge(x1, y1, x2, y2, stroke, width, dash, cls, title) {
+      var mx = (x1 + x2) / 2;
+      return '<path class="edge ' + cls + '" d="M' + x1 + " " + y1 + " C" + mx + " " + y1 + ", " + mx + " " + y2 + ", " + x2 + " " + y2 +
+        '" fill="none" stroke="' + stroke + '" stroke-width="' + width + '"' +
+        (dash ? ' stroke-dasharray="' + dash + '"' : "") + "><title>" + esc(title) + "</title></path>";
+    }
+    rows.forEach(function (row, r) {
+      var y = topPad + r * rowH + nodeH / 2;
+      if (row.kind === "evidence") {
+        var s = typeof row.c.score === "number" ? row.c.score : 0;
+        var norm = maxS === minS ? 1 : (s - minS) / (maxS - minS);
+        svg += edge(qX + 200, midY, evX, y, "#94a3b8", (1.5 + 3 * norm).toFixed(1), null,
+          "e-ret e-" + row.c.index, "retrieved, score " + s);
+        if (citedSet[row.c.index]) {
+          svg += edge(evX + nodeW, y, aX, midY, "var(--green)", 2.5, null,
+            "e-cite e-" + row.c.index, "cited as [" + row.c.index + "] in the answer");
+        } else {
+          svg += edge(evX + nodeW, y, aX, midY, "#cbd5e1", 1.5, "5 5",
+            "e-uncite e-" + row.c.index, "retrieved but not cited");
+        }
+      } else {
+        svg += edge(evX + nodeW, y, aX, midY, "var(--red)", 2, "3 4",
+          "e-invalid e-" + row.index, "answer cites [" + row.index + "] but no such evidence was sent");
+      }
+    });
+    // column headers
+    svg += '<text x="' + (qX + 100) + '" y="20" text-anchor="middle" font-size="11" fill="var(--muted)" letter-spacing="1">QUERY</text>';
+    svg += '<text x="' + (evX + nodeW / 2) + '" y="20" text-anchor="middle" font-size="11" fill="var(--muted)" letter-spacing="1">EVIDENCE SENT TO MODEL</text>';
+    svg += '<text x="' + (aX + 110) + '" y="20" text-anchor="middle" font-size="11" fill="var(--muted)" letter-spacing="1">ANSWER</text>';
+    function nodeRect(x, y, w, h, fill, stroke, cls, dash) {
+      return '<rect class="' + cls + '" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h +
+        '" rx="9" fill="' + fill + '" stroke="' + stroke + '"' + (dash ? ' stroke-dasharray="4 3"' : "") + "/>";
+    }
+    svg += '<g class="node">' + nodeRect(qX, midY - nodeH / 2, 200, nodeH, "var(--blue-soft)", "var(--blue)", "") +
+      '<text x="' + (qX + 100) + '" y="' + (midY + 4) + '" text-anchor="middle" font-size="12">' +
+      esc(trunc(receipt.query, 30)) + "<title>" + esc(receipt.query) + "</title></text></g>";
+    rows.forEach(function (row, r) {
+      var y = topPad + r * rowH;
+      if (row.kind === "evidence") {
+        var cited = !!citedSet[row.c.index];
+        svg += '<g class="node ev-node" data-index="' + row.c.index + '">' +
+          nodeRect(evX, y, nodeW, nodeH, cited ? "var(--green-soft)" : "#fff", cited ? "var(--green)" : "#cbd5e1", "") +
+          '<text x="' + (evX + 14) + '" y="' + (y + 23) + '" font-size="12" font-weight="700">[' + row.c.index + "] " +
+          esc(trunc(baseName(row.c.source), 34)) + "</text>" +
+          '<text x="' + (evX + 14) + '" y="' + (y + 42) + '" font-size="11" fill="var(--muted)">score ' +
+          esc(row.c.score) + " \\u00b7 " + esc(trunc(row.c.engram_id || "", 30)) + "</text>" +
+          "<title>" + esc(row.c.source) + "</title></g>";
+      } else {
+        svg += '<g class="node">' + nodeRect(evX, y, nodeW, nodeH, "var(--red-soft)", "var(--red)", "", true) +
+          '<text x="' + (evX + 14) + '" y="' + (y + 33) + '" font-size="12" fill="var(--red)">[' + row.index +
+          "] cited but never sent</text></g>";
+      }
+    });
+    svg += '<g class="node">' + nodeRect(aX, midY - nodeH / 2, 220, nodeH, "#fff", "var(--ink)", "") +
+      '<text x="' + (aX + 110) + '" y="' + (midY + 4) + '" text-anchor="middle" font-size="12">' +
+      esc(trunc(receipt.answer || "(no answer)", 32)) + "</text></g>";
+    svg += "</svg>";
+    html += svg;
+    html += '<div class="legend">' +
+      '<span><span class="swatch" style="border-color:#94a3b8"></span>retrieved (width = score)</span>' +
+      '<span><span class="swatch" style="border-color:var(--green)"></span>cited in answer</span>' +
+      '<span><span class="swatch" style="border-color:#cbd5e1;border-top-style:dashed"></span>retrieved, uncited</span>' +
+      (invalidCited.length ? '<span><span class="swatch" style="border-color:var(--red);border-top-style:dashed"></span>cited but never sent</span>' : "") +
+      "</div>";
+  }
+  html += "</div>";
+
+  // ---- query + answer ----
+  html += "<h2>Query</h2><div class='card'><div class='answer-body'>" + esc(receipt.query) + "</div></div>";
+  html += "<h2>Answer</h2><div class='card'><div class='answer-body'>" +
+    esc(receipt.answer || "(no answer recorded)").replace(/\\[(\\d{1,3})\\]/g, function (all, n) {
+      var idx = parseInt(n, 10);
+      var cls = invalidSet[idx] ? "invalid" : "valid";
+      var title = invalidSet[idx] ? "cites evidence that was never sent" : "click to jump to evidence [" + idx + "]";
+      return '<span class="cite-chip ' + cls + '" data-index="' + idx + '" title="' + title + '">[' + idx + "]</span>";
+    }) + "</div></div>";
+
+  // ---- evidence cards ----
+  html += "<h2>Evidence (" + citations.length + " chunks sent to the model)</h2>";
+  citations.forEach(function (c) {
+    var cited = !!citedSet[c.index];
+    var s = typeof c.score === "number" ? c.score : 0;
+    html += '<div class="ev-card ' + (cited ? "cited" : "uncited") + '" id="evidence-' + c.index + '">' +
+      '<div class="ev-head"><span class="ev-index">[' + c.index + "]</span>" +
+      '<span class="ev-source" title="' + esc(c.source) + '">' + esc(baseName(c.source)) + "</span>" +
+      '<span class="pill ' + (cited ? "ok" : "no_evidence") + '">' + (cited ? "cited" : "uncited") + "</span>" +
+      '<span class="ev-id">' + esc(c.engram_id || "") + "</span>" +
+      '<span class="score-wrap"><span class="score-bar"><div style="width:' + Math.round(Math.min(1, s) * 100) +
+      '%"></div></span><span class="score-num">' + esc(c.score) + "</span></span></div>";
+    var text = excerpts[c.index];
+    if (text) {
+      html += '<details class="ev-text"' + (cited ? " open" : "") + "><summary>excerpt sent to model</summary><pre>" +
+        esc(text) + "</pre></details>";
+    }
+    html += "</div>";
+  });
+
+  // ---- provenance / integrity metadata ----
+  var rm = receipt.retrieval_metadata || {};
+  var fp = rm.retrieval_fingerprint || {};
+  var gen = receipt.generation || {};
+  html += "<h2>Bounded-Truth Provenance</h2><div class='card'><dl class='meta-grid'>" +
+    "<div><dt>Receipt</dt><dd>" + esc(receipt.receipt_id) + "</dd></div>" +
+    "<div><dt>Status</dt><dd><span class='pill " + esc(receipt.status || "") + "'>" + esc(receipt.status || "") + "</span></dd></div>" +
+    "<div><dt>Model</dt><dd>" + esc(receipt.requested_model) + "</dd></div>" +
+    "<div><dt>Integrity hash</dt><dd>" + esc(receipt.content_hash || "not recorded") + "</dd></div>" +
+    "<div><dt>Collection snapshot</dt><dd>" + esc(fp.collection_snapshot || "n/a") + "</dd></div>" +
+    "<div><dt>Embedding model</dt><dd>" + esc(fp.embedding_model_name || "n/a") + "</dd></div>" +
+    "<div><dt>Retrieval profile</dt><dd>" + esc(fp.retrieval_profile || "n/a") + "</dd></div>" +
+    "<div><dt>Retrieval latency</dt><dd>" + esc(rm.latency_s != null ? rm.latency_s + " s" : "n/a") + "</dd></div>" +
+    "<div><dt>Generation</dt><dd>done_reason=" + esc(gen.done_reason) + (gen.truncated ? " (TRUNCATED)" : "") +
+    " \\u00b7 prompt=" + esc(gen.prompt_eval_count) + " tok \\u00b7 completion=" + esc(gen.eval_count) + " tok</dd></div>" +
+    "</dl>" +
+    '<details class="ev-text"><summary>raw verification JSON</summary><pre>' +
+    esc(JSON.stringify({ citation_check: receipt.citation_check, generation: receipt.generation, score_stats: receipt.score_stats }, null, 2)) +
+    "</pre></details>" +
+    '<p style="font-size:12px;margin:10px 0 0"><a href="' + esc(receipt.receipt_id) + '.json">raw receipt JSON</a></p>' +
+    "</div>";
+
+  html += "<h2>Boundary</h2><div class='card'><pre class='plain'>" + esc(receipt.claim_boundary || "") + "</pre></div>";
+
+  document.getElementById("page").innerHTML = html;
+
+  // ---- interactivity: chips + graph nodes jump to evidence; hover isolates a path ----
+  function jump(idx) {
+    var el = document.getElementById("evidence-" + idx);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("flash");
+    setTimeout(function () { el.classList.remove("flash"); }, 1600);
+  }
+  document.querySelectorAll(".cite-chip.valid, .ev-node").forEach(function (el) {
+    el.addEventListener("click", function () { jump(el.getAttribute("data-index")); });
+  });
+  var graphEls = document.querySelectorAll(".ev-node, .edge");
+  document.querySelectorAll(".ev-node").forEach(function (node) {
+    var idx = node.getAttribute("data-index");
+    node.addEventListener("mouseenter", function () {
+      graphEls.forEach(function (el) {
+        var keep = el === node || el.classList.contains("e-" + idx);
+        el.classList.toggle("dim", !keep);
+      });
+    });
+    node.addEventListener("mouseleave", function () {
+      graphEls.forEach(function (el) { el.classList.remove("dim"); });
+    });
+  });
+
+  // ---- PDF export via the browser print pipeline (works for Ctrl+P too) ----
+  // For evidentiary use every excerpt must appear in the PDF, so all <details>
+  // are opened before printing and restored afterwards.
+  var reopenState = null;
+  function preparePrint() {
+    var stamp = document.getElementById("print-stamp");
+    stamp.textContent = "Receipt " + (receipt.receipt_id || "") + " \\u00b7 " +
+      (receipt.content_hash || "no integrity hash") + " \\u00b7 exported " + new Date().toISOString() +
+      " \\u00b7 verify against the stored receipt JSON before relying on this document";
+    reopenState = [];
+    document.querySelectorAll("details").forEach(function (d) {
+      reopenState.push([d, d.open]);
+      d.open = true;
+    });
+  }
+  function restorePrint() {
+    (reopenState || []).forEach(function (pair) { pair[0].open = pair[1]; });
+    reopenState = null;
+  }
+  window.addEventListener("beforeprint", preparePrint);
+  window.addEventListener("afterprint", restorePrint);
+  document.getElementById("export-pdf").addEventListener("click", function () { window.print(); });
+})();
+</script>
 </body>
 </html>"""
+
+
+def render_evidence_receipt_html(receipt: dict[str, Any]) -> str:
+    # "</" must be escaped so receipt content can never close the script tag.
+    receipt_json = json.dumps(receipt, ensure_ascii=False).replace("</", "<\\/")
+    return _RECEIPT_PAGE_TEMPLATE.replace("__RECEIPT_JSON__", receipt_json)
 
 
 def _public_receipt_base_url() -> str:

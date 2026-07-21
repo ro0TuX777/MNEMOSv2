@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-758d015bf38f4d87a021d92d16d88ab9",
+  "created": 1783659967,
+  "query": "### Task:\nGenerate 1-3 broad tags categorizing the main themes of the chat history, along with 1-3 more specific subtopic tags.\n\n### Guidelines:\n- Start with high-level domains (e.g. Science, Technology, Philosophy, Arts, Politics, Business, Health, Sports, Entertainment, Education)\n- Consider including relevant subfields/subdomains if they are strongly represented throughout the conversation\n- If content is too short (less than 3 messages) or too diverse, use only [\"General\"]\n- Use the chat's primary language; default to English if multilingual\n- Prioritize accuracy over specificity\n\n### Output:\nJSON format: { \"tags\": [\"tag1\", \"tag2\", \"tag3\"] }\n\n### Chat History:\n<chat_history>\nUSER: lets discuss Frequentist Consistency of Prior-Data Fitted Networks for Causal Inference\nASSISTANT: \n</chat_history>",
+  "requested_model": "hf.co/cloudbjorn/Qwen3.6-35B-A3B_Opus-4.6-Reasoning-3300x-GGUF:Q4_K_M",
+  "actual_model": "hf.co/cloudbjorn/Qwen3.6-35B-A3B_Opus-4.6-Reasoning-3300x-GGUF:Q4_K_M",
+  "answer": "",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::09edafef30fe72cc69e6",
+      "source": "/app/data/research_uploads/2308.10144v3.pdf",
+      "score": 0.0923
+    },
+    {
+      "index": 2,
+      "engram_id": "research::99cfecbf51fe55d00470",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2308.10144v3-2.pdf",
+      "score": 0.0737
+    },
+    {
+      "index": 3,
+      "engram_id": "research::d80868a6b50c021f600b",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2502.12110v11-2.pdf",
+      "score": 0.0424
+    },
+    {
+      "index": 4,
+      "engram_id": "research::c52bfb16e6db72afcf70",
+      "source": "/app/data/research_uploads/2502.12110v11-1.pdf",
+      "score": 0.0328
+    },
+    {
+      "index": 5,
+      "engram_id": "research::d289088d6e2ee25faec5",
+      "source": "/app/data/research_uploads/2502.12110v11.pdf",
+      "score": 0.0328
+    }
+  ],
+  "evidence_block": "[1] source=/app/data/research_uploads/2308.10144v3.pdf score=0.0923\n\nAhmed, F.; Liu, Z.; Liu, C.; Zeng, M.; and Wang, L. 2023b. MM- REACT: Prompting ChatGPT for Multimodal Reasoning and Action. arXiv preprint. Yang, Z.; Qi, P.; Zhang, S.; Bengio, Y .; Cohen, W.; Salakhut- dinov, R.; and Manning, C. D. 2018. HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering. In EMNLP. Association for Computational Linguistics. Yao, S.; Chen, H.; Yang, J.; and Narasimhan, K. 2022. Web- Shop: Towards Scalable Real-World Web Interaction with Grounded Language Agents. In NeurIPS. Yao, S.; Yu, D.; Zhao, J.; Shafran, I.; Griffiths, T. L.; Cao, Y .; and Narasimhan, K. 2023a. Tree of Thoughts: Deliberate Problem Solving with Large Language Models. NeurIPS. Yao, S.; Zhao, J.; Yu, D.; Du, N.; Shafran, I.; Narasimhan, K.; and Cao, Y . 2023b. ReAct: Synergizing Reasoning and Acting in Language Models. In ICLR. Yao, W.; Heinecke, S.; Niebles, J. C.; Liu, Z.; Feng, Y .; Xue, L.; Murthy, R.; Chen, Z.; Zhang, J.; Arpit, D.; Xu, R.; Mui, P.; Wang, H.; Xiong, C.; and Savarese, S. 2023c. Retro- former: Retrospective Large Language Agents with Policy Gradient Optimization. Yue, Y .; Kang, B.; Ma, X.; Huang, G.; Song, S.; and Yan, S. 2023. Offline Prioritized Expe...\n\n[2] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2308.10144v3-2.pdf score=0.0737\n\nChatGPT for Multimodal Reasoning and Action. arXiv preprint. Yang, Z.; Qi, P.; Zhang, S.; Bengio, Y .; Cohen, W.; Salakhut- dinov, R.; and Manning, C. D. 2018. HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering. In EMNLP. Association for Computational Linguistics. Yao, S.; Chen, H.; Yang, J.; and Narasimhan, K. 2022. Web- Shop: Towards Scalable Real-World Web Interaction with Grounded Language Agents. In NeurIPS. Yao, S.; Yu, D.; Zhao, J.; Shafran, I.; Griffiths, T. L.; Cao, Y .; and Narasimhan, K. 2023a. Tree of Thoughts: Deliberate Problem Solving with Large Language Models. NeurIPS. Yao, S.; Zhao, J.; Yu, D.; Du, N.; Shafran, I.; Narasimhan, K.; and Cao, Y . 2023b. ReAct: Synergizing Reasoning and Acting in Language Models. In ICLR. Yao, W.; Heinecke, S.; Niebles, J. C.; Liu, Z.; Feng, Y .; Xue, L.; Murthy, R.; Chen, Z.; Zhang, J.; Arpit, D.; Xu, R.; Mui, P.; Wang, H.; Xiong, C.; and Savarese, S. 2023c. Retro- former: Retrospective Large Language Agents with Policy Gradient Optimization. Yue, Y .; Kang, B.; Ma, X.; Huang, G.; Song, S.; and Yan, S. 2023. Offline Prioritized Experience Replay. arXiv preprint. Zeng, A.; Liu, M.; Lu, R.; Wang, B.; Liu, X.; Don...\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2502.12110v11-2.pdf score=0.0424\n\nJordan Hoffmann, Trevor Cai, Eliza Rutherford, Katie Millican, George Bm Van Den Driessche, Jean-Baptiste Lespiau, Bogdan Damoc, Aidan Clark, et al. Improving language models by retrieving from trillions of tokens. InInternational conference on machine learning, pages 2206–2240. PMLR, 2022. [7] Xiang Deng, Yu Gu, Boyuan Zheng, Shijie Chen, Sam Stevens, Boshi Wang, Huan Sun, and Yu Su. Mind2web: Towards a generalist agent for the web.Advances in Neural Information Processing Systems, 36:28091–28114, 2023. [8] Khant Dev and Singh Taranjeet. mem0: The memory layer for ai agents. https://github. com/mem0ai/mem0, 2024. [9] Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, and Jonathan Larson. From local to global: A graph rag approach to query-focused summarization.arXiv preprint arXiv:2404.16130, 2024. [10] Yunfan Gao, Yun Xiong, Xinyu Gao, Kangxiang Jia, Jinliu Pan, Yuxi Bi, Yi Dai, Jiawei Sun, and Haofen Wang. Retrieval-augmented generation for large language models: A survey.arXiv preprint arXiv:2312.10997, 2023. [11] Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Ruoyu Zhang, Runxin Xu, Qihao Zhu, Shirong Ma, Peiyi Wang, Xiao Bi, et al....\n\n[4] source=/app/data/research_uploads/2502.12110v11-1.pdf score=0.0328\n\nEliza Rutherford, Katie Millican, George Bm Van Den Driessche, Jean-Baptiste Lespiau, Bogdan Damoc, Aidan Clark, et al. Improving language models by retrieving from trillions of tokens. InInternational conference on machine learning, pages 2206–2240. PMLR, 2022. [7] Xiang Deng, Yu Gu, Boyuan Zheng, Shijie Chen, Sam Stevens, Boshi Wang, Huan Sun, and Yu Su. Mind2web: Towards a generalist agent for the web.Advances in Neural Information Processing Systems, 36:28091–28114, 2023. [8] Khant Dev and Singh Taranjeet. mem0: The memory layer for ai agents. https://github. com/mem0ai/mem0, 2024. [9] Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, and Jonathan Larson. From local to global: A graph rag approach to query-focused summarization.arXiv preprint arXiv:2404.16130, 2024. [10] Yunfan Gao, Yun Xiong, Xinyu Gao, Kangxiang Jia, Jinliu Pan, Yuxi Bi, Yi Dai, Jiawei Sun, and Haofen Wang. Retrieval-augmented generation for large language models: A survey.arXiv preprint arXiv:2312.10997, 2023. [11] Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Ruoyu Zhang, Runxin Xu, Qihao Zhu, Shirong Ma, Peiyi Wang, Xiao Bi, et al. Deepseek-r1: Incentivizing r...\n\n[5] source=/app/data/research_uploads/2502.12110v11.pdf score=0.0328\n\nEliza Rutherford, Katie Millican, George Bm Van Den Driessche, Jean-Baptiste Lespiau, Bogdan Damoc, Aidan Clark, et al. Improving language models by retrieving from trillions of tokens. InInternational conference on machine learning, pages 2206–2240. PMLR, 2022. [7] Xiang Deng, Yu Gu, Boyuan Zheng, Shijie Chen, Sam Stevens, Boshi Wang, Huan Sun, and Yu Su. Mind2web: Towards a generalist agent for the web.Advances in Neural Information Processing Systems, 36:28091–28114, 2023. [8] Khant Dev and Singh Taranjeet. mem0: The memory layer for ai agents. https://github. com/mem0ai/mem0, 2024. [9] Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, and Jonathan Larson. From local to global: A graph rag approach to query-focused summarization.arXiv preprint arXiv:2404.16130, 2024. [10] Yunfan Gao, Yun Xiong, Xinyu Gao, Kangxiang Jia, Jinliu Pan, Yuxi Bi, Yi Dai, Jiawei Sun, and Haofen Wang. Retrieval-augmented generation for large language models: A survey.arXiv preprint arXiv:2312.10997, 2023. [11] Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Ruoyu Zhang, Runxin Xu, Qihao Zhu, Shirong Ma, Peiyi Wang, Xiao Bi, et al. Deepseek-r1: Incentivizing r...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "hybrid",
+    "fusion_policy": "lexical_dominant",
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "hybrid|lexical_dominant|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 1.024
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

@@ -1,0 +1,20 @@
+{
+  "receipt_id": "chatcmpl-mnemos-f6a7972eba4344e7996662c322460f66",
+  "created": 1783681898,
+  "query": "Find workflow evidence",
+  "requested_model": "qwen3-coder-next:latest",
+  "actual_model": "qwen3-coder-next:latest",
+  "answer": "Ollama stream answer. [1]",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "source": "workflow.pdf",
+      "score": 0.9
+    }
+  ],
+  "evidence_block": "",
+  "retrieval_metadata": {},
+  "claim_boundary": "boundary",
+  "warning": null
+}

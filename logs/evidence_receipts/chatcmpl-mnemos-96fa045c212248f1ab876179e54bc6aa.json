@@ -1,0 +1,93 @@
+{
+  "receipt_id": "chatcmpl-mnemos-96fa045c212248f1ab876179e54bc6aa",
+  "created": 1783835389,
+  "query": "I believe they excluded the early-time high spatial resolution and unresolved AMI-LA datapoints.",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "Based on the provided evidence, you are correct. The researchers fit a simple power-law to the rest-frame emission of the approaching and receding components of MAXI J1820, excluding the early-time high spatial resolution and unresolved AMI-LA data points.\n\nSpecifically, this is stated in the following excerpt from the paper:\n\n\"To study the XRB jet ejecta population more broadly, we fit a simple powerlaw to the rest-frame emission of the approaching and receding components of MAXIJ1820, excluding the early-time high spatial resolution and unresolved AMI-LA datapoints.\"\n\nThis exclusion was done to ensure that only well-resolved and reliable data points were used in the fitting process.\n\nWould you like more details on any specific part of this finding or another aspect related to the study?",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::b2e39bce0c9accd5bbe7",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2606.13806v1-2.pdf",
+      "score": 0.8829
+    },
+    {
+      "index": 2,
+      "engram_id": "research::33e7e10e7176c88a5808",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2606.13806v1-2.pdf",
+      "score": 0.8787
+    },
+    {
+      "index": 3,
+      "engram_id": "research::bf32fc880f78b4c98304",
+      "source": "/app/data/research_uploads/2606.13806v1-2.pdf",
+      "score": 0.8773
+    },
+    {
+      "index": 4,
+      "engram_id": "research::cc45a6144a3e1adba38c",
+      "source": "/app/data/research_uploads/2606.13806v1.pdf",
+      "score": 0.8773
+    },
+    {
+      "index": 5,
+      "engram_id": "research::4f84198e1d72b6ab2613",
+      "source": "/app/data/research_uploads/2606.13806v1-2.pdf",
+      "score": 0.8515
+    }
+  ],
+  "evidence_block": "[1] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2606.13806v1-2.pdf score=0.8829\n\nThe large-scale jet ejecta from MAXI J1820 are consistent with an intrinsic powerlaw flux of𝐹𝜈 ∝𝑡 −3.6 , with receding ejecta flux being produced much earlier in the jet rest frame despite Figure 7.Predicted MAXI J1820-like emission from the approaching (left panels)andreceding(rightpanels)asafunctionoftimeandΓ 0 forthreeview- ingangles(𝜃 v =[15,45,75]deg).Notethepowerlawcolourscalechangesfor eachrow.Cyandashedcontoursagaincorrespondto𝐹 𝜈 =150𝜇Jyflux,with the white hatched region excluding regions of lower flux. The shape of the observable region shows how observations at different times are sensitive to ejectawithdifferinginitialLorentzfactorsinamannerthatstronglydepends on the viewing angle. arriving to the observer at much later times. (iii) Approaching high-Γ0 jet ejecta can go undetected unless both early-time and late-time observations are conducted. (iv) Sensitive,high-spatialresolutionobservationsarerequiredat latetimes(≳200days)todetecttherecedingejectaofevenmoderate- Γ0 ejecta. For much of the parameter space, this component is only visible weeks or months after the approaching jet has faded below detectable levels. To maximise scientific output from multi-wavelength, kin...\n\n[2] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2606.13806v1-2.pdf score=0.8787\n\ninvestigated the Doppler boosting of large- scale XRB jet ejecta, and the implications this has for optimising observing strategies to reduce biases in our understanding of XRB jets.Wehavedemonstrated,usingacasestudyofMAXIJ1535,that in cases where prior information implies a large𝜃v, non-detections of the receding jet ejecta can significantly improve parameter esti- mation through kinematic modelling. By recovering the intrinsic jet rest frame emission of MAXI J1820 as a case study, we have pre- dictedemissionfromsimilarjetejectaacrossdifferentinitialLorentz factors and observer angles. We have demonstrated that difficulties in detecting ejecta across the parameter space, particularly for high Γ0 jets, may introduce significant observational bias in the inferred distribution of XRB jet ejecta Lorentz factors (see also Lilje et al. 2026). Such bias can be partially overcome by prioritising high spa- tial resolution, early-time observations at10s days post-launch, and MNRAS000, 1–10 (2026) 8A. J. Cooper et al. Figure 6.Predicted MAXI J1820-like emission from the approaching (left panels) and receding (right panels) as a function of the initial Lorentz factor Γ0 and viewing angle𝜃v fo...\n\n[3] source=/app/data/research_uploads/2606.13806v1-2.pdf score=0.8773\n\net al. 2025; Cooper et al. 2025; Matthews et al. 2025), has not yet crossed the ejecta. We caution that these detections are at high spa- tial resolution and may resolve out a portion of the flux. Secondly, despite being detected weeks later by the observer, the receding jet component emission was likely emitted much earlier and at signif- icantly higher intrinsic luminosities than the observed approaching jetcomponent.Whilethisisexpected,thisclearlydemonstrateshow detectingtherecedingcomponentofrelativisticoutflowscanprovide crucialinformationtogainafullpictureofthetemporalevolutionof the blastwave. To study the XRB jet ejecta population more broadly, we fit a simple powerlaw to the rest-frame emission of the approaching and recedingcomponentsofMAXIJ1820,excludingtheearly-timehigh spatial resolution and unresolved AMI-LA datapoints. We employ the functional form: 𝐹𝜈,rest =𝑆 0 \u0012 𝑡 𝑡0 \u0013𝛾 (12) We opt to use𝑡0 =25days, the jet rest frame time corresponding to the earliest clear detection of the receding jet. We utilise theemcee package to sample the parameter space, using conservative, uniform priorsof−3<𝑆 0<10,−10<𝛾 <1,−10<log(𝑓)<1.log(𝑓)isa fudge factor we fit for to ensure a few da...\n\n[4] source=/app/data/research_uploads/2606.13806v1.pdf score=0.8773\n\net al. 2025; Cooper et al. 2025; Matthews et al. 2025), has not yet crossed the ejecta. We caution that these detections are at high spa- tial resolution and may resolve out a portion of the flux. Secondly, despite being detected weeks later by the observer, the receding jet component emission was likely emitted much earlier and at signif- icantly higher intrinsic luminosities than the observed approaching jetcomponent.Whilethisisexpected,thisclearlydemonstrateshow detectingtherecedingcomponentofrelativisticoutflowscanprovide crucialinformationtogainafullpictureofthetemporalevolutionof the blastwave. To study the XRB jet ejecta population more broadly, we fit a simple powerlaw to the rest-frame emission of the approaching and recedingcomponentsofMAXIJ1820,excludingtheearly-timehigh spatial resolution and unresolved AMI-LA datapoints. We employ the functional form: 𝐹𝜈,rest =𝑆 0 \u0012 𝑡 𝑡0 \u0013𝛾 (12) We opt to use𝑡0 =25days, the jet rest frame time corresponding to the earliest clear detection of the receding jet. We utilise theemcee package to sample the parameter space, using conservative, uniform priorsof−3<𝑆 0<10,−10<𝛾 <1,−10<log(𝑓)<1.log(𝑓)isa fudge factor we fit for to ensure a few da...\n\n[5] source=/app/data/research_uploads/2606.13806v1-2.pdf score=0.8515\n\nin cases where prior information implies a large𝜃v, non-detections of the receding jet ejecta can significantly improve parameter esti- mation through kinematic modelling. By recovering the intrinsic jet rest frame emission of MAXI J1820 as a case study, we have pre- dictedemissionfromsimilarjetejectaacrossdifferentinitialLorentz factors and observer angles. We have demonstrated that difficulties in detecting ejecta across the parameter space, particularly for high Γ0 jets, may introduce significant observational bias in the inferred distribution of XRB jet ejecta Lorentz factors (see also Lilje et al. 2026). Such bias can be partially overcome by prioritising high spa- tial resolution, early-time observations at10s days post-launch, and MNRAS000, 1–10 (2026) 8A. J. Cooper et al. Figure 6.Predicted MAXI J1820-like emission from the approaching (left panels) and receding (right panels) as a function of the initial Lorentz factor Γ0 and viewing angle𝜃 v for 50, 100, 200, and 400 days post-launch in the observer frame. Note that the colour scale changes for each row. Cyan dashed contours correspond to𝐹𝜈 =150𝜇Jyflux, with the white hatched region excluding regions of lower flux. The gr...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "history_turns": 6,
+    "query_condensed": true,
+    "retrieval_query": "In the paper, to study the XRB jet ejecta population more broadly, the researchers fit a simple power-law to the rest-frame emission of the approaching and receding components of MAXI J1820, excluding early-time high spatial resolution and unresolved AMI-LA datapoints.",
+    "original_query": "I believe they excluded the early-time high spatial resolution and unresolved AMI-LA datapoints.",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "semantic",
+    "fusion_policy": null,
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.119
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null,
+  "citation_check": {
+    "cited_indices": [],
+    "invalid_indices": [],
+    "uncited_evidence_indices": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "evidence_count": 5,
+    "coverage": 0.0,
+    "verdict": "no_citations_in_answer"
+  },
+  "generation": {
+    "done_reason": "stop",
+    "truncated": false,
+    "prompt_eval_count": 2697,
+    "eval_count": 165
+  },
+  "score_stats": {
+    "count": 5,
+    "max": 0.8829,
+    "min": 0.8515,
+    "mean": 0.8735
+  },
+  "content_hash": "sha256:78fdc6d650c5c0f6ecfff04e06ac1692db6cc597b9a37f33d4f37fde1094784d"
+}

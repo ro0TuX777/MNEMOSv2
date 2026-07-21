@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-5a0ee90988cb44719f7526d6f594f94b",
+  "created": 1783675782,
+  "query": "What do the indexed papers say about privacy-preserving context handling for AI systems?",
+  "requested_model": "qwen3-coder-next:latest",
+  "actual_model": "qwen3-coder-next:latest",
+  "answer": "",
+  "status": "ollama_error",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "demo_corpus::2603.12237v1.pdf::chunk044",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.759
+    },
+    {
+      "index": 2,
+      "engram_id": "demo_corpus::2603.12237v1.pdf::chunk019",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.7528
+    },
+    {
+      "index": 3,
+      "engram_id": "research::07f053bc16682ea9ae07",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1-1.pdf",
+      "score": 0.7523
+    },
+    {
+      "index": 4,
+      "engram_id": "research::d65800f2175ac4b229ae",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2606.14533v1-2.pdf",
+      "score": 0.7473
+    },
+    {
+      "index": 5,
+      "engram_id": "demo_corpus::2603.12237v1.pdf::chunk001",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.7422
+    }
+  ],
+  "evidence_block": "[1] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.7590\n\nUS government retains and the pub- lisher, by accepting the article for publication, acknowledges that the US government retains a nonexclusive, paid-up, irrevocable, worldwide li- cense to publish or reproduce the published form of this manuscript, or allow others to do so, for US government purposes. DOE will pro- vide public access to these results of federally sponsored research in accordance with the DOE Public Access Plan ( https://www.energy.gov/ doe-public-access-plan). References Pathum Chamikara Mahawaga Arachchige, Peter Bertok, Ibrahim Khalil, Dongxi Liu, Seyit Camtepe, and Mohammed Atiquzzaman. 2019. Local differ- ential privacy for deep learning.IEEE Internet of Things Journal, 7(7):5827–5842. Stefan Arnold, Dilara Yesilbas, and Sven Weinzierl. 2023. Driving context into text-to-text privatization. arXiv preprint arXiv:2306.01457. Ricardo Silva Carvalho, Theodore Vasiloudis, Oluwaseyi Feyisetan, and Ke Wang. 2023. Tem: High utility metric differential privacy on text. InProceedings of the 2023 SIAM International Conference on Data Mining (SDM), pages 883–890. SIAM. Konstantinos Chatzikokolakis, Miguel E Andrés, Nicolás Emilio Bordenabe, and Catuscia Palamidessi. 2013....\n\n[2] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.7528\n\nes. This joint assessment enables group-wise privacy budgetingthat balances util- ity preservation and privacy protection. 2. Geometry-aligned perturbation via the Po- lar Mechanism.We introduce thepolar mech- anism, which privatizes token embeddings by perturbing only theirdirectionon the unit sphere while preserving magnitude. Decoding is per- formed usingcosine nearest-neighbor search, aligning the perturbation geometry with the de- coding geometry. Unlike isotropic Gaussian or Laplace noise, this approach preservesseman- tic neighborhoodsand minimizes distortion of meaning. 3. Comprehensive empirical evaluation.Exper- iments onSQuAD,Yelp, andAG Newsdemon- strate that STAMP, combined with the normal- ized polar mechanism, consistently achievessu- perior privacy–utility trade-offsacross a range of per-token privacy budgets. 2 Preliminaries and Related Work 2.1 Preliminaries on LDP for Text Inputs We consider the problem ofinference-time context privacy, where a user wishes to privatize their text input before sending it to a remote model (e.g., an LLM) for inference. Given a user-supplied con- text c= (w 1, . . . , wn) consisting of tokens from a finite vocabulary V, alocal priva...\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1-1.pdf score=0.7523\n\nits importance varies dynamically across con- texts. Such static partitions misallocate privacy, leading to unnecessary noise or insufficient protec- tion. For example, in a question-answering task, the token “Einstein” is essential when answering “Who developed the theory of relativity?” but irrelevant when the query is “ When was the Nobel Prize established? ”. In contrast, in a customer-support context, a token such as “Alice Johnson” or “ID: 123-45-6789” may be highly sensitive yet irrelevant to the task objective, war- ranting stronger perturbation despite its low task importance. Summary of Contributions.To address the above challenges, this work introducesSTAMP(Selec- tive Task-Aware Mechanism for Privacy), a frame- work fortask-aware text privatizationthat provides fine-grained control over privacy–utility trade-offs. Our key contributions are as follows: 1. Selective, task-aware privacy allocation. STAMPpartitions tokens based on two comple- mentary dimensions: (i) theirimportance to the downstream task, derived from task- or query- specific representations, and (ii) theirprivacy sensitivity, such as the presence of identifiers, names, or dates. This joint assessment enabl...\n\n[4] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2606.14533v1-2.pdf score=0.7473\n\nreinforcement learning, and autonomous decision platforms may reveal a wider class of hidden vulnerabilities that current optimization paradigms fail to detect. This work argues that the dominant paradigm of unsuper- vised variance preservation is insufficient whenever the cost of overlooking a rare event exceeds the benefit of accurately representing the common case. The Risk Shadow is not merely a limitation of PCA; it is a warning about the broader conse- quences of optimizing for what is frequent rather than what is consequential. As machine intelligence systems increasingly influence critical societal decisions, the ability to preserve low- probability, high-impact information may become not merely a statistical preference, but a fundamental requirement for trustworthy machine intelligence. Acknowledgments We thank the anonymous reviewers for their insightful comments. We would also like to express our sincere gratitude to the data annotators, data collectors, and data enablers fromTIMADIE: Guinaga, Grabal, SK1 Sogoloton, LnG Lab, MFTG, CI4SI, WETE, IA Mali, TimaTon, ORA, and TommoSo Dogonfor their invaluable contributions to this work. Data Ethics:The collection, curation, an...\n\n[5] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.7422\n\nal., 2024; Pan et al., 2020). This setting encompasses bothinference- time context privacy—where the user’s text is pri- vatized immediately before being sent to a remote model—andprivacy-preserving rewriting, where the text is locally transformed prior to transmis- sion, storage, sharing, or other downstream use. In this work, we adopt the framework of local dif- ferential privacy (LDP) (Arachchige et al., 2019), wherein randomization occurs locally at the user side, ensuring that the server, model owner, or any downstream observer only sees a privatized version of the text. Informally, the released text should not allow an observer to reliably determine whether any specific token was present in the original text. The Need for Selective, Task-Aware Privacy.Prior approaches to local text privatization face several fundamental limitations. Classical randomized re- sponse (Warner, 1965) achieves privacy by ran- domly replacing each input token with another from the same domain. In natural language, such random substitutions often produce unnatural or incoherent text, severely degrading utility. Adding coordinate-wise Laplace noise (or isotropic Gaus- sian noise) (Feyisetan and Kasivi...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "semantic",
+    "fusion_policy": null,
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 1.062
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": "Ollama streaming failed after retrieval: HTTPConnectionPool(host='127.0.0.1', port=7777): Read timed out. (read timeout=180.0)"
+}

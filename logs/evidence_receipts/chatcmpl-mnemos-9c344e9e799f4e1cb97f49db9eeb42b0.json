@@ -1,0 +1,43 @@
+{
+  "receipt_id": "chatcmpl-mnemos-9c344e9e799f4e1cb97f49db9eeb42b0",
+  "created": 1784588256,
+  "query": "hi",
+  "requested_model": "qwen3-coder-next:latest",
+  "actual_model": "qwen3-coder-next:latest",
+  "answer": "Streamed MNEMOS answer. [1]",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "source": "workflow.pdf",
+      "score": 0.9
+    }
+  ],
+  "evidence_block": "",
+  "retrieval_metadata": {},
+  "claim_boundary": "boundary",
+  "warning": null,
+  "citation_check": {
+    "cited_indices": [
+      1
+    ],
+    "invalid_indices": [],
+    "uncited_evidence_indices": [],
+    "evidence_count": 1,
+    "coverage": 1.0,
+    "verdict": "all_evidence_cited"
+  },
+  "generation": {
+    "done_reason": null,
+    "truncated": false,
+    "prompt_eval_count": null,
+    "eval_count": null
+  },
+  "score_stats": {
+    "count": 1,
+    "max": 0.9,
+    "min": 0.9,
+    "mean": 0.9
+  },
+  "content_hash": "sha256:d95eb7a4423bd56748d21c297ec2254f8387a9daa0fd15f77f3d13c7b900e9ae"
+}

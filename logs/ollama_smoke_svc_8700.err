@@ -1,0 +1,13 @@
+2026-07-03 16:25:35,119 INFO [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8700
+ * Running on http://192.168.88.102:8700
+2026-07-03 16:25:35,120 INFO [werkzeug] [33mPress CTRL+C to quit[0m
+2026-07-03 16:25:49,961 INFO [werkzeug] 127.0.0.1 - - [03/Jul/2026 16:25:49] "GET /health HTTP/1.1" 200 -
+G:\MNEMOS\service\app.py:190: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return dt.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+2026-07-03 16:26:10,014 INFO [werkzeug] 127.0.0.1 - - [03/Jul/2026 16:26:10] "POST /v1/mnemos/index HTTP/1.1" 200 -
+2026-07-03 16:26:19,176 INFO [werkzeug] 127.0.0.1 - - [03/Jul/2026 16:26:19] "POST /v1/mnemos/search HTTP/1.1" 200 -
+2026-07-03 16:26:59,204 INFO [werkzeug] 127.0.0.1 - - [03/Jul/2026 16:26:59] "GET /health HTTP/1.1" 200 -
+2026-07-03 16:27:06,786 INFO [werkzeug] 127.0.0.1 - - [03/Jul/2026 16:27:06] "POST /v1/mnemos/search HTTP/1.1" 200 -
+2026-07-03 16:27:40,361 INFO [werkzeug] 127.0.0.1 - - [03/Jul/2026 16:27:40] "GET /health HTTP/1.1" 200 -

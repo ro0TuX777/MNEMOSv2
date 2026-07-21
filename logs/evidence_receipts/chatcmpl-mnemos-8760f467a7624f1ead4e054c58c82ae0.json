@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-8760f467a7624f1ead4e054c58c82ae0",
+  "created": 1783199415,
+  "query": "What is privacy-preserving context handling?",
+  "requested_model": "mnemos.hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "Privacy-preserving context handling refers to techniques and mechanisms designed to protect the privacy of sensitive information within a given context while still allowing useful processing or analysis. According to the provided evidence, this involves selectively allocating",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::ece59923867919d06cd8",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1.pdf",
+      "score": 0.7216
+    },
+    {
+      "index": 2,
+      "engram_id": "research::ce5ee2ef8c9d387fbdbe",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1.pdf",
+      "score": 0.7049
+    },
+    {
+      "index": 3,
+      "engram_id": "research::6166f677f18e6f8dfe7c",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1.pdf",
+      "score": 0.7001
+    },
+    {
+      "index": 4,
+      "engram_id": "research::f1e5d0d286c9a22265c8",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1.pdf",
+      "score": 0.6954
+    },
+    {
+      "index": 5,
+      "engram_id": "research::f8d1c6f6d2ead024de44",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1.pdf",
+      "score": 0.6944
+    }
+  ],
+  "evidence_block": "[1] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1.pdf score=0.7216\n\nits importance varies dynamically across con- texts. Such static partitions misallocate privacy, leading to unnecessary noise or insufficient protec- tion. For example, in a question-answering task, the token “Einstein” is essential when answering “Who developed the theory of relativity?” but irrelevant when the query is “ When was the Nobel Prize established? ”. In contrast, in a customer-support context, a token such as “Alice Johnson” or “ID: 123-45-6789” may be highly sensitive yet irrelevant to the task objective, war- ranting stronger perturbation despite its low task importance. Summary of Contributions.To address the above challenges, this work introducesSTAMP(Selec- tive Task-Aware Mechanism for Privacy), a frame- work fortask-aware text privatizationthat provides fine-grained control over privacy–utility trade-offs. Our key contributions are as follows: 1. Selective, task-aware privacy allocation. STAMPpartitions tokens based on two comple- mentary dimensions: (i) theirimportance to the downstream task, derived from task- or query- specific representations, and (ii) theirprivacy sensitivity, such as the presence of identifiers, names, or dates. This joint assessment enabl...\n\n[2] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1.pdf score=0.7049\n\ncosine similarity to a task- or query-specific embedding. Each token w is thus assigned to one of four groups based on its sensitivity and importance for task T. Making gT public simplifies analysis and reproducibility, as the grouping policy itself contains no private information and enables well-defined, composable privacy guarantees. Allocating Privacy Budgets.Once groups are de- fined, privacy budgets ϵT are assigned according to both sensitivity and relevance. Sensitive tokens (e.g., names or identifiers) receive the strongest protection through smaller budgets, while non- sensitive yet task-critical tokens are granted larger budgets to preserve downstream utility. Tokens that are both non-sensitive and task-irrelevant tol- erate stronger perturbations without degrading per- formance. A practical rule of thumb is to assign privacy budgets that increase with task importance and decrease with privacy sensitivity. In our exper- iments, we adopt the following proportional alloca- tion: ϵ(1) T :ϵ (2) T :ϵ (3) T :ϵ (4) T = 2 : 1 : 4 : 3, where group 1 contains tokens that are both highly privacy-sensitive and task-critical (thus receiving a moderate budget to balance the trade-off);...\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1.pdf score=0.7001\n\na user-supplied con- text c= (w 1, . . . , wn) consisting of tokens from a finite vocabulary V, alocal privatization mecha- nism M operates to produce a privatized version ˜c. The server or model owner observes only˜c, not the original context. The objective is to preserve task utility for the user while limiting what can be inferred about the presence or absence of sensitive tokens or spans in c. This formulation also natu- rally extends toprivacy-preserving text rewriting, where the same mechanism is applied before text storage, sharing, or other downstream use. Each token w∈ V has an embedding e(w)∈ Rd, and we denote its unit-normalized direction by 2 ˆe(w) =e(w)/∥e(w)∥2. A token-level mechanism is a mapping M:V → Y that outputs a ran- domized token before transmission. For a context c= (w 1, . . . , wn), we write M(n)(c) = \u0000 M(w1), . . . ,M(wn) \u0001 , indicating that the mechanism M is applied inde- pendently to each token. Definition 1( (ϵ, δ)-LDP (token level)).Let V be the token vocabulary and Y the output space (e.g., privatized tokens). A randomized mechanism M: V → Ysatisfies (ϵ, δ)-local differential privacy (LDP)if, for every pair of tokens w, w′ ∈ Vand every measurable se...\n\n[4] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1.pdf score=0.6954\n\nSTAMP: Selective Task-Aware Mechanism for Text Privacy Fengwei Tian1, Payel Bhattacharjee1, Heidi Hanson2, Geoffrey D. Rubin1, Joseph Y. Lo3, Ravi Tandon1 1University of Arizona, 2Oak Ridge National Laboratory, 3Duke University {fengtian, payelb, grubin, tandonr}@arizona.edu, hansonha@ornl.gov, joseph.lo@duke.edu Abstract We present STAMP (Selective Task-Aware Mechanism for Text Privacy), a new framework for task-aware text privatization that achieves an improved privacy–utility trade-off. STAMP selectively allocates privacy budgets across to- kens by jointly considering (i) each token’s importance to the downstream task (as mea- sured via a task- or query-specific representa- tion), and (ii) its privacy sensitivity (e.g., names, dates, identifiers). This token-level partition- ing enables fine-grained, group-wise control over the level of noise applied to different parts of the input, balancing privacy protection with task relevance. To privatize individual token embeddings, we introduce the polar mecha- nism, which perturbs only the direction of em- beddings on the unit sphere while preserving their magnitude. Decoding is performed via cosine nearest-neighbor search, aligning the...\n\n[5] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.12237v1.pdf score=0.6944\n\nmiss nuances of functional importance for tasks involving complex syntactic structures, discourse-level reasoning, or external knowledge. Moreover, locally privatizing high-dimensional embeddings (d= 768 ) requires relatively large per-token ϵ values to retain utility, which is a known challenge in text LDP. Our con- tribution is relative: under a fixed privacy budget, STAMP reallocates protection to where it is most needed. Also, this framework relies on the quality of the task/sensitivity oracle; while robust to mild errors, imperfect PII boundary detection remains a limitation inherent to entity-based approaches. Finally, STAMP does not currently account for long-range dependencies or structured interactions between tokens during budget allocation, which may result in over- or under-perturbation in seman- tically rich contexts. We leave addressing these challenges to future work. 8 Ethical Considerations STAMP is designed to enhance privacy in NLP by providing formal LDP guarantees, enabling the use of sensitive corpora such as email or financial text without exposing raw content. This represents a positive step toward building systems where pri- vacy is a first-class objective...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "semantic",
+    "fusion_policy": null,
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_ollama_adapter_smoke:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "BAAI/bge-base-en-v1.5",
+      "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": false,
+    "result_count": 5,
+    "latency_s": 0.11
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

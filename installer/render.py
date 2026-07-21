@@ -64,6 +64,7 @@ def render_env(
     fusion_policy: str = "balanced",
     lexical_top_k: int = 25,
     semantic_top_k: int = 25,
+    max_evidence_items_per_response: int = 0,
     explain_default: bool = False,
     compute_mode: str = "cuda",
 ) -> Path:
@@ -94,6 +95,7 @@ def render_env(
         "MNEMOS_FUSION_POLICY": fusion_policy,
         "MNEMOS_LEXICAL_TOP_K": str(lexical_top_k),
         "MNEMOS_SEMANTIC_TOP_K": str(semantic_top_k),
+        "MNEMOS_MAX_EVIDENCE_ITEMS_PER_RESPONSE": str(max_evidence_items_per_response),
         "MNEMOS_EXPLAIN_DEFAULT": "true" if explain_default else "false",
     }
 
@@ -124,6 +126,7 @@ def render_manifest(
     fusion_policy: str = "balanced",
     lexical_top_k: int = 25,
     semantic_top_k: int = 25,
+    max_evidence_items_per_response: int = 0,
     explain_default: bool = False,
     compute_mode: str = "cuda",
     compute_reason: str = "",
@@ -175,6 +178,7 @@ def render_manifest(
                 "fusion_policy": fusion_policy,
                 "lexical_top_k": lexical_top_k,
                 "semantic_top_k": semantic_top_k,
+                "max_evidence_items_per_response": max_evidence_items_per_response,
                 "explain_default": explain_default,
             },
             "generated_files": [

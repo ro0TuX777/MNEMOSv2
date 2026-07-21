@@ -1,0 +1,19 @@
+{
+  "receipt_id": "chatcmpl-mnemos-f9a76209c9494a8bb58ab492316ddaba",
+  "created": 1783678933,
+  "query": "lets discuss Frequentist Consistency of Prior-Data Fitted Networks for Causal Inference",
+  "requested_model": "hf.co/cloudbjorn/Qwen3.6-35B-A3B_Opus-4.6-Reasoning-3300x-GGUF:Q4_K_M",
+  "actual_model": "hf.co/cloudbjorn/Qwen3.6-35B-A3B_Opus-4.6-Reasoning-3300x-GGUF:Q4_K_M",
+  "answer": "MNEMOS search failed (status=unavailable, error=HTTPConnectionPool(host='mnemos', port=8700): Read timed out. (read timeout=5.0)); Ollama was not called.",
+  "status": "mnemos_error",
+  "citations": [],
+  "evidence_block": "",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "unavailable",
+    "response_error": "HTTPConnectionPool(host='mnemos', port=8700): Read timed out. (read timeout=5.0)"
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": "MNEMOS search failed (status=unavailable, error=HTTPConnectionPool(host='mnemos', port=8700): Read timed out. (read timeout=5.0)); Ollama was not called."
+}

@@ -1,0 +1,20 @@
+{
+  "receipt_id": "chatcmpl-mnemos-c5114280e34b423ebb4a02376f24a621",
+  "created": 1783205860,
+  "query": "hi",
+  "requested_model": "qwen3-coder-next:latest",
+  "actual_model": "qwen3-coder-next:latest",
+  "answer": "Streamed MNEMOS answer. [1]",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "source": "workflow.pdf",
+      "score": 0.9
+    }
+  ],
+  "evidence_block": "",
+  "retrieval_metadata": {},
+  "claim_boundary": "boundary",
+  "warning": null
+}

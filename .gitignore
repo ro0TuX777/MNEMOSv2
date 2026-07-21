@@ -72,3 +72,8 @@ runtime/
 # Local dev scratch scripts/outputs (not source)
 tools/dev_scratch/
 benchmarks/mg_test_2c.out
+
+# Engram local artifacts
+.engram/
+engram-env.ps1
+engram.env

@@ -1,0 +1,23 @@
+{
+  "receipt_id": "chatcmpl-mnemos-45da739ffbd7440ba5fd17dc6943208b",
+  "created": 1783675963,
+  "query": "What limitations do they mention about it?",
+  "requested_model": "qwen3-coder-next:latest",
+  "actual_model": "qwen3-coder-next:latest",
+  "answer": "MNEMOS search failed (status=unavailable, error=HTTPConnectionPool(host='localhost', port=8700): Read timed out. (read timeout=5.0)); Ollama was not called.",
+  "status": "mnemos_error",
+  "citations": [],
+  "evidence_block": "",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "history_turns": 2,
+    "query_condensed": true,
+    "retrieval_query": "What limitations do the indexed papers mention regarding privacy-preserving context handling for AI systems?",
+    "original_query": "What limitations do they mention about it?",
+    "response_status": "unavailable",
+    "response_error": "HTTPConnectionPool(host='localhost', port=8700): Read timed out. (read timeout=5.0)"
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": "MNEMOS search failed (status=unavailable, error=HTTPConnectionPool(host='localhost', port=8700): Read timed out. (read timeout=5.0)); Ollama was not called."
+}

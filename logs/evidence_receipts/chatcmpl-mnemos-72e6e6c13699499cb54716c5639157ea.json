@@ -1,0 +1,20 @@
+{
+  "receipt_id": "chatcmpl-mnemos-72e6e6c13699499cb54716c5639157ea",
+  "created": 1783661811,
+  "query": "Find workflow evidence",
+  "requested_model": "mnemos.qwen3-coder-next:latest",
+  "actual_model": "qwen3-coder-next:latest",
+  "answer": "Nested Ollama route answer. [1]",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "source": "workflow.pdf",
+      "score": 0.9
+    }
+  ],
+  "evidence_block": "",
+  "retrieval_metadata": {},
+  "claim_boundary": "boundary",
+  "warning": null
+}

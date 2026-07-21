@@ -25,10 +25,14 @@ The evidence contract solves this by making source metadata available in a consi
 
 1. Per result: `results[].evidence`
 2. Per search: `meta.evidence_summary`
+3. When configured: `meta.response_evidence_limit`
 
 Use `results[].evidence` when building prompt context or inline citations.
 
 Use `meta.evidence_summary` when rendering a concise `Sources:` footer.
+
+Use `meta.response_evidence_limit` to understand whether the service truncated
+the final response-visible evidence set below the caller's requested `top_k`.
 
 ## Per-Result Evidence
 
@@ -102,6 +106,35 @@ The search envelope also includes grouped source evidence:
 
 This is the easiest data structure for a chat UI footer.
 
+## Response Evidence Limit Metadata
+
+Deployments may set `MNEMOS_MAX_EVIDENCE_ITEMS_PER_RESPONSE` to cap how many
+evidence-bearing search results are included in one response. `0` preserves the
+current unbounded behavior.
+
+When that service-side limit is configured, the response includes:
+
+```json
+{
+  "meta": {
+    "top_k": 5,
+    "result_count": 2,
+    "response_evidence_limit": {
+      "configured_max_items": 2,
+      "applied": true,
+      "truncated_count": 1
+    }
+  }
+}
+```
+
+Interpretation:
+
+- `top_k` remains the caller's requested retrieval size.
+- `result_count` reflects the final number of evidence items actually returned.
+- `response_evidence_limit.applied` is `true` only when truncation occurred.
+- `truncated_count` shows how many response-visible items were omitted.
+
 ## SDK Usage
 
 The typed SDK exposes evidence on each `SearchHit`:
@@ -146,6 +179,7 @@ payload = response.json()
 
 results = payload.get("results", [])
 summary = (payload.get("meta") or {}).get("evidence_summary") or {}
+limit_info = (payload.get("meta") or {}).get("response_evidence_limit") or {}
 ```
 
 Prefer the SDK for application code when available. Raw HTTP is useful for smoke tests and diagnostics.
@@ -198,6 +232,8 @@ Sources:
 - Do not let the model invent filenames, titles, chunk numbers, or scores.
 - Do not claim "from MNEMOS" when the result set is empty or scores are below your app's confidence threshold.
 - Preserve `rank` and `score` in hidden traces, logs, or visible footers.
+- If `meta.response_evidence_limit.applied` is true, treat the response as a
+  truncated evidence set rather than assuming all requested items were returned.
 - Prefer source grouping in user-facing footers; prefer per-result evidence IDs in model prompts.
 - Treat null page/span fields as "unknown", not as page 0 or chunk 0.
 - Keep evidence attached to the generated answer for debugging and audit.

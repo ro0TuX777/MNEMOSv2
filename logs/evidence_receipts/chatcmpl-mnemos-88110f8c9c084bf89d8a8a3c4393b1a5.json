@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-88110f8c9c084bf89d8a8a3c4393b1a5",
+  "created": 1783681235,
+  "query": "### Task:\nGenerate a concise, 3-5 word title with an emoji summarizing the chat history.\n### Guidelines:\n- The title should clearly represent the main theme or subject of the conversation.\n- Use emojis that enhance understanding of the topic, but avoid quotation marks or special formatting.\n- Write the title in the chat's primary language; default to English if multilingual.\n- Prioritize accuracy over excessive creativity; keep it clear and simple.\n- Your entire response must consist solely of the JSON object, without any introductory or concluding text.\n- The output must be a single, raw JSON object, without any markdown code fences or other encapsulating text.\n- Ensure no conversational text, affirmations, or explanations precede or follow the raw JSON output, as this will cause direct parsing failure.\n### Output:\nJSON format: { \"title\": \"your concise title here\" }\n### Examples:\n- { \"title\": \"📉 Stock Market Trends\" },\n- { \"title\": \"🍪 Perfect Chocolate Chip Recipe\" },\n- { \"title\": \"Evolution of Music Streaming\" },\n- { \"title\": \"Remote Work Productivity Tips\" },\n- { \"title\": \"Artificial Intelligence in Healthcare\" },\n- { \"title\": \"🎮 Video Game Development Insights\" }\n### Chat History:\n<chat_history>\nUSER: Lets discuss Synthetic Nearest Neighbors (SNN) provides a principled solution to causal matrix completion under missing-not-at-random (MNAR) by exploiting local low-rank structure through fully observed anchor submatrices\nASSISTANT: \n</chat_history>",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "{ \"title\": \"SNN for Causal Matrix Completion\" }",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::c52bfb16e6db72afcf70",
+      "source": "/app/data/research_uploads/2502.12110v11-1.pdf",
+      "score": 0.0727
+    },
+    {
+      "index": 2,
+      "engram_id": "research::d289088d6e2ee25faec5",
+      "source": "/app/data/research_uploads/2502.12110v11.pdf",
+      "score": 0.0727
+    },
+    {
+      "index": 3,
+      "engram_id": "research::2c5f0bb31939f6ea0847",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2502.12110v11-2.pdf",
+      "score": 0.0356
+    },
+    {
+      "index": 4,
+      "engram_id": "research::abd8f32e79bddf8e243b",
+      "source": "/app/data/research_uploads/2502.12110v11-1.pdf",
+      "score": 0.0322
+    },
+    {
+      "index": 5,
+      "engram_id": "research::039eae80d9a090ee262b",
+      "source": "/app/data/research_uploads/2502.12110v11.pdf",
+      "score": 0.0322
+    }
+  ],
+  "evidence_block": "[1] source=/app/data/research_uploads/2502.12110v11-1.pdf score=0.0727\n\nEliza Rutherford, Katie Millican, George Bm Van Den Driessche, Jean-Baptiste Lespiau, Bogdan Damoc, Aidan Clark, et al. Improving language models by retrieving from trillions of tokens. InInternational conference on machine learning, pages 2206–2240. PMLR, 2022. [7] Xiang Deng, Yu Gu, Boyuan Zheng, Shijie Chen, Sam Stevens, Boshi Wang, Huan Sun, and Yu Su. Mind2web: Towards a generalist agent for the web.Advances in Neural Information Processing Systems, 36:28091–28114, 2023. [8] Khant Dev and Singh Taranjeet. mem0: The memory layer for ai agents. https://github. com/mem0ai/mem0, 2024. [9] Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, and Jonathan Larson. From local to global: A graph rag approach to query-focused summarization.arXiv preprint arXiv:2404.16130, 2024. [10] Yunfan Gao, Yun Xiong, Xinyu Gao, Kangxiang Jia, Jinliu Pan, Yuxi Bi, Yi Dai, Jiawei Sun, and Haofen Wang. Retrieval-augmented generation for large language models: A survey.arXiv preprint arXiv:2312.10997, 2023. [11] Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Ruoyu Zhang, Runxin Xu, Qihao Zhu, Shirong Ma, Peiyi Wang, Xiao Bi, et al. Deepseek-r1: Incentivizing r...\n\n[2] source=/app/data/research_uploads/2502.12110v11.pdf score=0.0727\n\nEliza Rutherford, Katie Millican, George Bm Van Den Driessche, Jean-Baptiste Lespiau, Bogdan Damoc, Aidan Clark, et al. Improving language models by retrieving from trillions of tokens. InInternational conference on machine learning, pages 2206–2240. PMLR, 2022. [7] Xiang Deng, Yu Gu, Boyuan Zheng, Shijie Chen, Sam Stevens, Boshi Wang, Huan Sun, and Yu Su. Mind2web: Towards a generalist agent for the web.Advances in Neural Information Processing Systems, 36:28091–28114, 2023. [8] Khant Dev and Singh Taranjeet. mem0: The memory layer for ai agents. https://github. com/mem0ai/mem0, 2024. [9] Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, and Jonathan Larson. From local to global: A graph rag approach to query-focused summarization.arXiv preprint arXiv:2404.16130, 2024. [10] Yunfan Gao, Yun Xiong, Xinyu Gao, Kangxiang Jia, Jinliu Pan, Yuxi Bi, Yi Dai, Jiawei Sun, and Haofen Wang. Retrieval-augmented generation for large language models: A survey.arXiv preprint arXiv:2312.10997, 2023. [11] Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Ruoyu Zhang, Runxin Xu, Qihao Zhu, Shirong Ma, Peiyi Wang, Xiao Bi, et al. Deepseek-r1: Incentivizing r...\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2502.12110v11-2.pdf score=0.0356\n\n30 A-mem Base (g)Dialogue 9 −30 −20 −10 0 10 20 30 −30 −20 −10 0 10 20 30 A-mem Base (h)Dialogue 10 Figure 5:T-SNE Visualization of Memory Embeddings Showing More Organized Distribution with A-MEM (blue) Compared to Base Memory (red) Across Different Dialogues. Base Memory represents A-MEMwithout link generation and memory evolution. Table 8:Selection of k values in retriever across specific categories and model choices. Model Multi Hop Temporal Open Domain Single Hop Adversial GPT-4o-mini 40 40 50 50 40 GPT-4o 40 40 50 50 40 Qwen2.5-1.5b 10 10 10 10 10 Qwen2.5-3b 10 10 50 10 10 Llama3.2-1b 10 10 10 10 10 Llama3.2-3b 10 20 10 10 10 18 B Prompt Templates and Examples B.1 Prompt Template of Note Construction The prompt template in Note Construction:P s1 Generate a structured analysis of the following content by: 1. Identifying the most salient keywords (focus on nouns, verbs, and key concepts) 2. Extracting core themes and contextual elements 3. Creating relevant categorical tags Format the response as a JSON object: { \"keywords\": [ // several specific, distinct keywords that capture key concepts and terminology // Order from most to least important // Don’t include keywords that are...\n\n[4] source=/app/data/research_uploads/2502.12110v11-1.pdf score=0.0322\n\n10 20 30 −30 −20 −10 0 10 20 30 A-mem Base (h)Dialogue 10 Figure 5:T-SNE Visualization of Memory Embeddings Showing More Organized Distribution with A-MEM (blue) Compared to Base Memory (red) Across Different Dialogues. Base Memory represents A-MEMwithout link generation and memory evolution. Table 8:Selection of k values in retriever across specific categories and model choices. Model Multi Hop Temporal Open Domain Single Hop Adversial GPT-4o-mini 40 40 50 50 40 GPT-4o 40 40 50 50 40 Qwen2.5-1.5b 10 10 10 10 10 Qwen2.5-3b 10 10 50 10 10 Llama3.2-1b 10 10 10 10 10 Llama3.2-3b 10 20 10 10 10 18 B Prompt Templates and Examples B.1 Prompt Template of Note Construction The prompt template in Note Construction:P s1 Generate a structured analysis of the following content by: 1. Identifying the most salient keywords (focus on nouns, verbs, and key concepts) 2. Extracting core themes and contextual elements 3. Creating relevant categorical tags Format the response as a JSON object: { \"keywords\": [ // several specific, distinct keywords that capture key concepts and terminology // Order from most to least important // Don’t include keywords that are the name of the speaker or time // At lea...\n\n[5] source=/app/data/research_uploads/2502.12110v11.pdf score=0.0322\n\n10 20 30 −30 −20 −10 0 10 20 30 A-mem Base (h)Dialogue 10 Figure 5:T-SNE Visualization of Memory Embeddings Showing More Organized Distribution with A-MEM (blue) Compared to Base Memory (red) Across Different Dialogues. Base Memory represents A-MEMwithout link generation and memory evolution. Table 8:Selection of k values in retriever across specific categories and model choices. Model Multi Hop Temporal Open Domain Single Hop Adversial GPT-4o-mini 40 40 50 50 40 GPT-4o 40 40 50 50 40 Qwen2.5-1.5b 10 10 10 10 10 Qwen2.5-3b 10 10 50 10 10 Llama3.2-1b 10 10 10 10 10 Llama3.2-3b 10 20 10 10 10 18 B Prompt Templates and Examples B.1 Prompt Template of Note Construction The prompt template in Note Construction:P s1 Generate a structured analysis of the following content by: 1. Identifying the most salient keywords (focus on nouns, verbs, and key concepts) 2. Extracting core themes and contextual elements 3. Creating relevant categorical tags Format the response as a JSON object: { \"keywords\": [ // several specific, distinct keywords that capture key concepts and terminology // Order from most to least important // Don’t include keywords that are the name of the speaker or time // At lea...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "hybrid",
+    "fusion_policy": "lexical_dominant",
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "hybrid|lexical_dominant|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.526
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

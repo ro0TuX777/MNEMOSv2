@@ -1,0 +1,20 @@
+{
+  "receipt_id": "chatcmpl-mnemos-c86ebe26eb294768b98048ecd8aff109",
+  "created": 1783675405,
+  "query": "Find workflow evidence",
+  "requested_model": "qwen3-coder-next:latest",
+  "actual_model": "qwen3-coder-next:latest",
+  "answer": "MNEMOS found the workflow evidence. [1]",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "source": "workflow.pdf",
+      "score": 0.9
+    }
+  ],
+  "evidence_block": "",
+  "retrieval_metadata": {},
+  "claim_boundary": "boundary",
+  "warning": null
+}

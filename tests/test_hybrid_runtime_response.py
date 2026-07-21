@@ -53,6 +53,7 @@ def _mk_runtime_with_router(router):
         explain_default=False,
         lexical_top_k=25,
         semantic_top_k=25,
+        max_evidence_items_per_response=0,
         qdrant_collection="test_collection",
         has_compression=False,
         quant_bits=4,
@@ -285,3 +286,46 @@ def test_runtime_phase4_derived_view_cache_hit_and_invalidate():
     stats = rt.get_stats()["stats"]["economics"]
     assert stats["invalidation_event_count"] >= 1
     assert stats["invalidation_fanout_total"] >= 1
+
+
+def test_runtime_caps_final_response_evidence_after_governance():
+    hits = [
+        SearchResult(
+            engram=Engram(
+                id=f"doc{i}",
+                content=f"Evidence item {i}",
+                metadata={"artifact_id": f"art-{i}", "chunk_id": f"chunk-{i}"},
+            ),
+            score=0.9 - (i * 0.1),
+            tier="hybrid",
+        )
+        for i in range(3)
+    ]
+    router = StubRouter(hits)
+    rt = _mk_runtime_with_router(router)
+    rt._config.max_evidence_items_per_response = 2
+    rt._config.memory_over_maps_phase3 = True
+
+    out = rt.search_documents(
+        query="show evidence",
+        top_k=5,
+        tiers=None,
+        filters=None,
+        retrieval_mode="hybrid",
+        fusion_policy="balanced",
+        explain=True,
+        governance="enforced",
+        derive_views=["evidence_bundle"],
+    )
+
+    assert [row["engram"]["id"] for row in out["results"]] == ["doc0", "doc1"]
+    assert out["meta"]["result_count"] == 2
+    assert out["meta"]["top_k"] == 5
+    assert out["meta"]["evidence_summary"]["source_count"] == 2
+    assert out["meta"]["response_evidence_limit"] == {
+        "configured_max_items": 2,
+        "applied": True,
+        "truncated_count": 1,
+    }
+    evidence_bundle = next(view for view in out["derived_views"] if view["view_type"] == "evidence_bundle")
+    assert evidence_bundle["inputs"]["artifact_ids"] == ["art-0", "art-1"]

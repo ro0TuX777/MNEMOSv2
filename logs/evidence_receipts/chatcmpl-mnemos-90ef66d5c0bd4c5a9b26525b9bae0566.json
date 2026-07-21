@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-90ef66d5c0bd4c5a9b26525b9bae0566",
+  "created": 1783292852,
+  "query": "ok prepare a project plan for what we are attempting to build out. this will be provided to my program developer who’ll use VS Code to build out the app based on your blueprints",
+  "requested_model": "qwen3-coder-next:latest",
+  "actual_model": "qwen3-coder-next:latest",
+  "answer": "Based on the **MNEMOS_EVIDENCE**, especially [2] (the authoritative product scope), and aligning with modern LLM-agent best practices for local, browser-based tooling (e.g., retrieval-augmented prompting, iterative refinement, deterministic state management as seen in [1], [3], [4]), here is a **concise, actionable project plan** for your local Issue Tracker app.\n\n---\n\n## 🎯 Project Title  \n**LocalIssueTracker — Browser-Only Issue Management with Saved Views**\n\n> A lightweight, client-side-only issue tracker that runs entirely in the browser, persists data via `localStorage`, and adds productivity features: saved views, deterministic sorting, and accessibility compliance.\n\n---\n\n## ✅ Core Constraints (from [2])\n| Constraint | Details |\n|-----------|---------|\n| **Runtime** | Browser only (no backend) |\n| **Persistence** | `localStorage` only |\n| **No Sync/Cloud** | No accounts, sharing, or export |\n| **Frozen Scope** | This is a *starter package* — no new features beyond E1 additions |\n\n---\n\n## 🧱 Phase 0: Baseline & Defect Repair  \n*(Pre-dev prep — critical for clean implementation)*\n\n| Task | Description | Source/Notes |\n|------|-------------|--------------|\n| ✅ Audit existing codebase | Confirm current behavior matches [2]’s “Existing Core Behavior” list (create/edit/delete/filter/search/persist/empty state) | Must match spec exactly before adding E1 features |\n| 🔧 Repair seeded defect | Identify and fix the known bug (e.g., sorting not persisting, filter reset on reload, etc.) — *document root cause* | Use `localStorage` diffing or unit tests to verify |\n\n---\n\n## 🛠️ Phase 1: Saved Views System  \n*(E1 core feature)*\n\n### Data Model (`localStorage` schema update)\n```ts\ninterface ViewState {\n  id: string; // stable local identifier (e.g., UUID v4)\n  name: string;\n  filters: {\n    status?: string[];   // e.g., [\"open\", \"in-progress\"]\n    priority?: string[]; // e.g., [\"high\", \"medium\"]\n    search?: string;\n  };\n  sortMode: SortMode;    // see Phase 2\n}\n```\n\n### Implementation Tasks  \n| Task | Details |\n|------|---------|\n| UI: Saved Views Panel | Add sidebar or modal to list, create, rename, delete views |\n| Persistence Layer | Extend `localStorage` schema: `issueViews[]`, migrate if needed (see Phase 3) |\n| View Activation | On selection: apply filters + search + sort; update URL hash (optional but recommended for shareability *within* session) |\n| Backward Compatibility | Ensure old data loads without crash — use versioned schema or graceful fallbacks |\n\n---\n\n## 📊 Phase 2: Deterministic Sorting  \n*(E1 requirement)*\n\n### Sort Modes (named, deterministic)\n| Mode | Description |\n|------|-------------|\n| `created-desc` | Newest first (default) |\n| `created-asc` | Oldest first |\n| `priority-desc` | High > Medium > Low |\n| `status-desc` | Open > In-progress > Done |\n\n### Implementation Tasks  \n| Task | Details |\n|------|---------|\n| Sorter utility | Pure function: `(",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::72dd26b286dc5ad6dfd4",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2309.02427v3-2.pdf",
+      "score": 0.679
+    },
+    {
+      "index": 2,
+      "engram_id": "b4fd5ec7-2e4c-5b89-bad3-383f083190ff",
+      "source": "docs/product_scope.md",
+      "score": 0.6415
+    },
+    {
+      "index": 3,
+      "engram_id": "research::ba9ae2975b4998c377ca",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2309.02427v3-2.pdf",
+      "score": 0.6384
+    },
+    {
+      "index": 4,
+      "engram_id": "research::c8f4a3e4d397aace7948",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2308.10144v3-2.pdf",
+      "score": 0.6231
+    },
+    {
+      "index": 5,
+      "engram_id": "research::7de4496bcc2b7cc3d1c7",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2309.02427v3-2.pdf",
+      "score": 0.6045
+    }
+  ],
+  "evidence_block": "[1] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2309.02427v3-2.pdf score=0.6790\n\nand external memory. InProceedings of the AAAI Conference on Artificial Intelligence, volume 32, 2018. S. Zhou, U. Alon, F. F. Xu, Z. Jiang, and G. Neubig. Docprompting: Generating code by retrieving the docs. In The Eleventh International Conference on Learning Representations, 2022a. S. Zhou, F. F. Xu, H. Zhu, X. Zhou, R. Lo, A. Sridhar, X. Cheng, Y. Bisk, D. Fried, U. Alon, et al. WebArena: A Realistic Web Environment for Building Autonomous Agents.arXiv preprint arXiv:2307.13854, 2023b. Y. Zhou, A. I. Muresanu, Z. Han, K. Paster, S. Pitis, H. Chan, and J. Ba. Large language models are human-level prompt engineers.arXiv preprint arXiv:2211.01910, 2022b. 32\n\n[2] source=docs/product_scope.md score=0.6415\n\n# Product Scope Status: authoritative for this frozen starter package. The product is a local Issue Tracker that runs entirely in the browser and stores state in `localStorage`. ## Existing Core Behavior The starter application already supports: - creating an issue with title, status, and priority; - editing an existing issue; - deleting an issue; - filtering by status; - filtering by priority; - searching by text; - persisting issue data across reloads; and - showing an empty state when no issues match. ## E1 Additions Required This task adds: - saved views for filter/search/sort state; - deterministic visible sorting with named modes; - backward-compatible persisted-data migration; - repair of the seeded known defect; - accessibility-safe interaction updates. ## Saved View Scope A saved view must persist: - a user-provided display name; - selected status filters; - selected priority filters; - the active text-search term; - the active sort mode; and - a stable local identifier. Saved views are a local-only productivity feature. No account sync, backend, sharing, or cloud export is in scope.\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2309.02427v3-2.pdf score=0.6384\n\nHao et al., 2023). It also enables agents to iteratively improve candidate solutions – for example, by using the LLM to simulate them, identifying defects, and proposing modifications that address those defects (Kirk et al., 2023; Shinn et al., 2023). • Proposal. The proposal sub-stage generates one or more action candidates. The usual approach is to usereasoning (and optionally retrieval) to sample one (Huang et al., 2022c) or more (Chen et al., 2021; Wang et al., 2022b) external grounding actions from the LLM. For simple domains with limited actions, the proposal stage might simply include all actions (e.g., SayCan in Section 5). More sophisticated agents use if-else or while-if code structures (Wang et al., 2023a; Park et al., 2023); while agents deployed in well-defined domains may utilize structured simulators (Haslum et al., 2019) to generate plausible rollouts (Liu et al., 2023a; Dagan et al., 2023). • Evaluation. If multiple actions are proposed, the evaluation sub-stage assigns a value to each. This may use heuristic rules, LLM (perplexity) values (Ahn et al., 2022), learned values (Yao et al., 12 Published in Transactions on Machine Learning Research (02/2024) Long-term E...\n\n[4] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2308.10144v3-2.pdf score=0.6231\n\nduring experience gathering and performs policy improvement via insight extraction and retrieval of similar tasks as in-context examples. Specif- ically, the retrieval step is similar to experience replay (Lin 1992), where research has been done to select which examples to give the agent for training (Schaul et al. 2015; Yue et al. 2023). However, unlike these existing methods, ExpeL doesn’t require access to model parameters, the design of complicated reward or loss functions, or a large number of environment interactions. B Broader Impacts Our research focuses on LLM agents. If these autonomous programs are given internet access, there’s a risk they might cause unexpected harm. However, techniques such as RLHF could potentially mitigate these adverse effects (Nakano et al. 2021; Ouyang et al. 2022). C Computational Resources All experiments were performed on a desktop: Intel(R) Core(TM) i9-9900K CPU @ 3.60GHz with 16 cores, 64GB RAM, and a single NVIDIA GeForce RTX 2080 Ti. D Environment Details D.1 Evaluation Task Set We employ four-fold validation for all experiments. We train on one half of the dataset and evaluate on the other half, and vice versa. All results include the mea...\n\n[5] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2309.02427v3-2.pdf score=0.6045\n\nactions, and is the initial work that demonstrates their synergizing effects: reasoning helps guide acting, while acting provides environmental feedback to support reasoning. Voyager(Wang et al., 2023a) is a language agent grounded to the Minecraft API. Unlike SayCan, which grounds to perception via the learned value function, Voyager’s grounding is text-only. It has a long-term procedural memory that stores a library of code-based grounding procedures a.k.a.skills (e.g., “combatZombie”, “craftStoneSword”). This library is hierarchical: complex skills can use simpler skills as sub-procedures (e.g., “combatZombie” may call “craftStoneSword” if no sword is in inventory). Most impressively, its action space has all four kinds of actions: grounding, reasoning, retrieval, and learning (by adding new grounding procedures). During a decision cycle, Voyager first reasons to propose a new task objective if it is missing in the working memory, then reasons to propose a code-based grounding procedure to solve the task. In the next decision cycle, Voyager reasons over the environmental feedback to determine task completion. If successful, Voyager selects a learning action adding the grounding...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "semantic",
+    "fusion_policy": null,
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 2.612
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

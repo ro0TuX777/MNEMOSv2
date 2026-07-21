@@ -1,0 +1,89 @@
+{
+  "receipt_id": "chatcmpl-mnemos-0917530041f94f4283caf9cb464eafb0",
+  "created": 1783833301,
+  "query": "### Task:\nGenerate 1-3 broad tags categorizing the main themes of the chat history, along with 1-3 more specific subtopic tags.\n\n### Guidelines:\n- Start with high-level domains (e.g. Science, Technology, Philosophy, Arts, Politics, Business, Health, Sports, Entertainment, Education)\n- Consider including relevant subfields/subdomains if they are strongly represented throughout the conversation\n- If content is too short (less than 3 messages) or too diverse, use only [\"General\"]\n- Use the chat's primary language; default to English if multilingual\n- Prioritize accuracy over specificity\n\n### Output:\nJSON format: { \"tags\": [\"tag1\", \"tag2\", \"tag3\"] }\n\n### Chat History:\n<chat_history>\nUSER: Lets discuss Observational Biases and Improved Modelling of Off-axis Relativistic Jets\nASSISTANT: \n</chat_history>",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "{\n  \"tags\": [\"Science\", \"Astrophysics\", \"Relativistic Jets\"]\n}\n\nThe chat history focuses on the topic of observational biases in astrophysical phenomena, specifically relativistic jets. Given the specialized nature and the scientific context, tags like \"Science\" and more specific ones such as \"Astrophysics\" and \"Relativistic Jets\" are appropriate to capture the main themes.",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::039eae80d9a090ee262b",
+      "source": "/app/data/research_uploads/2502.12110v11.pdf",
+      "score": 0.4438
+    },
+    {
+      "index": 2,
+      "engram_id": "research::abd8f32e79bddf8e243b",
+      "source": "/app/data/research_uploads/2502.12110v11-1.pdf",
+      "score": 0.4438
+    },
+    {
+      "index": 3,
+      "engram_id": "research::2c5f0bb31939f6ea0847",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2502.12110v11-2.pdf",
+      "score": 0.3434
+    },
+    {
+      "index": 4,
+      "engram_id": "research::99cfecbf51fe55d00470",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2308.10144v3-2.pdf",
+      "score": 0.0677
+    },
+    {
+      "index": 5,
+      "engram_id": "research::d80868a6b50c021f600b",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2502.12110v11-2.pdf",
+      "score": 0.0398
+    }
+  ],
+  "evidence_block": "[1] source=/app/data/research_uploads/2502.12110v11.pdf score=0.4438\n\n10 20 30 −30 −20 −10 0 10 20 30 A-mem Base (h)Dialogue 10 Figure 5:T-SNE Visualization of Memory Embeddings Showing More Organized Distribution with A-MEM (blue) Compared to Base Memory (red) Across Different Dialogues. Base Memory represents A-MEMwithout link generation and memory evolution. Table 8:Selection of k values in retriever across specific categories and model choices. Model Multi Hop Temporal Open Domain Single Hop Adversial GPT-4o-mini 40 40 50 50 40 GPT-4o 40 40 50 50 40 Qwen2.5-1.5b 10 10 10 10 10 Qwen2.5-3b 10 10 50 10 10 Llama3.2-1b 10 10 10 10 10 Llama3.2-3b 10 20 10 10 10 18 B Prompt Templates and Examples B.1 Prompt Template of Note Construction The prompt template in Note Construction:P s1 Generate a structured analysis of the following content by: 1. Identifying the most salient keywords (focus on nouns, verbs, and key concepts) 2. Extracting core themes and contextual elements 3. Creating relevant categorical tags Format the response as a JSON object: { \"keywords\": [ // several specific, distinct keywords that capture key concepts and terminology // Order from most to least important // Don’t include keywords that are the name of the speaker or time // At lea...\n\n[2] source=/app/data/research_uploads/2502.12110v11-1.pdf score=0.4438\n\n10 20 30 −30 −20 −10 0 10 20 30 A-mem Base (h)Dialogue 10 Figure 5:T-SNE Visualization of Memory Embeddings Showing More Organized Distribution with A-MEM (blue) Compared to Base Memory (red) Across Different Dialogues. Base Memory represents A-MEMwithout link generation and memory evolution. Table 8:Selection of k values in retriever across specific categories and model choices. Model Multi Hop Temporal Open Domain Single Hop Adversial GPT-4o-mini 40 40 50 50 40 GPT-4o 40 40 50 50 40 Qwen2.5-1.5b 10 10 10 10 10 Qwen2.5-3b 10 10 50 10 10 Llama3.2-1b 10 10 10 10 10 Llama3.2-3b 10 20 10 10 10 18 B Prompt Templates and Examples B.1 Prompt Template of Note Construction The prompt template in Note Construction:P s1 Generate a structured analysis of the following content by: 1. Identifying the most salient keywords (focus on nouns, verbs, and key concepts) 2. Extracting core themes and contextual elements 3. Creating relevant categorical tags Format the response as a JSON object: { \"keywords\": [ // several specific, distinct keywords that capture key concepts and terminology // Order from most to least important // Don’t include keywords that are the name of the speaker or time // At lea...\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2502.12110v11-2.pdf score=0.3434\n\n30 A-mem Base (g)Dialogue 9 −30 −20 −10 0 10 20 30 −30 −20 −10 0 10 20 30 A-mem Base (h)Dialogue 10 Figure 5:T-SNE Visualization of Memory Embeddings Showing More Organized Distribution with A-MEM (blue) Compared to Base Memory (red) Across Different Dialogues. Base Memory represents A-MEMwithout link generation and memory evolution. Table 8:Selection of k values in retriever across specific categories and model choices. Model Multi Hop Temporal Open Domain Single Hop Adversial GPT-4o-mini 40 40 50 50 40 GPT-4o 40 40 50 50 40 Qwen2.5-1.5b 10 10 10 10 10 Qwen2.5-3b 10 10 50 10 10 Llama3.2-1b 10 10 10 10 10 Llama3.2-3b 10 20 10 10 10 18 B Prompt Templates and Examples B.1 Prompt Template of Note Construction The prompt template in Note Construction:P s1 Generate a structured analysis of the following content by: 1. Identifying the most salient keywords (focus on nouns, verbs, and key concepts) 2. Extracting core themes and contextual elements 3. Creating relevant categorical tags Format the response as a JSON object: { \"keywords\": [ // several specific, distinct keywords that capture key concepts and terminology // Order from most to least important // Don’t include keywords that are...\n\n[4] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2308.10144v3-2.pdf score=0.0677\n\nChatGPT for Multimodal Reasoning and Action. arXiv preprint. Yang, Z.; Qi, P.; Zhang, S.; Bengio, Y .; Cohen, W.; Salakhut- dinov, R.; and Manning, C. D. 2018. HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering. In EMNLP. Association for Computational Linguistics. Yao, S.; Chen, H.; Yang, J.; and Narasimhan, K. 2022. Web- Shop: Towards Scalable Real-World Web Interaction with Grounded Language Agents. In NeurIPS. Yao, S.; Yu, D.; Zhao, J.; Shafran, I.; Griffiths, T. L.; Cao, Y .; and Narasimhan, K. 2023a. Tree of Thoughts: Deliberate Problem Solving with Large Language Models. NeurIPS. Yao, S.; Zhao, J.; Yu, D.; Du, N.; Shafran, I.; Narasimhan, K.; and Cao, Y . 2023b. ReAct: Synergizing Reasoning and Acting in Language Models. In ICLR. Yao, W.; Heinecke, S.; Niebles, J. C.; Liu, Z.; Feng, Y .; Xue, L.; Murthy, R.; Chen, Z.; Zhang, J.; Arpit, D.; Xu, R.; Mui, P.; Wang, H.; Xiong, C.; and Savarese, S. 2023c. Retro- former: Retrospective Large Language Agents with Policy Gradient Optimization. Yue, Y .; Kang, B.; Ma, X.; Huang, G.; Song, S.; and Yan, S. 2023. Offline Prioritized Experience Replay. arXiv preprint. Zeng, A.; Liu, M.; Lu, R.; Wang, B.; Liu, X.; Don...\n\n[5] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2502.12110v11-2.pdf score=0.0398\n\nJordan Hoffmann, Trevor Cai, Eliza Rutherford, Katie Millican, George Bm Van Den Driessche, Jean-Baptiste Lespiau, Bogdan Damoc, Aidan Clark, et al. Improving language models by retrieving from trillions of tokens. InInternational conference on machine learning, pages 2206–2240. PMLR, 2022. [7] Xiang Deng, Yu Gu, Boyuan Zheng, Shijie Chen, Sam Stevens, Boshi Wang, Huan Sun, and Yu Su. Mind2web: Towards a generalist agent for the web.Advances in Neural Information Processing Systems, 36:28091–28114, 2023. [8] Khant Dev and Singh Taranjeet. mem0: The memory layer for ai agents. https://github. com/mem0ai/mem0, 2024. [9] Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, and Jonathan Larson. From local to global: A graph rag approach to query-focused summarization.arXiv preprint arXiv:2404.16130, 2024. [10] Yunfan Gao, Yun Xiong, Xinyu Gao, Kangxiang Jia, Jinliu Pan, Yuxi Bi, Yi Dai, Jiawei Sun, and Haofen Wang. Retrieval-augmented generation for large language models: A survey.arXiv preprint arXiv:2312.10997, 2023. [11] Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Ruoyu Zhang, Runxin Xu, Qihao Zhu, Shirong Ma, Peiyi Wang, Xiao Bi, et al....",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "hybrid",
+    "fusion_policy": "lexical_dominant",
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "hybrid|lexical_dominant|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.834
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null,
+  "citation_check": {
+    "cited_indices": [],
+    "invalid_indices": [],
+    "uncited_evidence_indices": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "evidence_count": 5,
+    "coverage": 0.0,
+    "verdict": "no_citations_in_answer"
+  },
+  "generation": {
+    "done_reason": "stop",
+    "truncated": false,
+    "prompt_eval_count": 2494,
+    "eval_count": 82
+  },
+  "score_stats": {
+    "count": 5,
+    "max": 0.4438,
+    "min": 0.0398,
+    "mean": 0.2677
+  },
+  "content_hash": "sha256:a9d78e9bf7f8f596713ff4541eb3cf680e11b23445d5f1ff12cdbcf907b692c7"
+}

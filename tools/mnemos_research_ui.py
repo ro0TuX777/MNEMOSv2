@@ -876,17 +876,27 @@ def create_app(
 
         output_raw = request.form.get("output", "").strip()
         output_path = Path(output_raw) if output_raw else None
-        result = intake_runner(
-            files=uploads,
-            project=project,
-            capability=capability,
-            status=request.form.get("status", "new").strip() or "new",
-            tags=_split_tags(request.form.get("tags", "")),
-            summarize=request.form.get("summarize", "").lower() in {"1", "true", "on", "yes"},
-            output_path=output_path,
-            ollama_model=request.form.get("ollama_model", "").strip() or "llama3.1",
-            batch_size=_positive_int(request.form.get("batch_size", "25"), 25),
-        )
+        try:
+            result = intake_runner(
+                files=uploads,
+                project=project,
+                capability=capability,
+                status=request.form.get("status", "new").strip() or "new",
+                tags=_split_tags(request.form.get("tags", "")),
+                summarize=request.form.get("summarize", "").lower() in {"1", "true", "on", "yes"},
+                output_path=output_path,
+                ollama_model=request.form.get("ollama_model", "").strip() or "llama3.1",
+                batch_size=_positive_int(request.form.get("batch_size", "25"), 25),
+            )
+        except Exception as exc:
+            app.logger.exception("Research intake failed")
+            return jsonify(
+                {
+                    "ok": False,
+                    "error": str(exc),
+                    "uploaded_files": [str(p) for p in uploads],
+                }
+            ), 500
         return jsonify({"ok": result.get("status") == "ok", "result": result, "uploaded_files": [str(p) for p in uploads]})
 
     return app

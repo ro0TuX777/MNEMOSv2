@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-085a5e41b1c74a1d8eb0982b4b63c3db",
+  "created": 1783681235,
+  "query": "Lets discuss Synthetic Nearest Neighbors (SNN) provides a principled solution to causal matrix completion under missing-not-at-random (MNAR) by exploiting local low-rank structure through fully observed anchor submatrices",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "Synthetic Nearest Neighbors (SNN) is indeed a method that addresses the challenge of causal matrix completion in scenarios where data are Missing Not At Random (MNAR). SNN leverages the assumption that there exists a local low-rank structure within the data, particularly through fully observed anchor submatrices. This approach exploits the fact that even when some entries are missing, there might be patterns or structures that can still be utilized to infer the missing values.\n\nThe key idea behind SNN is to identify and use these \"anchor\" regions where data are complete (fully observed) to help impute the missing values in other parts of the matrix. By doing so, it aims to recover the underlying low-rank structure of the entire matrix, which can then be used for causal inference.\n\nHowever, as mentioned in the evidence provided [1], SNN's effectiveness is highly dependent on having sufficient data availability within each treatment level. This means that if there are multiple or complex treatments and not enough fully observed anchor submatrices across these levels, the method may struggle to provide accurate imputations.\n\nFor more detailed information, you can refer to the research paper \"Causal Matrix Completion under Multiple Treatments via Mixed Synthetic Nearest Neighbors\" which discusses SNN in depth. The paper provides a formal framework and demonstrates its application through both synthetic and real-world datasets [1].\n\n[1] Causal Matrix Completion under Multiple Treatments via Mixed Synthetic Nearest Neighbors, Minrui Luo * 1 Zhiheng Zhang * 2",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "research::76c9be34f20380e9fb5c",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11942v1-1.pdf",
+      "score": 0.9998
+    },
+    {
+      "index": 2,
+      "engram_id": "research::6b1bdfbeefd3001608d4",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11942v1-1.pdf",
+      "score": 0.937
+    },
+    {
+      "index": 3,
+      "engram_id": "research::cca39358b19e0d54c5f6",
+      "source": "C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11942v1-1.pdf",
+      "score": 0.4179
+    },
+    {
+      "index": 4,
+      "engram_id": "demo_corpus::2603.12244v1.pdf::chunk002",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.0022
+    },
+    {
+      "index": 5,
+      "engram_id": "demo_corpus::2603.12244v1.pdf::chunk000",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.0011
+    }
+  ],
+  "evidence_block": "[1] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11942v1-1.pdf score=0.9998\n\nCausal Matrix Completion under Multiple Treatments via Mixed Synthetic Nearest Neighbors Minrui Luo * 1 Zhiheng Zhang * 2 Abstract Synthetic Nearest Neighbors (SNN) provides a principled solution to causal matrix completion under missing-not-at-random (MNAR) by exploit- ing local low-rank structure through fully ob- served anchor submatrices. However, its effective- ness critically relies on sufficient data availability within each treatment level, a condition that often fails in settings with multiple or complex treat- ments. In this work, we propose Mixed Synthetic Nearest Neighbors (MSNN), a new entry-wise causal identification estimator that integrates in- formation across treatment levels. We show that MSNN retains the finite-sample error bounds and asymptotic normality guarantees of SNN, while enlarging the effective sample size available for estimation. Empirical results on synthetic and real-world datasets illustrate the efficacy of the proposed approach, especially under data-scarce treatment levels. 1. Introduction Causal inference from observational data has become a cornerstone of modern data science, enabling the rigorous evaluation of interventions across diverse doma...\n\n[2] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11942v1-1.pdf score=0.9370\n\nJ. Generalized tensor completion with non-random missingness.arXiv preprint arXiv:2509.06225, 2025. 9 Causal Matrix Completion under Multiple Treatments via Mixed Synthetic Nearest Neighbors A. Related Works Classical matrix completion assumes data are missing completely at random (MCAR) or at random (MAR). (Candes & Recht, 2012; Keshavan et al., 2010) However in many real-world applications, missingness depends on the unobserved entries themselves, i.e., missing not at random (MNAR). Existing work addresses this by jointly modeling the missingness mechanism and low-rank structure. (Ma & Chen, 2019; Sportisse et al., 2020; Yang et al., 2021) In the causal inference context, matrix completion can be used to estimate potential outcomes, as in Athey et al. (2021); Agarwal et al. (2023b;a). Our work studies a general MNAR matrix completion problem under multiple treatments, which is formalized as a three- dimensional tensor completion framework aiming to achieve entry-wise treatment effect identification. Agarwal et al. (2023b) addresses the MNAR matrix completion problem under a binary treatment setup, and we show that our result strictly reduces to theirs in the binary case. Other ap...\n\n[3] source=C:\\Users\\vin\\AppData\\Local\\Temp\\mnemos_research_ui_uploads\\2603.11942v1-1.pdf score=0.4179\n\ngap is that, under the assumption of shared latent row factors across treatments, the imputation coefficients required for coun- 1 arXiv:2603.11942v1 [cs.LG] 12 Mar 2026 Causal Matrix Completion under Multiple Treatments via Mixed Synthetic Nearest Neighbors terfactual estimation can beidentifiedby leveraging data frommultipletreatment levels. Previous multi-treatment frameworks, including Synthetic Interventions, either fail to exploit this cross-treatment identifiability for entry-wise estimation or are not designed to tackle the general MNAR matrix completion problem that we address. To overcome these challenges, we propose theMixed SyntheticNearestNeighbors (MSNN) algorithm. Our method systematically tackles the data scarcity problem by relaxing the stringent same-treatment requirement inher- ent in the SNN approach. The key innovation lies in the introduction ofMixed Anchor Rows (MAR)andMixed An- chor Columns (MAC), enabling the imputation coefficient β to be estimated from a block of data that spansmulti- ple treatment levels, while preserving the target row’s data (x(d)) from the treatment level of interest. This is made possible by the shared latent factor assumption, which...\n\n[4] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.0022\n\nete lookup embed- dings of prevailing neural sequence models. For chaos precludes stable pointwise prediction over extended hori- zons; modelling must therefore be distributional to avoid nonphysical drift. Under this view, chaotic spatiotem- poral dynamics and linguistic autoregression become structurally analogous: both benefit from modelling con- 1 arXiv:2603.12244v1 [cs.LG] 12 Mar 2026 Figure 1:The separable neural architecture (SNA) as a unified primitive for predictive and generative intelligence. The SNA formalises a representational class that constructs high-dimensional mappings by combining lower-arity learnable components (atoms) selected by an interaction tensor. By constraining interaction order and tensor rank, this formalism subsumes generalised additive, quadratic and tensor-decomposed neural models. ditional distributions over sequentially revealed states. As a standalone model, the separable neural architec- ture realises compact predictive–generative intelligence in the form of KHRONOS [2, 3]. KHRONOS instanti- ates an SNA whose low-rank, separable structure across all dimensions yields a smooth, cheaply invertible in- terpolant over the input space. Despite cont...\n\n[5] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.0011\n\nSeparable neural architectures as a primitive for unified predictive and generative intelligence Reza T. Batley1 Apurba Sarker1† Rajib Mostakim2† Andrew Klichine1† Sourav Saha1,∗ 1Kevin T. Crofton Department of Aerospace and Ocean Engineering, Virginia Polytechnic Institute and State University, Blacksburg, V A 24060, USA 2Department of Mechanical Engineering, Bangladesh University of Engineering and Technology, Dhaka, Bangladesh ∗Correspondence: souravsaha@vt.edu Abstract Intelligent systems across physics, language and perception often exhibit factorisable structure, yet are typically modelled by monolithic neural architectures that do not explicitly exploit this structure. The separable neural architecture (SNA) addresses this by formalising a representational class that unifies additive, quadratic and tensor-decomposed neural models. By constraining interaction order and tensor rank, SNAs impose a structural inductive bias that factorises high- dimensional mappings into low-arity components. Separability need not be a property of the system itself: it often emerges in the coordinates or representations through which the system is expressed. Crucially, this coordinate-aware form...",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "hybrid",
+    "fusion_policy": "lexical_dominant",
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "hybrid|lexical_dominant|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.369
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

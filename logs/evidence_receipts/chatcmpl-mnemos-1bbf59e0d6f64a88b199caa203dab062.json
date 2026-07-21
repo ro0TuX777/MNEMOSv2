@@ -1,0 +1,62 @@
+{
+  "receipt_id": "chatcmpl-mnemos-1bbf59e0d6f64a88b199caa203dab062",
+  "created": 1783248068,
+  "query": "what is the latest US political news?",
+  "requested_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "actual_model": "hf.co/WSDW/Qwen2.5-7B-Instruct-Q4_K_M-GGUF:Q4_K_M",
+  "answer": "The provided MNEMOS_EVIDENCE does not contain any information related to the latest US political news. The evidence focuses on technical documentation, experimental setups, and software development activities. There are no recent news articles or updates about US politics available in the given sources.\n\nTo provide accurate and up-to-date information on US political news, I would need access to a source that contains current news articles or statements from government officials. MNEMOS_EVIDENCE does not include such content.",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "engram_id": "demo_corpus::2603.12237v1.pdf::chunk044",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.5873
+    },
+    {
+      "index": 2,
+      "engram_id": "demo_corpus::2603.12237v1.pdf::chunk038",
+      "source": "G:\\MNEMOS\\docs\\experiments\\demo_corpus",
+      "score": 0.5484
+    },
+    {
+      "index": 3,
+      "engram_id": "ca0babfa-5087-42a8-b5a9-1a9fbff195fc",
+      "source": "unknown",
+      "score": 0.5478
+    },
+    {
+      "index": 4,
+      "engram_id": "1758a220-dbb3-4b24-afc2-5fc760d953b6",
+      "source": "unknown",
+      "score": 0.5403
+    },
+    {
+      "index": 5,
+      "engram_id": "ff5eccb2-678e-4530-a5ab-5290b56e8690",
+      "source": "unknown",
+      "score": 0.5333
+    }
+  ],
+  "evidence_block": "[1] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.5873\n\nUS government retains and the pub- lisher, by accepting the article for publication, acknowledges that the US government retains a nonexclusive, paid-up, irrevocable, worldwide li- cense to publish or reproduce the published form of this manuscript, or allow others to do so, for US government purposes. DOE will pro- vide public access to these results of federally sponsored research in accordance with the DOE Public Access Plan ( https://www.energy.gov/ doe-public-access-plan). References Pathum Chamikara Mahawaga Arachchige, Peter Bertok, Ibrahim Khalil, Dongxi Liu, Seyit Camtepe, and Mohammed Atiquzzaman. 2019. Local differ- ential privacy for deep learning.IEEE Internet of Things Journal, 7(7):5827–5842. Stefan Arnold, Dilara Yesilbas, and Sven Weinzierl. 2023. Driving context into text-to-text privatization. arXiv preprint arXiv:2306.01457. Ricardo Silva Carvalho, Theodore Vasiloudis, Oluwaseyi Feyisetan, and Ke Wang. 2023. Tem: High utility metric differential privacy on text. InProceedings of the 2023 SIAM International Conference on Data Mining (SDM), pages 883–890. SIAM. Konstantinos Chatzikokolakis, Miguel E Andrés, Nicolás Emilio Bordenabe, and Catuscia Palamidessi. 2013....\n\n[2] source=G:\\MNEMOS\\docs\\experiments\\demo_corpus score=0.5484\n\nAG News: accu- racy), averaged over three seeds. Across datasets, Polar consistently yields a stronger utility–privacy trade-off: at relatively low budgets, Laplace col- lapses toward chance-level performance while Po- lar remains effective; as the budget increases, Po- 8 <latexit sha1_base64=\"a6cwcWoF1Qj3Go5gm2vywc8xoFA=\">AAAB/3icbVDJSgNBEO2JW4xbVPDipTEI8RJmcogeoyJ4ESKYBZIh9FR6kiY9C901Yog5+CtePCji1d/w5t/YWQ6a+KDg8V4VVfW8WAqNtv1tpZaWV1bX0uuZjc2t7Z3s7l5NR4kCXoVIRqrhMc2lCHkVBUreiBVngSd53etfjv36PVdaROEdDmLuBqwbCl8AQyO1swfnAIliMKD5qwcGSG8YQu+knc3ZBXsCukicGcmRGSrt7FerE0ES8BBBMq2bjh2jO2QKBUg+yrQSzWMGfdblTUNDFnDtDif3j+ixUTrUj5SpEOlE/T0xZIHWg8AznQHDnp73xuJ/XjNB/8wdijBOkIcwXeQnkmJEx2HQjlAcUA4MYaCEuZVCj5k40ESWMSE48y8vklqx4JQKpdtirnwxiyNNDskRyROHnJIyuSYVUiVAHskzeSVv1pP1Yr1bH9PWlDWb2Sd/YH3+AJJelS4=</latexit> Accuracy (Exact Match) <latexit sha1_base64=\"zCir1G7KRhBKzYiaewY5IGMBRhs=\">AAACFnicbVC7TkJBEN3rE/GFWtpsBBMtIPdaqCViY4mJPBIgZO8y4Ia9uze7c0kI4Sts/BUbC42xNXb+jcujUPQkk5ycM5OZOWEshUXf//KWlldW19ZTG+nNre2d3czeftXqxHCocC21qYfMghQKKihQQj02wKJQQi3sX0/82gCMFVrd4TCGVsR6SnQFZ+ikdiZ/5VzWAxqDyaPug6JlIwaMD2kp6fQA6UmuCbEVUqvcaTuT9Qv+FPQvCeYkS+YotzOfzY7mSQQKuWTWNgI/xtaIGRRcwjjdTCzEjPfdBQ1HFYvAtkbTt8b02Ckd2...\n\n[3] source=unknown score=0.5478\n\nOBSERVATION (local_issue_tracker_v1): MNEMOS REST search returned only off-topic GateMem/MNEMOS seed engrams (scores ~0.53) for the issue-tracker query; these were rejected and primary task spec was used instead. Core logic: 12/12 node --test pass; UI verified via Playwright (create/edit/delete/search/filter/persist/empty-state/validation).\n\n[4] source=unknown score=0.5403\n\nSESSION HANDOFF (local_issue_tracker_v1, MNEMOS-enabled trial): Built a zero-dependency vanilla-JS Local Issue Tracker (index.html/app.js/styles.css) with pure logic in logic.js (UMD) covering create/edit/delete, status todo|in_progress|done, priority low|medium|high, text search + status/priority filters, localStorage persistence, empty states, responsive UI, and status-aware sorting. Tests: 12/12 via node --test; npm run build passes; UI verified live via Playwright. MNEMOS: REST verified healthy; orientation search returned off-topic seed engrams (rejected); decision+observation written via /index and round-trip-verified (decision retrieved at 0.9987). MCP tools were not exposed; REST fallback used throughout. Next steps if resumed: add due dates/labels, keyboard shortcuts, and bulk actions.\n\n[5] source=unknown score=0.5333\n\nOBSERVATION (local_issue_tracker_v1, NEWRUN mnemos_enabled): MNEMOS REST search for the issue-tracker query returned only off-topic GateMem/MNEMOS seed engrams plus this run's own prior engrams; seed results (scores ~0.0-0.5) were rejected and the task spec used as primary evidence. Core logic: 12/12 node --test pass; npm run build passes; UI verified live via Playwright (create/edit/delete/search/filter/persist/empty-state/validation/sort).",
+  "retrieval_metadata": {
+    "requested_retrieval_mode": "semantic",
+    "requested_fusion_policy": "balanced",
+    "response_status": "healthy",
+    "response_error": null,
+    "retrieval_mode": "semantic",
+    "fusion_policy": null,
+    "retrieval_fingerprint": {
+      "cache_schema_version": "r0",
+      "collection_snapshot": "mnemos_claude_repo_seed:ea4ffa2db72d2cc9",
+      "configured_retrieval_profile": "semantic|balanced|lexical_top_k=25|semantic_top_k=25",
+      "embedding_model_name": "nomic-ai/nomic-embed-text-v1.5",
+      "retrieval_profile": "semantic|none|lexical_top_k=25|semantic_top_k=25"
+    },
+    "lexical_lane_available": true,
+    "result_count": 5,
+    "latency_s": 0.082
+  },
+  "claim_boundary": "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks Ollama to answer from that evidence; it does not alter MNEMOS retrieval, write memory, or enforce R1/R2 admission policy.",
+  "warning": null
+}

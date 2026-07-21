@@ -1,0 +1,43 @@
+{
+  "receipt_id": "chatcmpl-mnemos-a2923b31e7424239a00292340a06788a",
+  "created": 1783715162,
+  "query": "count my tokens",
+  "requested_model": "qwen3-coder-next:latest",
+  "actual_model": "qwen3-coder-next:latest",
+  "answer": "Counted. [1]",
+  "status": "ok",
+  "citations": [
+    {
+      "index": 1,
+      "source": "a.pdf",
+      "score": 0.9
+    }
+  ],
+  "evidence_block": "",
+  "retrieval_metadata": {},
+  "claim_boundary": "boundary",
+  "warning": null,
+  "citation_check": {
+    "cited_indices": [
+      1
+    ],
+    "invalid_indices": [],
+    "uncited_evidence_indices": [],
+    "evidence_count": 1,
+    "coverage": 1.0,
+    "verdict": "all_evidence_cited"
+  },
+  "generation": {
+    "done_reason": "stop",
+    "truncated": false,
+    "prompt_eval_count": 321,
+    "eval_count": 45
+  },
+  "score_stats": {
+    "count": 1,
+    "max": 0.9,
+    "min": 0.9,
+    "mean": 0.9
+  },
+  "content_hash": "sha256:1cca83cc00fb47fdae9cf1bf38831fa896629db9b28e5526abfa7b4ff8a5e9f3"
+}
