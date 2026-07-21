@@ -81,6 +81,36 @@ REQUIRED_PROPOSAL_FRAGMENTS = (
     "MNEMOS does not replace proposal-owner, legal, commercial, or executive review.",
 )
 
+RESEARCH_GROUP_STATES = (
+    "cited",
+    "uncited",
+)
+
+# The research panel reproduces a real captured run. These fragments pin the
+# recorded values so the panel cannot drift away from the receipt it quotes,
+# and pin the disclaimers that keep it from reading as a measured evaluation.
+REQUIRED_RESEARCH_FRAGMENTS = (
+    "Shortly after the ratification of the U.S. Constitution, the Founding generation added what?",
+    "Captured run",
+    "not a benchmark",
+    "constitution-1.pdf",
+    "constitution-2.pdf",
+    "constitution-3.pdf",
+    "Bill_of_Rights-1.pdf",
+    "Bill_of_Rights-3.pdf",
+    "partial_evidence_cited",
+    "chatcmpl-mnemos-7146a84e",
+    "sha256:bcceba0f2c40bbb1",
+    "nomic-embed-text-v1.5",
+    "Qwen2.5-7B-Instruct-Q4_K_M",
+    "identical text to [1]",
+    "identical text to [4]",
+    "citation integrity; 0 invalid citations",
+    "factual accuracy of the wording",
+    "single captured run; not a benchmark",
+    "not a measured evaluation",
+)
+
 REQUIRED_USE_CASE_BOUNDARIES = (
     "does not provide financial, tax, or legal advice",
     "does not certify compliance or replace an auditor",
@@ -123,6 +153,7 @@ class StaticDemoHTMLParser(HTMLParser):
         self.expanded_use_cases: list[str] = []
         self.use_case_panels: dict[str, tuple[str, str | None, bool]] = {}
         self.proposal_claim_states: list[str] = []
+        self.research_group_states: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
@@ -136,6 +167,8 @@ class StaticDemoHTMLParser(HTMLParser):
             self.tab_links.append(tab_link)
         if proposal_state := attributes.get("data-proposal-claim-state"):
             self.proposal_claim_states.append(proposal_state)
+        if research_state := attributes.get("data-research-group-state"):
+            self.research_group_states.append(research_state)
         if tag == "button" and (target := attributes.get("data-use-case-target")):
             self.use_case_targets.append(target)
             if controls := attributes.get("aria-controls"):
@@ -237,6 +270,18 @@ def main() -> int:
         if not re.search(rule, styles_css, re.DOTALL):
             errors.append(f"frontend styles missing proposal rule: {rule}")
 
+    research_style_rules = (
+        r"\.research-use-case\s*\{[^}]*--research-crimson:\s*#7d1a1f;",
+        r"\.research-review-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*320px;",
+        r"\.research-answer,\s*\.research-ledger,\s*\.research-provenance\s*\{[^}]*color:\s*#000000;",
+        r"\.research-source-group\s*\{[^}]*color:\s*#000000;",
+        r"\.research-files li span\s*\{[^}]*color:\s*#000000;",
+        r"@media\s*\(max-width:\s*900px\)[\s\S]*\.research-experience-header,\s*\.research-review-layout,\s*\.research-evidence-grid\s*\{[^}]*grid-template-columns:\s*1fr;",
+    )
+    for rule in research_style_rules:
+        if not re.search(rule, styles_css, re.DOTALL):
+            errors.append(f"frontend styles missing research rule: {rule}")
+
     index_html = (FRONTEND / "index.html").read_text(encoding="utf-8")
     parser = StaticDemoHTMLParser()
     parser.feed(index_html)
@@ -289,6 +334,21 @@ def main() -> int:
     for fragment in REQUIRED_PROPOSAL_FRAGMENTS:
         if fragment.lower() not in normalized_html:
             errors.append(f"missing fictional proposal fragment: {fragment}")
+
+    if parser.research_group_states != list(RESEARCH_GROUP_STATES):
+        errors.append(
+            f"research evidence-group order mismatch: {parser.research_group_states}"
+        )
+
+    for fragment in REQUIRED_RESEARCH_FRAGMENTS:
+        if fragment.lower() not in normalized_html:
+            errors.append(f"missing captured-run research fragment: {fragment}")
+
+    # The captured run is real, so it must never be published with the local-only
+    # prompt/receipt hosts it was read from.
+    for local_host in ("127.0.0.1", "localhost"):
+        if local_host in normalized_html:
+            errors.append(f"local host reference must not ship in the page: {local_host}")
 
     for state in PROPOSAL_CLAIM_STATES:
         summary_fragment = f"1 {state.replace('_', ' ')}"

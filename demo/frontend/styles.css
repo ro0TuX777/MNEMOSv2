@@ -1192,6 +1192,268 @@ code {
   color: #b9c9d8;
 }
 
+.research-use-case {
+  --research-crimson: #7d1a1f;
+  --research-crimson-bright: #9a2229;
+  --research-ink: #241d18;
+  --research-parchment: #f8f3e8;
+  --research-parchment-deep: #efe6d4;
+  --research-rule: #d8ccb4;
+  --research-muted: #6b5f51;
+  --research-gold: #8a6a1f;
+  --research-serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+}
+
+.research-use-case > .use-case-trigger,
+.research-use-case.is-expanded > .use-case-trigger,
+.research-use-case > .use-case-trigger:hover,
+.research-use-case > .use-case-trigger:focus-visible {
+  background: var(--research-crimson);
+  color: #ffffff;
+}
+
+.research-use-case .use-case-audience,
+.research-use-case .use-case-toggle {
+  color: #f0dcc0;
+}
+
+.research-use-case .use-case-toggle {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.research-use-case h3,
+.research-use-case h4 {
+  font-family: var(--research-serif);
+  letter-spacing: 0.01em;
+}
+
+.research-experience-header,
+.research-review-layout,
+.research-evidence-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.research-experience-header {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  border-bottom: 2px solid var(--research-crimson);
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+}
+
+.research-experience-header .question {
+  font-family: var(--research-serif);
+  font-style: italic;
+}
+
+.research-captured-badge {
+  border: 1px solid var(--research-crimson);
+  border-radius: 999px;
+  background: var(--research-parchment);
+  color: var(--research-crimson);
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 780;
+  white-space: nowrap;
+}
+
+.research-review-layout {
+  grid-template-columns: minmax(0, 1fr) 320px;
+  align-items: start;
+}
+
+.research-answer,
+.research-ledger,
+.research-provenance {
+  border: 1px solid var(--research-rule);
+  border-radius: 4px;
+  background: var(--research-parchment);
+  color: #000000;
+  padding: 18px;
+}
+
+.research-quote {
+  border-left: 3px solid var(--research-crimson);
+  margin: 13px 0 0;
+  padding-left: 14px;
+  color: #000000;
+  font-family: var(--research-serif);
+  font-size: 1rem;
+  line-height: 1.62;
+}
+
+.research-cite {
+  color: var(--research-crimson-bright);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.research-verified,
+.research-unverified {
+  margin: 12px 0 0;
+  padding-left: 10px;
+  font-size: 0.88rem;
+}
+
+.research-verified {
+  border-left: 3px solid #0b7f66;
+  color: #14503f;
+}
+
+.research-unverified {
+  border-left: 3px solid var(--research-gold);
+  color: #5c4713;
+}
+
+.research-integrity,
+.research-receipt {
+  border-radius: 4px;
+  background: var(--research-ink);
+  color: #ffffff;
+  padding: 18px;
+}
+
+.research-integrity .eyebrow,
+.research-integrity h4,
+.research-receipt .eyebrow,
+.research-receipt h4 {
+  color: #f0dcc0;
+}
+
+.research-integrity ul {
+  display: grid;
+  gap: 9px;
+  margin: 14px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.research-integrity li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  padding-bottom: 8px;
+  font-size: 0.86rem;
+}
+
+.research-integrity li strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.research-integrity p {
+  margin: 0;
+  color: #ded2c0;
+  font-size: 0.84rem;
+}
+
+.research-ledger {
+  margin-top: 16px;
+}
+
+.research-source-group {
+  border: 1px solid var(--research-rule);
+  border-left-width: 5px;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #000000;
+  padding: 15px;
+}
+
+.research-source-group + .research-source-group {
+  margin-top: 12px;
+}
+
+.research-source-group[data-research-group-state="cited"] { border-left-color: var(--research-crimson); }
+.research-source-group[data-research-group-state="uncited"] { border-left-color: var(--research-gold); }
+
+.research-group-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.research-group-heading strong {
+  font-family: var(--research-serif);
+}
+
+.research-status {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.research-status.cited { background: #f6e3e2; color: #7d1a1f; }
+.research-status.uncited { background: #f7eed6; color: #6b5210; }
+
+.research-score {
+  color: var(--research-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+}
+
+.research-files {
+  display: grid;
+  gap: 7px;
+  margin: 13px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.research-files li {
+  display: grid;
+  gap: 3px;
+  border-left: 2px solid var(--research-rule);
+  padding-left: 10px;
+}
+
+.research-files li span {
+  color: #000000;
+  font-size: 0.82rem;
+}
+
+.research-group-note {
+  margin: 0;
+  color: #3c332b;
+  font-size: 0.86rem;
+}
+
+.research-evidence-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 16px;
+}
+
+.research-provenance dl,
+.research-receipt dl {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 8px 12px;
+  margin: 13px 0 0;
+}
+
+.research-provenance dt,
+.research-receipt dt {
+  font-size: 0.8rem;
+  font-weight: 760;
+}
+
+.research-receipt dt {
+  color: #d6c6ae;
+}
+
+.research-provenance dd,
+.research-receipt dd {
+  margin: 0;
+}
+
 .use-case-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1350,6 +1612,16 @@ label.field textarea {
   .proposal-static-badge {
     justify-self: start;
   }
+
+  .research-experience-header,
+  .research-review-layout,
+  .research-evidence-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .research-captured-badge {
+    justify-self: start;
+  }
 }
 
 @media (max-width: 560px) {
@@ -1390,6 +1662,20 @@ label.field textarea {
   .proposal-claim-row dt,
   .proposal-receipt dt {
     margin-top: 6px;
+  }
+
+  .research-provenance dl,
+  .research-receipt dl {
+    grid-template-columns: 1fr;
+  }
+
+  .research-provenance dt,
+  .research-receipt dt {
+    margin-top: 6px;
+  }
+
+  .research-captured-badge {
+    white-space: normal;
   }
 
   .definition-list dt {

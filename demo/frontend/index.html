@@ -317,35 +317,112 @@
             </article>
           </section>
 
-          <section class="use-case-item">
+          <section class="use-case-item research-use-case">
             <button id="use-case-research-trigger" class="use-case-trigger" type="button" data-use-case-target="use-case-research" aria-expanded="false" aria-controls="use-case-research">
               <span><span class="use-case-audience">Research</span><strong>Keep research claims attached to sources</strong></span>
               <span class="use-case-toggle" aria-hidden="true">+</span>
             </button>
             <article id="use-case-research" class="use-case-panel" data-use-case-panel role="region" aria-labelledby="use-case-research-trigger" hidden>
-            <p class="eyebrow">Research and academic work</p>
-            <h3>Keep research claims attached to sources</h3>
-            <dl class="use-case-facts">
-              <dt>Audience</dt>
-              <dd>Researchers, students, librarians, and review teams</dd>
-              <dt>Typical question</dt>
-              <dd>Which papers support this claim, and which disagree?</dd>
-              <dt>Documents involved</dt>
-              <dd>Papers, notes, datasets, and methodology appendices</dd>
-              <dt>What MNEMOS shows</dt>
-              <dd>Supporting and disagreeing sources, claim boundaries, and unresolved gaps</dd>
-            </dl>
-            <h4>Example evidence trace</h4>
-            <ol class="mini-trace">
-              <li>Research claim</li>
-              <li>Supporting and disagreeing papers</li>
-              <li>Bounded source summary</li>
-            </ol>
-            <h4>What MNEMOS does not claim</h4>
-            <p class="use-case-boundary">MNEMOS supports research review; it does not establish settled truth.</p>
-            <h4>Why this matters</h4>
-            <p class="use-case-why">Claims remain connected to the literature instead of becoming detached summaries.</p>
-            <a class="use-case-cta" href="#trace-demo" data-tab-link="trace-demo">Explore the evidence demo</a>
+              <div class="research-experience-header">
+                <div>
+                  <p class="eyebrow">Research and academic work — captured run</p>
+                  <h3>Keep research claims attached to sources</h3>
+                  <p class="question">Shortly after the ratification of the U.S. Constitution, the Founding generation added what?</p>
+                </div>
+                <span class="research-captured-badge">Captured run — not a benchmark</span>
+              </div>
+
+              <div class="research-review-layout">
+                <section class="research-answer" aria-labelledby="research-answer-heading">
+                  <p class="eyebrow">Answer as recorded</p>
+                  <h4 id="research-answer-heading">The claim, with its citation still attached</h4>
+                  <blockquote class="research-quote">
+                    Shortly after the ratification of the U.S. Constitution, the Founding generation added the first 10 amendments, known as the Bill of Rights <span class="research-cite">[1]</span>. These amendments were proposed by Congress and ratified by the Legislatures of the several States, pursuant to the fifth Article of the original Constitution. The evidence provided confirms that these amendments were ratified on December 15, 1791 <span class="research-cite">[1]</span>.
+                  </blockquote>
+                  <p class="research-verified">Every citation marker in this answer resolves to a passage that was actually retrieved. The receipt records no invalid citations.</p>
+                  <p class="research-unverified">Citation integrity is machine-checked. The factual accuracy of the wording is not; a reader still has to weigh the passage against the claim.</p>
+                </section>
+
+                <aside class="research-integrity" aria-labelledby="research-integrity-heading">
+                  <p class="eyebrow">Citation integrity</p>
+                  <h4 id="research-integrity-heading">What the receipt checked</h4>
+                  <ul>
+                    <li><span>Invalid citations</span><strong>0</strong></li>
+                    <li><span>Passages retrieved</span><strong>5</strong></li>
+                    <li><span>Distinct source texts</span><strong>2</strong></li>
+                    <li><span>Recorded verdict</span><strong>partial_evidence_cited</strong></li>
+                  </ul>
+                  <p>Coverage is recorded as 0.20 — one of five passages cited. That ratio counts passages, not distinct sources, and three of the five passages are identical copies of one another.</p>
+                </aside>
+              </div>
+
+              <section class="research-ledger" aria-labelledby="research-ledger-heading">
+                <p class="eyebrow">Retrieved evidence ledger</p>
+                <h4 id="research-ledger-heading">What was retrieved, and what the answer actually used</h4>
+
+                <article class="research-source-group" data-research-group-state="cited">
+                  <div class="research-group-heading">
+                    <span class="research-status cited">Cited</span>
+                    <strong>Constitutional amendments preamble and Amendments I–IV</strong>
+                    <span class="research-score">score 0.7353</span>
+                  </div>
+                  <ul class="research-files">
+                    <li><code>constitution-3.pdf</code><span>Cited as <span class="research-cite">[1]</span></span></li>
+                    <li><code>constitution-1.pdf</code><span>Retrieved as [2] — identical text to [1]</span></li>
+                    <li><code>constitution-2.pdf</code><span>Retrieved as [3] — identical text to [1]</span></li>
+                  </ul>
+                  <p class="research-group-note">This passage carries the ratification note the answer relies on. The three files returned byte-identical text at an identical score, so citing one of them is sufficient rather than incomplete.</p>
+                </article>
+
+                <article class="research-source-group" data-research-group-state="uncited">
+                  <div class="research-group-heading">
+                    <span class="research-status uncited">Retrieved, not cited</span>
+                    <strong>Study-guide passage on the 14th Amendment</strong>
+                    <span class="research-score">score 0.7282</span>
+                  </div>
+                  <ul class="research-files">
+                    <li><code>Bill_of_Rights-1.pdf</code><span>Retrieved as [4]</span></li>
+                    <li><code>Bill_of_Rights-3.pdf</code><span>Retrieved as [5] — identical text to [4]</span></li>
+                  </ul>
+                  <p class="research-group-note">Retrieved on topical proximity, but it discusses later incorporation of rights rather than what was added after ratification. The receipt keeps it visible instead of discarding it, so the omission can be reviewed rather than assumed.</p>
+                </article>
+              </section>
+
+              <div class="research-evidence-grid">
+                <section class="research-provenance" aria-labelledby="research-provenance-heading">
+                  <p class="eyebrow">Run provenance</p>
+                  <h4 id="research-provenance-heading">How this answer was produced</h4>
+                  <dl>
+                    <dt>Retrieval mode</dt><dd><code>semantic</code> requested, <code>semantic</code> executed</dd>
+                    <dt>Fusion policy</dt><dd><code>balanced</code> requested</dd>
+                    <dt>Embedding model</dt><dd><code>nomic-embed-text-v1.5</code></dd>
+                    <dt>Answering model</dt><dd><code>Qwen2.5-7B-Instruct-Q4_K_M</code></dd>
+                    <dt>Retrieval latency</dt><dd><code>2.799s</code></dd>
+                  </dl>
+                </section>
+
+                <section class="research-receipt" aria-labelledby="research-receipt-heading">
+                  <p class="eyebrow">Captured receipt</p>
+                  <h4 id="research-receipt-heading">What is verified—and what is not</h4>
+                  <dl>
+                    <dt>Receipt</dt><dd><code>chatcmpl-mnemos-7146a84e</code></dd>
+                    <dt>Content hash</dt><dd><code>sha256:bcceba0f2c40bbb1</code></dd>
+                    <dt>Verified</dt><dd><code>citation integrity; 0 invalid citations</code></dd>
+                    <dt>Not verified</dt><dd><code>factual accuracy of the wording</code></dd>
+                    <dt>Decision state</dt><dd><code>single captured run; not a benchmark</code></dd>
+                    <dt>Adapter boundary</dt><dd><code>context-only; does not write memory</code></dd>
+                  </dl>
+                </section>
+              </div>
+
+              <h4>Evidence path</h4>
+              <ol class="mini-trace"><li>Research question</li><li>Retrieved passages</li><li>Citation-checked claim</li></ol>
+              <p class="use-case-boundary">MNEMOS supports research review; it does not establish settled truth. This panel reproduces one captured run over public-domain founding documents. It is an illustration of source attachment, not a measured evaluation of retrieval or model quality, and it does not stand in for scholarly verification or peer review.</p>
+              <p class="use-case-why"><strong>Why this matters:</strong> Because the claim stayed attached to its sources, a reviewer can see that the corpus held duplicate uploads—and that a low coverage number reflected that duplication rather than an unsupported answer.</p>
+              <div class="use-case-actions">
+                <a class="use-case-cta" href="#trace-demo" data-tab-link="trace-demo">Explore the evidence demo</a>
+                <a class="use-case-secondary-cta" href="demo_index.json" data-demo-index-link>Inspect demo JSON</a>
+              </div>
             </article>
           </section>
 
