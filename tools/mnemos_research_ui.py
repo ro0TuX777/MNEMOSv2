@@ -8,6 +8,7 @@ MNEMOS/Ollama connectivity, and run ``tools.mnemos_research_intake``.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html
 import json
 import os
@@ -77,7 +78,42 @@ def _positive_int(raw: str, default: int) -> int:
         return default
 
 
+def _file_digest(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _stored_copy(upload_dir: Path, data: bytes, digest: str) -> Path | None:
+    """Return an already-stored file with identical content, if one exists.
+
+    Only same-size candidates are hashed, so this stays cheap even when the
+    upload directory holds hundreds of documents.
+    """
+    size = len(data)
+    for candidate in sorted(upload_dir.iterdir()):
+        if not candidate.is_file() or candidate.stat().st_size != size:
+            continue
+        if _file_digest(candidate) == digest:
+            return candidate
+    return None
+
+
 def _save_uploads(files: list[Any], upload_dir: Path) -> list[Path]:
+    """Persist uploads, reusing any file whose content is already stored.
+
+    Re-uploading an identical document used to mint ``name-1.pdf``,
+    ``name-2.pdf``, ... because the collision check only looked at the
+    filename. Each copy was then extracted, chunked, and indexed as its own
+    engram, inflating the index and crowding retrieval with duplicate
+    passages of the same source.
+
+    Reusing the stored path keeps chunk ids stable, so a re-upload refreshes
+    the existing engrams instead of adding near-identical rivals. Distinct
+    documents that merely share a filename are still numbered as before.
+    """
     upload_dir.mkdir(parents=True, exist_ok=True)
     saved: list[Path] = []
     for item in files:
@@ -86,12 +122,19 @@ def _save_uploads(files: list[Any], upload_dir: Path) -> list[Path]:
         filename = secure_filename(item.filename)
         if not filename:
             continue
+        data = item.read()
+        digest = hashlib.sha256(data).hexdigest()
+        stored = _stored_copy(upload_dir, data, digest)
+        if stored is not None:
+            if stored not in saved:
+                saved.append(stored)
+            continue
         target = upload_dir / filename
         counter = 1
         while target.exists():
             target = upload_dir / f"{Path(filename).stem}-{counter}{Path(filename).suffix}"
             counter += 1
-        item.save(target)
+        target.write_bytes(data)
         saved.append(target)
     return saved
 

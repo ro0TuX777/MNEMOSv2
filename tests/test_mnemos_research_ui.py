@@ -6,12 +6,24 @@ import os
 from pathlib import Path
 
 from tools.mnemos_research_ui import (
+    _save_uploads,
     create_app,
     default_ollama_base_url,
     load_evidence_receipt,
     list_evidence_receipts,
     safe_receipt_id,
 )
+
+
+class _FakeUpload:
+    """Minimal stand-in for a werkzeug FileStorage."""
+
+    def __init__(self, filename: str, data: bytes) -> None:
+        self.filename = filename
+        self._data = data
+
+    def read(self) -> bytes:
+        return self._data
 
 
 def _write_receipt(path: Path, *, receipt_id: str = "chatcmpl-mnemos-1") -> Path:
@@ -301,6 +313,46 @@ def test_intake_endpoint_saves_uploaded_files_and_calls_runner(tmp_path):
     assert calls["batch_size"] == 12
     assert calls["output_path"] == Path("docs/research/packet.md")
     assert os.environ["MNEMOS_TIMEOUT_S"] == "180"
+
+
+def test_save_uploads_reuses_stored_file_for_identical_content(tmp_path):
+    pdf = b"%PDF-1.4 constitution bytes"
+
+    first = _save_uploads([_FakeUpload("constitution.pdf", pdf)], tmp_path)
+    second = _save_uploads([_FakeUpload("constitution.pdf", pdf)], tmp_path)
+    # A re-upload under a different name is still the same document.
+    third = _save_uploads([_FakeUpload("constitution-copy.pdf", pdf)], tmp_path)
+
+    assert first == [tmp_path / "constitution.pdf"]
+    assert second == first
+    assert third == first
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["constitution.pdf"]
+
+
+def test_save_uploads_numbers_distinct_documents_sharing_a_filename(tmp_path):
+    saved = _save_uploads(
+        [
+            _FakeUpload("paper.pdf", b"%PDF first paper"),
+            _FakeUpload("paper.pdf", b"%PDF second paper, different content"),
+        ],
+        tmp_path,
+    )
+
+    assert [p.name for p in saved] == ["paper.pdf", "paper-1.pdf"]
+    assert (tmp_path / "paper.pdf").read_bytes() == b"%PDF first paper"
+    assert (tmp_path / "paper-1.pdf").read_bytes() == b"%PDF second paper, different content"
+
+
+def test_save_uploads_collapses_duplicates_within_one_request(tmp_path):
+    pdf = b"%PDF-1.4 repeated in one submit"
+
+    saved = _save_uploads(
+        [_FakeUpload("a.pdf", pdf), _FakeUpload("b.pdf", pdf), _FakeUpload("c.pdf", pdf)],
+        tmp_path,
+    )
+
+    assert saved == [tmp_path / "a.pdf"]
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["a.pdf"]
 
 
 def test_intake_endpoint_returns_json_when_runner_raises(tmp_path):
