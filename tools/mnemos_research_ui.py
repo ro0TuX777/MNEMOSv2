@@ -28,6 +28,17 @@ if str(ROOT) not in sys.path:
 
 from tools.mnemos_ollama_chat import DEFAULT_OLLAMA_BASE_URL, normalize_base_url
 from tools.mnemos_research_intake import run_intake
+from tools.research_manifest import (
+    NEW_DOCUMENT,
+    NEW_VERSION,
+    REUSED_EXACT,
+    StoreDecision,
+    load_manifest,
+    plan_and_store,
+    record_decision,
+    save_manifest,
+    utc_now,
+)
 
 DEFAULT_MNEMOS_BASE_URL = os.getenv("MNEMOS_BASE_URL", "http://127.0.0.1:8700")
 DEFAULT_RECEIPT_DIR = ROOT / "logs" / "evidence_receipts"
@@ -137,6 +148,80 @@ def _save_uploads(files: list[Any], upload_dir: Path) -> list[Path]:
         target.write_bytes(data)
         saved.append(target)
     return saved
+
+
+def _store_uploads(
+    files: list[Any],
+    upload_dir: Path,
+    manifest: dict[str, Any],
+    project: str,
+) -> list[StoreDecision]:
+    """Store uploads with manifest-aware exact-dedup and version detection.
+
+    Each decision records whether the file was an exact duplicate, a brand new
+    document, or a new version of an existing one. The manifest is not mutated
+    here — that happens after indexing, once engram ids are known.
+    """
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    decisions: list[StoreDecision] = []
+    for item in files:
+        if not item or not getattr(item, "filename", ""):
+            continue
+        filename = secure_filename(item.filename)
+        if not filename:
+            continue
+        data = item.read()
+        decisions.append(
+            plan_and_store(
+                upload_dir,
+                manifest,
+                filename=filename,
+                data=data,
+                project=project,
+            )
+        )
+    return decisions
+
+
+def _finalize_manifest(
+    upload_dir: Path,
+    manifest: dict[str, Any],
+    decisions: list[StoreDecision],
+    result: dict[str, Any],
+    engram_deleter: Callable[[str], bool],
+) -> dict[str, Any]:
+    """Record indexed uploads in the manifest and retire superseded engrams.
+
+    Only runs its mutating work when indexing succeeded; a failed index leaves
+    the manifest and index untouched so a retry starts from a clean state.
+    """
+    summary = {
+        "reused_exact": sum(1 for d in decisions if d.action == REUSED_EXACT),
+        "new_documents": sum(1 for d in decisions if d.action == NEW_DOCUMENT),
+        "new_versions": sum(1 for d in decisions if d.action == NEW_VERSION),
+        "superseded_engrams_deleted": 0,
+    }
+    if result.get("status") != "ok":
+        return summary
+
+    engram_ids_by_source: dict[str, list[str]] = result.get("engram_ids_by_source", {}) or {}
+    now = utc_now()
+    stale_ids: list[str] = []
+    for decision in decisions:
+        ids = engram_ids_by_source.get(str(decision.stored_path)) or engram_ids_by_source.get(
+            str(Path(decision.stored_path))
+        ) or []
+        _, stale = record_decision(manifest, decision, engram_ids=ids, uploaded_at=now)
+        stale_ids.extend(stale)
+
+    save_manifest(upload_dir, manifest)
+
+    deleted = 0
+    for engram_id in stale_ids:
+        if engram_deleter(engram_id):
+            deleted += 1
+    summary["superseded_engrams_deleted"] = deleted
+    return summary
 
 
 def safe_receipt_id(receipt_id: str) -> str | None:
@@ -828,6 +913,21 @@ if (copyBtn && navigator.clipboard) {
     return _render_page("MNEMOS Evidence Receipt", body, active="evidence", script=script)
 
 
+def _default_engram_deleter(engram_id: str) -> bool:
+    """Delete one engram via the SDK, reading connection from the environment.
+
+    The intake endpoint sets ``MNEMOS_BASE_URL`` before invoking this, so the
+    client targets the same service the upload was indexed into.
+    """
+    try:
+        from mnemos_sdk import MnemosClient, MnemosConfig
+
+        response = MnemosClient(MnemosConfig.from_env()).delete_engram(engram_id)
+        return bool(getattr(response, "ok", False))
+    except Exception:  # pragma: no cover - defensive; deletion is best-effort
+        return False
+
+
 def create_app(
     *,
     upload_dir: Path | None = None,
@@ -835,10 +935,12 @@ def create_app(
     intake_runner: Callable[..., dict[str, Any]] = run_intake,
     ollama_models_fn: Callable[[str], list[dict[str, Any]]] = default_ollama_models,
     mnemos_health_fn: Callable[[str], dict[str, Any]] = default_mnemos_health,
+    engram_deleter: Callable[[str], bool] = _default_engram_deleter,
 ) -> Flask:
     app = Flask(__name__)
     app.config["UPLOAD_DIR"] = Path(upload_dir or Path(tempfile.gettempdir()) / "mnemos_research_ui_uploads")
     app.config["RECEIPT_DIR"] = Path(receipt_dir or os.getenv("MNEMOS_EVIDENCE_RECEIPT_DIR", str(DEFAULT_RECEIPT_DIR)))
+    app.config["ENGRAM_DELETER"] = engram_deleter
 
     @app.get("/")
     def index():
@@ -898,16 +1000,20 @@ def create_app(
 
     @app.post("/api/intake")
     def intake():
-        uploads = _save_uploads(request.files.getlist("files"), app.config["UPLOAD_DIR"])
-        if not uploads:
-            return jsonify({"ok": False, "error": "No files selected."}), 400
-
-        mnemos_base_url = _normalize_mnemos_url(request.form.get("mnemos_base_url", DEFAULT_MNEMOS_BASE_URL))
-        ollama_base_url = normalize_base_url(request.form.get("ollama_base_url", default_ollama_base_url()))
         project = request.form.get("project", "").strip()
         capability = request.form.get("capability", "").strip()
         if not project or not capability:
             return jsonify({"ok": False, "error": "Project and capability are required."}), 400
+
+        upload_dir = app.config["UPLOAD_DIR"]
+        manifest = load_manifest(upload_dir)
+        decisions = _store_uploads(request.files.getlist("files"), upload_dir, manifest, project)
+        if not decisions:
+            return jsonify({"ok": False, "error": "No files selected."}), 400
+        uploads = [d.stored_path for d in decisions]
+
+        mnemos_base_url = _normalize_mnemos_url(request.form.get("mnemos_base_url", DEFAULT_MNEMOS_BASE_URL))
+        ollama_base_url = normalize_base_url(request.form.get("ollama_base_url", default_ollama_base_url()))
 
         # The existing SDK/adapter read these env vars. Set them process-local
         # for this local UI request.
@@ -940,7 +1046,22 @@ def create_app(
                     "uploaded_files": [str(p) for p in uploads],
                 }
             ), 500
-        return jsonify({"ok": result.get("status") == "ok", "result": result, "uploaded_files": [str(p) for p in uploads]})
+
+        versioning = _finalize_manifest(
+            upload_dir,
+            manifest,
+            decisions,
+            result,
+            app.config["ENGRAM_DELETER"],
+        )
+        return jsonify(
+            {
+                "ok": result.get("status") == "ok",
+                "result": result,
+                "uploaded_files": [str(p) for p in uploads],
+                "versioning": versioning,
+            }
+        )
 
     return app
 

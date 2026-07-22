@@ -355,6 +355,92 @@ def test_save_uploads_collapses_duplicates_within_one_request(tmp_path):
     assert sorted(p.name for p in tmp_path.iterdir()) == ["a.pdf"]
 
 
+def _content_addressed_runner(**kwargs):
+    """Fake intake runner that mints deterministic engram ids from file bytes.
+
+    Mirrors the real pipeline closely enough to exercise version supersession:
+    editing a file changes its ids, so the prior version's ids become stale.
+    """
+    by_source = {}
+    for path in kwargs["files"]:
+        digest = __import__("hashlib").sha256(Path(path).read_bytes()).hexdigest()[:8]
+        by_source[str(Path(path))] = [f"research::{digest}-0", f"research::{digest}-1"]
+    total = sum(len(v) for v in by_source.values())
+    return {"status": "ok", "indexed": total, "engram_ids_by_source": by_source}
+
+
+def test_intake_supersedes_prior_version_and_deletes_stale_engrams(tmp_path):
+    deleted = []
+    app = create_app(
+        upload_dir=tmp_path,
+        intake_runner=_content_addressed_runner,
+        engram_deleter=lambda eid: (deleted.append(eid) or True),
+    )
+    client = app.test_client()
+
+    def post(content: bytes):
+        return client.post(
+            "/api/intake",
+            data={
+                "files": (io.BytesIO(content), "report.pdf"),
+                "project": "MNEMOS",
+                "capability": "local research memory",
+            },
+            content_type="multipart/form-data",
+        )
+
+    first = post(b"%PDF original report").get_json()
+    assert first["versioning"] == {
+        "reused_exact": 0,
+        "new_documents": 1,
+        "new_versions": 0,
+        "superseded_engrams_deleted": 0,
+    }
+    assert deleted == []
+
+    second = post(b"%PDF updated report, more content").get_json()
+    assert second["versioning"]["new_versions"] == 1
+    assert second["versioning"]["superseded_engrams_deleted"] == 2
+    # The two engrams from the first version were retired.
+    assert len(deleted) == 2
+
+    # One canonical file remains; manifest shows a superseded record.
+    assert [p.name for p in tmp_path.iterdir() if p.suffix == ".pdf"] == ["report.pdf"]
+    manifest = json.loads((tmp_path / ".manifest.json").read_text(encoding="utf-8"))
+    versions = sorted(r["version"] for r in manifest["records"])
+    assert versions == [1, 2]
+    assert sum(1 for r in manifest["records"] if r["superseded_by"]) == 1
+
+
+def test_intake_exact_reupload_creates_no_new_version(tmp_path):
+    deleted = []
+    app = create_app(
+        upload_dir=tmp_path,
+        intake_runner=_content_addressed_runner,
+        engram_deleter=lambda eid: (deleted.append(eid) or True),
+    )
+    client = app.test_client()
+
+    def post():
+        return client.post(
+            "/api/intake",
+            data={
+                "files": (io.BytesIO(b"%PDF identical"), "paper.pdf"),
+                "project": "MNEMOS",
+                "capability": "local research memory",
+            },
+            content_type="multipart/form-data",
+        )
+
+    post()
+    again = post().get_json()
+    assert again["versioning"]["reused_exact"] == 1
+    assert again["versioning"]["new_versions"] == 0
+    assert deleted == []
+    manifest = json.loads((tmp_path / ".manifest.json").read_text(encoding="utf-8"))
+    assert len(manifest["records"]) == 1
+
+
 def test_intake_endpoint_returns_json_when_runner_raises(tmp_path):
     def failing_runner(**kwargs):
         raise RuntimeError("ollama summary timed out")

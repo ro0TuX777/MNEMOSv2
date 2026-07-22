@@ -409,6 +409,12 @@ def run_intake(
     files_without_content = [
         str(Path(path)) for path in files if str(Path(path)) not in indexed_paths
     ]
+    # Deterministic engram ids grouped by source file, so callers (e.g. the
+    # research UI manifest) can record exactly what each document put in the
+    # index and later retire it precisely.
+    engram_ids_by_source: dict[str, list[str]] = {}
+    for doc in documents:
+        engram_ids_by_source.setdefault(doc["metadata"]["source_path"], []).append(doc["id"])
     if not documents:
         return {
             "status": "no_documents",
@@ -472,6 +478,7 @@ def run_intake(
         "claim_boundary": CLAIM_BOUNDARY,
         "files": [str(Path(path)) for path in files],
         "files_without_content": files_without_content,
+        "engram_ids_by_source": engram_ids_by_source,
     }
 
 
