@@ -179,6 +179,88 @@ def test_run_query_uses_search_raw_metadata_when_available():
     }
 
 
+def test_run_query_filters_retrieval_when_query_mentions_filename():
+    class RawClient:
+        def __init__(self):
+            self.filters = None
+
+        def search_raw(self, query, *, top_k, retrieval_mode, fusion_policy, filters=None):
+            self.filters = filters
+            return type(
+                "Response",
+                (),
+                {
+                    "ok": True,
+                    "status": "healthy",
+                    "error": None,
+                    "data": {
+                        "results": [
+                            {
+                                "engram": {
+                                    "id": "title5-hit",
+                                    "content": "Title 5 evidence.",
+                                    "source": "file:///app/data/research_uploads/USCODE-2024-title5.pdf",
+                                    "metadata": {"filename": "USCODE-2024-title5.pdf"},
+                                },
+                                "score": 0.64,
+                                "tier": "qdrant",
+                                "tiers": ["qdrant"],
+                                "rank": 1,
+                            }
+                        ],
+                        "meta": {"retrieval_mode": "semantic"},
+                    },
+                },
+            )()
+
+    class RecordingOllama:
+        def chat(self, payload):
+            return {"message": {"content": "Title 5 answer. [1]"}}
+
+    mnemos = RawClient()
+    result = adapter.run_query(
+        query="Using MNEMOS evidence from **USCODE-2024-title5.pdf**, summarize it.",
+        model="llama3.1",
+        mnemos_client=mnemos,
+        ollama_client=RecordingOllama(),
+    )
+
+    assert result["status"] == "ok"
+    assert mnemos.filters == {"metadata.filename": "USCODE-2024-title5.pdf"}
+    assert result["retrieval_metadata"]["artifact_filter"] == {
+        "metadata.filename": "USCODE-2024-title5.pdf"
+    }
+
+
+def test_filename_filter_ignores_surrounding_prompt_text_and_punctuation():
+    assert adapter.filename_filter_from_query(
+        "Using MNEMOS evidence from USCODE-2024-title5.pdf, answer in one sentence."
+    ) == {"metadata.filename": "USCODE-2024-title5.pdf"}
+
+
+def test_filename_filter_uses_manifest_stored_path_for_reuploaded_file(tmp_path, monkeypatch):
+    manifest_dir = tmp_path / "research_uploads"
+    manifest_dir.mkdir()
+    (manifest_dir / ".manifest.json").write_text(
+        json.dumps(
+            {
+                "records": [
+                    {
+                        "identity_key": "mnemos::uscode-2024-title34.pdf",
+                        "stored_path": "USCODE-2024-title34-1.pdf",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(adapter, "RESEARCH_UPLOAD_DIR", manifest_dir)
+
+    assert adapter.filename_filter_from_query(
+        "Can you summarize the key provisions of USCODE-2024-title34.pdf?"
+    ) == {"metadata.filename": "USCODE-2024-title34-1.pdf"}
+
+
 class _ScriptedOllama:
     """Returns queued chat responses; records every payload it receives."""
 

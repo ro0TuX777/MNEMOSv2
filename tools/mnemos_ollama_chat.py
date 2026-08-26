@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any, Iterator, Protocol
@@ -26,6 +27,7 @@ from mnemos_sdk.client import MnemosResponse, SearchHit  # noqa: E402
 
 DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434"
 DEFAULT_MODEL = os.getenv("OLLAMA_MODEL", "llama3.1")
+RESEARCH_UPLOAD_DIR = Path(os.getenv("MNEMOS_RESEARCH_UPLOAD_DIR", str(ROOT / "data" / "research_uploads")))
 CLAIM_BOUNDARY = (
     "MFS_OLLAMA_ADAPTER_R0_CONTEXT_ONLY: retrieves MNEMOS evidence and asks "
     "Ollama to answer from that evidence; it does not alter MNEMOS retrieval, "
@@ -41,8 +43,59 @@ class MnemosSearchClient(Protocol):
         top_k: int,
         retrieval_mode: str,
         fusion_policy: str,
+        filters: dict[str, Any] | None = None,
     ) -> list[SearchHit]:
         ...
+
+    def search_raw(
+        self,
+        query: str,
+        *,
+        top_k: int,
+        retrieval_mode: str,
+        fusion_policy: str,
+        filters: dict[str, Any] | None = None,
+    ) -> MnemosResponse:
+        ...
+
+
+FILENAME_PATTERN = re.compile(
+    r"(?i)\b([^\s\\/:\*\?\"<>\|]+\.(?:pdf|docx|md|markdown|txt|rst|py|js|ts|tsx|jsx|json|ya?ml|toml|csv))\b"
+)
+
+
+def filename_filter_from_query(query: str) -> dict[str, str] | None:
+    match = FILENAME_PATTERN.search(str(query or ""))
+    if not match:
+        return None
+    filename = Path(match.group(1).strip()).name
+    filename = resolve_research_upload_filename(filename)
+    return {"metadata.filename": filename} if filename else None
+
+
+def resolve_research_upload_filename(filename: str) -> str:
+    """Map a user-visible upload filename to the stored filename MNEMOS indexed."""
+    requested = Path(str(filename or "").strip()).name
+    if not requested:
+        return requested
+    manifest_path = RESEARCH_UPLOAD_DIR / ".manifest.json"
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        return requested
+    records = manifest.get("records") if isinstance(manifest, dict) else None
+    if not isinstance(records, list):
+        return requested
+    identity = f"mnemos::{requested}".lower()
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        stored_path = Path(str(record.get("stored_path") or "")).name
+        if not stored_path:
+            continue
+        if str(record.get("identity_key") or "").lower() == identity:
+            return stored_path
+    return requested
 
 
 def _hits_from_raw_response(response: MnemosResponse) -> list[SearchHit]:
@@ -355,6 +408,9 @@ def _prepare_evidence(
         "requested_fusion_policy": fusion_policy,
     }
     retrieval_query = query
+    artifact_filter = filename_filter_from_query(query)
+    if artifact_filter:
+        retrieval_metadata["artifact_filter"] = artifact_filter
     if history:
         retrieval_metadata["history_turns"] = len(history)
         if condense_queries:
@@ -366,12 +422,14 @@ def _prepare_evidence(
             )
             retrieval_metadata.update(condense_metadata)
     if hasattr(mnemos, "search_raw"):
-        raw_response = mnemos.search_raw(
-            retrieval_query,
-            top_k=top_k,
-            retrieval_mode=retrieval_mode,
-            fusion_policy=fusion_policy,
-        )
+        raw_kwargs: dict[str, Any] = {
+            "top_k": top_k,
+            "retrieval_mode": retrieval_mode,
+            "fusion_policy": fusion_policy,
+        }
+        if artifact_filter:
+            raw_kwargs["filters"] = artifact_filter
+        raw_response = mnemos.search_raw(retrieval_query, **raw_kwargs)
         retrieval_metadata.update(_retrieval_metadata_from_raw_response(raw_response))
         if not raw_response.ok:
             terminal = _terminal_result(
@@ -386,12 +444,14 @@ def _prepare_evidence(
             return terminal, "", [], retrieval_metadata
         hits = _hits_from_raw_response(raw_response)
     else:
-        hits = mnemos.search(
-            retrieval_query,
-            top_k=top_k,
-            retrieval_mode=retrieval_mode,
-            fusion_policy=fusion_policy,
-        )
+        search_kwargs: dict[str, Any] = {
+            "top_k": top_k,
+            "retrieval_mode": retrieval_mode,
+            "fusion_policy": fusion_policy,
+        }
+        if artifact_filter:
+            search_kwargs["filters"] = artifact_filter
+        hits = mnemos.search(retrieval_query, **search_kwargs)
     evidence_block, citations = format_evidence_block(
         hits,
         max_chars_per_hit=max_chars_per_hit,
